@@ -1,92 +1,63 @@
-// Placeholder shell. Real pages (dashboard / scenarios / training / reports /
-// settings) arrive with the first UI task.
-//
-// The health check call verifies the Tauri IPC bridge end to end: webview
-// invoke -> Rust command -> serialized report back to React state.
+// App shell: sidebar navigation + active page.
+// Navigation is Zustand-driven (no router dependency for the desktop shell).
 
-import { useEffect, useState } from "react";
-import { invoke } from "@tauri-apps/api/core";
-import type { LessonPhase } from "@language-lab/core";
+import { useNavStore, type PageId } from "./stores/nav";
+import { DashboardPage } from "./pages/DashboardPage";
+import { ScenariosPage } from "./pages/ScenariosPage";
+import { TrainingPage } from "./pages/TrainingPage";
+import { ReportsPage } from "./pages/ReportsPage";
+import { SettingsPage } from "./pages/SettingsPage";
 
-interface HealthReport {
-  status: string;
-  appVersion: string;
-  os: string;
-  arch: string;
-}
+const NAV_ITEMS: { id: PageId; label: string }[] = [
+  { id: "dashboard", label: "Dashboard" },
+  { id: "scenarios", label: "Scenarios" },
+  { id: "training", label: "Training" },
+  { id: "reports", label: "Reports" },
+  { id: "settings", label: "Settings" },
+];
 
-interface DbStatus {
-  ok: boolean;
-  migrationsApplied: number;
-  tables: number;
-  path: string;
-}
-
-const currentPhase: LessonPhase = "setup";
+const PAGES: Record<PageId, React.ReactNode> = {
+  dashboard: <DashboardPage />,
+  scenarios: <ScenariosPage />,
+  training: <TrainingPage />,
+  reports: <ReportsPage />,
+  settings: <SettingsPage />,
+};
 
 export function App() {
-  const [health, setHealth] = useState<HealthReport | null>(null);
-  const [dbStatus, setDbStatus] = useState<DbStatus | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    invoke<HealthReport>("health_check")
-      .then(setHealth)
-      .catch((e) => setError(String(e)));
-    invoke<DbStatus>("db_status")
-      .then(setDbStatus)
-      .catch((e) => setError(String(e)));
-  }, []);
+  const page = useNavStore((s) => s.page);
+  const navigate = useNavStore((s) => s.navigate);
 
   return (
-    <main className="shell">
-      <h1>Language Lab</h1>
-      <p>Local-first AI language learning desktop app.</p>
-      <section>
-        <h2>IPC health check</h2>
-        {health ? (
-          <ul>
-            <li>
-              status: <code>{health.status}</code>
-            </li>
-            <li>
-              app version: <code>{health.appVersion}</code>
-            </li>
-            <li>
-              platform:{" "}
-              <code>
-                {health.os} / {health.arch}
-              </code>
-            </li>
-          </ul>
-        ) : (
-          <p>{error ? `IPC error: ${error}` : "calling health_check…"}</p>
-        )}
-      </section>
-      <section>
-        <h2>Local database</h2>
-        {dbStatus ? (
-          <ul>
-            <li>
-              status: <code>{dbStatus.ok ? "ok" : "error"}</code>
-            </li>
-            <li>
-              migrations applied: <code>{dbStatus.migrationsApplied}</code>
-            </li>
-            <li>
-              tables: <code>{dbStatus.tables}</code>
-            </li>
-            <li>
-              path: <code>{dbStatus.path}</code>
-            </li>
-          </ul>
-        ) : (
-          <p>{error ? `DB error: ${error}` : "querying db_status…"}</p>
-        )}
-      </section>
-      <p>
-        Workspace wiring check — core package loaded, lesson phase: <code>{currentPhase}</code>
-      </p>
-    </main>
+    <div className="flex min-h-screen bg-slate-100 text-slate-900">
+      <aside className="flex w-56 shrink-0 flex-col border-r border-slate-200 bg-white px-4 py-6">
+        <div className="px-2">
+          <p className="text-base font-semibold tracking-tight">Language Lab</p>
+          <p className="mt-0.5 text-xs text-slate-500">Local-first English learning</p>
+        </div>
+        <nav aria-label="Main navigation" className="mt-8 space-y-1">
+          {NAV_ITEMS.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => navigate(item.id)}
+              aria-current={page === item.id ? "page" : undefined}
+              className={`block w-full rounded-md px-3 py-2 text-left text-sm font-medium transition-colors ${
+                page === item.id
+                  ? "bg-slate-900 text-white"
+                  : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+              }`}
+            >
+              {item.label}
+            </button>
+          ))}
+        </nav>
+        <p className="mt-auto px-2 text-xs text-slate-400">
+          v0.0.1 · your data stays on this device
+        </p>
+      </aside>
+
+      <main className="flex-1 px-10 py-8">{PAGES[page]}</main>
+    </div>
   );
 }
