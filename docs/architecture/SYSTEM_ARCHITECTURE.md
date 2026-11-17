@@ -152,3 +152,21 @@ four categories, profile editing and exact source-lesson opening. Teaching recei
 a bounded language-scoped view while current course facts and criteria remain
 authoritative. See [ADR-0014](../adr/ADR-0014-four-type-learning-memory.md) and
 [Learning Memory](../development/LEARNING_MEMORY.md).
+
+## Evidence-based post-lesson reports
+
+Core derives a versioned recap from the completed course snapshot, exact stage
+citations, deterministic learner vocabulary matches and saved diagnosis records.
+Training saves this with model commentary and the atomic checkpoint/memory pair;
+restore recomputes the facts and tasks. Legacy completed sources are reconstructed
+without rewriting them. Support requests, partial diagnosis coverage and legacy
+delivery flags retain their provenance instead of implying independent mastery.
+
+Training and Reports share a report view. Reports reads all completed episodes,
+loads individual source checkpoints without replacing active practice, and saves
+bounded personal reflection separately from evidence. Next tasks come from known
+issues, unused vocabulary and authored review exercises. Model commentary and its
+subjective score are explicitly separated from lesson facts. No new database,
+IPC or dependency edges are introduced. See
+[ADR-0015](../adr/ADR-0015-evidence-based-learning-reports.md) and
+[Learning Report](../development/LEARNING_REPORT.md).

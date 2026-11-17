@@ -6,6 +6,7 @@ import {
   type ScenarioContent,
 } from "@language-lab/core";
 import { CourseStudyPack, CourseReviewPractice } from "../components/CourseStudyPack";
+import { LearningReport } from "../components/LearningReport";
 import { VocabularyProgress } from "../components/VocabularyProgress";
 import { LanguageFeedback } from "../components/LanguageFeedback";
 import { loadScenarioContent } from "../content/scenarioContent";
@@ -448,36 +449,7 @@ export function TrainingPage() {
                   {busy ? "Preparing review…" : "Finish and review"}
                 </button>
               )}
-              {session.report && (
-                <div
-                  aria-label="Lesson review"
-                  className="space-y-3 rounded-lg border border-emerald-200 bg-white p-5"
-                >
-                  <h2 className="font-semibold">
-                    Lesson review{session.provider.mode === "demo" ? " · guided demo" : ""}
-                  </h2>
-                  {session.provider.mode === "ai" && (
-                    <p className="text-2xl font-semibold">{session.report.score}/100</p>
-                  )}
-                  <p>
-                    {session.provider.mode === "demo"
-                      ? "You completed the guided examples. This is a demonstration, not an independent language assessment."
-                      : session.report.summary}
-                  </p>
-                  <h3 className="font-medium">What went well</h3>
-                  <ul className="list-disc pl-5 text-sm">
-                    {session.report.strengths.map((item) => (
-                      <li key={item}>{item}</li>
-                    ))}
-                  </ul>
-                  <h3 className="font-medium">Next practice</h3>
-                  <ul className="list-disc pl-5 text-sm">
-                    {session.report.improvements.map((item) => (
-                      <li key={item}>{item}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
+              {session.report && <LearningReport session={session} />}
               {session.provider.mode === "ai" && (
                 <details className="text-sm">
                   <summary className="cursor-pointer">Update connection key</summary>

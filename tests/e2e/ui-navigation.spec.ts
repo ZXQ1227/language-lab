@@ -31,7 +31,10 @@ test("navigates through every page via the sidebar", async ({ page }) => {
   for (const label of PAGES) {
     await page.getByRole("button", { name: label, exact: true }).click();
     await expect(page.getByRole("heading", { name: label, level: 1 })).toBeVisible();
-    await expect(page.getByRole("button", { name: label })).toHaveAttribute("aria-current", "page");
+    await expect(page.getByRole("button", { name: label, exact: true })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
   }
 });
 

@@ -23,6 +23,7 @@ import {
   finishTrainingSession,
   runTrainingTurn,
   saveCourseReview,
+  saveReportReflection,
   dialogueSupportText,
   trainingProviderSchema,
   trainingSessionSchema,
@@ -38,6 +39,11 @@ const repositories = () => createRepositories(createTauriTransport(call));
 interface TrainingStore {
   sessions: TrainingSession[];
   session: TrainingSession | null;
+  reportSession: TrainingSession | null;
+  loadReport: (id: string) => Promise<boolean>;
+  saveReflection: (
+    reflection: NonNullable<TrainingSession["reportReflection"]>,
+  ) => Promise<boolean>;
   pendingCourse: ScenarioContent | null;
   loaded: boolean;
   busy: boolean;
@@ -58,7 +64,7 @@ interface TrainingStore {
 }
 
 export const useTrainingStore = create<TrainingStore>((set, get) => {
-  async function commit(session: TrainingSession) {
+  async function commit(session: TrainingSession, activate = true) {
     const checkpoint = trainingSessionSchema.parse(session);
     const contribution = checkpoint.learningMemory ?? buildLearningContribution(checkpoint);
     const contributions = [
@@ -77,8 +83,12 @@ export const useTrainingStore = create<TrainingStore>((set, get) => {
       memory: contribution,
     });
     set({
-      session: checkpoint,
-      pendingCourse: null,
+      ...(activate
+        ? { session: checkpoint, pendingCourse: null }
+        : get().session?.id === checkpoint.id
+          ? { session: checkpoint }
+          : {}),
+      ...(get().reportSession?.id === checkpoint.id ? { reportSession: checkpoint } : {}),
       memoryContributions: contributions,
       learningMemory,
       sessions: [checkpoint, ...get().sessions.filter((item) => item.id !== checkpoint.id)].slice(
@@ -114,6 +124,7 @@ export const useTrainingStore = create<TrainingStore>((set, get) => {
   return {
     sessions: [],
     session: null,
+    reportSession: null,
     pendingCourse: null,
     busy: false,
     loaded: false,
@@ -251,6 +262,27 @@ export const useTrainingStore = create<TrainingStore>((set, get) => {
           pendingCourse: null,
           sessions: [session, ...get().sessions.filter((item) => item.id !== id)].slice(0, 50),
         });
+      }),
+    loadReport: async (id) =>
+      operation(async () => {
+        set({ reportSession: null });
+        const row = await repositories().learningEvents.findTrainingCheckpoint(id);
+        if (!row) throw new Error("The saved report could not be found");
+        const session = trainingSessionSchema.parse(JSON.parse(row.payload));
+        if (session.id !== id || session.state.phase !== "done" || !session.report)
+          throw new Error("This lesson has no completed report");
+        set({ reportSession: session });
+      }),
+    saveReflection: async (reflection) =>
+      operation(async () => {
+        const selected = get().reportSession;
+        if (!selected) throw new Error("Open a completed report first");
+        // Merge into the latest checkpoint so course self-check answers are retained.
+        const row = await repositories().learningEvents.findTrainingCheckpoint(selected.id);
+        if (!row) throw new Error("The saved report could not be found");
+        const current = trainingSessionSchema.parse(JSON.parse(row.payload));
+        if (current.id !== selected.id) throw new Error("Report identity is inconsistent");
+        await commit(saveReportReflection(current, reflection), false);
       }),
   };
 });

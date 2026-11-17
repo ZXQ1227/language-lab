@@ -52,6 +52,8 @@ For in-conversation recasts, spacing, repeat suppression and delivery verificati
 see [Teaching Intervention](TEACHING_INTERVENTION.md).
 For explicit profiles, cross-lesson knowledge/error/episode memory, atomic writes,
 legacy reads and the Memory page, see [Learning Memory](LEARNING_MEMORY.md).
+For evidence-based post-lesson recaps, report history, source opening and saved
+personal reflection, see [Learning Report](LEARNING_REPORT.md).
 
 ## Data locations (macOS dev)
 

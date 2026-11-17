@@ -22,6 +22,8 @@ import {
   errorDiagnosisRecordSchema,
   validateDiagnosisRecords,
   deriveInterventionState,
+  buildLearningReport,
+  learningReportSchema,
 } from "@language-lab/core";
 import {
   createDefaultSkillRegistry,
@@ -109,9 +111,34 @@ export const trainingSessionSchema = z
       })
       .optional(),
     report: lessonEvaluationSchema.optional(),
+    learningReport: learningReportSchema.optional(),
+    reportReflection: z
+      .object({ note: z.string().trim().max(2000), nextPractice: z.string().trim().max(500) })
+      .optional(),
     reviewAnswers: z.record(z.string(), z.string().max(2000)).optional(),
   })
   .superRefine((session, ctx) => {
+    if (session.learningReport) {
+      try {
+        if (
+          JSON.stringify(session.learningReport) !==
+          JSON.stringify(buildLearningReport(session, session.learningReport))
+        )
+          throw new Error("Report does not match saved evidence");
+      } catch {
+        ctx.addIssue({
+          code: "custom",
+          path: ["learningReport"],
+          message: "Learning report must match saved lesson evidence",
+        });
+      }
+    }
+    if (session.reportReflection && session.state.phase !== "done")
+      ctx.addIssue({
+        code: "custom",
+        path: ["reportReflection"],
+        message: "Complete the lesson before saving a reflection",
+      });
     if (session.learningMemory) {
       try {
         if (
@@ -606,7 +633,15 @@ export async function finishTrainingSession(
     conversationId: session.id,
     diagnoses: session.diagnoses,
   });
-  return finalizeCheckpoint({ ...session, ...result, vocabularyTrackingVersion: 1 });
+  return finalizeCheckpoint({
+    ...session,
+    ...result,
+    vocabularyTrackingVersion: 1,
+    learningReport: buildLearningReport(
+      { ...session, ...result },
+      { generatedAt: result.state.updatedAt, provenance: "saved_on_finish" },
+    ),
+  });
 }
 
 export const dialogueSupportText: Record<DialogueSupport, string> = {
@@ -622,6 +657,17 @@ export function saveCourseReview(
   return finalizeCheckpoint({
     ...session,
     reviewAnswers: answers,
+    state: { ...session.state, updatedAt: Date.now() },
+  });
+}
+
+export function saveReportReflection(
+  session: TrainingSession,
+  reflection: NonNullable<TrainingSession["reportReflection"]>,
+): TrainingSession {
+  return finalizeCheckpoint({
+    ...session,
+    reportReflection: reflection,
     state: { ...session.state, updatedAt: Date.now() },
   });
 }
