@@ -34,6 +34,10 @@ describe("content/scenarios", () => {
             .join("; ")}`,
         );
       }
+      expect(
+        parsed.data.courseTemplate,
+        `${file} must include authored teaching material`,
+      ).toBeDefined();
     }
   });
 

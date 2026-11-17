@@ -1,4 +1,5 @@
 {
+  "schemaVersion": 1,
   "id": "sc-doctor-visit",
   "slug": "doctor-visit",
   "title": "Seeing a doctor",
@@ -9,5 +10,79 @@
     "Answer questions about when the problem started",
     "Understand simple treatment instructions"
   ],
-  "targetVocabulary": ["sore throat", "fever", "prescription", "appointment", "symptom", "pharmacy"]
+  "targetVocabulary": [
+    "sore throat",
+    "fever",
+    "prescription",
+    "appointment",
+    "symptom",
+    "pharmacy"
+  ],
+  "courseTemplate": {
+    "targetLanguage": "en",
+    "estimatedMinutes": 12,
+    "setting": "A fictional routine appointment for practising English. Keep the conversation educational; do not diagnose or prescribe treatment.",
+    "roles": {
+      "learner": "A patient describing a fictional sore throat",
+      "partner": "A clinician in a language-learning roleplay who uses simple questions"
+    },
+    "openingLine": "Hello. What brings you in today?",
+    "targetPatterns": [
+      {
+        "pattern": "I have …",
+        "example": "I have a sore throat and a fever."
+      },
+      {
+        "pattern": "It started … ago.",
+        "example": "It started two days ago."
+      },
+      {
+        "pattern": "Could you repeat …?",
+        "example": "Could you repeat the instructions, please?"
+      }
+    ],
+    "stages": [
+      {
+        "id": "describe-symptoms",
+        "title": "Describe the symptoms",
+        "instruction": "Ask about the fictional symptoms and invite the learner to describe how they feel.",
+        "objectiveIds": ["obj-1"],
+        "successCriteria": [
+          "The learner names at least one symptom.",
+          "The learner describes the symptom in a complete understandable phrase."
+        ],
+        "hints": ["Try: I have a sore throat.", "You can add: I also have a fever."]
+      },
+      {
+        "id": "explain-timeline",
+        "title": "Explain when it started",
+        "instruction": "Ask when the symptoms began and whether they have changed.",
+        "objectiveIds": ["obj-2"],
+        "successCriteria": [
+          "The learner gives a time expression for the start of the symptoms.",
+          "The learner answers a follow-up question about the fictional problem."
+        ],
+        "hints": ["Try: It started two days ago.", "Use yesterday, this morning, or for two days."]
+      },
+      {
+        "id": "check-understanding",
+        "title": "Check understanding",
+        "instruction": "For language practice, say: Please take this fictional prescription to the pharmacy and ask the pharmacist to explain the instructions. Ask the learner to repeat the next steps in their own words. Do not specify medicines or doses.",
+        "objectiveIds": ["obj-3"],
+        "successCriteria": [
+          "The learner restates the simple roleplay instructions or asks for clarification.",
+          "The learner identifies the pharmacy and the need to ask the pharmacist about instructions."
+        ],
+        "hints": [
+          "Ask: Could you repeat that, please?",
+          "Try: I need to take the prescription to the pharmacy."
+        ]
+      }
+    ],
+    "teachingPolicy": {
+      "correctionMode": "gentle",
+      "maxCorrections": 3,
+      "maxHints": 4
+    }
+  }
 }

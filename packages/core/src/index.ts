@@ -6,6 +6,15 @@
 // by lessonStateSchema, so it round-trips through SQLite / IPC / backups.
 
 import { z } from "zod";
+import {
+  configureScenarioContent,
+  courseTemplateSchema,
+  type CourseConfiguration,
+  type CourseTemplate,
+  type CourseStage,
+} from "./scenario";
+
+export * from "./scenario";
 
 export type LessonPhase = "setup" | "briefing" | "practice" | "debrief" | "done";
 
@@ -58,22 +67,38 @@ export interface LessonState {
   readonly correctionsGiven: number;
   readonly hintsGiven: number;
   readonly updatedAt: number;
+  /** Validated snapshot: content updates cannot change an in-progress course. */
+  readonly courseTemplate?: CourseTemplate;
 }
 
-export const lessonStateSchema = z.object({
-  schemaVersion: z.literal(1),
-  lessonId: z.string().min(1),
-  scenarioId: z.string().min(1),
-  phase: lessonPhaseSchema,
-  difficulty: z.string().min(1),
-  objectives: z.array(lessonObjectiveSchema),
-  targetVocabulary: z.array(z.string()),
-  vocabularySeen: z.record(z.string(), z.number()),
-  turnCount: z.number().int().nonnegative(),
-  correctionsGiven: z.number().int().nonnegative(),
-  hintsGiven: z.number().int().nonnegative(),
-  updatedAt: z.number().int().nonnegative(),
-});
+export const lessonStateSchema = z
+  .object({
+    schemaVersion: z.literal(1),
+    lessonId: z.string().min(1),
+    scenarioId: z.string().min(1),
+    phase: lessonPhaseSchema,
+    difficulty: z.string().min(1),
+    objectives: z.array(lessonObjectiveSchema),
+    targetVocabulary: z.array(z.string()),
+    vocabularySeen: z.record(z.string(), z.number()),
+    turnCount: z.number().int().nonnegative(),
+    correctionsGiven: z.number().int().nonnegative(),
+    hintsGiven: z.number().int().nonnegative(),
+    updatedAt: z.number().int().nonnegative(),
+    courseTemplate: courseTemplateSchema.optional(),
+  })
+  .superRefine((state, ctx) => {
+    if (!state.courseTemplate) return;
+    const expected = new Set(state.objectives.map((objective) => objective.id));
+    const assigned = new Set(state.courseTemplate.stages.flatMap((stage) => stage.objectiveIds));
+    if (assigned.size !== expected.size || [...assigned].some((id) => !expected.has(id))) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["courseTemplate", "stages"],
+        message: "Course stages must cover exactly the lesson objectives",
+      });
+    }
+  });
 
 /** Allowed phase transitions - anything else is a state machine violation.
  *  Self-loops are legal for every non-terminal phase (multiple turns can
@@ -97,6 +122,7 @@ export function createInitialLessonState(input: {
   objectives?: readonly { id: string; description: string }[];
   targetVocabulary?: readonly string[];
   now?: number;
+  courseTemplate?: CourseTemplate;
 }): LessonState {
   return {
     schemaVersion: 1,
@@ -111,7 +137,44 @@ export function createInitialLessonState(input: {
     correctionsGiven: 0,
     hintsGiven: 0,
     updatedAt: input.now ?? Date.now(),
+    ...(input.courseTemplate
+      ? { courseTemplate: courseTemplateSchema.parse(input.courseTemplate) }
+      : {}),
   };
+}
+
+/** Compile the same validated course used by the editor into teaching state. */
+export function createLessonStateFromScenario(input: {
+  lessonId: string;
+  scenario: unknown;
+  configuration?: CourseConfiguration;
+  now?: number;
+}): LessonState {
+  const scenario = configureScenarioContent(input.scenario, input.configuration);
+  return lessonStateSchema.parse(
+    createInitialLessonState({
+      lessonId: input.lessonId,
+      scenarioId: scenario.id,
+      difficulty: scenario.difficulty,
+      objectives: scenario.objectives.map((description, index) => ({
+        id: `obj-${index + 1}`,
+        description,
+      })),
+      targetVocabulary: scenario.targetVocabulary,
+      courseTemplate: scenario.courseTemplate,
+      now: input.now,
+    }),
+  );
+}
+
+/** Stage selection follows objective evidence; elapsed turns never imply mastery. */
+export function getCurrentCourseStage(state: LessonState): CourseStage | undefined {
+  const completed = new Set(
+    state.objectives.filter((objective) => objective.completed).map((objective) => objective.id),
+  );
+  return state.courseTemplate?.stages.find((stage) =>
+    stage.objectiveIds.some((id) => !completed.has(id)),
+  );
 }
 
 /** Deterministic state update for one teaching action. Pure function. */
@@ -129,7 +192,10 @@ export function applyTeachingAction(
 
   let objectives = state.objectives;
   if (action === "complete_task") {
-    const index = objectives.findIndex((o) => !o.completed);
+    const stage = getCurrentCourseStage(state);
+    const index = objectives.findIndex(
+      (o) => !o.completed && (!stage || stage.objectiveIds.includes(o.id)),
+    );
     if (index >= 0) {
       objectives = objectives.map((o, i) => (i === index ? { ...o, completed: true } : o));
     }
@@ -174,31 +240,3 @@ export interface LearningEvent {
   readonly at: string;
   readonly payload: Record<string, unknown>;
 }
-
-/**
- * A teaching scenario as authored in `content/scenarios/*.json`.
- * Product content shipped with the app - validated at build/test time and
- * again before it is written into the local database.
- */
-export interface ScenarioContent {
-  readonly id: string;
-  readonly slug: string;
-  readonly title: string;
-  readonly category: string;
-  readonly difficulty: string;
-  readonly objectives: readonly string[];
-  readonly targetVocabulary: readonly string[];
-}
-
-export const scenarioContentSchema = z.object({
-  id: z.string().min(1),
-  slug: z
-    .string()
-    .min(1)
-    .regex(/^[a-z0-9-]+$/, "slug must be lowercase kebab-case"),
-  title: z.string().min(1),
-  category: z.string().min(1),
-  difficulty: z.string().min(1),
-  objectives: z.array(z.string().min(1)).min(1),
-  targetVocabulary: z.array(z.string().min(1)).min(1),
-});

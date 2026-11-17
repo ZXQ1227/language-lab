@@ -27,3 +27,17 @@ app updates.
 - Any lesson can be paused and restored losslessly.
 - App upgrades can evolve scenario content without data-loss risk.
 - Content files are validated at test time and again at parse time.
+
+## Addendum: scenario course templates (08)
+
+- Authored course content (roles, expressions, stages, criteria, policy) is
+  validated with `scenarioContentSchema`. Existing metadata-only scenarios remain
+  readable. Unknown versions, fields and broken stage/objective references fail.
+- `initLesson` snapshots the configured course in the optional
+  `LessonState.courseTemplate` field. Existing version-1 states without that field
+  remain valid; serialize/restore validates new snapshots and their references.
+- The scenario database row remains the existing metadata projection. Course
+  edits/imports in the Scenarios page are temporary previews; JSON export is the
+  explicit way to keep a configured template. They never update learning records.
+- Stage selection uses objective completion state, not turn counts. Grounded
+  objective evaluation is separate from this schema and template work.

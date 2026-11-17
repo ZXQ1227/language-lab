@@ -36,6 +36,9 @@ automatically; the Tauri IPC bridge is mocked in-browser (see
 - `packages/skills` — skill contract, registry, 7 first-batch skills.
 - `content/scenarios/*.json` — product content, Zod-validated in tests.
 
+For versioned teaching courses, the template format, Scenarios configuration and
+runtime integration, see [Scenario courses](SCENARIO_COURSES.md).
+
 ## Data locations (macOS dev)
 
 - Database: `~/Library/Application Support/com.languagelab.desktop/language-lab.db`

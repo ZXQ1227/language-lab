@@ -13,7 +13,7 @@ import smallTalk from "../../../../content/scenarios/small-talk.json";
 const RAW_CONTENT_FILES = [cafeOrder, doctorVisit, smallTalk] as const;
 
 export function parseScenarioContent(raw: unknown): ScenarioContent {
-  return scenarioContentSchema.parse(raw) as ScenarioContent;
+  return scenarioContentSchema.parse(raw);
 }
 
 export function loadScenarioContent(): ScenarioContent[] {

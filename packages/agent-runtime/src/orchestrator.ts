@@ -9,6 +9,8 @@
 import {
   applyTeachingAction,
   createInitialLessonState,
+  createLessonStateFromScenario,
+  getCurrentCourseStage,
   type LessonState,
 } from "@language-lab/core";
 import type { DiagnosedError, SkillContext, StudentProfileView } from "@language-lab/skills";
@@ -127,15 +129,10 @@ export class TeachingOrchestrator {
       throw new Error(`scenario not found: ${selection.scenarioId}`);
     }
 
-    const state = createInitialLessonState({
+    const state = createLessonStateFromScenario({
       lessonId: input.lessonId,
-      scenarioId: scenario.id,
-      difficulty: scenario.difficulty,
-      objectives: scenario.objectives.map((description, i) => ({
-        id: `obj-${i + 1}`,
-        description,
-      })),
-      targetVocabulary: scenario.targetVocabulary,
+      scenario,
+      configuration: input.configuration,
       now: this.now,
     });
     await this.deps.stateStore.save(state);
@@ -167,7 +164,7 @@ export class TeachingOrchestrator {
       intent: string;
     }>(
       "skills.error_diagnosis",
-      { utterance: input.utterance, studentLevel: profile.level },
+      { utterance: input.utterance, studentLevel: state.difficulty },
       context,
       trace,
     );
@@ -194,6 +191,7 @@ export class TeachingOrchestrator {
         allObjectivesCompleted:
           state.objectives.length > 0 && state.objectives.every((o) => o.completed),
         objectiveCount: state.objectives.length,
+        policy: state.courseTemplate?.teachingPolicy,
       },
       context,
       trace,
@@ -210,9 +208,24 @@ export class TeachingOrchestrator {
       "skills.dialogue_roleplay",
       {
         roleCard: {
-          persona: `a friendly language tutor for the "${state.scenarioId}" scenario`,
-          setting: `practice conversation, difficulty ${state.difficulty}`,
+          persona:
+            state.courseTemplate?.roles.partner ??
+            `a friendly language tutor for the "${state.scenarioId}" scenario`,
+          setting:
+            state.courseTemplate?.setting ??
+            `practice conversation, difficulty ${state.difficulty}`,
         },
+        course: state.courseTemplate
+          ? {
+              targetLanguage: state.courseTemplate.targetLanguage,
+              learnerRole: state.courseTemplate.roles.learner,
+              difficulty: state.difficulty,
+              targetVocabulary: [...state.targetVocabulary],
+              targetPatterns: state.courseTemplate.targetPatterns,
+              stage: getCurrentCourseStage(state),
+              allowHints: state.hintsGiven < state.courseTemplate.teachingPolicy.maxHints,
+            }
+          : undefined,
         utterance: input.utterance,
         intervention: {
           action: intervention.action,

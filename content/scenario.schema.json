@@ -1,0 +1,187 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "default": 1,
+      "type": "number",
+      "const": 1
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "slug": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[a-z0-9-]+$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "category": {
+      "type": "string",
+      "minLength": 1
+    },
+    "difficulty": {
+      "type": "string",
+      "enum": ["A1", "A2", "B1", "B2", "C1", "C2"]
+    },
+    "objectives": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "targetVocabulary": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "courseTemplate": {
+      "type": "object",
+      "properties": {
+        "targetLanguage": {
+          "type": "string",
+          "minLength": 1
+        },
+        "estimatedMinutes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 120
+        },
+        "setting": {
+          "type": "string",
+          "minLength": 1
+        },
+        "roles": {
+          "type": "object",
+          "properties": {
+            "learner": {
+              "type": "string",
+              "minLength": 1
+            },
+            "partner": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": ["learner", "partner"],
+          "additionalProperties": false
+        },
+        "openingLine": {
+          "type": "string",
+          "minLength": 1
+        },
+        "targetPatterns": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "pattern": {
+                "type": "string",
+                "minLength": 1
+              },
+              "example": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": ["pattern", "example"],
+            "additionalProperties": false
+          }
+        },
+        "stages": {
+          "minItems": 1,
+          "maxItems": 12,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "^[a-z0-9-]+$"
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1
+              },
+              "instruction": {
+                "type": "string",
+                "minLength": 1
+              },
+              "objectiveIds": {
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^obj-[1-9]\\d*$"
+                }
+              },
+              "successCriteria": {
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "hints": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            "required": ["id", "title", "instruction", "objectiveIds", "successCriteria", "hints"],
+            "additionalProperties": false
+          }
+        },
+        "teachingPolicy": {
+          "type": "object",
+          "properties": {
+            "correctionMode": {
+              "type": "string",
+              "enum": ["gentle", "off"]
+            },
+            "maxCorrections": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 20
+            },
+            "maxHints": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 20
+            }
+          },
+          "required": ["correctionMode", "maxCorrections", "maxHints"],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "targetLanguage",
+        "estimatedMinutes",
+        "setting",
+        "roles",
+        "openingLine",
+        "targetPatterns",
+        "stages",
+        "teachingPolicy"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": ["id", "slug", "title", "category", "difficulty", "objectives", "targetVocabulary"],
+  "additionalProperties": false
+}

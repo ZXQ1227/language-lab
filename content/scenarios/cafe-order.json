@@ -1,4 +1,5 @@
 {
+  "schemaVersion": 1,
   "id": "sc-cafe-order",
   "slug": "cafe-order",
   "title": "Ordering at a cafe",
@@ -9,5 +10,72 @@
     "Ask about size and milk options",
     "Understand the barista's questions about the order"
   ],
-  "targetVocabulary": ["latte", "espresso", "to go", "for here", "regular", "oat milk"]
+  "targetVocabulary": ["latte", "espresso", "to go", "for here", "regular", "oat milk"],
+  "courseTemplate": {
+    "targetLanguage": "en",
+    "estimatedMinutes": 10,
+    "setting": "A neighbourhood cafe during a quiet morning. The learner wants a drink and a snack to take away.",
+    "roles": {
+      "learner": "A customer ordering breakfast",
+      "partner": "A patient barista who asks one short question at a time"
+    },
+    "openingLine": "Good morning! What can I get for you today?",
+    "targetPatterns": [
+      {
+        "pattern": "Could I have …, please?",
+        "example": "Could I have a latte and a muffin, please?"
+      },
+      {
+        "pattern": "Do you have …?",
+        "example": "Do you have oat milk?"
+      },
+      {
+        "pattern": "I'd like … to go.",
+        "example": "I'd like a regular latte to go."
+      }
+    ],
+    "stages": [
+      {
+        "id": "place-order",
+        "title": "Order politely",
+        "instruction": "Invite the customer to order a drink and a snack. Ask what else they would like if either is missing.",
+        "objectiveIds": ["obj-1"],
+        "successCriteria": [
+          "The learner names both a drink and a snack.",
+          "The request includes a polite expression such as please or could I have."
+        ],
+        "hints": ["Try: Could I have a … and a …, please?"]
+      },
+      {
+        "id": "choose-options",
+        "title": "Choose size and milk",
+        "instruction": "Offer regular or large and dairy or oat milk. Leave room for the customer to ask about options.",
+        "objectiveIds": ["obj-2"],
+        "successCriteria": [
+          "The learner asks about a size or milk option.",
+          "The learner specifies their preferred size and milk."
+        ],
+        "hints": ["Ask: Do you have oat milk?", "You can ask: What sizes do you have?"]
+      },
+      {
+        "id": "confirm-order",
+        "title": "Confirm the order",
+        "instruction": "Ask whether the order is for here or to go, then read it back for confirmation.",
+        "objectiveIds": ["obj-3"],
+        "successCriteria": [
+          "The learner answers the for here or to go question appropriately.",
+          "The learner confirms or corrects the final order."
+        ],
+        "hints": [
+          "To go means you will take the order away.",
+          "You can confirm with: Yes, that is right, thank you."
+        ]
+      }
+    ],
+    "teachingPolicy": {
+      "correctionMode": "gentle",
+      "maxCorrections": 3,
+      "maxHints": 3
+    }
+  }
 }

@@ -5,7 +5,7 @@
 import { z } from "zod";
 import type { SkillDefinition } from "../contract";
 import type { MessageRole, SkillContext } from "../context";
-import type { TeachingAction } from "@language-lab/core";
+import { courseStageSchema, type TeachingAction } from "@language-lab/core";
 
 const messageSchema = z.object({
   seq: z.number(),
@@ -30,6 +30,17 @@ const inputSchema = z.object({
     note: z.string().optional(),
   }),
   recentMessages: z.array(messageSchema).max(20),
+  course: z
+    .object({
+      targetLanguage: z.string().min(1),
+      learnerRole: z.string().min(1),
+      difficulty: z.string().min(1),
+      targetVocabulary: z.array(z.string()),
+      targetPatterns: z.array(z.object({ pattern: z.string(), example: z.string() })),
+      stage: courseStageSchema.optional(),
+      allowHints: z.boolean(),
+    })
+    .optional(),
 });
 
 const outputSchema = z.object({
@@ -61,8 +72,22 @@ export function createDialogueRoleplaySkill(): SkillDefinition<
     async execute(input, context: SkillContext) {
       const system = [
         `You are ${input.roleCard.persona} in the setting: ${input.roleCard.setting}.`,
-        `Student level: ${context.studentProfile.level} ${context.studentProfile.targetLanguage}.`,
+        `Student level: ${input.course?.difficulty ?? context.studentProfile.level} ${input.course?.targetLanguage ?? context.studentProfile.targetLanguage}.`,
         "Stay in character. Reply in the target language. Keep replies short (1-3 sentences).",
+        ...(input.course
+          ? [
+              `The learner plays: ${input.course.learnerRole}.`,
+              `Practise vocabulary: ${input.course.targetVocabulary.join(", ")}.`,
+              `Target expressions: ${input.course.targetPatterns.map((item) => `${item.pattern} (example: ${item.example})`).join("; ")}.`,
+              input.course.stage
+                ? `Current stage: ${input.course.stage.title}. ${input.course.stage.instruction}\nSuccess criteria: ${input.course.stage.successCriteria.join("; ")}.`
+                : "All course stages have been completed; wrap up the roleplay.",
+              input.course.allowHints && input.course.stage
+                ? `Available scaffolding: ${input.course.stage.hints.join("; ")}. Use only when asked to provide a hint.`
+                : "Do not provide additional hints; the lesson hint budget is exhausted.",
+              "Do not claim an objective is completed without evidence from the learner.",
+            ]
+          : []),
         `Directive: ${ACTION_DIRECTIVES[input.intervention.action]}`,
         input.intervention.note ? `Additional note: ${input.intervention.note}` : "",
       ]

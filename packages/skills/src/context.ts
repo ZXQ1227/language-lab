@@ -6,7 +6,7 @@
 // - Skills never touch the UI. They return data; the orchestrator routes it.
 // - All model access goes through the ModelGateway in the context.
 
-import type { LessonState } from "@language-lab/core";
+import type { CourseTemplate, LessonState } from "@language-lab/core";
 import type { MemorySnapshot } from "@language-lab/memory";
 import type { ModelGateway } from "@language-lab/model-gateway";
 
@@ -19,6 +19,7 @@ export interface ScenarioView {
   readonly difficulty: string;
   readonly objectives: readonly string[];
   readonly targetVocabulary: readonly string[];
+  readonly courseTemplate?: CourseTemplate;
 }
 
 export type MessageRole = "user" | "assistant" | "system";

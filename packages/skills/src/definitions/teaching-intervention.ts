@@ -5,7 +5,7 @@
 import { z } from "zod";
 import type { SkillDefinition } from "../contract";
 import type { SkillContext } from "../context";
-import { teachingActionSchema } from "@language-lab/core";
+import { teachingActionSchema, teachingPolicySchema } from "@language-lab/core";
 
 const inputSchema = z.object({
   errors: z.array(
@@ -22,6 +22,7 @@ const inputSchema = z.object({
   allObjectivesCompleted: z.boolean(),
   /** Total objectives; 0 means the lesson has none (free conversation). */
   objectiveCount: z.number().int().nonnegative(),
+  policy: teachingPolicySchema.optional(),
 });
 
 const outputSchema = z.object({
@@ -57,10 +58,13 @@ export function createTeachingInterventionSkill(): SkillDefinition<
         };
       }
 
-      // Correction budget: at most one correction per 3 turns to avoid
-      // drowning the student in feedback (light-touch policy).
-      const correctionBudgetOk =
-        input.correctionsGiven < Math.ceil((input.hintsGiven + input.correctionsGiven + 1) / 3) + 1;
+      // Authored courses enforce explicit per-lesson caps. Legacy lessons
+      // retain their existing light-touch correction heuristic.
+      const correctionBudgetOk = input.policy
+        ? input.policy.correctionMode === "gentle" &&
+          input.correctionsGiven < input.policy.maxCorrections
+        : input.correctionsGiven <
+          Math.ceil((input.hintsGiven + input.correctionsGiven + 1) / 3) + 1;
       const firstError = input.errors[0];
       if (firstError && correctionBudgetOk) {
         return {
@@ -74,7 +78,10 @@ export function createTeachingInterventionSkill(): SkillDefinition<
         };
       }
 
-      if (input.fluency === "halting") {
+      if (
+        input.fluency === "halting" &&
+        (!input.policy || input.hintsGiven < input.policy.maxHints)
+      ) {
         return {
           action: "provide_hint",
           rationale: "student fluency is halting; scaffold with a hint",

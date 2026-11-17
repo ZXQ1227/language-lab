@@ -1,6 +1,6 @@
 // AgentInput / AgentOutput - the orchestrator's public contract.
 
-import type { LessonState, TeachingAction } from "@language-lab/core";
+import type { CourseConfiguration, LessonState, TeachingAction } from "@language-lab/core";
 import type { DiagnosedError } from "@language-lab/skills";
 
 export type ConversationMode = "text" | "voice";
@@ -21,6 +21,7 @@ export interface LessonInitInput {
   readonly conversationId: string;
   readonly studentLevel: string;
   readonly studentGoals: readonly string[];
+  readonly configuration?: CourseConfiguration;
   readonly scenarioCandidates: readonly {
     id: string;
     slug: string;

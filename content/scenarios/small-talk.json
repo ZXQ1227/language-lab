@@ -1,4 +1,5 @@
 {
+  "schemaVersion": 1,
   "id": "sc-small-talk",
   "slug": "small-talk",
   "title": "Small talk with a colleague",
@@ -9,5 +10,72 @@
     "Ask and answer simple questions about the weekend",
     "Close the conversation politely"
   ],
-  "targetVocabulary": ["weekend", "catch up", "have you been", "sounds fun", "I've been", "anyway"]
+  "targetVocabulary": ["weekend", "catch up", "have you been", "sounds fun", "I've been", "anyway"],
+  "courseTemplate": {
+    "targetLanguage": "en",
+    "estimatedMinutes": 8,
+    "setting": "An office kitchen on Monday morning. Two colleagues have a few minutes before their next meeting.",
+    "roles": {
+      "learner": "A colleague starting a friendly conversation",
+      "partner": "A friendly colleague who went hiking over the weekend"
+    },
+    "openingLine": "Morning! Good to see you.",
+    "targetPatterns": [
+      {
+        "pattern": "How was your …?",
+        "example": "How was your weekend?"
+      },
+      {
+        "pattern": "That sounds …",
+        "example": "That sounds fun! Where did you go?"
+      },
+      {
+        "pattern": "Anyway, I need to …",
+        "example": "Anyway, I need to get to my meeting. Catch up later!"
+      }
+    ],
+    "stages": [
+      {
+        "id": "open-conversation",
+        "title": "Start the conversation",
+        "instruction": "Greet the learner, then pause to let them start small talk rather than doing all the talking.",
+        "objectiveIds": ["obj-1"],
+        "successCriteria": [
+          "The learner responds to the greeting.",
+          "The learner starts a topic with a natural opening question."
+        ],
+        "hints": ["You could ask: How have you been?", "Try: How was your weekend?"]
+      },
+      {
+        "id": "exchange-weekend-news",
+        "title": "Exchange weekend news",
+        "instruction": "Mention the hike and invite a follow-up question. Ask about the learner’s weekend too.",
+        "objectiveIds": ["obj-2"],
+        "successCriteria": [
+          "The learner asks a relevant question about the weekend.",
+          "The learner shares an activity from their own weekend and responds to the partner."
+        ],
+        "hints": [
+          "React with: That sounds fun!",
+          "Share one activity, then ask a follow-up question."
+        ]
+      },
+      {
+        "id": "close-politely",
+        "title": "Close politely",
+        "instruction": "Mention the upcoming meeting and let the learner find a polite way to end the conversation.",
+        "objectiveIds": ["obj-3"],
+        "successCriteria": [
+          "The learner signals that the conversation is ending.",
+          "The learner uses a friendly closing or suggests catching up later."
+        ],
+        "hints": ["Try: Anyway, I need to get going.", "Finish with: Catch up later!"]
+      }
+    ],
+    "teachingPolicy": {
+      "correctionMode": "gentle",
+      "maxCorrections": 2,
+      "maxHints": 2
+    }
+  }
 }
