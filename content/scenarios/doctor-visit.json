@@ -1,0 +1,13 @@
+{
+  "id": "sc-doctor-visit",
+  "slug": "doctor-visit",
+  "title": "Seeing a doctor",
+  "category": "health",
+  "difficulty": "A2",
+  "objectives": [
+    "Describe your symptoms clearly",
+    "Answer questions about when the problem started",
+    "Understand simple treatment instructions"
+  ],
+  "targetVocabulary": ["sore throat", "fever", "prescription", "appointment", "symptom", "pharmacy"]
+}

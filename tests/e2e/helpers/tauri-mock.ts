@@ -6,17 +6,30 @@
 
 import type { Page } from "@playwright/test";
 
+export interface MockScenarioRow {
+  id: string;
+  slug: string;
+  title: string;
+  category: string;
+  difficulty: string;
+  objectives: string; // JSON string, mirrors the SQL column
+  target_vocabulary: string; // JSON string
+}
+
 export interface MockState {
   lessons: { id: string; scenarioId: string; status: string }[];
+  scenarios: MockScenarioRow[];
 }
 
 export async function installTauriMock(page: Page, state?: MockState): Promise<void> {
   await page.addInitScript((initial: MockState | undefined) => {
-    // Persist across reloads within the browsing session - mirrors the
-    // local-first promise (data survives an app restart).
+    // NOTE: this function is serialized and injected - it must not close
+    // over any module-scope value (learned the hard way: EMPTY_STATE threw
+    // "not defined" and silently disabled the whole mock).
     const KEY = "language-lab-e2e-state";
+    const fallback = { lessons: [] as never[], scenarios: [] as never[] };
     if (!window.sessionStorage.getItem(KEY)) {
-      window.sessionStorage.setItem(KEY, JSON.stringify(initial ?? { lessons: [] }));
+      window.sessionStorage.setItem(KEY, JSON.stringify(initial ?? fallback));
     }
     const read = () => JSON.parse(window.sessionStorage.getItem(KEY)!) as MockState;
     const write = (s: MockState) => window.sessionStorage.setItem(KEY, JSON.stringify(s));
@@ -45,6 +58,23 @@ export async function installTauriMock(page: Page, state?: MockState): Promise<v
             write(s);
             return { rowsAffected: 1, lastInsertId: String(params[0] ?? "") };
           }
+          if (sql.startsWith("INSERT INTO scenarios")) {
+            // Upsert by slug: refresh the template row if it exists.
+            const row: MockScenarioRow = {
+              id: String(params[0]),
+              slug: String(params[1]),
+              title: String(params[2]),
+              category: String(params[3]),
+              difficulty: String(params[4]),
+              objectives: String(params[5]),
+              target_vocabulary: String(params[6]),
+            };
+            const existing = s.scenarios.findIndex((r) => r.slug === row.slug);
+            if (existing >= 0) s.scenarios[existing] = row;
+            else s.scenarios.push(row);
+            write(s);
+            return { rowsAffected: 1, lastInsertId: row.id };
+          }
           return { rowsAffected: 0, lastInsertId: "" };
         }
         case "db_select": {
@@ -61,6 +91,9 @@ export async function installTauriMock(page: Page, state?: MockState): Promise<v
               created_at: 0,
               updated_at: 0,
             }));
+          }
+          if (sql.startsWith("SELECT * FROM scenarios")) {
+            return s.scenarios.map((r) => ({ ...r, created_at: 0, updated_at: 0 }));
           }
           return [];
         }

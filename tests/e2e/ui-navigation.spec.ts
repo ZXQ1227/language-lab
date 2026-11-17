@@ -41,9 +41,13 @@ test("settings shows the database location and keyring note", async ({ page }) =
   await expect(page.getByText(/OS keyring/)).toBeVisible();
 });
 
-test("scenarios page declares the content-system plan", async ({ page }) => {
+test("scenarios page shows the bundled scenario library after content sync", async ({ page }) => {
   await page.getByRole("button", { name: "Scenarios", exact: true }).click();
-  await expect(page.getByText(/Scenario library/)).toBeVisible();
+  // Startup sync upserts the three bundled scenarios into the mock DB.
+  await expect(page.getByText("Ordering at a cafe")).toBeVisible();
+  await expect(page.getByText("Seeing a doctor")).toBeVisible();
+  await expect(page.getByText("Small talk with a colleague")).toBeVisible();
+  await expect(page.getByText("latte", { exact: true })).toBeVisible();
 });
 
 test("degrades gracefully when the IPC bridge is unavailable", async ({ page }) => {

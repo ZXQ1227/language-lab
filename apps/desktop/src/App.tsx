@@ -1,7 +1,9 @@
 // App shell: sidebar navigation + active page.
 // Navigation is Zustand-driven (no router dependency for the desktop shell).
 
+import { useEffect } from "react";
 import { useNavStore, type PageId } from "./stores/nav";
+import { syncScenarioContent } from "./content/syncScenarios";
 import { DashboardPage } from "./pages/DashboardPage";
 import { ScenariosPage } from "./pages/ScenariosPage";
 import { TrainingPage } from "./pages/TrainingPage";
@@ -27,6 +29,14 @@ const PAGES: Record<PageId, React.ReactNode> = {
 export function App() {
   const page = useNavStore((s) => s.page);
   const navigate = useNavStore((s) => s.navigate);
+
+  useEffect(() => {
+    // Idempotent content sync: refreshes bundled scenario templates on every
+    // startup, never touches user data.
+    void syncScenarioContent().catch((cause) => {
+      console.error("scenario content sync failed", cause);
+    });
+  }, []);
 
   return (
     <div className="flex min-h-screen bg-slate-100 text-slate-900">

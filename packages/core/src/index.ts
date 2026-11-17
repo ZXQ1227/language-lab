@@ -174,3 +174,31 @@ export interface LearningEvent {
   readonly at: string;
   readonly payload: Record<string, unknown>;
 }
+
+/**
+ * A teaching scenario as authored in `content/scenarios/*.json`.
+ * Product content shipped with the app - validated at build/test time and
+ * again before it is written into the local database.
+ */
+export interface ScenarioContent {
+  readonly id: string;
+  readonly slug: string;
+  readonly title: string;
+  readonly category: string;
+  readonly difficulty: string;
+  readonly objectives: readonly string[];
+  readonly targetVocabulary: readonly string[];
+}
+
+export const scenarioContentSchema = z.object({
+  id: z.string().min(1),
+  slug: z
+    .string()
+    .min(1)
+    .regex(/^[a-z0-9-]+$/, "slug must be lowercase kebab-case"),
+  title: z.string().min(1),
+  category: z.string().min(1),
+  difficulty: z.string().min(1),
+  objectives: z.array(z.string().min(1)).min(1),
+  targetVocabulary: z.array(z.string().min(1)).min(1),
+});

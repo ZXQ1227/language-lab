@@ -10,9 +10,7 @@ import { installTauriMock } from "./helpers/tauri-mock";
 
 test.describe("local data persistence", () => {
   test("records written through IPC survive an app restart (reload)", async ({ page }) => {
-    await installTauriMock(page, {
-      lessons: [],
-    });
+    await installTauriMock(page, { lessons: [], scenarios: [] });
     await page.goto("/");
     await expect(page.getByText("Language Lab", { exact: true })).toBeVisible();
 
@@ -47,7 +45,7 @@ test.describe("local data persistence", () => {
   }) => {
     const context = await browser.newContext();
     const page = await context.newPage();
-    await installTauriMock(page, { lessons: [] });
+    await installTauriMock(page, { lessons: [], scenarios: [] });
     await page.goto("/");
 
     const rows = await page.evaluate(async () => {

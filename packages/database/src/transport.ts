@@ -35,7 +35,7 @@ export interface DbTransport {
  * db_status, db_backup, db_restore) via Tauri IPC.
  */
 export function createTauriTransport(
-  invoke: (cmd: string, args?: unknown) => Promise<unknown>,
+  invoke: (cmd: string, args?: Record<string, unknown>) => Promise<unknown>,
 ): DbTransport {
   return {
     select(sql, params = []) {

@@ -1,0 +1,13 @@
+{
+  "id": "sc-cafe-order",
+  "slug": "cafe-order",
+  "title": "Ordering at a cafe",
+  "category": "daily",
+  "difficulty": "A2",
+  "objectives": [
+    "Order a drink and a snack politely",
+    "Ask about size and milk options",
+    "Understand the barista's questions about the order"
+  ],
+  "targetVocabulary": ["latte", "espresso", "to go", "for here", "regular", "oat milk"]
+}
