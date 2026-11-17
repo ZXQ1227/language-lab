@@ -15,6 +15,10 @@ import {
   dialogueMoveSchema,
   dialogueSupportSchema,
   validateDialogueMemory,
+  summarizeVocabulary,
+  vocabularyCounts,
+  type LessonState,
+  type EvidenceMessage,
 } from "@language-lab/core";
 import {
   createDefaultSkillRegistry,
@@ -71,6 +75,7 @@ export function isLocalEndpoint(baseUrl: string): boolean {
 export const trainingSessionSchema = z
   .object({
     version: z.literal(1),
+    vocabularyTrackingVersion: z.literal(1).optional(),
     id: z.string().min(1),
     scenario: scenarioContentSchema,
     provider: trainingProviderSchema,
@@ -94,6 +99,19 @@ export const trainingSessionSchema = z
     reviewAnswers: z.record(z.string(), z.string().max(2000)).optional(),
   })
   .superRefine((session, ctx) => {
+    if (session.vocabularyTrackingVersion === 1) {
+      const counts = trainingVocabularyCounts(session.state, session.messages);
+      if (
+        Object.keys(counts).length !== Object.keys(session.state.vocabularySeen).length ||
+        Object.entries(counts).some(([key, count]) => session.state.vocabularySeen[key] !== count)
+      ) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["state", "vocabularySeen"],
+          message: "Saved vocabulary counts do not match learner practice evidence",
+        });
+      }
+    }
     if (
       session.id !== session.state.lessonId ||
       session.scenario.id !== session.state.scenarioId ||
@@ -181,6 +199,19 @@ export const trainingSessionSchema = z
     }
   });
 export type TrainingSession = z.infer<typeof trainingSessionSchema>;
+
+function trainingVocabularyCounts(state: LessonState, messages: readonly EvidenceMessage[]) {
+  return vocabularyCounts(
+    summarizeVocabulary(
+      state.targetVocabulary,
+      messages,
+      state.courseTemplate?.learningPack?.vocabulary.map((item) => ({
+        term: item.term,
+        forms: item.forms ?? [],
+      })),
+    ),
+  );
+}
 
 const DEMO: Record<string, Record<string, { answer: string; prompt: string }>> = {
   "cafe-order": {
@@ -339,7 +370,13 @@ function runtime(
   gateway: ModelGateway,
   saved?: TrainingSession,
 ) {
-  let state = saved ? lessonStateSchema.parse(saved.state) : undefined;
+  // Old checkpoints are upgraded only in this private draft and committed atomically.
+  let state = saved
+    ? lessonStateSchema.parse({
+        ...saved.state,
+        vocabularySeen: trainingVocabularyCounts(saved.state, saved.messages),
+      })
+    : undefined;
   return new TeachingOrchestrator({
     gateway,
     skills: makeSkills(scenario, provider.mode === "demo"),
@@ -364,7 +401,7 @@ function runtime(
           level: scenario.difficulty,
           goals: [...scenario.objectives],
         },
-        knowledge: Object.keys(saved?.state.vocabularySeen ?? {}).map((item) => ({
+        knowledge: Object.keys(state?.vocabularySeen ?? {}).map((item) => ({
           item,
           mastery: "learning" as const,
         })),
@@ -401,6 +438,7 @@ export async function createTrainingSession(
   });
   return trainingSessionSchema.parse({
     version: 1,
+    vocabularyTrackingVersion: 1,
     id,
     scenario,
     provider,
@@ -436,6 +474,7 @@ export async function runTrainingTurn(
   });
   return trainingSessionSchema.parse({
     ...session,
+    vocabularyTrackingVersion: 1,
     state: result.state,
     messages: [
       ...session.messages,
@@ -472,7 +511,7 @@ export async function finishTrainingSession(
     lessonId: session.id,
     conversationId: session.id,
   });
-  return trainingSessionSchema.parse({ ...session, ...result });
+  return trainingSessionSchema.parse({ ...session, ...result, vocabularyTrackingVersion: 1 });
 }
 
 export const dialogueSupportText: Record<DialogueSupport, string> = {

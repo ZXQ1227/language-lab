@@ -62,7 +62,7 @@ export function createLessonEvaluatorSkill(): SkillDefinition<
                 `Objectives: ${input.objectivesCompleted}/${input.objectiveCount}`,
                 `Corrections given: ${input.correctionsGiven}`,
                 `Hints given: ${context.lessonState.hintsGiven}. Distinguish supported performance from independent mastery; partner replies are not learner evidence.`,
-                `Vocabulary used: ${JSON.stringify(input.vocabularySeen)}`,
+                `Vocabulary used (practice turns per term): ${JSON.stringify(input.vocabularySeen)}. These are lexical observations, not proof of correct use or mastery; negated, quoted and guided uses may be included.`,
                 `Verified stage evidence: ${JSON.stringify(context.lessonState.stageAssessments ?? {})}`,
                 "--- transcript ---",
                 transcript,

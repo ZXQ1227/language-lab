@@ -24,6 +24,7 @@ import type {
   SkillContext,
   StudentProfileView,
   DialogueRoleplayOutput,
+  VocabularyTrackerOutput,
 } from "@language-lab/skills";
 import { SkillValidationError } from "@language-lab/skills";
 import type { AgentEvent } from "./events";
@@ -201,10 +202,17 @@ export class TeachingOrchestrator {
         );
 
     const vocabulary = support
-      ? { used: [], missed: [] }
-      : await this.runSkill<{ used: string[]; missed: string[] }>(
+      ? { used: [], missed: [], matches: [] }
+      : await this.runSkill<VocabularyTrackerOutput>(
           "skills.vocabulary_tracker",
-          { utterance: input.utterance, targetVocabulary: [...state.targetVocabulary] },
+          {
+            utterance: input.utterance,
+            targetVocabulary: [...state.targetVocabulary],
+            vocabularyForms: state.courseTemplate?.learningPack?.vocabulary.map((item) => ({
+              term: item.term,
+              forms: item.forms ?? [],
+            })),
+          },
           context,
           trace,
         );
@@ -365,7 +373,14 @@ export class TeachingOrchestrator {
       });
     if (assessment) persistedEvents.push({ type: "stage_assessed", payload: { ...assessment } });
     for (const word of vocabularyUsed) {
-      persistedEvents.push({ type: "vocabulary_used", payload: { word } });
+      persistedEvents.push({
+        type: "vocabulary_used",
+        payload: {
+          word,
+          messageSeq: transcript.at(-1)!.seq,
+          matches: vocabulary.matches.filter((match) => match.term === word),
+        },
+      });
     }
     for (const error of diagnosis.errors) {
       persistedEvents.push({
@@ -409,6 +424,7 @@ export class TeachingOrchestrator {
         intent: diagnosis.intent,
         vocabularyUsed,
         vocabularyMissed: vocabulary.missed,
+        vocabularyMatches: vocabulary.matches,
         errors: diagnosis.errors,
         fluency: support ? "not_assessed" : diagnosis.fluency,
       },

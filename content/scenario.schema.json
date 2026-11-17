@@ -267,6 +267,15 @@
                   "example": {
                     "type": "string",
                     "minLength": 1
+                  },
+                  "forms": {
+                    "maxItems": 8,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 120
+                    }
                   }
                 },
                 "required": ["term", "meaning", "example"],

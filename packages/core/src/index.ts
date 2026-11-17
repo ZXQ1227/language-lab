@@ -6,6 +6,7 @@
 // by lessonStateSchema, so it round-trips through SQLite / IPC / backups.
 
 import { z } from "zod";
+import { vocabularyKey } from "./vocabulary";
 import { dialogueMemorySchema, dialogueMoveSchema, type DialogueMemoryItem } from "./dialogue";
 import {
   stageAssessmentSchema,
@@ -26,6 +27,7 @@ export * from "./scenario";
 export * from "./assessment";
 export * from "./course-pack";
 export * from "./dialogue";
+export * from "./vocabulary";
 
 export type LessonPhase = "setup" | "briefing" | "practice" | "debrief" | "done";
 
@@ -58,7 +60,7 @@ export const lessonObjectiveSchema = z.object({
   completed: z.boolean(),
 });
 
-/** Counters for vocabulary the student has produced during the lesson. */
+/** Practice turns containing a canonical target term; never a mastery score. */
 export type VocabularySeen = Record<string, number>;
 
 /**
@@ -266,11 +268,11 @@ export function applyTeachingAction(
   patch?: { vocabularyUsed?: readonly string[]; now?: number },
 ): LessonState {
   const now = patch?.now ?? Date.now();
-  const vocabularySeen: VocabularySeen = { ...state.vocabularySeen };
-  for (const word of patch?.vocabularyUsed ?? []) {
-    const key = word.toLowerCase();
-    vocabularySeen[key] = (vocabularySeen[key] ?? 0) + 1;
+  const vocabularyCounts = new Map(Object.entries(state.vocabularySeen));
+  for (const key of new Set((patch?.vocabularyUsed ?? []).map(vocabularyKey))) {
+    vocabularyCounts.set(key, (vocabularyCounts.get(key) ?? 0) + 1);
   }
+  const vocabularySeen: VocabularySeen = Object.fromEntries(vocabularyCounts);
 
   let objectives = state.objectives;
   if (action === "complete_task" && !state.courseTemplate) {

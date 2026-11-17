@@ -7,6 +7,7 @@ import type {
   TeachingAction,
   DialogueSupport,
   DialogueMove,
+  VocabularyMatch,
 } from "@language-lab/core";
 import type { DiagnosedError } from "@language-lab/skills";
 
@@ -50,6 +51,7 @@ export interface AgentOutput {
     readonly intent: string;
     readonly vocabularyUsed: readonly string[];
     readonly vocabularyMissed: readonly string[];
+    readonly vocabularyMatches: readonly VocabularyMatch[];
     readonly errors: readonly DiagnosedError[];
     readonly fluency: "fluent" | "hesitant" | "halting" | "not_assessed";
   };

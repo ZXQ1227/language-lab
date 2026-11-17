@@ -6,6 +6,7 @@ import {
   type ScenarioContent,
 } from "@language-lab/core";
 import { CourseStudyPack, CourseReviewPractice } from "../components/CourseStudyPack";
+import { VocabularyProgress } from "../components/VocabularyProgress";
 import { loadScenarioContent } from "../content/scenarioContent";
 import { useTrainingStore } from "../stores/training";
 import { getGuidedExample, supportsGuidedDemo, type TrainingProvider } from "../training/session";
@@ -298,6 +299,7 @@ export function TrainingPage() {
                   </div>
                 </details>
               )}
+              <VocabularyProgress session={session} />
               <ol aria-label="Conversation" className="space-y-3">
                 {session.messages.map((message) => (
                   <li

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { normalizeVocabularyForm } from "./vocabulary";
 
 const text = z.string().trim().min(1);
 const id = text.regex(/^[a-z0-9-]+$/);
@@ -19,7 +20,13 @@ export const learningPackSchema = z
     scenarioFacts: z.array(courseFactSchema).min(1),
     vocabulary: z
       .array(
-        z.strictObject({ term: text, meaning: text, translation: text.optional(), example: text }),
+        z.strictObject({
+          term: text,
+          meaning: text,
+          translation: text.optional(),
+          example: text,
+          forms: z.array(text.max(120)).max(8).optional(),
+        }),
       )
       .min(1),
     warmup: z.array(exerciseSchema).min(1),
@@ -72,6 +79,20 @@ export const learningPackSchema = z
       pack.vocabulary.map((item) => item.term.toLowerCase()),
       ["vocabulary"],
     );
+    const owners = new Map<string, number>();
+    pack.vocabulary.forEach((item, index) => {
+      for (const form of [item.term, ...(item.forms ?? [])]) {
+        const key = normalizeVocabularyForm(form);
+        const owner = owners.get(key);
+        if (!key || (owner !== undefined && owner !== index))
+          ctx.addIssue({
+            code: "custom",
+            path: ["vocabulary", index, "forms"],
+            message: "Vocabulary forms must be nonempty and unambiguous between terms",
+          });
+        owners.set(key, index);
+      }
+    });
     unique(
       pack.warmup.map((item) => item.id),
       ["warmup"],

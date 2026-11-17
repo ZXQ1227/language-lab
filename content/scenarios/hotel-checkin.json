@@ -205,36 +205,42 @@
       "vocabulary": [
         {
           "term": "reservation",
+          "forms": ["reservations"],
           "meaning": "a booking made before you arrive",
           "translation": "预订",
           "example": "I have a reservation under Alex Chen."
         },
         {
           "term": "confirmation number",
+          "forms": ["confirmation numbers"],
           "meaning": "a reference code used to find a booking",
           "translation": "预订确认号",
           "example": "My confirmation number is HV-2048."
         },
         {
           "term": "double room",
+          "forms": ["double rooms"],
           "meaning": "a room with one bed designed for two people",
           "translation": "大床双人房",
           "example": "I booked a double room for two nights."
         },
         {
           "term": "quiet room",
+          "forms": ["quiet rooms"],
           "meaning": "a room with little noise",
           "translation": "安静的房间",
           "example": "Could I have a quiet room, please?"
         },
         {
           "term": "ID",
+          "forms": ["identification"],
           "meaning": "a document that shows who you are",
           "translation": "身份证件",
           "example": "Here is my ID."
         },
         {
           "term": "deposit",
+          "forms": ["deposits"],
           "meaning": "money held temporarily as a guarantee",
           "translation": "押金",
           "example": "Could you explain the fifty-dollar deposit?"
@@ -247,6 +253,7 @@
         },
         {
           "term": "included",
+          "forms": ["include", "includes"],
           "meaning": "already part of the price",
           "translation": "已包含在费用中",
           "example": "Is breakfast included?"
@@ -259,18 +266,21 @@
         },
         {
           "term": "check-out",
+          "forms": ["checkout", "checking out", "checked out"],
           "meaning": "leaving the hotel and settling your stay",
           "translation": "退房",
           "example": "What time is check-out?"
         },
         {
           "term": "key card",
+          "forms": ["key cards"],
           "meaning": "a card used to open your hotel room",
           "translation": "房卡",
           "example": "Thank you for the key card."
         },
         {
           "term": "elevator",
+          "forms": ["elevators", "lift", "lifts"],
           "meaning": "a lift that takes you between floors",
           "translation": "电梯",
           "example": "The elevator is to the left."

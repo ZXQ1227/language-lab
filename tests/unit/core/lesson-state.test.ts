@@ -110,12 +110,14 @@ describe("applyTeachingAction", () => {
     expect(state.updatedAt).toBe(T0 + 2);
   });
 
-  it("records vocabulary case-insensitively with repetition counts", () => {
+  it("counts a vocabulary item at most once per turn, even with duplicated input", () => {
     let state = makeState();
     state = applyTeachingAction(state, "continue_conversation", {
       vocabularyUsed: ["Latte", "LATTE", "espresso"],
       now: T0,
     });
+    expect(state.vocabularySeen).toEqual({ latte: 1, espresso: 1 });
+    state = applyTeachingAction(state, "continue_conversation", { vocabularyUsed: ["latte"] });
     expect(state.vocabularySeen).toEqual({ latte: 2, espresso: 1 });
   });
 

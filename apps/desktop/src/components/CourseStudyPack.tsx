@@ -75,6 +75,11 @@ export function CourseStudyPack({ template }: { template: CourseTemplate }) {
               <dd>
                 {item.meaning}
                 <p className="mt-1 italic">{item.example}</p>
+                {item.forms?.length ? (
+                  <p className="mt-1 text-xs text-slate-500">
+                    Accepted forms: {item.forms.join(", ")}
+                  </p>
+                ) : null}
               </dd>
             </div>
           ))}

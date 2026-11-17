@@ -83,3 +83,20 @@ duplicate-response repair attempt is allowed before the operation fails safely.
 All state, support markers and memory use the existing atomic checkpoint.
 See [ADR-0010](../adr/ADR-0010-dialogue-memory-and-support-requests.md) and
 [Dialogue Roleplay](../development/DIALOGUE_ROLEPLAY.md).
+
+## Deterministic vocabulary observations
+
+A pure core matcher now supplies the vocabulary skill, transcript replay and
+Training progress display. Unicode-aware normalization and lexical boundaries
+recognise exact targets plus explicitly authored course forms. Matches retain
+original UTF-16 spans; no model, fuzzy inference or dictionary service is used.
+Counters record practice turns containing a target, with occurrences and latest
+evidence derived separately. Partner/system/help messages cannot contribute, and
+lexical use never establishes mastery or completes an objective.
+
+An optional `vocabularyTrackingVersion` marker in Training checkpoints verifies
+counts against transcript evidence on restore. Legacy totals are replayed only
+in the private operation draft, then committed atomically with the next successful
+turn/review. Content snapshots retain their own accepted forms. No database or
+IPC changes are needed. See [ADR-0011](../adr/ADR-0011-deterministic-vocabulary-observations.md)
+and [Vocabulary Tracker](../development/VOCABULARY_TRACKER.md).
