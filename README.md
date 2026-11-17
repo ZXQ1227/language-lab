@@ -12,7 +12,7 @@ install the app from this repository.
 | Layer         | Choice                                                        |
 | ------------- | ------------------------------------------------------------- |
 | Desktop shell | Tauri 2                                                       |
-| Frontend      | React 19 + Vite + TypeScript                                  |
+| Frontend      | React 19 + Vite + TypeScript + Tailwind CSS v4 + Zustand      |
 | System layer  | Rust (SQLite via rusqlite, keyring, AI proxy)                 |
 | Data access   | Rust-side SQLite; Drizzle as build-time schema/migration tool |
 | Validation    | Zod                                                           |
@@ -35,7 +35,7 @@ packages/
   database/           Persistence boundary (Rust-side SQLite over IPC)
   shared/             Cross-package types, ids, result types
 content/              Teaching assets: scenarios, vocabulary, expressions, evaluation
-docs/                 Product, architecture, installation, development docs
+docs/                 Product, architecture, installation, ADRs, development docs
 scripts/              Maintenance scripts (doctor, verify-release, validate-content)
 tests/                unit / integration / e2e / evals
 ```
@@ -97,6 +97,7 @@ failure then blocks merges.
 
 - `docs/product/PRD.md` — product requirements
 - `docs/architecture/` — system, agent and memory architecture
+- `docs/adr/` — architecture decision records (read before changing documented behavior)
 - `docs/installation/AI_INSTALL.md` — LLAIP: the agent installation protocol
 - `AGENTS.md` — how AI assistants should operate on this repository
 

@@ -50,9 +50,22 @@ pnpm install          # install workspace dependencies
 pnpm typecheck        # TypeScript check (root tsconfig.json)
 pnpm lint             # ESLint
 pnpm format           # Prettier
-pnpm dev              # frontend dev server (Vite, port 1420)
+pnpm test             # unit tests (Vitest, root config)
+pnpm test:e2e         # Playwright e2e (starts Vite on port 1420)
+pnpm --filter @language-lab/desktop dev         # frontend dev server (Vite, port 1420)
 pnpm --filter @language-lab/desktop tauri dev   # full desktop shell (needs Rust)
 ```
+
+## Frontend conventions (apps/desktop)
+
+- Pages live in `src/pages/`, app state in Zustand stores under `src/stores/`
+  (no router dependency; sidebar navigation drives the active page).
+- All Tauri IPC goes through `src/lib/ipc.ts` (normalized `IpcError`).
+- Styling is Tailwind CSS v4 (`@tailwindcss/vite`); fixed light theme for v0.1.
+- Every page renders three states: loading / error (with retry) / data.
+- Scenario content ships as `content/scenarios/*.json`, bundled through
+  `src/content/scenarioContent.ts` and upserted at startup by
+  `src/content/syncScenarios.ts` (slug upsert, user data untouched).
 
 ## Working rules
 
@@ -66,6 +79,13 @@ pnpm --filter @language-lab/desktop tauri dev   # full desktop shell (needs Rust
 
 ## Status
 
-The repository is a skeleton (v0.0.1). The authoritative architecture document
-is the Language Lab Engineering Blueprint v1.1; see `docs/architecture/` as it
-fills in. Current backlog: blueprint appendix B technical spikes.
+Implemented (v0.0.1): monorepo, Tauri 2 shell, SQLite data layer (11 tables,
+Rust-side migrations + backups), Model Gateway with MockProvider, Teaching
+Agent Runtime with 7 skills, UI foundation (Tailwind v4 + Zustand, 5 pages),
+scenario content system foundation, 80 unit tests + 8 e2e specs, GitHub
+Actions CI with PR gating and unsigned desktop-build artifacts.
+
+Architecture decisions are recorded in `docs/adr/` — read them before changing
+any documented behavior. The authoritative architecture document is the
+Language Lab Engineering Blueprint v1.1. Current backlog: voice pipeline spike
+(WKWebView MediaRecorder), provider proxy in Rust, signed packaging.

@@ -1,34 +1,76 @@
-name: Desktop Build (placeholder)
+name: Desktop Build
 
-# Placeholder for the packaging pipeline (post-v0.1 prerequisite:
-# signing + notarization). Enable manually until it is wired up.
+# Builds unsigned desktop bundles on every push to main (and manually).
+# Artifacts: macOS universal (.app/.dmg) + Windows (NSIS .exe / .msi).
 #
-# Planned implementation:
-#   strategy:
-#     matrix:
-#       include:
-#         - platform: macos-latest   # universal build (aarch64 + x86_64)
-#         - platform: windows-latest # verifies WebView2 path + Windows CI
-#     steps:
-#       - install Rust stable (with rustfmt/clippy)
-#       - pnpm install --frozen-lockfile
-#       - cargo test (workspace: src-tauri)
-#       - pnpm --filter @language-lab/desktop tauri build
-#       - upload bundles via tauri-apps/tauri-action@v0
-#   secrets (to be added when signing is set up):
-#       APPLE_CERTIFICATE, APPLE_CERTIFICATE_PASSWORD,
-#       APPLE_IDENTITY_ID, APPLE_ID, APPLE_PASSWORD, APPLE_TEAM_ID
+# Signing is deliberately out of scope for v0.1 (blueprint v1.1: signing and
+# notarization are a prerequisite for the first public release, not for
+# development builds). macOS users must right-click → Open to bypass
+# Gatekeeper; Windows SmartScreen shows a warning for unsigned binaries.
+#
+# When signing lands: add APPLE_CERTIFICATE* secrets and pass
+# APPLE_SIGNING_IDENTITY to tauri build on macOS; add Azure Trusted Signing
+# (or a code-signing cert) on Windows.
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+
+concurrency:
+  group: desktop-build-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  placeholder:
-    name: Packaging pipeline not yet wired
-    runs-on: ubuntu-latest
+  build:
+    name: Build (${{ matrix.platform }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: macos-latest
+            args: --target universal-apple-darwin
+            bundle-glob: |
+              apps/desktop/src-tauri/target/universal-apple-darwin/release/bundle/**
+          - platform: windows-latest
+            args: ""
+            bundle-glob: |
+              apps/desktop/src-tauri/target/release/bundle/nsis/*.exe
+              apps/desktop/src-tauri/target/release/bundle/msi/*.msi
+    runs-on: ${{ matrix.platform }}
     steps:
-      - name: Placeholder
-        run: |
-          echo "Desktop build workflow is a placeholder."
-          echo "Real packaging (tauri build + signing + artifacts) lands with the desktop packaging task."
-          echo "Track: blueprint v1.1 - release engineering section."
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: apps/desktop/src-tauri -> target
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build desktop app
+        run: pnpm --filter @language-lab/desktop tauri build -- ${{ matrix.args }}
+
+      - name: Upload bundles
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-bundle-${{ matrix.platform }}
+          path: ${{ matrix.bundle-glob }}
+          if-no-files-found: error
+          retention-days: 14
