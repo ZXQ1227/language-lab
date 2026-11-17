@@ -6,6 +6,8 @@ import {
   detectDialogueSupport,
   type DialogueSupport,
   type ScenarioContent,
+  type ReviewPlan,
+  type ReviewAttempt,
 } from "@language-lab/core";
 import { createMockGateway } from "@language-lab/model-gateway";
 import {
@@ -24,6 +26,8 @@ import {
   runTrainingTurn,
   saveCourseReview,
   saveReportReflection,
+  generateTrainingReview,
+  saveTrainingReviewAttempt,
   dialogueSupportText,
   trainingProviderSchema,
   trainingSessionSchema,
@@ -33,6 +37,7 @@ import {
 import { saveTrainingKey, trainingGateway } from "../training/gateway";
 import { buildLearningContribution } from "../training/learningMemory";
 import { LOCAL_LEARNER_ID, readLearningMemory } from "../training/learningMemoryPersistence";
+import { readReviewPlans } from "../training/reviewPersistence";
 
 const repositories = () => createRepositories(createTauriTransport(call));
 
@@ -40,6 +45,15 @@ interface TrainingStore {
   sessions: TrainingSession[];
   session: TrainingSession | null;
   reportSession: TrainingSession | null;
+  reviewPlans: ReviewPlan[];
+  reviewsLoaded: boolean;
+  loadReviews: () => Promise<void>;
+  generateReview: (lessonId: string) => Promise<boolean>;
+  saveReviewAttempt: (
+    lessonId: string,
+    taskId: string,
+    input: { answer: string; exampleRevealed: boolean; rating: ReviewAttempt["rating"] },
+  ) => Promise<boolean>;
   loadReport: (id: string) => Promise<boolean>;
   saveReflection: (
     reflection: NonNullable<TrainingSession["reportReflection"]>,
@@ -81,6 +95,7 @@ export const useTrainingStore = create<TrainingStore>((set, get) => {
       id: checkpoint.id,
       payload: checkpoint,
       memory: contribution,
+      reviewPlan: checkpoint.reviewPlan,
     });
     set({
       ...(activate
@@ -91,6 +106,14 @@ export const useTrainingStore = create<TrainingStore>((set, get) => {
       ...(get().reportSession?.id === checkpoint.id ? { reportSession: checkpoint } : {}),
       memoryContributions: contributions,
       learningMemory,
+      ...(checkpoint.reviewPlan
+        ? {
+            reviewPlans: [
+              checkpoint.reviewPlan,
+              ...get().reviewPlans.filter((p) => p.lessonId !== checkpoint.id),
+            ],
+          }
+        : {}),
       sessions: [checkpoint, ...get().sessions.filter((item) => item.id !== checkpoint.id)].slice(
         0,
         50,
@@ -125,6 +148,8 @@ export const useTrainingStore = create<TrainingStore>((set, get) => {
     sessions: [],
     session: null,
     reportSession: null,
+    reviewPlans: [],
+    reviewsLoaded: false,
     pendingCourse: null,
     busy: false,
     loaded: false,
@@ -283,6 +308,36 @@ export const useTrainingStore = create<TrainingStore>((set, get) => {
         const current = trainingSessionSchema.parse(JSON.parse(row.payload));
         if (current.id !== selected.id) throw new Error("Report identity is inconsistent");
         await commit(saveReportReflection(current, reflection), false);
+      }),
+    loadReviews: async () => {
+      await operation(async () => {
+        const repos = repositories();
+        await repos.users.ensureLocalLearner();
+        const memory = await readLearningMemory(repos);
+        const plans = await readReviewPlans(repos);
+        set({
+          reviewPlans: plans,
+          reviewsLoaded: true,
+          learningMemory: memory.document,
+          memoryContributions: memory.contributions,
+        });
+      });
+    },
+    generateReview: async (id) =>
+      operation(async () => {
+        const row = await repositories().learningEvents.findTrainingCheckpoint(id);
+        if (!row) throw new Error("The source lesson could not be found");
+        const source = trainingSessionSchema.parse(JSON.parse(row.payload));
+        if (source.id !== id) throw new Error("Review source identity is inconsistent");
+        await commit(await generateTrainingReview(source), false);
+      }),
+    saveReviewAttempt: async (id, taskId, input) =>
+      operation(async () => {
+        const row = await repositories().learningEvents.findTrainingCheckpoint(id);
+        if (!row) throw new Error("The source lesson could not be found");
+        const source = trainingSessionSchema.parse(JSON.parse(row.payload));
+        if (source.id !== id) throw new Error("Review source identity is inconsistent");
+        await commit(saveTrainingReviewAttempt(source, taskId, input), false);
       }),
   };
 });

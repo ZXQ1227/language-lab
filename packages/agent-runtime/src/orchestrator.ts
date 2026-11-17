@@ -22,6 +22,7 @@ import {
   type ErrorDiagnosisRecord,
   type LessonState,
   type StageAssessment,
+  type ReviewPlan,
 } from "@language-lab/core";
 import type {
   ErrorDiagnosisOutput,
@@ -503,7 +504,7 @@ export class TeachingOrchestrator {
     input: Pick<AgentInput, "userId" | "lessonId" | "conversationId"> & {
       diagnoses?: readonly ErrorDiagnosisRecord[];
     },
-  ): Promise<{ state: LessonState; report: LessonEvaluatorOutput }> {
+  ): Promise<{ state: LessonState; report: LessonEvaluatorOutput; reviewPlan: ReviewPlan }> {
     const state = await this.deps.stateStore.load(input.lessonId);
     if (!state) throw new LessonNotInitializedError(input.lessonId);
     if (state.phase !== "debrief")
@@ -526,8 +527,39 @@ export class TeachingOrchestrator {
       [],
     );
     const done: LessonState = { ...state, phase: "done", updatedAt: this.now };
+    const reviewPlan = await this.runSkill<ReviewPlan>(
+      "skills.review_generator",
+      {
+        state: done,
+        messages: transcript,
+        diagnoses: input.diagnoses,
+        generatedAt: done.updatedAt,
+      },
+      context,
+      [],
+    );
     await this.deps.stateStore.save(done);
-    return { state: done, report };
+    return { state: done, report, reviewPlan };
+  }
+
+  /** Generate for a legacy completed source; no state writes or provider calls. */
+  async generateReview(
+    input: Pick<AgentInput, "userId" | "lessonId" | "conversationId"> & {
+      diagnoses?: readonly ErrorDiagnosisRecord[];
+    },
+  ): Promise<ReviewPlan> {
+    const state = await this.deps.stateStore.load(input.lessonId);
+    if (!state || state.phase !== "done")
+      throw new Error("Complete the lesson before generating targeted review");
+    const profile = await this.deps.profile.profile(input.userId);
+    const context = await this.buildContext(input, state, profile);
+    const messages = await this.deps.data.recentMessages(input.conversationId, 200);
+    return this.runSkill<ReviewPlan>(
+      "skills.review_generator",
+      { state, messages, diagnoses: input.diagnoses, generatedAt: this.now },
+      context,
+      [],
+    );
   }
 }
 

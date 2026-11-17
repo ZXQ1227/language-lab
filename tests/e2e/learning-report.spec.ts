@@ -154,6 +154,7 @@ test("opens legacy reports beyond the latest 50 resume checkpoints without silen
       source.state.updatedAt -= i * 1000;
       delete source.learningMemory;
       delete source.learningReport;
+      delete source.reviewPlan;
       return {
         ...original,
         id: `training-${source.id}`,

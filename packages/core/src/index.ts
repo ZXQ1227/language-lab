@@ -32,6 +32,7 @@ export * from "./vocabulary";
 export * from "./diagnosis";
 export * from "./intervention";
 export * from "./learning-report";
+export * from "./review";
 
 export type LessonPhase = "setup" | "briefing" | "practice" | "debrief" | "done";
 

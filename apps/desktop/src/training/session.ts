@@ -24,6 +24,10 @@ import {
   deriveInterventionState,
   buildLearningReport,
   learningReportSchema,
+  reviewPlanSchema,
+  validateReviewPlan,
+  recordReviewAttempt,
+  type ReviewAttempt,
 } from "@language-lab/core";
 import {
   createDefaultSkillRegistry,
@@ -33,7 +37,7 @@ import {
   lessonEvaluationSchema,
   SkillRegistry,
 } from "@language-lab/skills";
-import type { ModelGateway } from "@language-lab/model-gateway";
+import { createMockGateway, type ModelGateway } from "@language-lab/model-gateway";
 import {
   defaultProfileMemory,
   lessonMemoryContributionSchema,
@@ -112,12 +116,24 @@ export const trainingSessionSchema = z
       .optional(),
     report: lessonEvaluationSchema.optional(),
     learningReport: learningReportSchema.optional(),
+    reviewPlan: reviewPlanSchema.optional(),
     reportReflection: z
       .object({ note: z.string().trim().max(2000), nextPractice: z.string().trim().max(500) })
       .optional(),
     reviewAnswers: z.record(z.string(), z.string().max(2000)).optional(),
   })
   .superRefine((session, ctx) => {
+    if (session.reviewPlan) {
+      try {
+        validateReviewPlan(session.reviewPlan, session);
+      } catch {
+        ctx.addIssue({
+          code: "custom",
+          path: ["reviewPlan"],
+          message: "Review targets and progress must match saved lesson evidence",
+        });
+      }
+    }
     if (session.learningReport) {
       try {
         if (
@@ -669,5 +685,36 @@ export function saveReportReflection(
     ...session,
     reportReflection: reflection,
     state: { ...session.state, updatedAt: Date.now() },
+  });
+}
+
+export async function generateTrainingReview(session: TrainingSession): Promise<TrainingSession> {
+  const source = trainingSessionSchema.parse(session);
+  if (source.reviewPlan) return source;
+  const reviewPlan = await runtime(
+    source.scenario,
+    source.provider,
+    createMockGateway(),
+    source,
+  ).generateReview({
+    userId: "local-training-user",
+    lessonId: source.id,
+    conversationId: source.id,
+    diagnoses: source.diagnoses,
+  });
+  return finalizeCheckpoint({ ...source, reviewPlan });
+}
+
+export function saveTrainingReviewAttempt(
+  session: TrainingSession,
+  taskId: string,
+  input: { answer: string; exampleRevealed: boolean; rating: ReviewAttempt["rating"] },
+  at = Date.now(),
+): TrainingSession {
+  const source = trainingSessionSchema.parse(session);
+  if (!source.reviewPlan) throw new Error("Generate targeted review first");
+  return finalizeCheckpoint({
+    ...source,
+    reviewPlan: recordReviewAttempt(source.reviewPlan, taskId, input, at),
   });
 }

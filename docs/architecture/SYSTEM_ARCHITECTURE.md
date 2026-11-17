@@ -170,3 +170,24 @@ subjective score are explicitly separated from lesson facts. No new database,
 IPC or dependency edges are introduced. See
 [ADR-0015](../adr/ADR-0015-evidence-based-learning-reports.md) and
 [Learning Report](../development/LEARNING_REPORT.md).
+
+## Targeted follow-up review
+
+The registered Review Generator now derives bounded typed practice from completed
+course evidence, using the same deterministic core rules in AI and demo modes.
+It selects recurring short diagnosis patterns, unused words and contextual
+transfer practice, retaining exact source/uncertainty and authored examples.
+Suggested dates and self-reported completion are distinct from assessed mastery.
+
+An optional versioned `reviewPlan` lives in the canonical Training checkpoint.
+The existing multi-row SQLite UPSERT co-commits it, its queue mirror and the
+memory contribution atomically. Paginated learner/type-filtered queue reads are
+independent of the latest-50 resume window; opening or saving a task validates
+the original source. Source-grounded targets are replay-validated, while personal
+attempts keep bounded history, deterministic check results and optional example
+support without rewriting original teaching evidence. The Review page supports
+due/upcoming/practised views, answers, self-check, retry and source opening. Legacy
+plans generate explicitly and idempotently. No schema migration, IPC or dependency
+edge changes are needed. See
+[ADR-0016](../adr/ADR-0016-targeted-follow-up-review.md) and
+[Review Generator](../development/REVIEW_GENERATOR.md).

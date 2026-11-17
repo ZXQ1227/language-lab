@@ -10,6 +10,7 @@ const PAGES = [
   "Training",
   "Learning memory",
   "Reports",
+  "Review",
   "Settings",
 ] as const;
 

@@ -56,11 +56,19 @@ export async function installTauriMock(page: Page, state?: MockState): Promise<v
     let failNextMemorySave = false;
     let failNextProfileSave = false;
     let failNextMemoryRead = false;
+    let failNextReviewSave = false;
+    let failNextReviewRead = false;
     const secrets = new Map<string, string>();
 
     const invokeFn = async (cmd: string, args?: Record<string, unknown>) => {
       const s = read();
       switch (cmd) {
+        case "test_fail_next_review":
+          failNextReviewSave = true;
+          return null;
+        case "test_fail_next_review_read":
+          failNextReviewRead = true;
+          return null;
         case "test_fail_next_memory":
           failNextMemorySave = true;
           return null;
@@ -121,9 +129,13 @@ export async function installTauriMock(page: Page, state?: MockState): Promise<v
               failNextTrainingSave = false;
               throw new Error("Injected checkpoint write failure");
             }
-            if (failNextMemorySave && params.length === 8) {
+            if (failNextMemorySave && params.length >= 8) {
               failNextMemorySave = false;
               throw new Error("Injected memory write failure");
+            }
+            if (failNextReviewSave && params.length === 11) {
+              failNextReviewSave = false;
+              throw new Error("Injected review write failure");
             }
             const row = {
               id: String(params[0]),
@@ -139,7 +151,7 @@ export async function installTauriMock(page: Page, state?: MockState): Promise<v
             const index = checkpoints.findIndex((item) => item.id === row.id);
             if (index < 0) checkpoints.push(row);
             else checkpoints[index] = { ...row, created_at: checkpoints[index]!.created_at };
-            if (params.length === 8) {
+            if (params.length >= 8) {
               const memory = {
                 ...row,
                 id: String(params[5]),
@@ -152,6 +164,21 @@ export async function installTauriMock(page: Page, state?: MockState): Promise<v
                 checkpoints[memoryIndex] = {
                   ...memory,
                   created_at: checkpoints[memoryIndex]!.created_at,
+                };
+            }
+            if (params.length === 11) {
+              const review = {
+                ...row,
+                id: String(params[8]),
+                type: String(params[9]),
+                payload: String(params[10]),
+              };
+              const reviewIndex = checkpoints.findIndex((item) => item.id === review.id);
+              if (reviewIndex < 0) checkpoints.push(review);
+              else
+                checkpoints[reviewIndex] = {
+                  ...review,
+                  created_at: checkpoints[reviewIndex]!.created_at,
                 };
             }
             write({ ...s, trainingCheckpoints: checkpoints });
@@ -213,6 +240,10 @@ export async function installTauriMock(page: Page, state?: MockState): Promise<v
               .slice(0, Number(params[4]));
           }
           if (sql.startsWith("SELECT * FROM learning_events")) {
+            if (params[1] === "targeted_review_plan" && failNextReviewRead) {
+              failNextReviewRead = false;
+              throw new Error("Injected review read failure");
+            }
             if (sql.includes("ORDER BY id") && failNextMemoryRead) {
               failNextMemoryRead = false;
               throw new Error("Injected memory read failure");

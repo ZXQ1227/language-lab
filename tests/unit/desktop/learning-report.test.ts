@@ -84,6 +84,7 @@ describe("evidence-based lesson reports", () => {
       learningReport: undefined,
       learningMemory: undefined,
       diagnoses: undefined,
+      reviewPlan: undefined,
       state: { ...done.state, interventionState: undefined },
     });
     const before = JSON.stringify(old);
@@ -104,6 +105,7 @@ describe("evidence-based lesson reports", () => {
       learningReport: undefined,
       learningMemory: undefined,
       state: { ...done.state, interventionState: undefined },
+      reviewPlan: undefined,
       diagnoses: done.diagnoses?.map((record) => ({ ...record, interventionReason: undefined })),
     });
     const report = buildLearningReport(old);

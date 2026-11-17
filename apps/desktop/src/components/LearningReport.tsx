@@ -1,5 +1,26 @@
 import { buildLearningReport } from "@language-lab/core";
 import type { TrainingSession } from "../training/session";
+import { useTrainingStore } from "../stores/training";
+import { useNavStore } from "../stores/nav";
+
+function ReviewLaunch({ session }: { session: TrainingSession }) {
+  const { busy, generateReview, loadReport } = useTrainingStore();
+  const navigate = useNavStore((s) => s.navigate);
+  return (
+    <button
+      className="rounded bg-slate-900 px-3 py-2 text-sm text-white disabled:opacity-40"
+      disabled={busy}
+      onClick={() =>
+        void (async () => {
+          if (!session.reviewPlan && !(await generateReview(session.id))) return;
+          if (await loadReport(session.id)) navigate("review");
+        })()
+      }
+    >
+      {session.reviewPlan ? "Open targeted review" : "Generate targeted review"}
+    </button>
+  );
+}
 
 export function LearningReport({ session }: { session: TrainingSession }) {
   if (!session.report) return null;
@@ -155,6 +176,7 @@ export function LearningReport({ session }: { session: TrainingSession }) {
           ))}
         </ol>
       </section>
+      <ReviewLaunch session={session} />
       {session.provider.mode === "ai" && (
         <details aria-label="Model commentary" className="rounded bg-slate-50 p-3 text-sm">
           <summary className="cursor-pointer font-medium">

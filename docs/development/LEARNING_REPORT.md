@@ -15,6 +15,11 @@ share the same report view:
   subjective estimate, not proficiency or measured improvement. Guided demos show
   no score and explicitly describe supported performance.
 
+For saved follow-up tasks, answer checks, due dates and attempt history, choose
+**Open targeted review** (or **Generate targeted review** for a legacy source).
+See [Review Generator](REVIEW_GENERATOR.md). These personal review attempts remain
+separate from the evidence and static next-practice suggestions in this report.
+
 Reports lists completed episodes across all saved sources, with mode filtering
 and progressive display. It reads a checkpoint by exact lesson ID; browsing and
 reflection never switch the active Training session. **Open source lesson** opens

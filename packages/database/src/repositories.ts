@@ -304,12 +304,15 @@ export class LearningEventsRepo extends BaseRepo {
     id: string;
     payload: Record<string, unknown>;
     memory?: Record<string, unknown>;
+    reviewPlan?: Record<string, unknown>;
   }): Promise<void> {
     const ts = nowMs();
+    if (input.reviewPlan && !input.memory)
+      throw new Error("Review plans require an atomic memory checkpoint");
     if (input.memory) {
       await this.db.execute(
         `INSERT INTO learning_events (id, user_id, lesson_id, type, payload, occurred_at, created_at, updated_at)
-        VALUES (?1, ?2, NULL, ?3, ?4, ?5, ?5, ?5), (?6, ?2, NULL, ?7, ?8, ?5, ?5, ?5)
+        VALUES (?1, ?2, NULL, ?3, ?4, ?5, ?5, ?5), (?6, ?2, NULL, ?7, ?8, ?5, ?5, ?5)${input.reviewPlan ? ", (?9, ?2, NULL, ?10, ?11, ?5, ?5, ?5)" : ""}
         ON CONFLICT(id) DO UPDATE SET payload = excluded.payload, occurred_at = excluded.occurred_at, updated_at = excluded.updated_at`,
         [
           `training-${input.id}`,
@@ -320,6 +323,9 @@ export class LearningEventsRepo extends BaseRepo {
           `memory-${input.id}`,
           "learning_memory_contribution",
           JSON.stringify(input.memory),
+          ...(input.reviewPlan
+            ? [`review-${input.id}`, "targeted_review_plan", JSON.stringify(input.reviewPlan)]
+            : []),
         ],
       );
       return;
@@ -344,6 +350,15 @@ export class LearningEventsRepo extends BaseRepo {
       await this.db.select(
         "SELECT * FROM learning_events WHERE user_id = ?1 AND type = ?2 ORDER BY updated_at DESC LIMIT ?3",
         ["local-training-user", "training_checkpoint", 50],
+      ),
+    );
+  }
+  async listReviewPlans(userId: string, afterId = "", limit = 100): Promise<S.LearningEventRow[]> {
+    return parse(
+      S.learningEventRow,
+      await this.db.select(
+        "SELECT * FROM learning_events WHERE user_id = ?1 AND type = ?2 AND id > ?3 ORDER BY id LIMIT ?4",
+        [userId, "targeted_review_plan", afterId, Math.max(1, Math.min(limit, 200))],
       ),
     );
   }
