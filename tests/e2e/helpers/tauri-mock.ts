@@ -19,6 +19,16 @@ export interface MockScenarioRow {
 export interface MockState {
   lessons: { id: string; scenarioId: string; status: string }[];
   scenarios: MockScenarioRow[];
+  trainingCheckpoints?: {
+    id: string;
+    user_id: string;
+    lesson_id: null;
+    type: string;
+    payload: string;
+    occurred_at: number;
+    created_at: number;
+    updated_at: number;
+  }[];
 }
 
 export async function installTauriMock(page: Page, state?: MockState): Promise<void> {
@@ -33,10 +43,20 @@ export async function installTauriMock(page: Page, state?: MockState): Promise<v
     }
     const read = () => JSON.parse(window.sessionStorage.getItem(KEY)!) as MockState;
     const write = (s: MockState) => window.sessionStorage.setItem(KEY, JSON.stringify(s));
+    let failNextTrainingSave = false;
+    const secrets = new Map<string, string>();
 
     const invokeFn = async (cmd: string, args?: Record<string, unknown>) => {
       const s = read();
       switch (cmd) {
+        case "test_fail_next_checkpoint":
+          failNextTrainingSave = true;
+          return null;
+        case "secrets_set":
+          secrets.set(String(args?.name), String(args?.value));
+          return null;
+        case "secrets_get":
+          return secrets.get(String(args?.name)) ?? null;
         case "health_check":
           return { status: "ok", appVersion: "0.0.1-e2e", os: "playwright", arch: "chromium" };
         case "db_status":
@@ -49,6 +69,28 @@ export async function installTauriMock(page: Page, state?: MockState): Promise<v
         case "db_execute": {
           const sql = String(args?.sql ?? "");
           const params = (args?.params as unknown[]) ?? [];
+          if (sql.startsWith("INSERT INTO learning_events")) {
+            if (failNextTrainingSave) {
+              failNextTrainingSave = false;
+              throw new Error("Injected checkpoint write failure");
+            }
+            const row = {
+              id: String(params[0]),
+              user_id: String(params[1]),
+              lesson_id: null,
+              type: String(params[2]),
+              payload: String(params[3]),
+              occurred_at: Number(params[4]),
+              created_at: Number(params[4]),
+              updated_at: Number(params[4]),
+            };
+            const checkpoints = s.trainingCheckpoints ?? [];
+            const index = checkpoints.findIndex((item) => item.id === row.id);
+            if (index < 0) checkpoints.push(row);
+            else checkpoints[index] = { ...row, created_at: checkpoints[index]!.created_at };
+            write({ ...s, trainingCheckpoints: checkpoints });
+            return { rowsAffected: 1, lastInsertId: row.id };
+          }
           if (sql.startsWith("INSERT INTO lessons")) {
             s.lessons.push({
               id: String(params[0] ?? crypto.randomUUID()),
@@ -79,6 +121,8 @@ export async function installTauriMock(page: Page, state?: MockState): Promise<v
         }
         case "db_select": {
           const sql = String(args?.sql ?? "");
+          if (sql.startsWith("SELECT * FROM learning_events"))
+            return [...(s.trainingCheckpoints ?? [])].sort((a, b) => b.updated_at - a.updated_at);
           if (sql.startsWith("SELECT * FROM lessons")) {
             return s.lessons.map((l) => ({
               id: l.id,

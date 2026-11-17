@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
 import {
-  applyTeachingAction,
+  applyStageAssessment,
   configureScenarioContent,
   createLessonStateFromScenario,
   getCurrentCourseStage,
@@ -144,15 +144,28 @@ describe("versioned scenario courses", () => {
       ...createLessonStateFromScenario({ lessonId: "lesson", scenario, now: 0 }),
       phase: "practice" as const,
     };
-    const next = applyTeachingAction(state, "complete_task", { now: 1 });
+    const assess = (value: typeof state | ReturnType<typeof applyStageAssessment>) => {
+      const stage = getCurrentCourseStage(value)!;
+      return applyStageAssessment(
+        value,
+        {
+          stageId: stage.id,
+          criteria: stage.successCriteria.map((_, criterionIndex) => ({
+            criterionIndex,
+            met: true,
+            evidence: [{ messageSeq: 0, quote: "Learner response" }],
+          })),
+          feedback: "Demonstrated",
+        },
+        [{ seq: 0, role: "user", content: "Learner response" }],
+        1,
+      );
+    };
+    const next = assess(state);
     expect(next.objectives.map((objective) => objective.completed)).toEqual([false, false, true]);
     expect(getCurrentCourseStage(next)?.id).toBe("choose-options");
     // Completing every stage still reaches debrief through the state machine.
-    const last = applyTeachingAction(
-      applyTeachingAction(next, "complete_task", { now: 2 }),
-      "complete_task",
-      { now: 3 },
-    );
+    const last = assess(assess(next));
     expect(last.phase).toBe("debrief");
   });
 });

@@ -59,7 +59,7 @@ export class OpenAiCompatibleLlmProvider implements LlmProvider {
 
   constructor(private readonly config: OpenAiCompatibleConfig) {
     this.id = config.id ?? `openai-compatible:${config.model}`;
-    this.fetchImpl = config.fetchImpl ?? fetch;
+    this.fetchImpl = config.fetchImpl ?? globalThis.fetch.bind(globalThis);
   }
 
   async generateText(request: LlmRequest, options?: CallOptions): Promise<LlmTextResult> {

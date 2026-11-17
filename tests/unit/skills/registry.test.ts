@@ -145,8 +145,14 @@ describe("SkillRegistry.call validation", () => {
 
 describe("first-batch registries", () => {
   it("default and mock registries expose exactly the first batch", () => {
-    expect(createDefaultSkillRegistry().ids()).toEqual([...FIRST_BATCH_SKILL_IDS]);
-    expect(createMockSkillRegistry().ids()).toEqual([...FIRST_BATCH_SKILL_IDS]);
+    expect(createDefaultSkillRegistry().ids()).toEqual([
+      ...FIRST_BATCH_SKILL_IDS,
+      "skills.objective_evaluator",
+    ]);
+    expect(createMockSkillRegistry().ids()).toEqual([
+      ...FIRST_BATCH_SKILL_IDS,
+      "skills.objective_evaluator",
+    ]);
     expect(FIRST_BATCH_SKILL_IDS).toHaveLength(7);
   });
 });

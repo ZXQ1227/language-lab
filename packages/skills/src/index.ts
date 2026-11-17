@@ -15,8 +15,13 @@ export * from "./definitions/error-diagnosis";
 export * from "./definitions/teaching-intervention";
 export * from "./definitions/lesson-evaluator";
 export * from "./definitions/review-generator";
+export * from "./definitions/objective-evaluator";
 
 import { SkillRegistry } from "./registry";
+import {
+  createObjectiveEvaluatorSkill,
+  createMockObjectiveEvaluatorSkill,
+} from "./definitions/objective-evaluator";
 import {
   createScenarioSelectorSkill,
   createMockScenarioSelectorSkill,
@@ -56,7 +61,7 @@ export const FIRST_BATCH_SKILL_IDS = [
   "skills.review_generator",
 ] as const;
 
-/** Registry preloaded with the real (LLM-backed) first batch. */
+/** Registry preloaded with the first batch and the grounded objective evaluator. */
 export function createDefaultSkillRegistry(): SkillRegistry {
   const registry = new SkillRegistry();
   registry.register(createScenarioSelectorSkill());
@@ -66,10 +71,11 @@ export function createDefaultSkillRegistry(): SkillRegistry {
   registry.register(createTeachingInterventionSkill());
   registry.register(createLessonEvaluatorSkill());
   registry.register(createReviewGeneratorSkill());
+  registry.register(createObjectiveEvaluatorSkill());
   return registry;
 }
 
-/** Registry preloaded with deterministic mock skills (no model calls). */
+/** Deterministic mocks, including a conservative objective evaluator. */
 export function createMockSkillRegistry(): SkillRegistry {
   const registry = new SkillRegistry();
   registry.register(createMockScenarioSelectorSkill());
@@ -79,5 +85,6 @@ export function createMockSkillRegistry(): SkillRegistry {
   registry.register(createMockTeachingInterventionSkill());
   registry.register(createMockLessonEvaluatorSkill());
   registry.register(createMockReviewGeneratorSkill());
+  registry.register(createMockObjectiveEvaluatorSkill());
   return registry;
 }

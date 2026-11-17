@@ -125,7 +125,7 @@ async function initHotelLesson(orchestrator: TeachingOrchestrator): Promise<void
 describe("SkillRegistry", () => {
   it("registers, queries and lists skills", () => {
     const registry = createMockSkillRegistry();
-    expect(registry.ids()).toHaveLength(7);
+    expect(registry.ids()).toHaveLength(8);
     expect(registry.has("skills.error_diagnosis")).toBe(true);
     expect(registry.has("skills.nonexistent")).toBe(false);
     expect(registry.require("skills.error_diagnosis").id).toBe("skills.error_diagnosis");

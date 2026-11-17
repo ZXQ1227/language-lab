@@ -1,6 +1,11 @@
 // AgentInput / AgentOutput - the orchestrator's public contract.
 
-import type { CourseConfiguration, LessonState, TeachingAction } from "@language-lab/core";
+import type {
+  CourseConfiguration,
+  LessonState,
+  StageAssessment,
+  TeachingAction,
+} from "@language-lab/core";
 import type { DiagnosedError } from "@language-lab/skills";
 
 export type ConversationMode = "text" | "voice";
@@ -46,6 +51,7 @@ export interface AgentOutput {
     readonly fluency: "fluent" | "hesitant" | "halting";
   };
   readonly state: LessonState;
+  readonly assessment?: StageAssessment;
   /** Domain events the orchestrator persisted through the data ports. */
   readonly persistedEvents: readonly { type: string; payload?: Record<string, unknown> }[];
   readonly skillTrace: readonly { skillId: string; durationMs: number; ok: boolean }[];

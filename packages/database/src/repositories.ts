@@ -32,6 +32,13 @@ abstract class BaseRepo {
 }
 
 export class UsersRepo extends BaseRepo {
+  async ensureLocalLearner(): Promise<void> {
+    const ts = nowMs();
+    await this.db.execute(
+      "INSERT INTO users (id, display_name, created_at, updated_at) VALUES (?1, ?2, ?3, ?3) ON CONFLICT(id) DO UPDATE SET updated_at = excluded.updated_at",
+      ["local-training-user", "Local learner", ts],
+    );
+  }
   async create(input: { id?: string; displayName: string }): Promise<S.UserRow> {
     const id = input.id ?? newId();
     const ts = nowMs();
@@ -272,6 +279,35 @@ export class MessagesRepo extends BaseRepo {
 }
 
 export class LearningEventsRepo extends BaseRepo {
+  /** One atomic checkpoint contains the transcript, evidence, events and state. */
+  async saveTrainingCheckpoint(input: {
+    id: string;
+    payload: Record<string, unknown>;
+  }): Promise<void> {
+    const ts = nowMs();
+    await this.db.execute(
+      `INSERT INTO learning_events (id, user_id, lesson_id, type, payload, occurred_at, created_at, updated_at)
+       VALUES (?1, ?2, NULL, ?3, ?4, ?5, ?5, ?5)
+       ON CONFLICT(id) DO UPDATE SET payload = excluded.payload, occurred_at = excluded.occurred_at, updated_at = excluded.updated_at`,
+      [
+        `training-${input.id}`,
+        "local-training-user",
+        "training_checkpoint",
+        JSON.stringify(input.payload),
+        ts,
+      ],
+    );
+  }
+
+  async listTrainingCheckpoints(): Promise<S.LearningEventRow[]> {
+    return parse(
+      S.learningEventRow,
+      await this.db.select(
+        "SELECT * FROM learning_events WHERE user_id = ?1 AND type = ?2 ORDER BY updated_at DESC LIMIT ?3",
+        ["local-training-user", "training_checkpoint", 50],
+      ),
+    );
+  }
   async record(input: {
     id?: string;
     userId: string;

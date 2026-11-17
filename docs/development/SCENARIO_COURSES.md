@@ -68,9 +68,8 @@ activities when the level changes.
 ## Runtime integration
 
 `ScenarioView.courseTemplate` carries authored content through the existing data
-port. A desktop composition root should enrich the database's metadata projection
-with the bundled (or explicitly selected imported) course before returning it from
-`findScenario`. The current SQLite `scenarios` row intentionally stays a metadata
+port. The desktop Training composition returns the selected bundled or imported
+course from `findScenario`. The current SQLite `scenarios` row stays a metadata
 projection; no database migration is necessary for this step.
 
 `TeachingOrchestrator.initLesson({ ..., configuration })` validates the selected
@@ -86,20 +85,18 @@ The deterministic intervention skill enforces the snapshotted feedback budgets;
 the counters survive state serialization.
 
 `getCurrentCourseStage` selects the first stage with incomplete objectives.
-This step does **not** add objective-evidence evaluation, automatic stage
-completion, or the Training conversation UI. Existing objective-completion
-signals drive stage selection; a future evaluator must provide grounded evidence
-before changing those signals. The Training page remains the existing placeholder.
+The [teaching loop](TEACHING_LOOP.md) now evaluates stage criteria with exact
+learner-message citations, updates objective state and advances to the next stage.
+**Practise this course** opens the configured copy in Training.
 
 ## Compatibility and checks
 
 Seven-field legacy scenarios without `schemaVersion` or `courseTemplate` remain
 readable and compile to the existing lesson state. Missing versions normalize to
-
-1. New shipped scenarios must include authored courses (enforced in tests).
-   Existing serialized lesson states without a course snapshot remain readable.
-   The state version stays 1 because the snapshot is an additive optional field.
-   Unknown fields, unsupported versions and invalid CEFR levels fail validation.
+version 1. Tests require all new shipped scenarios to include authored courses.
+Existing serialized lesson states without a course snapshot remain readable.
+The state version stays 1 because the snapshot is an additive optional field.
+Unknown fields, unsupported versions and invalid CEFR levels fail validation.
 
 Run `pnpm typecheck && pnpm lint && pnpm test`, then `pnpm test:e2e` and
 `pnpm --filter @language-lab/desktop build`. The unit suite checks the JSON Schema

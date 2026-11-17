@@ -49,6 +49,7 @@ export function createErrorDiagnosisSkill(): SkillDefinition<
                 `Student level: ${input.studentLevel}.`,
                 "List only real errors (be conservative; do not invent corrections).",
                 "Classify overall intent in one short phrase (e.g. 'book a room').",
+                'Return JSON: {"errors":[{"category":"grammar|vocabulary|collocation|tense|article|spelling","original":"exact erroneous text","corrected":"correction","explanation":"short explanation"}],"fluency":"fluent|hesitant|halting","intent":"short phrase"}. Use one listed enum value per field and an empty errors array when correct.',
               ].join(" "),
             },
             { role: "user", content: input.utterance },

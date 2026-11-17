@@ -38,6 +38,8 @@ automatically; the Tauri IPC bridge is mocked in-browser (see
 
 For versioned teaching courses, the template format, Scenarios configuration and
 runtime integration, see [Scenario courses](SCENARIO_COURSES.md).
+For text practice, evidence-based stage progression, connected AI and local
+checkpoint persistence, see [Teaching loop](TEACHING_LOOP.md).
 
 ## Data locations (macOS dev)
 

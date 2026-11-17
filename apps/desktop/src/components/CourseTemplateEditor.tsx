@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useTrainingStore } from "../stores/training";
+import { useNavStore } from "../stores/nav";
 import {
   cefrLevelSchema,
   configureScenarioContent,
@@ -7,6 +9,7 @@ import {
 } from "@language-lab/core";
 
 export function CourseTemplateEditor({ scenario }: { scenario: ScenarioContent }) {
+  const trainingBusy = useTrainingStore((state) => state.busy);
   const template = scenario.courseTemplate;
   const [difficulty, setDifficulty] = useState(scenario.difficulty);
   const [correctionMode, setCorrectionMode] = useState(
@@ -181,6 +184,18 @@ export function CourseTemplateEditor({ scenario }: { scenario: ScenarioContent }
           className="rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white disabled:opacity-40"
         >
           Export course JSON
+        </button>
+        <button
+          type="button"
+          disabled={!configured || trainingBusy}
+          className="ml-3 rounded-md border border-slate-300 px-3 py-2 text-sm font-medium disabled:opacity-40"
+          onClick={() => {
+            if (!configured || useTrainingStore.getState().busy) return;
+            useTrainingStore.getState().prepare(configured);
+            useNavStore.getState().navigate("training");
+          }}
+        >
+          Practise this course
         </button>
       </div>
     </details>

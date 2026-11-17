@@ -7,6 +7,12 @@
 
 import { z } from "zod";
 import {
+  stageAssessmentSchema,
+  validateStageAssessment,
+  type StageAssessment,
+  type EvidenceMessage,
+} from "./assessment";
+import {
   configureScenarioContent,
   courseTemplateSchema,
   type CourseConfiguration,
@@ -15,6 +21,7 @@ import {
 } from "./scenario";
 
 export * from "./scenario";
+export * from "./assessment";
 
 export type LessonPhase = "setup" | "briefing" | "practice" | "debrief" | "done";
 
@@ -69,6 +76,7 @@ export interface LessonState {
   readonly updatedAt: number;
   /** Validated snapshot: content updates cannot change an in-progress course. */
   readonly courseTemplate?: CourseTemplate;
+  readonly stageAssessments?: Record<string, StageAssessment>;
 }
 
 export const lessonStateSchema = z
@@ -86,9 +94,18 @@ export const lessonStateSchema = z
     hintsGiven: z.number().int().nonnegative(),
     updatedAt: z.number().int().nonnegative(),
     courseTemplate: courseTemplateSchema.optional(),
+    stageAssessments: z.record(z.string(), stageAssessmentSchema).optional(),
   })
   .superRefine((state, ctx) => {
-    if (!state.courseTemplate) return;
+    if (!state.courseTemplate) {
+      if (Object.keys(state.stageAssessments ?? {}).length)
+        ctx.addIssue({
+          code: "custom",
+          path: ["stageAssessments"],
+          message: "Stage evidence needs a course template",
+        });
+      return;
+    }
     const expected = new Set(state.objectives.map((objective) => objective.id));
     const assigned = new Set(state.courseTemplate.stages.flatMap((stage) => stage.objectiveIds));
     if (assigned.size !== expected.size || [...assigned].some((id) => !expected.has(id))) {
@@ -97,6 +114,24 @@ export const lessonStateSchema = z
         path: ["courseTemplate", "stages"],
         message: "Course stages must cover exactly the lesson objectives",
       });
+    }
+    for (const [id, assessment] of Object.entries(state.stageAssessments ?? {})) {
+      const stage = state.courseTemplate.stages.find((item) => item.id === id);
+      const indexes = new Set(assessment.criteria.map((item) => item.criterionIndex));
+      if (
+        !stage ||
+        assessment.stageId !== id ||
+        indexes.size !== stage.successCriteria.length ||
+        assessment.criteria.length !== indexes.size ||
+        [...indexes].some((index) => index >= stage.successCriteria.length) ||
+        assessment.criteria.some((item) => item.met && item.evidence.length === 0)
+      ) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["stageAssessments", id],
+          message: "Invalid saved stage evidence",
+        });
+      }
     }
   });
 
@@ -177,6 +212,45 @@ export function getCurrentCourseStage(state: LessonState): CourseStage | undefin
   );
 }
 
+/** A stage completes only when every criterion has verified learner citations. */
+export function applyStageAssessment(
+  state: LessonState,
+  raw: unknown,
+  transcript: readonly EvidenceMessage[],
+  now = Date.now(),
+): LessonState {
+  if (state.phase !== "practice") throw new Error("Stage assessment requires the practice phase");
+  const stage = getCurrentCourseStage(state);
+  if (!stage) throw new Error("No incomplete course stage to assess");
+  const proposed = validateStageAssessment(raw, stage, transcript);
+  const previous = state.stageAssessments?.[stage.id];
+  if (previous) validateStageAssessment(previous, stage, transcript);
+  const assessment = {
+    ...proposed,
+    criteria: proposed.criteria.map((criterion) => {
+      const prior = previous?.criteria.find(
+        (item) => item.criterionIndex === criterion.criterionIndex,
+      );
+      return !criterion.met && prior?.met ? prior : criterion;
+    }),
+  };
+  const passed = assessment.criteria.every((criterion) => criterion.met);
+  if (passed && proposed.criteria.some((criterion) => !criterion.met))
+    assessment.feedback = "All stage criteria demonstrated across your replies.";
+  const objectives = state.objectives.map((objective) =>
+    passed && stage.objectiveIds.includes(objective.id)
+      ? { ...objective, completed: true }
+      : objective,
+  );
+  return lessonStateSchema.parse({
+    ...state,
+    objectives,
+    stageAssessments: { ...state.stageAssessments, [stage.id]: assessment },
+    phase: objectives.every((objective) => objective.completed) ? "debrief" : "practice",
+    updatedAt: now,
+  });
+}
+
 /** Deterministic state update for one teaching action. Pure function. */
 export function applyTeachingAction(
   state: LessonState,
@@ -191,11 +265,8 @@ export function applyTeachingAction(
   }
 
   let objectives = state.objectives;
-  if (action === "complete_task") {
-    const stage = getCurrentCourseStage(state);
-    const index = objectives.findIndex(
-      (o) => !o.completed && (!stage || stage.objectiveIds.includes(o.id)),
-    );
+  if (action === "complete_task" && !state.courseTemplate) {
+    const index = objectives.findIndex((o) => !o.completed);
     if (index >= 0) {
       objectives = objectives.map((o, i) => (i === index ? { ...o, completed: true } : o));
     }

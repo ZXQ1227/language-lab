@@ -8,12 +8,19 @@
 
 import {
   applyTeachingAction,
+  applyStageAssessment,
   createInitialLessonState,
   createLessonStateFromScenario,
   getCurrentCourseStage,
   type LessonState,
+  type StageAssessment,
 } from "@language-lab/core";
-import type { DiagnosedError, SkillContext, StudentProfileView } from "@language-lab/skills";
+import type {
+  DiagnosedError,
+  LessonEvaluatorOutput,
+  SkillContext,
+  StudentProfileView,
+} from "@language-lab/skills";
 import { SkillValidationError } from "@language-lab/skills";
 import type { AgentEvent } from "./events";
 import type { OrchestratorDeps } from "./ports";
@@ -54,7 +61,11 @@ export class TeachingOrchestrator {
       userId: input.userId,
       lessonId: input.lessonId,
       conversationId: input.conversationId,
-      studentProfile: profile,
+      studentProfile: {
+        ...profile,
+        level: state.difficulty,
+        targetLanguage: state.courseTemplate?.targetLanguage ?? profile.targetLanguage,
+      },
       lessonState: state,
       memory,
       modelGateway: this.deps.gateway,
@@ -153,6 +164,11 @@ export class TeachingOrchestrator {
 
     const state = await this.deps.stateStore.load(input.lessonId);
     if (!state) throw new LessonNotInitializedError(input.lessonId);
+    if (state.phase === "setup") throw new Error("Complete lesson setup before practising");
+    if (state.phase === "done" || state.phase === "debrief")
+      throw new Error("Practice has ended; finish and review this lesson");
+    if (!input.utterance.trim() || input.utterance.length > 4000)
+      throw new Error("Enter a reply between 1 and 4000 characters");
 
     const profile = await this.deps.profile.profile(input.userId);
     const context = await this.buildContext(input, state, profile);
@@ -176,6 +192,44 @@ export class TeachingOrchestrator {
       trace,
     );
 
+    const recentMessages = (await this.deps.data.recentMessages(input.conversationId, 200)).slice(
+      -200,
+    );
+    let assessedState = state;
+    let assessment: StageAssessment | undefined;
+    const stage = getCurrentCourseStage(state);
+    if (stage) {
+      const transcript = [
+        ...recentMessages,
+        {
+          seq: Math.max(-1, ...recentMessages.map((message) => message.seq)) + 1,
+          role: "user" as const,
+          content: input.utterance,
+        },
+      ];
+      assessment = await this.runSkill<StageAssessment>(
+        "skills.objective_evaluator",
+        {
+          stage,
+          objectives: state.objectives.filter((objective) =>
+            stage.objectiveIds.includes(objective.id),
+          ),
+          transcript,
+          previousAssessment: state.stageAssessments?.[stage.id],
+        },
+        context,
+        trace,
+      );
+      assessedState = applyStageAssessment(
+        { ...state, phase: "practice" },
+        assessment,
+        transcript,
+        this.now,
+      );
+      assessment = assessedState.stageAssessments?.[stage.id];
+    }
+    const assessedContext = { ...context, lessonState: assessedState };
+
     // 2. Deterministic teaching decision (rule-based skill).
     const intervention = await this.runSkill<{
       action: AgentOutput["teachingAction"];
@@ -189,11 +243,11 @@ export class TeachingOrchestrator {
         hintsGiven: state.hintsGiven,
         correctionsGiven: state.correctionsGiven,
         allObjectivesCompleted:
-          state.objectives.length > 0 && state.objectives.every((o) => o.completed),
+          assessedState.objectives.length > 0 && assessedState.objectives.every((o) => o.completed),
         objectiveCount: state.objectives.length,
         policy: state.courseTemplate?.teachingPolicy,
       },
-      context,
+      assessedContext,
       trace,
     );
     this.emit({
@@ -204,6 +258,7 @@ export class TeachingOrchestrator {
     });
 
     // 3. In-character reply generation.
+    const nextStage = getCurrentCourseStage(assessedState);
     const roleplay = await this.runSkill<{ reply: string; tone: string }>(
       "skills.dialogue_roleplay",
       {
@@ -222,7 +277,8 @@ export class TeachingOrchestrator {
               difficulty: state.difficulty,
               targetVocabulary: [...state.targetVocabulary],
               targetPatterns: state.courseTemplate.targetPatterns,
-              stage: getCurrentCourseStage(state),
+              stage: nextStage,
+              assessment: nextStage ? assessedState.stageAssessments?.[nextStage.id] : undefined,
               allowHints: state.hintsGiven < state.courseTemplate.teachingPolicy.maxHints,
             }
           : undefined,
@@ -233,20 +289,21 @@ export class TeachingOrchestrator {
             ? `Correct gently: "${intervention.correction.original}" -> "${intervention.correction.corrected}" (${intervention.correction.explanation})`
             : undefined,
         },
-        recentMessages: (await this.deps.data.recentMessages(input.conversationId, 10)).slice(-10),
+        recentMessages: recentMessages.slice(-10),
       },
-      context,
+      assessedContext,
       trace,
     );
 
     // 4. Deterministic state update + domain events.
     const vocabularyUsed = vocabulary.used;
-    const newState = applyTeachingAction(state, intervention.action, {
+    const newState = applyTeachingAction(assessedState, intervention.action, {
       vocabularyUsed,
       now: this.now,
     });
 
     const persistedEvents: { type: string; payload?: Record<string, unknown> }[] = [];
+    if (assessment) persistedEvents.push({ type: "stage_assessed", payload: { ...assessment } });
     for (const word of vocabularyUsed) {
       persistedEvents.push({ type: "vocabulary_used", payload: { word } });
     }
@@ -296,10 +353,37 @@ export class TeachingOrchestrator {
         fluency: diagnosis.fluency,
       },
       state: newState,
+      assessment,
       persistedEvents,
       skillTrace: trace,
       elapsedMs,
     };
+  }
+
+  async finishLesson(
+    input: Pick<AgentInput, "userId" | "lessonId" | "conversationId">,
+  ): Promise<{ state: LessonState; report: LessonEvaluatorOutput }> {
+    const state = await this.deps.stateStore.load(input.lessonId);
+    if (!state) throw new LessonNotInitializedError(input.lessonId);
+    if (state.phase !== "debrief")
+      throw new Error("Complete the lesson objectives before requesting a review");
+    const profile = await this.deps.profile.profile(input.userId);
+    const context = await this.buildContext(input, state, profile);
+    const report = await this.runSkill<LessonEvaluatorOutput>(
+      "skills.lesson_evaluator",
+      {
+        transcript: await this.deps.data.recentMessages(input.conversationId, 200),
+        vocabularySeen: state.vocabularySeen,
+        correctionsGiven: state.correctionsGiven,
+        objectivesCompleted: state.objectives.filter((objective) => objective.completed).length,
+        objectiveCount: state.objectives.length,
+      },
+      context,
+      [],
+    );
+    const done: LessonState = { ...state, phase: "done", updatedAt: this.now };
+    await this.deps.stateStore.save(done);
+    return { state: done, report };
   }
 }
 

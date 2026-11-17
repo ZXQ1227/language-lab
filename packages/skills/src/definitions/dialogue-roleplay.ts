@@ -5,7 +5,7 @@
 import { z } from "zod";
 import type { SkillDefinition } from "../contract";
 import type { MessageRole, SkillContext } from "../context";
-import { courseStageSchema, type TeachingAction } from "@language-lab/core";
+import { courseStageSchema, stageAssessmentSchema, type TeachingAction } from "@language-lab/core";
 
 const messageSchema = z.object({
   seq: z.number(),
@@ -38,6 +38,7 @@ const inputSchema = z.object({
       targetVocabulary: z.array(z.string()),
       targetPatterns: z.array(z.object({ pattern: z.string(), example: z.string() })),
       stage: courseStageSchema.optional(),
+      assessment: stageAssessmentSchema.optional(),
       allowHints: z.boolean(),
     })
     .optional(),
@@ -74,6 +75,7 @@ export function createDialogueRoleplaySkill(): SkillDefinition<
         `You are ${input.roleCard.persona} in the setting: ${input.roleCard.setting}.`,
         `Student level: ${input.course?.difficulty ?? context.studentProfile.level} ${input.course?.targetLanguage ?? context.studentProfile.targetLanguage}.`,
         "Stay in character. Reply in the target language. Keep replies short (1-3 sentences).",
+        'Return only JSON with "reply" (nonempty string) and "tone" ("encouraging", "neutral" or "corrective").',
         ...(input.course
           ? [
               `The learner plays: ${input.course.learnerRole}.`,
@@ -82,6 +84,11 @@ export function createDialogueRoleplaySkill(): SkillDefinition<
               input.course.stage
                 ? `Current stage: ${input.course.stage.title}. ${input.course.stage.instruction}\nSuccess criteria: ${input.course.stage.successCriteria.join("; ")}.`
                 : "All course stages have been completed; wrap up the roleplay.",
+              input.course.assessment
+                ? `Verified criterion progress (zero-based indexes): ${JSON.stringify(input.course.assessment.criteria.map(({ criterionIndex, met }) => ({ criterionIndex, met })))}. Elicit one unmet criterion next; avoid repeating already demonstrated checks.`
+                : input.course.stage
+                  ? "Invite the learner to demonstrate the current stage's criteria."
+                  : "Close the completed lesson.",
               input.course.allowHints && input.course.stage
                 ? `Available scaffolding: ${input.course.stage.hints.join("; ")}. Use only when asked to provide a hint.`
                 : "Do not provide additional hints; the lesson hint budget is exhausted.",
