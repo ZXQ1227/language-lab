@@ -232,6 +232,7 @@ test("duplicate repair and failed writes do not publish uncommitted replies or m
   expect((await checkpoint(page)).state.dialogueMemory[0].quote).toBe(first);
   await page.getByRole("button", { name: "Send reply", exact: true }).click();
   await expect(page.getByRole("alert")).toHaveCount(0);
+  await expect(page.getByRole("textbox", { name: "Your reply", exact: true })).toHaveValue("");
   const saved = await checkpoint(page);
   expect(saved.state.turnCount).toBe(2);
   expect(saved.messages).toHaveLength(5);

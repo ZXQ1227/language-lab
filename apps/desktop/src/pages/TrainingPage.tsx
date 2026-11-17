@@ -7,6 +7,7 @@ import {
 } from "@language-lab/core";
 import { CourseStudyPack, CourseReviewPractice } from "../components/CourseStudyPack";
 import { VocabularyProgress } from "../components/VocabularyProgress";
+import { LanguageFeedback } from "../components/LanguageFeedback";
 import { loadScenarioContent } from "../content/scenarioContent";
 import { useTrainingStore } from "../stores/training";
 import { getGuidedExample, supportsGuidedDemo, type TrainingProvider } from "../training/session";
@@ -317,18 +318,21 @@ export function TrainingPage() {
                   </li>
                 ))}
               </ol>
-              {session.lastTurn?.action === "light_correction" && session.lastTurn.errors[0] && (
-                <div
-                  aria-label="Correction"
-                  className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm"
-                >
-                  <p className="font-medium">A small correction</p>
-                  <p>
-                    {session.lastTurn.errors[0].original} → {session.lastTurn.errors[0].corrected}
-                  </p>
-                  <p>{session.lastTurn.errors[0].explanation}</p>
-                </div>
-              )}
+              <LanguageFeedback session={session} />
+              {!session.diagnoses &&
+                session.lastTurn?.action === "light_correction" &&
+                session.lastTurn.errors[0] && (
+                  <div
+                    aria-label="Correction"
+                    className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm"
+                  >
+                    <p className="font-medium">A small correction</p>
+                    <p>
+                      {session.lastTurn.errors[0].original} → {session.lastTurn.errors[0].corrected}
+                    </p>
+                    <p>{session.lastTurn.errors[0].explanation}</p>
+                  </div>
+                )}
               {assessment && (
                 <div
                   aria-label="Learning feedback"

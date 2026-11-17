@@ -101,10 +101,15 @@ describe("configured teaching courses", () => {
     expect((await orchestrator.processStudentTurn(turn)).teachingAction).toBe(
       "continue_conversation",
     );
-    const halting = { ...turn, utterance: "I go yesterday and I am agree" };
-    expect((await orchestrator.processStudentTurn(halting)).teachingAction).toBe("provide_hint");
-    const final = await orchestrator.processStudentTurn(halting);
+    const help = { ...turn, utterance: "Could you give me one hint?" };
+    expect((await orchestrator.processStudentTurn(help)).teachingAction).toBe("provide_hint");
+    await expect(orchestrator.processStudentTurn(help)).rejects.toThrow("hint budget is exhausted");
+    const final = await orchestrator.processStudentTurn({
+      ...turn,
+      utterance: "I go yesterday and I am agree",
+    });
     expect(final.teachingAction).toBe("continue_conversation");
+    expect(final.analysis.fluency).toBe("not_assessed");
     expect(final.state.correctionsGiven).toBe(1);
     expect(final.state.hintsGiven).toBe(1);
   });

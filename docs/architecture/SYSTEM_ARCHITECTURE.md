@@ -100,3 +100,20 @@ in the private operation draft, then committed atomically with the next successf
 turn/review. Content snapshots retain their own accepted forms. No database or
 IPC changes are needed. See [ADR-0011](../adr/ADR-0011-deterministic-vocabulary-observations.md)
 and [Vocabulary Tracker](../development/VOCABULARY_TRACKER.md).
+
+## Grounded language diagnosis
+
+The model diagnosis skill receives bounded context but may cite only the current
+learner reply. Core validation requires exact original spans, meaningful changes,
+non-overlapping suggestions and preserved numeric sequences. Declared uncertain
+suggestions are withheld; invalid schema/evidence permits one bounded repair.
+Text-derived fluency is `not_assessed` and cannot trigger automatic fluency hints.
+
+Deterministic teaching policy chooses one validated priority correction within
+the existing limits. Optional per-practice diagnosis records preserve the accepted
+observations and the delivered correction reference in the atomic checkpoint;
+restore verifies their citations and delivery consistency. Help messages remain
+excluded, original learner text remains intact, and review receives the same
+source/uncertainty information. No SQL or IPC changes are required. See
+[ADR-0012](../adr/ADR-0012-grounded-language-diagnosis.md) and
+[Error Diagnosis](../development/ERROR_DIAGNOSIS.md).

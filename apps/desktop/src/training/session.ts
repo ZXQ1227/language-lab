@@ -19,6 +19,8 @@ import {
   vocabularyCounts,
   type LessonState,
   type EvidenceMessage,
+  errorDiagnosisRecordSchema,
+  validateDiagnosisRecords,
 } from "@language-lab/core";
 import {
   createDefaultSkillRegistry,
@@ -76,6 +78,7 @@ export const trainingSessionSchema = z
   .object({
     version: z.literal(1),
     vocabularyTrackingVersion: z.literal(1).optional(),
+    diagnoses: z.array(errorDiagnosisRecordSchema).max(100).optional(),
     id: z.string().min(1),
     scenario: scenarioContentSchema,
     provider: trainingProviderSchema,
@@ -99,6 +102,25 @@ export const trainingSessionSchema = z
     reviewAnswers: z.record(z.string(), z.string().max(2000)).optional(),
   })
   .superRefine((session, ctx) => {
+    try {
+      validateDiagnosisRecords(session.diagnoses ?? [], session.messages);
+      const shown = (session.diagnoses ?? []).filter(
+        (record) => record.correctionIndex !== undefined,
+      ).length;
+      const policy = session.state.courseTemplate?.teachingPolicy;
+      if (
+        shown > session.state.correctionsGiven ||
+        (policy &&
+          (shown > policy.maxCorrections || (policy.correctionMode === "off" && shown > 0)))
+      )
+        throw new Error("Invalid delivered correction count");
+    } catch {
+      ctx.addIssue({
+        code: "custom",
+        path: ["diagnoses"],
+        message: "Saved language feedback has invalid learner evidence or correction delivery",
+      });
+    }
     if (session.vocabularyTrackingVersion === 1) {
       const counts = trainingVocabularyCounts(session.state, session.messages);
       if (
@@ -445,6 +467,7 @@ export async function createTrainingSession(
     state,
     messages: [{ seq: 0, role: "assistant", content: state.courseTemplate!.openingLine }],
     events: [],
+    diagnoses: [],
   });
 }
 
@@ -492,6 +515,24 @@ export async function runTrainingTurn(
       },
     ],
     events: [...session.events, ...result.persistedEvents],
+    diagnoses: result.analysis.diagnosis
+      ? [
+          ...(session.diagnoses ?? []),
+          {
+            messageSeq: session.messages.length,
+            diagnosis: result.analysis.diagnosis,
+            ...(result.correction
+              ? {
+                  correctionIndex: result.analysis.diagnosis.errors.findIndex(
+                    (error) =>
+                      error.start === result.correction!.start &&
+                      error.end === result.correction!.end,
+                  ),
+                }
+              : {}),
+          },
+        ]
+      : session.diagnoses,
     lastTurn: {
       action: result.teachingAction,
       errors: result.analysis.errors,
@@ -510,6 +551,7 @@ export async function finishTrainingSession(
     userId: "local-training-user",
     lessonId: session.id,
     conversationId: session.id,
+    diagnoses: session.diagnoses,
   });
   return trainingSessionSchema.parse({ ...session, ...result, vocabularyTrackingVersion: 1 });
 }

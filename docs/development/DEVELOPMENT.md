@@ -46,6 +46,8 @@ For dynamic character replies, grounded dialogue memory and conversation support
 see [Dialogue Roleplay](DIALOGUE_ROLEPLAY.md).
 For deterministic word/form matching, original evidence, practice counts and
 checkpoint replay, see [Vocabulary Tracker](VOCABULARY_TRACKER.md).
+For conservative grammar/word-choice diagnosis, exact error evidence, correction
+delivery and saved feedback, see [Error Diagnosis](ERROR_DIAGNOSIS.md).
 
 ## Data locations (macOS dev)
 

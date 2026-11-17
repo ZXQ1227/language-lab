@@ -15,11 +15,14 @@ import {
   dialogueSupportSchema,
   detectDialogueSupport,
   mergeDialogueMemory,
+  validateDiagnosisRecords,
+  validateDiagnosedErrors,
+  type ErrorDiagnosisRecord,
   type LessonState,
   type StageAssessment,
 } from "@language-lab/core";
 import type {
-  DiagnosedError,
+  ErrorDiagnosisOutput,
   LessonEvaluatorOutput,
   SkillContext,
   StudentProfileView,
@@ -187,20 +190,32 @@ export class TeachingOrchestrator {
     )
       throw new Error("The lesson hint budget is exhausted");
 
+    const recentMessages = (await this.deps.data.recentMessages(input.conversationId, 200)).slice(
+      -200,
+    );
+
     // 1. Structured analysis (two independent skills).
-    const diagnosis = support
-      ? { errors: [], fluency: "fluent" as const, intent: `support:${support}` }
-      : await this.runSkill<{
-          errors: DiagnosedError[];
-          fluency: "fluent" | "hesitant" | "halting";
-          intent: string;
-        }>(
+    const diagnosis: ErrorDiagnosisOutput = support
+      ? {
+          errors: [],
+          fluency: "not_assessed",
+          intent: `support:${support}`,
+          source: "model",
+          status: "checked",
+          withheldCount: 0,
+        }
+      : await this.runSkill<ErrorDiagnosisOutput>(
           "skills.error_diagnosis",
-          { utterance: input.utterance, studentLevel: state.difficulty },
+          {
+            utterance: input.utterance,
+            studentLevel: state.difficulty,
+            recentMessages: recentMessages.slice(-6),
+          },
           context,
           trace,
         );
 
+    validateDiagnosedErrors(input.utterance, diagnosis.errors);
     const vocabulary = support
       ? { used: [], missed: [], matches: [] }
       : await this.runSkill<VocabularyTrackerOutput>(
@@ -217,9 +232,6 @@ export class TeachingOrchestrator {
           trace,
         );
 
-    const recentMessages = (await this.deps.data.recentMessages(input.conversationId, 200)).slice(
-      -200,
-    );
     const transcript = [
       ...recentMessages,
       {
@@ -290,6 +302,17 @@ export class TeachingOrchestrator {
       action: intervention.action,
       rationale: intervention.rationale,
     });
+    const correction =
+      intervention.action === "light_correction"
+        ? diagnosis.errors.find(
+            (error) =>
+              error.original === intervention.correction?.original &&
+              error.corrected === intervention.correction.corrected &&
+              error.explanation === intervention.correction.explanation,
+          )
+        : undefined;
+    if (intervention.action === "light_correction" && !correction)
+      throw new Error("Teaching correction must reference a validated diagnosis");
 
     // 3. In-character reply generation.
     const nextStage = getCurrentCourseStage(assessedState);
@@ -364,6 +387,11 @@ export class TeachingOrchestrator {
     );
 
     const persistedEvents: { type: string; payload?: Record<string, unknown> }[] = [];
+    if (!support)
+      persistedEvents.push({
+        type: "utterance_diagnosed",
+        payload: { messageSeq: transcript.at(-1)!.seq, diagnosis },
+      });
     if (support)
       persistedEvents.push({ type: "dialogue_support_requested", payload: { request: support } });
     if (roleplay.memoryUpdates?.length)
@@ -385,7 +413,7 @@ export class TeachingOrchestrator {
     for (const error of diagnosis.errors) {
       persistedEvents.push({
         type: "error_made",
-        payload: { category: error.category, original: error.original, corrected: error.corrected },
+        payload: { ...error, messageSeq: transcript.at(-1)!.seq },
       });
     }
     const newlyCompleted = newState.objectives.filter(
@@ -397,7 +425,7 @@ export class TeachingOrchestrator {
     if (intervention.correction) {
       persistedEvents.push({
         type: "correction_given",
-        payload: { ...intervention.correction },
+        payload: { ...correction, messageSeq: transcript.at(-1)!.seq },
       });
     }
 
@@ -426,12 +454,14 @@ export class TeachingOrchestrator {
         vocabularyMissed: vocabulary.missed,
         vocabularyMatches: vocabulary.matches,
         errors: diagnosis.errors,
+        diagnosis: support ? undefined : diagnosis,
         fluency: support ? "not_assessed" : diagnosis.fluency,
       },
       state: newState,
       assessment,
       dialogueMove,
       supportRequest: support,
+      correction,
       persistedEvents,
       skillTrace: trace,
       elapsedMs,
@@ -439,7 +469,9 @@ export class TeachingOrchestrator {
   }
 
   async finishLesson(
-    input: Pick<AgentInput, "userId" | "lessonId" | "conversationId">,
+    input: Pick<AgentInput, "userId" | "lessonId" | "conversationId"> & {
+      diagnoses?: readonly ErrorDiagnosisRecord[];
+    },
   ): Promise<{ state: LessonState; report: LessonEvaluatorOutput }> {
     const state = await this.deps.stateStore.load(input.lessonId);
     if (!state) throw new LessonNotInitializedError(input.lessonId);
@@ -447,10 +479,13 @@ export class TeachingOrchestrator {
       throw new Error("Complete the lesson objectives before requesting a review");
     const profile = await this.deps.profile.profile(input.userId);
     const context = await this.buildContext(input, state, profile);
+    const transcript = await this.deps.data.recentMessages(input.conversationId, 200);
+    validateDiagnosisRecords(input.diagnoses ?? [], transcript);
     const report = await this.runSkill<LessonEvaluatorOutput>(
       "skills.lesson_evaluator",
       {
-        transcript: await this.deps.data.recentMessages(input.conversationId, 200),
+        transcript,
+        diagnoses: input.diagnoses,
         vocabularySeen: state.vocabularySeen,
         correctionsGiven: state.correctionsGiven,
         objectivesCompleted: state.objectives.filter((objective) => objective.completed).length,

@@ -28,6 +28,7 @@ export * from "./assessment";
 export * from "./course-pack";
 export * from "./dialogue";
 export * from "./vocabulary";
+export * from "./diagnosis";
 
 export type LessonPhase = "setup" | "briefing" | "practice" | "debrief" | "done";
 

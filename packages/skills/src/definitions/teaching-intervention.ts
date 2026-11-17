@@ -16,7 +16,7 @@ const inputSchema = z.object({
       explanation: z.string(),
     }),
   ),
-  fluency: z.enum(["fluent", "hesitant", "halting"]),
+  fluency: z.enum(["fluent", "hesitant", "halting", "not_assessed"]),
   hintsGiven: z.number().int().nonnegative(),
   correctionsGiven: z.number().int().nonnegative(),
   allObjectivesCompleted: z.boolean(),

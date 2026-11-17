@@ -8,6 +8,7 @@ import type {
   DialogueSupport,
   DialogueMove,
   VocabularyMatch,
+  ErrorDiagnosis,
 } from "@language-lab/core";
 import type { DiagnosedError } from "@language-lab/skills";
 
@@ -53,12 +54,14 @@ export interface AgentOutput {
     readonly vocabularyMissed: readonly string[];
     readonly vocabularyMatches: readonly VocabularyMatch[];
     readonly errors: readonly DiagnosedError[];
+    readonly diagnosis?: ErrorDiagnosis;
     readonly fluency: "fluent" | "hesitant" | "halting" | "not_assessed";
   };
   readonly state: LessonState;
   readonly assessment?: StageAssessment;
   readonly dialogueMove?: DialogueMove;
   readonly supportRequest?: DialogueSupport;
+  readonly correction?: DiagnosedError;
   /** Domain events the orchestrator persisted through the data ports. */
   readonly persistedEvents: readonly { type: string; payload?: Record<string, unknown> }[];
   readonly skillTrace: readonly { skillId: string; durationMs: number; ok: boolean }[];
