@@ -8,6 +8,7 @@ import {
   stageAssessmentSchema,
   teachingActionSchema,
   validateStageAssessment,
+  resolveCourseTemplate,
   type ScenarioContent,
 } from "@language-lab/core";
 import {
@@ -83,6 +84,7 @@ export const trainingSessionSchema = z
       })
       .optional(),
     report: lessonEvaluationSchema.optional(),
+    reviewAnswers: z.record(z.string(), z.string().max(2000)).optional(),
   })
   .superRefine((session, ctx) => {
     if (
@@ -102,7 +104,7 @@ export const trainingSessionSchema = z
       });
     }
     if (
-      JSON.stringify(session.scenario.courseTemplate) !==
+      JSON.stringify(resolveCourseTemplate(session.scenario)) !==
         JSON.stringify(session.state.courseTemplate) ||
       session.scenario.difficulty !== session.state.difficulty ||
       JSON.stringify(session.scenario.targetVocabulary) !==
@@ -143,6 +145,23 @@ export const trainingSessionSchema = z
           message: "Completed objectives need verified stage evidence",
         });
       }
+    }
+    if (
+      session.reviewAnswers &&
+      (session.state.phase !== "done" ||
+        !session.state.courseTemplate?.learningPack ||
+        Object.keys(session.reviewAnswers).some(
+          (id) =>
+            !session.state.courseTemplate!.learningPack!.reviewPractice.some(
+              (item) => item.id === id,
+            ),
+        ))
+    ) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["reviewAnswers"],
+        message: "Review answers must belong to a completed course pack",
+      });
     }
   });
 export type TrainingSession = z.infer<typeof trainingSessionSchema>;
@@ -195,8 +214,19 @@ const DEMO: Record<string, Record<string, { answer: string; prompt: string }>> =
   },
 };
 
+const bundledCourses = loadScenarioContent();
+
+function guidedMaterial(scenario: ScenarioContent, stageId: string) {
+  const authored = resolveCourseTemplate(scenario)?.learningPack?.guidedPractice.find(
+    (item) => item.stageId === stageId,
+  );
+  return authored
+    ? { answer: authored.suggestedReply, prompt: authored.partnerPrompt }
+    : DEMO[scenario.slug]?.[stageId];
+}
+
 export function supportsGuidedDemo(scenario: ScenarioContent): boolean {
-  const original = loadScenarioContent().find((item) => item.slug === scenario.slug);
+  const original = bundledCourses.find((item) => item.slug === scenario.slug);
   const material = (item: ScenarioContent) => ({
     objectives: item.objectives,
     vocabulary: item.targetVocabulary,
@@ -206,18 +236,19 @@ export function supportsGuidedDemo(scenario: ScenarioContent): boolean {
     openingLine: item.courseTemplate?.openingLine,
     stages: item.courseTemplate?.stages,
     language: item.courseTemplate?.targetLanguage,
+    learningPack: item.courseTemplate?.learningPack,
   });
   return (
     !!original &&
-    !!DEMO[scenario.slug] &&
+    (!!DEMO[scenario.slug] || !!original.courseTemplate?.learningPack) &&
     JSON.stringify(material(original)) === JSON.stringify(material(scenario))
   );
 }
 
 export function getGuidedExample(session: TrainingSession): string | undefined {
   const stage = getCurrentCourseStage(session.state);
-  return stage && supportsGuidedDemo(session.scenario)
-    ? DEMO[session.scenario.slug]?.[stage.id]?.answer
+  return stage && session.provider.mode === "demo"
+    ? guidedMaterial(session.scenario, stage.id)?.answer
     : undefined;
 }
 
@@ -231,7 +262,7 @@ function makeSkills(scenario: ScenarioContent, demo: boolean) {
   registry.register(
     createMockObjectiveEvaluatorSkill((input) => {
       const message = input.transcript.at(-1)!;
-      const example = DEMO[scenario.slug]?.[input.stage.id]?.answer;
+      const example = guidedMaterial(scenario, input.stage.id)?.answer;
       const normalize = (value: string) =>
         value
           .toLowerCase()
@@ -258,7 +289,7 @@ function makeSkills(scenario: ScenarioContent, demo: boolean) {
       const stage = getCurrentCourseStage(context.lessonState);
       return {
         reply: stage
-          ? (DEMO[scenario.slug]?.[stage.id]?.prompt ?? "Please try the suggested reply.")
+          ? (guidedMaterial(scenario, stage.id)?.prompt ?? "Please try the suggested reply.")
           : "Well done! You completed all practice steps. You can now review the lesson.",
         tone: input.intervention.action === "light_correction" ? "corrective" : "encouraging",
       };
@@ -340,7 +371,7 @@ export async function createTrainingSession(
     scenario,
     provider,
     state,
-    messages: [{ seq: 0, role: "assistant", content: scenario.courseTemplate.openingLine }],
+    messages: [{ seq: 0, role: "assistant", content: state.courseTemplate!.openingLine }],
     events: [],
   });
 }
@@ -391,4 +422,15 @@ export async function finishTrainingSession(
     conversationId: session.id,
   });
   return trainingSessionSchema.parse({ ...session, ...result });
+}
+
+export function saveCourseReview(
+  session: TrainingSession,
+  answers: Record<string, string>,
+): TrainingSession {
+  return trainingSessionSchema.parse({
+    ...session,
+    reviewAnswers: answers,
+    state: { ...session.state, updatedAt: Date.now() },
+  });
 }

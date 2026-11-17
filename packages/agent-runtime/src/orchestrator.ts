@@ -279,6 +279,7 @@ export class TeachingOrchestrator {
               targetPatterns: state.courseTemplate.targetPatterns,
               stage: nextStage,
               assessment: nextStage ? assessedState.stageAssessments?.[nextStage.id] : undefined,
+              scenarioFacts: state.courseTemplate.learningPack?.scenarioFacts,
               allowHints: state.hintsGiven < state.courseTemplate.teachingPolicy.maxHints,
             }
           : undefined,

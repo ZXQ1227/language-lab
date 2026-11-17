@@ -29,6 +29,12 @@ bundle matches the directory.
 | `courseTemplate.stages`                    | Ordered practice stages (1–12).                                                                                    |
 | `courseTemplate.teachingPolicy`            | Correction style and per-lesson feedback budgets.                                                                  |
 
+Complete courses may also include `courseTemplate.learningPack` (facts, vocabulary
+meanings, warm-up, model dialogue, guided practice, review tasks and variations)
+and an optional `selectedVariationId`. [Hotel Check-in](HOTEL_CHECKIN.md) is the
+first complete example. Stage references and all required study material are
+validated before use.
+
 Each stage has a unique kebab-case `id`, `title`, partner `instruction`, nonempty
 `objectiveIds`, nonempty `successCriteria`, and `hints` (may be empty). Every
 objective must be assigned to exactly one stage. References to missing objectives
@@ -68,7 +74,10 @@ activities when the level changes.
 ## Runtime integration
 
 `ScenarioView.courseTemplate` carries authored content through the existing data
-port. The desktop Training composition returns the selected bundled or imported
+port. `resolveCourseTemplate` compiles a chosen challenge from the original source
+without mutating its standard stages. Checkpoints contain the resolved snapshot;
+exported templates retain their editable source and selected challenge id.
+The desktop Training composition returns the selected bundled or imported
 course from `findScenario`. The current SQLite `scenarios` row stays a metadata
 projection; no database migration is necessary for this step.
 

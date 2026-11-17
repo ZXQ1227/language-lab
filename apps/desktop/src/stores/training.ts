@@ -6,6 +6,7 @@ import {
   createTrainingSession,
   finishTrainingSession,
   runTrainingTurn,
+  saveCourseReview,
   trainingProviderSchema,
   trainingSessionSchema,
   type TrainingProvider,
@@ -29,6 +30,7 @@ interface TrainingStore {
   send: (utterance: string) => Promise<boolean>;
   finish: () => Promise<void>;
   updateKey: (key: string) => Promise<void>;
+  saveReviewAnswers: (answers: Record<string, string>) => Promise<boolean>;
 }
 
 export const useTrainingStore = create<TrainingStore>((set, get) => {
@@ -135,5 +137,11 @@ export const useTrainingStore = create<TrainingStore>((set, get) => {
         await saveTrainingKey(current.provider, key.trim());
       });
     },
+    saveReviewAnswers: async (answers) =>
+      operation(async () => {
+        const current = get().session;
+        if (!current) throw new Error("Complete a course before saving review answers");
+        await commit(saveCourseReview(current, answers));
+      }),
   };
 });

@@ -1,5 +1,11 @@
 import { useEffect, useState } from "react";
-import { getCurrentCourseStage, type ScenarioContent } from "@language-lab/core";
+import {
+  configureScenarioContent,
+  getCurrentCourseStage,
+  resolveCourseTemplate,
+  type ScenarioContent,
+} from "@language-lab/core";
+import { CourseStudyPack, CourseReviewPractice } from "../components/CourseStudyPack";
 import { loadScenarioContent } from "../content/scenarioContent";
 import { useTrainingStore } from "../stores/training";
 import { getGuidedExample, supportsGuidedDemo, type TrainingProvider } from "../training/session";
@@ -15,6 +21,13 @@ function LessonSetup({ course }: { course: ScenarioContent }) {
   const [baseUrl, setBaseUrl] = useState("http://localhost:11434/v1");
   const [model, setModel] = useState("llama3.2");
   const [key, setKey] = useState("");
+  const [variationId, setVariationId] = useState(
+    course.courseTemplate?.selectedVariationId ?? "standard",
+  );
+  const configured = course.courseTemplate?.learningPack
+    ? configureScenarioContent(course, { variationId })
+    : course;
+  const template = resolveCourseTemplate(configured);
   const selectedMode = supportsGuidedDemo(course) ? mode : "ai";
   return (
     <form
@@ -23,13 +36,34 @@ function LessonSetup({ course }: { course: ScenarioContent }) {
         event.preventDefault();
         const provider: TrainingProvider =
           selectedMode === "demo" ? { mode: "demo" } : { mode: "ai", baseUrl, model };
-        void start(course, provider, key).finally(() => setKey(""));
+        void start(configured, provider, key).finally(() => setKey(""));
       }}
     >
       <h2 className="font-semibold">
         {course.title} · {course.difficulty}
       </h2>
       <p className="text-sm text-slate-600">Your role: {course.courseTemplate?.roles.learner}</p>
+      {course.courseTemplate?.learningPack && (
+        <>
+          <label className="block text-sm">
+            Course challenge
+            <select
+              className={control}
+              disabled={busy}
+              value={variationId}
+              onChange={(event) => setVariationId(event.target.value)}
+            >
+              <option value="standard">Standard check-in</option>
+              {course.courseTemplate.learningPack.variations.map((variation) => (
+                <option key={variation.id} value={variation.id}>
+                  {variation.title}
+                </option>
+              ))}
+            </select>
+          </label>
+          {template && <CourseStudyPack template={template} />}
+        </>
+      )}
       <label className="block text-sm">
         Practice mode
         <select
@@ -108,6 +142,7 @@ export function TrainingPage() {
     send,
     finish,
     updateKey,
+    saveReviewAnswers,
   } = useTrainingStore();
   const [courseSlug, setCourseSlug] = useState(courses[0]!.slug);
   const [reply, setReply] = useState("");
@@ -125,6 +160,9 @@ export function TrainingPage() {
   const assessment = session?.lastTurn?.assessment;
   const assessmentStage = session?.state.courseTemplate?.stages.find(
     (item) => item.id === assessment?.stageId,
+  );
+  const challenge = session?.state.courseTemplate?.learningPack?.variations.find(
+    (item) => item.id === session.state.courseTemplate?.selectedVariationId,
   );
 
   return (
@@ -178,6 +216,9 @@ export function TrainingPage() {
                   <option value={item.id} key={item.id}>
                     {item.scenario.title} · {item.state.phase} · {item.state.turnCount} replies ·{" "}
                     {item.provider.mode === "demo" ? "demo" : "AI"}
+                    {item.state.courseTemplate?.learningPack
+                      ? ` · ${item.state.courseTemplate.learningPack.variations.find((variation) => variation.id === item.state.courseTemplate?.selectedVariationId)?.title ?? "Standard check-in"}`
+                      : ""}
                   </option>
                 ))}
               </select>
@@ -212,6 +253,9 @@ export function TrainingPage() {
                 <h2 className="font-semibold">
                   {session.scenario.title} · {session.state.difficulty}
                 </h2>
+                {challenge && (
+                  <p className="text-sm text-slate-600">Practice challenge: {challenge.title}</p>
+                )}
                 <p className="text-sm text-slate-500">
                   {session.provider.mode === "demo"
                     ? "Guided demo · suggested replies only"
@@ -238,6 +282,16 @@ export function TrainingPage() {
                   </ul>
                 )}
               </div>
+              {session.state.courseTemplate?.learningPack && (
+                <details className="text-sm">
+                  <summary className="cursor-pointer font-medium text-slate-700">
+                    Lesson reference
+                  </summary>
+                  <div className="mt-3">
+                    <CourseStudyPack template={session.state.courseTemplate} />
+                  </div>
+                </details>
+              )}
               <ol aria-label="Conversation" className="space-y-3">
                 {session.messages.map((message) => (
                   <li
@@ -394,6 +448,14 @@ export function TrainingPage() {
                     </button>
                   </form>
                 </details>
+              )}
+              {session.report && session.state.courseTemplate?.learningPack && (
+                <CourseReviewPractice
+                  key={session.id}
+                  session={session}
+                  busy={busy}
+                  onSave={saveReviewAnswers}
+                />
               )}
             </>
           )}

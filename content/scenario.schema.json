@@ -167,6 +167,291 @@
           },
           "required": ["correctionMode", "maxCorrections", "maxHints"],
           "additionalProperties": false
+        },
+        "learningPack": {
+          "type": "object",
+          "properties": {
+            "schemaVersion": {
+              "type": "number",
+              "const": 1
+            },
+            "overview": {
+              "type": "string",
+              "minLength": 1
+            },
+            "prerequisites": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "scenarioFacts": {
+              "minItems": 1,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "value": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": ["label", "value"],
+                "additionalProperties": false
+              }
+            },
+            "vocabulary": {
+              "minItems": 1,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "term": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "meaning": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "translation": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "example": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": ["term", "meaning", "example"],
+                "additionalProperties": false
+              }
+            },
+            "warmup": {
+              "minItems": 1,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "^[a-z0-9-]+$"
+                  },
+                  "prompt": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "suggestedAnswer": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": ["id", "prompt", "suggestedAnswer"],
+                "additionalProperties": false
+              }
+            },
+            "modelDialogue": {
+              "minItems": 2,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "stageId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "^[a-z0-9-]+$"
+                  },
+                  "role": {
+                    "type": "string",
+                    "enum": ["learner", "partner"]
+                  },
+                  "text": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": ["stageId", "role", "text"],
+                "additionalProperties": false
+              }
+            },
+            "guidedPractice": {
+              "minItems": 1,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "stageId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "^[a-z0-9-]+$"
+                  },
+                  "suggestedReply": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "partnerPrompt": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": ["stageId", "suggestedReply", "partnerPrompt"],
+                "additionalProperties": false
+              }
+            },
+            "reviewPractice": {
+              "minItems": 1,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "^[a-z0-9-]+$"
+                  },
+                  "prompt": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "suggestedAnswer": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": ["id", "prompt", "suggestedAnswer"],
+                "additionalProperties": false
+              }
+            },
+            "variations": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "^[a-z0-9-]+$"
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "briefing": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "settingAddition": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "openingLine": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "factOverrides": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "label": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "value": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "required": ["label", "value"],
+                      "additionalProperties": false
+                    }
+                  },
+                  "stageOverrides": {
+                    "minItems": 1,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "stageId": {
+                          "type": "string",
+                          "minLength": 1,
+                          "pattern": "^[a-z0-9-]+$"
+                        },
+                        "instruction": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "successCriteria": {
+                          "minItems": 1,
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        },
+                        "hints": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        },
+                        "suggestedReply": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "partnerPrompt": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "required": [
+                        "stageId",
+                        "instruction",
+                        "successCriteria",
+                        "hints",
+                        "suggestedReply",
+                        "partnerPrompt"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "id",
+                  "title",
+                  "briefing",
+                  "settingAddition",
+                  "factOverrides",
+                  "stageOverrides"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "schemaVersion",
+            "overview",
+            "prerequisites",
+            "scenarioFacts",
+            "vocabulary",
+            "warmup",
+            "modelDialogue",
+            "guidedPractice",
+            "reviewPractice",
+            "variations"
+          ],
+          "additionalProperties": false
+        },
+        "selectedVariationId": {
+          "type": "string",
+          "minLength": 1
         }
       },
       "required": [

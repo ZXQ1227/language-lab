@@ -9,8 +9,9 @@ import { scenarioContentSchema, type ScenarioContent } from "@language-lab/core"
 import cafeOrder from "../../../../content/scenarios/cafe-order.json";
 import doctorVisit from "../../../../content/scenarios/doctor-visit.json";
 import smallTalk from "../../../../content/scenarios/small-talk.json";
+import hotelCheckin from "../../../../content/scenarios/hotel-checkin.json";
 
-const RAW_CONTENT_FILES = [cafeOrder, doctorVisit, smallTalk] as const;
+const RAW_CONTENT_FILES = [cafeOrder, doctorVisit, smallTalk, hotelCheckin] as const;
 
 export function parseScenarioContent(raw: unknown): ScenarioContent {
   return scenarioContentSchema.parse(raw);

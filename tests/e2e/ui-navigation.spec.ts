@@ -43,10 +43,11 @@ test("settings shows the database location and keyring note", async ({ page }) =
 
 test("scenarios page shows the bundled scenario library after content sync", async ({ page }) => {
   await page.getByRole("button", { name: "Scenarios", exact: true }).click();
-  // Startup sync upserts the three bundled scenarios into the mock DB.
+  // Startup sync upserts the bundled scenarios into the mock DB.
   await expect(page.getByText("Ordering at a cafe")).toBeVisible();
   await expect(page.getByText("Seeing a doctor")).toBeVisible();
   await expect(page.getByText("Small talk with a colleague")).toBeVisible();
+  await expect(page.getByText("Hotel Check-in", { exact: true })).toBeVisible();
   await expect(page.getByText("latte", { exact: true })).toBeVisible();
 });
 

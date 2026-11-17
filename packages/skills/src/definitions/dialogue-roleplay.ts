@@ -5,7 +5,12 @@
 import { z } from "zod";
 import type { SkillDefinition } from "../contract";
 import type { MessageRole, SkillContext } from "../context";
-import { courseStageSchema, stageAssessmentSchema, type TeachingAction } from "@language-lab/core";
+import {
+  courseFactSchema,
+  courseStageSchema,
+  stageAssessmentSchema,
+  type TeachingAction,
+} from "@language-lab/core";
 
 const messageSchema = z.object({
   seq: z.number(),
@@ -39,6 +44,7 @@ const inputSchema = z.object({
       targetPatterns: z.array(z.object({ pattern: z.string(), example: z.string() })),
       stage: courseStageSchema.optional(),
       assessment: stageAssessmentSchema.optional(),
+      scenarioFacts: z.array(courseFactSchema).optional(),
       allowHints: z.boolean(),
     })
     .optional(),
@@ -79,6 +85,9 @@ export function createDialogueRoleplaySkill(): SkillDefinition<
         ...(input.course
           ? [
               `The learner plays: ${input.course.learnerRole}.`,
+              input.course.scenarioFacts
+                ? `Authored scenario facts: ${JSON.stringify(input.course.scenarioFacts)}. Keep factual details consistent; do not invent different fees, room numbers or service times.`
+                : "",
               `Practise vocabulary: ${input.course.targetVocabulary.join(", ")}.`,
               `Target expressions: ${input.course.targetPatterns.map((item) => `${item.pattern} (example: ${item.example})`).join("; ")}.`,
               input.course.stage

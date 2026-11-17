@@ -40,6 +40,8 @@ For versioned teaching courses, the template format, Scenarios configuration and
 runtime integration, see [Scenario courses](SCENARIO_COURSES.md).
 For text practice, evidence-based stage progression, connected AI and local
 checkpoint persistence, see [Teaching loop](TEACHING_LOOP.md).
+For the first complete course, study material, challenge variants and independent
+review answers, see [Hotel Check-in](HOTEL_CHECKIN.md).
 
 ## Data locations (macOS dev)
 

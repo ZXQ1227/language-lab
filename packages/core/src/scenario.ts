@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { learningPackSchema } from "./course-pack";
 
 const text = z.string().trim().min(1);
 export const cefrLevelSchema = z.enum(["A1", "A2", "B1", "B2", "C1", "C2"]);
@@ -30,6 +31,8 @@ export const courseTemplateSchema = z
     targetPatterns: z.array(z.strictObject({ pattern: text, example: text })).min(1),
     stages: z.array(courseStageSchema).min(1).max(12),
     teachingPolicy: teachingPolicySchema,
+    learningPack: learningPackSchema.optional(),
+    selectedVariationId: text.optional(),
   })
   .superRefine((course, ctx) => {
     const ids = new Set<string>();
@@ -54,6 +57,56 @@ export const courseTemplateSchema = z
         assigned.add(id);
       });
     });
+    const pack = course.learningPack;
+    if (
+      course.selectedVariationId &&
+      !pack?.variations.some((item) => item.id === course.selectedVariationId)
+    )
+      ctx.addIssue({
+        code: "custom",
+        path: ["selectedVariationId"],
+        message: "Unknown course variation",
+      });
+    if (pack) {
+      const reference = (stageId: string, path: (string | number)[]) => {
+        if (!ids.has(stageId))
+          ctx.addIssue({ code: "custom", path, message: `Unknown stage: ${stageId}` });
+      };
+      pack.guidedPractice.forEach((item, index) =>
+        reference(item.stageId, ["learningPack", "guidedPractice", index, "stageId"]),
+      );
+      pack.modelDialogue.forEach((item, index) =>
+        reference(item.stageId, ["learningPack", "modelDialogue", index, "stageId"]),
+      );
+      pack.variations.forEach((variation, index) =>
+        variation.stageOverrides.forEach((item, stageIndex) =>
+          reference(item.stageId, [
+            "learningPack",
+            "variations",
+            index,
+            "stageOverrides",
+            stageIndex,
+            "stageId",
+          ]),
+        ),
+      );
+      for (const stageId of ids) {
+        if (!pack.guidedPractice.some((item) => item.stageId === stageId))
+          ctx.addIssue({
+            code: "custom",
+            path: ["learningPack", "guidedPractice"],
+            message: `Missing guided practice for ${stageId}`,
+          });
+        for (const role of ["learner", "partner"]) {
+          if (!pack.modelDialogue.some((item) => item.stageId === stageId && item.role === role))
+            ctx.addIssue({
+              code: "custom",
+              path: ["learningPack", "modelDialogue"],
+              message: `Missing ${role} model line for ${stageId}`,
+            });
+        }
+      }
+    }
   });
 
 export type CourseTemplate = z.infer<typeof courseTemplateSchema>;
@@ -97,6 +150,23 @@ export const scenarioContentSchema = z
         });
       }
     }
+    const vocabulary = scenario.courseTemplate.learningPack?.vocabulary;
+    if (
+      vocabulary &&
+      (vocabulary.length !== scenario.targetVocabulary.length ||
+        vocabulary.some(
+          (item) =>
+            !scenario.targetVocabulary.some(
+              (term) => term.toLowerCase() === item.term.toLowerCase(),
+            ),
+        ))
+    ) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["courseTemplate", "learningPack", "vocabulary"],
+        message: "Learning pack vocabulary must cover the target vocabulary exactly",
+      });
+    }
   });
 
 export type ScenarioContent = z.infer<typeof scenarioContentSchema>;
@@ -104,6 +174,7 @@ export type ScenarioContent = z.infer<typeof scenarioContentSchema>;
 export const courseConfigurationSchema = z.strictObject({
   difficulty: cefrLevelSchema.optional(),
   teachingPolicy: teachingPolicySchema.partial().optional(),
+  variationId: text.optional(),
 });
 
 export type CourseConfiguration = z.infer<typeof courseConfigurationSchema>;
@@ -118,6 +189,8 @@ export function configureScenarioContent(
   if (options.teachingPolicy && !scenario.courseTemplate) {
     throw new Error("This legacy scenario has no configurable course template");
   }
+  if (options.variationId && !scenario.courseTemplate?.learningPack)
+    throw new Error("This course has no authored variations");
   return scenarioContentSchema.parse({
     ...scenario,
     difficulty: options.difficulty ?? scenario.difficulty,
@@ -125,6 +198,12 @@ export function configureScenarioContent(
       ? {
           courseTemplate: {
             ...scenario.courseTemplate,
+            ...(options.variationId !== undefined
+              ? {
+                  selectedVariationId:
+                    options.variationId === "standard" ? undefined : options.variationId,
+                }
+              : {}),
             teachingPolicy: {
               ...scenario.courseTemplate.teachingPolicy,
               ...options.teachingPolicy,
@@ -133,4 +212,41 @@ export function configureScenarioContent(
         }
       : {}),
   });
+}
+
+/** Compile the chosen challenge from the original material; never patch a snapshot twice. */
+export function resolveCourseTemplate(scenario: ScenarioContent): CourseTemplate | undefined {
+  if (!scenario.courseTemplate) return undefined;
+  const template = courseTemplateSchema.parse(scenario.courseTemplate);
+  const variation = template.learningPack?.variations.find(
+    (item) => item.id === template.selectedVariationId,
+  );
+  if (!variation || !template.learningPack) return template;
+  template.setting += `\nChallenge: ${variation.settingAddition}`;
+  template.openingLine = variation.openingLine ?? template.openingLine;
+  template.stages = template.stages.map((stage) => {
+    const override = variation.stageOverrides.find((item) => item.stageId === stage.id);
+    return override
+      ? {
+          ...stage,
+          instruction: override.instruction,
+          successCriteria: override.successCriteria,
+          hints: override.hints,
+        }
+      : stage;
+  });
+  template.learningPack.scenarioFacts = template.learningPack.scenarioFacts.map(
+    (fact) => variation.factOverrides.find((item) => item.label === fact.label) ?? fact,
+  );
+  template.learningPack.guidedPractice = template.learningPack.guidedPractice.map((practice) => {
+    const override = variation.stageOverrides.find((item) => item.stageId === practice.stageId);
+    return override
+      ? {
+          stageId: practice.stageId,
+          suggestedReply: override.suggestedReply,
+          partnerPrompt: override.partnerPrompt,
+        }
+      : practice;
+  });
+  return courseTemplateSchema.parse(template);
 }

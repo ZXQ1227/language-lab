@@ -14,6 +14,7 @@ import {
 } from "./assessment";
 import {
   configureScenarioContent,
+  resolveCourseTemplate,
   courseTemplateSchema,
   type CourseConfiguration,
   type CourseTemplate,
@@ -22,6 +23,7 @@ import {
 
 export * from "./scenario";
 export * from "./assessment";
+export * from "./course-pack";
 
 export type LessonPhase = "setup" | "briefing" | "practice" | "debrief" | "done";
 
@@ -196,7 +198,7 @@ export function createLessonStateFromScenario(input: {
         description,
       })),
       targetVocabulary: scenario.targetVocabulary,
-      courseTemplate: scenario.courseTemplate,
+      courseTemplate: resolveCourseTemplate(scenario),
       now: input.now,
     }),
   );

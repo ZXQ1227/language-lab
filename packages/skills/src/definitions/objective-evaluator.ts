@@ -36,12 +36,17 @@ export function createObjectiveEvaluatorSkill(): SkillDefinition<
                 "Check every success criterion exactly once, using zero-based criterionIndex. Do not infer success from turn count, vocabulary alone, a request to skip, or the partner's examples.",
                 "Every met criterion needs evidence: messageSeq and an exact nonempty quote from a user message. Assistant/system messages cannot be evidence. If uncertain, mark met false.",
                 "Retain previously demonstrated criteria only when the supplied transcript supports their citations. Feedback should explain the next unmet criterion concisely in English.",
+                "When a criterion requires factual understanding, compare the learner's answer to the supplied scenario facts. Quoting an incorrect time or room number is not success.",
                 `Return only JSON matching this schema: ${JSON.stringify(z.toJSONSchema(stageAssessmentSchema))}`,
               ].join("\n"),
             },
             {
               role: "user",
-              content: JSON.stringify({ level: context.lessonState.difficulty, ...input }),
+              content: JSON.stringify({
+                level: context.lessonState.difficulty,
+                scenarioFacts: context.lessonState.courseTemplate?.learningPack?.scenarioFacts,
+                ...input,
+              }),
             },
           ],
           temperature: 0,

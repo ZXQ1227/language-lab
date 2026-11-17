@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useTrainingStore } from "../stores/training";
 import { useNavStore } from "../stores/nav";
+import { CourseStudyPack } from "./CourseStudyPack";
 import {
   cefrLevelSchema,
   configureScenarioContent,
@@ -12,6 +13,7 @@ export function CourseTemplateEditor({ scenario }: { scenario: ScenarioContent }
   const trainingBusy = useTrainingStore((state) => state.busy);
   const template = scenario.courseTemplate;
   const [difficulty, setDifficulty] = useState(scenario.difficulty);
+  const [variationId, setVariationId] = useState(template?.selectedVariationId ?? "standard");
   const [correctionMode, setCorrectionMode] = useState(
     template?.teachingPolicy.correctionMode ?? "gentle",
   );
@@ -27,6 +29,7 @@ export function CourseTemplateEditor({ scenario }: { scenario: ScenarioContent }
   try {
     configured = configureScenarioContent(scenario, {
       difficulty,
+      ...(template.learningPack ? { variationId } : {}),
       teachingPolicy: {
         correctionMode,
         maxCorrections: maxCorrections.trim() === "" ? NaN : Number(maxCorrections),
@@ -39,6 +42,7 @@ export function CourseTemplateEditor({ scenario }: { scenario: ScenarioContent }
   const preview = configured
     ? createLessonStateFromScenario({ lessonId: "preview", scenario: configured, now: 0 })
     : null;
+  const displayTemplate = preview?.courseTemplate ?? template;
 
   function exportTemplate() {
     if (!configured) return;
@@ -74,6 +78,23 @@ export function CourseTemplateEditor({ scenario }: { scenario: ScenarioContent }
           again.
         </p>
         <div className="grid gap-3 sm:grid-cols-2">
+          {template.learningPack && (
+            <label className="text-sm text-slate-600">
+              Course challenge
+              <select
+                className={controlClass}
+                value={variationId}
+                onChange={(event) => setVariationId(event.target.value)}
+              >
+                <option value="standard">Standard check-in</option>
+                {template.learningPack.variations.map((variation) => (
+                  <option key={variation.id} value={variation.id}>
+                    {variation.title}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
           <label className="text-sm text-slate-600">
             Practice level
             <select
@@ -135,21 +156,21 @@ export function CourseTemplateEditor({ scenario }: { scenario: ScenarioContent }
             className="space-y-3 rounded-lg bg-slate-50 p-4 text-sm text-slate-600"
           >
             <h3 className="font-semibold text-slate-900">
-              Lesson preview · {preview.difficulty} · {template.estimatedMinutes} minutes
+              Lesson preview · {preview.difficulty} · {displayTemplate.estimatedMinutes} minutes
             </h3>
-            <p>{template.setting}</p>
+            <p>{displayTemplate.setting}</p>
             <p>
-              <strong>Your role:</strong> {template.roles.learner}
+              <strong>Your role:</strong> {displayTemplate.roles.learner}
             </p>
             <p>
-              <strong>Practice partner:</strong> {template.roles.partner}
+              <strong>Practice partner:</strong> {displayTemplate.roles.partner}
             </p>
             <p>
-              <strong>Opening:</strong> {template.openingLine}
+              <strong>Opening:</strong> {displayTemplate.openingLine}
             </p>
             <h4 className="font-medium text-slate-900">Useful expressions</h4>
             <ul className="list-disc space-y-1 pl-5">
-              {template.targetPatterns.map((item) => (
+              {displayTemplate.targetPatterns.map((item) => (
                 <li key={item.pattern}>
                   <strong>{item.pattern}</strong> — {item.example}
                 </li>
@@ -157,7 +178,7 @@ export function CourseTemplateEditor({ scenario }: { scenario: ScenarioContent }
             </ul>
             <h4 className="font-medium text-slate-900">Practice steps</h4>
             <ol className="list-decimal space-y-3 pl-5">
-              {template.stages.map((stage) => (
+              {displayTemplate.stages.map((stage) => (
                 <li key={stage.id}>
                   <p className="font-medium text-slate-800">{stage.title}</p>
                   <p>{stage.instruction}</p>
@@ -171,6 +192,9 @@ export function CourseTemplateEditor({ scenario }: { scenario: ScenarioContent }
               ))}
             </ol>
           </div>
+        )}
+        {preview?.courseTemplate?.learningPack && (
+          <CourseStudyPack template={preview.courseTemplate} />
         )}
         {exportError && (
           <p role="alert" className="text-sm text-red-700">

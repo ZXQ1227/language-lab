@@ -1,0 +1,460 @@
+{
+  "schemaVersion": 1,
+  "id": "sc-hotel-checkin",
+  "slug": "hotel-checkin",
+  "title": "Hotel Check-in",
+  "category": "travel",
+  "difficulty": "A2",
+  "objectives": [
+    "Find a reservation using your name and booking details",
+    "Confirm the stay and negotiate a room preference politely",
+    "Handle an ID request and clarify a refundable deposit",
+    "Ask about breakfast, Wi-Fi and check-out",
+    "Confirm the room and key details before closing politely"
+  ],
+  "targetVocabulary": [
+    "reservation",
+    "confirmation number",
+    "double room",
+    "quiet room",
+    "ID",
+    "deposit",
+    "refundable",
+    "included",
+    "breakfast",
+    "check-out",
+    "key card",
+    "elevator"
+  ],
+  "courseTemplate": {
+    "targetLanguage": "en",
+    "estimatedMinutes": 20,
+    "setting": "A fictional check-in at Harbor View Hotel. The learner is Alex Chen, arriving for a two-night reservation. Follow the authored hotel facts. Ask one short question at a time and use clear A2 English. Reveal information naturally when the guest asks; answer pending guest questions before moving to the next stage. Use fictional booking details only; never request real identification numbers, card details or uploads.",
+    "roles": {
+      "learner": "Alex Chen, a guest checking in for two nights who would prefer a quiet room",
+      "partner": "A welcoming Harbor View Hotel receptionist who supports the guest without completing their speaking tasks for them"
+    },
+    "openingLine": "Welcome to Harbor View Hotel! Do you have a reservation?",
+    "targetPatterns": [
+      {
+        "pattern": "I have a reservation under …",
+        "example": "I have a reservation under Alex Chen for two nights."
+      },
+      {
+        "pattern": "My confirmation number is …",
+        "example": "My confirmation number is HV-2048."
+      },
+      {
+        "pattern": "Could I have …, please?",
+        "example": "Could I have a quiet room, please?"
+      },
+      {
+        "pattern": "Could you explain …?",
+        "example": "Could you explain the deposit, please?"
+      },
+      {
+        "pattern": "Is … included?",
+        "example": "Is breakfast included?"
+      },
+      {
+        "pattern": "What time is …?",
+        "example": "What time is check-out?"
+      },
+      {
+        "pattern": "Could you repeat …?",
+        "example": "Could you repeat the Wi-Fi password, please?"
+      },
+      {
+        "pattern": "So, … Is that right?",
+        "example": "So, check-out is at eleven. Is that right?"
+      }
+    ],
+    "stages": [
+      {
+        "id": "find-reservation",
+        "title": "Find your reservation",
+        "instruction": "Welcome the guest and ask for the reservation name. Locate the two-night reservation under Alex Chen. Invite the guest to give both their name and length of stay; do not supply their spoken answer.",
+        "objectiveIds": ["obj-1"],
+        "successCriteria": [
+          "The learner states that they have a reservation under Alex Chen.",
+          "The learner states that the stay is for two nights."
+        ],
+        "hints": [
+          "Start with: I have a reservation under …",
+          "Add the length of stay: for two nights."
+        ]
+      },
+      {
+        "id": "confirm-room",
+        "title": "Confirm your stay and room",
+        "instruction": "Confirm a non-smoking double room for two nights. Invite a room preference. In the standard course a quiet room is available; acknowledge a polite request once the guest makes it.",
+        "objectiveIds": ["obj-2"],
+        "successCriteria": [
+          "The learner confirms a double room for two nights.",
+          "The learner politely requests a quiet room or states a quiet-room preference."
+        ],
+        "hints": [
+          "Try: A double room for two nights, please.",
+          "Ask: Could I have a quiet room, please?"
+        ]
+      },
+      {
+        "id": "clarify-deposit",
+        "title": "Clarify the deposit",
+        "instruction": "Ask to see fictional ID and mention a $50 deposit. When asked, explain that it is refundable after check-out and separate from the room charge. Accept a spoken roleplay response instead of requesting actual documents or payment information.",
+        "objectiveIds": ["obj-3"],
+        "successCriteria": [
+          "The learner responds appropriately to the request to see ID without giving real document numbers.",
+          "The learner asks whether the $50 deposit is refundable or asks for an explanation of it.",
+          "The learner indicates that the deposit is separate from the room charge and will be returned after check-out."
+        ],
+        "hints": [
+          "You can say: Here is my ID.",
+          "Ask: Is the fifty-dollar deposit refundable?",
+          "Check: So it is separate from the room charge, and I get it back after check-out?"
+        ]
+      },
+      {
+        "id": "ask-services",
+        "title": "Ask about hotel services",
+        "instruction": "Invite practical questions. Answer from the hotel facts: breakfast is included and served from 7 to 10 a.m.; guest Wi-Fi is HarborGuest with the fictional password welcome24; check-out is at 11 a.m. Respond to all questions the learner asks, even if evaluation advances to the final stage in this turn.",
+        "objectiveIds": ["obj-4"],
+        "successCriteria": [
+          "The learner asks whether breakfast is included and when it is served.",
+          "The learner asks how to connect to Wi-Fi or asks for the Wi-Fi password.",
+          "The learner asks what time check-out is."
+        ],
+        "hints": [
+          "Ask: Is breakfast included? What time is it?",
+          "Try: Could I have the Wi-Fi password, please?",
+          "Ask: What time is check-out?"
+        ]
+      },
+      {
+        "id": "confirm-and-close",
+        "title": "Confirm the details and close",
+        "instruction": "First answer any pending questions about services from the learner's previous reply. Give the guest a key card for room 412 on the fourth floor, with the elevator to the left. Ask the learner to confirm their room and check-out time; let them acknowledge directions and close the conversation politely. Check factual understanding against the authored facts.",
+        "objectiveIds": ["obj-5"],
+        "successCriteria": [
+          "The learner correctly confirms room 412 and check-out at 11 a.m.",
+          "The learner acknowledges that the room is on the fourth floor and the elevator is to the left.",
+          "The learner closes the exchange politely, for example by thanking the receptionist."
+        ],
+        "hints": [
+          "Check: Room four-twelve, and check-out at eleven. Is that right?",
+          "Repeat the directions: fourth floor, elevator to the left.",
+          "Close with: Thank you for your help."
+        ]
+      }
+    ],
+    "teachingPolicy": {
+      "correctionMode": "gentle",
+      "maxCorrections": 4,
+      "maxHints": 5
+    },
+    "learningPack": {
+      "schemaVersion": 1,
+      "overview": "Check in confidently at a hotel: prepare useful phrases, practise five guest tasks, try a problem-solving challenge, and recall the essentials afterwards. Use the fictional guest card below throughout the lesson.",
+      "prerequisites": [
+        "Introduce yourself and say your name.",
+        "Recognise simple numbers and times.",
+        "Make a short polite request with please or could I."
+      ],
+      "scenarioFacts": [
+        {
+          "label": "Hotel",
+          "value": "Harbor View Hotel (fictional)"
+        },
+        {
+          "label": "Guest",
+          "value": "Alex Chen"
+        },
+        {
+          "label": "Reservation",
+          "value": "Two nights; confirmation number HV-2048"
+        },
+        {
+          "label": "Room type",
+          "value": "Non-smoking double room"
+        },
+        {
+          "label": "Room availability",
+          "value": "A quiet room is available in the standard scenario."
+        },
+        {
+          "label": "Deposit",
+          "value": "$50; separate from the room charge; refundable after check-out"
+        },
+        {
+          "label": "Breakfast",
+          "value": "Included; 7 to 10 a.m. in the ground-floor restaurant"
+        },
+        {
+          "label": "Wi-Fi",
+          "value": "Network HarborGuest; fictional practice password welcome24"
+        },
+        {
+          "label": "Check-out",
+          "value": "11 a.m."
+        },
+        {
+          "label": "Room and directions",
+          "value": "Room 412; fourth floor; elevator to the left"
+        }
+      ],
+      "vocabulary": [
+        {
+          "term": "reservation",
+          "meaning": "a booking made before you arrive",
+          "translation": "预订",
+          "example": "I have a reservation under Alex Chen."
+        },
+        {
+          "term": "confirmation number",
+          "meaning": "a reference code used to find a booking",
+          "translation": "预订确认号",
+          "example": "My confirmation number is HV-2048."
+        },
+        {
+          "term": "double room",
+          "meaning": "a room with one bed designed for two people",
+          "translation": "大床双人房",
+          "example": "I booked a double room for two nights."
+        },
+        {
+          "term": "quiet room",
+          "meaning": "a room with little noise",
+          "translation": "安静的房间",
+          "example": "Could I have a quiet room, please?"
+        },
+        {
+          "term": "ID",
+          "meaning": "a document that shows who you are",
+          "translation": "身份证件",
+          "example": "Here is my ID."
+        },
+        {
+          "term": "deposit",
+          "meaning": "money held temporarily as a guarantee",
+          "translation": "押金",
+          "example": "Could you explain the fifty-dollar deposit?"
+        },
+        {
+          "term": "refundable",
+          "meaning": "able to be paid back to you",
+          "translation": "可退还的",
+          "example": "Is the deposit refundable?"
+        },
+        {
+          "term": "included",
+          "meaning": "already part of the price",
+          "translation": "已包含在费用中",
+          "example": "Is breakfast included?"
+        },
+        {
+          "term": "breakfast",
+          "meaning": "the first meal of the day",
+          "translation": "早餐",
+          "example": "What time is breakfast served?"
+        },
+        {
+          "term": "check-out",
+          "meaning": "leaving the hotel and settling your stay",
+          "translation": "退房",
+          "example": "What time is check-out?"
+        },
+        {
+          "term": "key card",
+          "meaning": "a card used to open your hotel room",
+          "translation": "房卡",
+          "example": "Thank you for the key card."
+        },
+        {
+          "term": "elevator",
+          "meaning": "a lift that takes you between floors",
+          "translation": "电梯",
+          "example": "The elevator is to the left."
+        }
+      ],
+      "warmup": [
+        {
+          "id": "introduce-booking",
+          "prompt": "Before looking at the model conversation, say your name and how long you are staying. Use the guest card.",
+          "suggestedAnswer": "Hello. I have a reservation under Alex Chen for two nights."
+        },
+        {
+          "id": "make-request",
+          "prompt": "Turn 'I want a quiet room' into a polite request.",
+          "suggestedAnswer": "Could I have a quiet room, please?"
+        },
+        {
+          "id": "check-meaning",
+          "prompt": "A refundable deposit is not the room price. What question could you ask to check when you get it back?",
+          "suggestedAnswer": "Do I get the deposit back after check-out?"
+        }
+      ],
+      "modelDialogue": [
+        {
+          "stageId": "find-reservation",
+          "role": "partner",
+          "text": "Welcome to Harbor View Hotel! Do you have a reservation?"
+        },
+        {
+          "stageId": "find-reservation",
+          "role": "learner",
+          "text": "Yes. I have a reservation under Alex Chen for two nights."
+        },
+        {
+          "stageId": "confirm-room",
+          "role": "partner",
+          "text": "I found it: a non-smoking double room for two nights. Do you have a room preference?"
+        },
+        {
+          "stageId": "confirm-room",
+          "role": "learner",
+          "text": "Yes, a double room for two nights. Could I have a quiet room, please?"
+        },
+        {
+          "stageId": "clarify-deposit",
+          "role": "partner",
+          "text": "Of course. May I see your ID? We also hold a fifty-dollar deposit."
+        },
+        {
+          "stageId": "clarify-deposit",
+          "role": "learner",
+          "text": "Here is my ID. Is the deposit refundable?"
+        },
+        {
+          "stageId": "clarify-deposit",
+          "role": "partner",
+          "text": "Yes. It is separate from the room charge, and we return it after check-out."
+        },
+        {
+          "stageId": "clarify-deposit",
+          "role": "learner",
+          "text": "So the deposit is separate, and I get it back after check-out. Thank you."
+        },
+        {
+          "stageId": "ask-services",
+          "role": "partner",
+          "text": "Is there anything you would like to know about the hotel?"
+        },
+        {
+          "stageId": "ask-services",
+          "role": "learner",
+          "text": "Is breakfast included, and what time is it? Could I have the Wi-Fi password? What time is check-out?"
+        },
+        {
+          "stageId": "confirm-and-close",
+          "role": "partner",
+          "text": "Breakfast is included, from seven to ten. The Wi-Fi is HarborGuest, password welcome24. Check-out is at eleven. Here is your key card for room 412 on the fourth floor. The elevator is to the left. Could you confirm the room and check-out time?"
+        },
+        {
+          "stageId": "confirm-and-close",
+          "role": "learner",
+          "text": "Room 412 on the fourth floor, elevator to the left, and check-out at eleven. Thank you for your help!"
+        }
+      ],
+      "guidedPractice": [
+        {
+          "stageId": "find-reservation",
+          "suggestedReply": "Hello. I have a reservation under Alex Chen for two nights.",
+          "partnerPrompt": "Welcome to Harbor View Hotel! What name is your reservation under, and how long are you staying?"
+        },
+        {
+          "stageId": "confirm-room",
+          "suggestedReply": "Yes, a double room for two nights. Could I have a quiet room, please?",
+          "partnerPrompt": "A non-smoking double room for two nights. Do you have a room preference?"
+        },
+        {
+          "stageId": "clarify-deposit",
+          "suggestedReply": "Here is my ID. Is the fifty-dollar deposit refundable? So it is separate from the room charge, and I get it back after check-out.",
+          "partnerPrompt": "We have arranged your room. May I see your fictional ID? We hold a fifty-dollar deposit, separate from the room charge and refundable after check-out. What would you like to clarify?"
+        },
+        {
+          "stageId": "ask-services",
+          "suggestedReply": "Is breakfast included, and what time is it served? Could I have the Wi-Fi password, please? What time is check-out?",
+          "partnerPrompt": "Thank you. What would you like to know about breakfast, Wi-Fi or check-out?"
+        },
+        {
+          "stageId": "confirm-and-close",
+          "suggestedReply": "Room 412 on the fourth floor, elevator to the left, and check-out at eleven. Thank you for your help!",
+          "partnerPrompt": "Breakfast is included, from seven to ten. Wi-Fi is HarborGuest, password welcome24. Check-out is at eleven. Here is your key card for room 412 on the fourth floor; the elevator is to the left. Could you confirm the room and check-out time?"
+        }
+      ],
+      "reviewPractice": [
+        {
+          "id": "arrival-from-memory",
+          "prompt": "Without looking at the conversation, introduce your booking and make a polite room request using the guest card.",
+          "suggestedAnswer": "Hello. I have a reservation under Alex Chen for two nights. I booked a double room. Could I have a quiet room, please?"
+        },
+        {
+          "id": "repair-booking",
+          "prompt": "The receptionist cannot find your booking. Give another way to look it up and ask for help politely.",
+          "suggestedAnswer": "I have a confirmation email. My confirmation number is HV-2048. Could you check again under Alex Chen, please?"
+        },
+        {
+          "id": "explain-to-partner",
+          "prompt": "Tell a travel partner your room number, check-out time, breakfast time and what the deposit means. Try this from memory before checking the example.",
+          "suggestedAnswer": "We are in room 412. Check-out is at eleven, and breakfast is included from seven to ten. The fifty-dollar deposit is separate from the room price and refundable after check-out."
+        }
+      ],
+      "variations": [
+        {
+          "id": "reservation-not-found",
+          "title": "Reservation not found",
+          "briefing": "The receptionist cannot find your name. Use your confirmation number and ask them to check again.",
+          "settingAddition": "At first the reservation does not appear in the name search. Once the guest supplies HV-2048 and asks to check Alex Chen, find the same two-night booking and continue normally. Do not claim a booking was found before the guest supplies the recovery details.",
+          "openingLine": "Welcome to Harbor View Hotel. I cannot find a booking under Alex Chen. Do you have a confirmation number?",
+          "factOverrides": [],
+          "stageOverrides": [
+            {
+              "stageId": "find-reservation",
+              "instruction": "Explain that the name search did not find the booking. Elicit the confirmation number HV-2048, the guest name Alex Chen, and a polite request to check again. Then locate the existing two-night booking.",
+              "successCriteria": [
+                "The learner supplies confirmation number HV-2048 and the name Alex Chen.",
+                "The learner politely asks the receptionist to check the reservation again."
+              ],
+              "hints": [
+                "Try: My confirmation number is HV-2048.",
+                "Ask: Could you check again under Alex Chen, please?"
+              ],
+              "suggestedReply": "I have a confirmation email. My confirmation number is HV-2048. Could you check again under Alex Chen, please?",
+              "partnerPrompt": "I cannot find your name. Do you have a confirmation number so I can check again?"
+            }
+          ]
+        },
+        {
+          "id": "quiet-room-unavailable",
+          "title": "Quiet room unavailable",
+          "briefing": "A quiet room is unavailable tonight. Negotiate taking the available room now and moving tomorrow after 10 a.m.",
+          "settingAddition": "No quiet rooms are available tonight. Room 412, a non-smoking double room facing the street, is available now. A move to a quiet room can be arranged tomorrow after 10 a.m. Explain these options, accept a reasonable polite alternative, and never promise a quiet room tonight. The room and directions for tonight remain 412, fourth floor, elevator to the left.",
+          "factOverrides": [
+            {
+              "label": "Room availability",
+              "value": "No quiet room tonight; room 412 is available now; a move to a quiet room can be arranged tomorrow after 10 a.m."
+            }
+          ],
+          "stageOverrides": [
+            {
+              "stageId": "confirm-room",
+              "instruction": "Confirm the two-night stay, invite a room preference and explain the quiet-room limitation. Offer room 412 tonight and a move tomorrow after 10 a.m. Elicit an acknowledgement and a polite choice or request about the available alternative. After the learner accepts tonight's room, continue check-in for room 412.",
+              "successCriteria": [
+                "The learner confirms two nights and requests a quiet room politely.",
+                "The learner acknowledges that a quiet room is unavailable tonight and accepts room 412 for tonight.",
+                "The learner politely asks about or confirms moving to a quiet room tomorrow after 10 a.m."
+              ],
+              "hints": [
+                "Start: Could I have a quiet room, please?",
+                "Respond: I understand. I will take room 412 tonight.",
+                "Ask: Could I move to a quiet room tomorrow after ten?"
+              ],
+              "suggestedReply": "Two nights, please. Could I have a quiet room? I understand none is available tonight. I will take room 412 tonight. Could I move to a quiet room tomorrow after ten, please?",
+              "partnerPrompt": "Your double room is for two nights. No quiet rooms are available tonight. You can take room 412 now and move to a quiet room tomorrow after ten. What would you prefer?"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -49,3 +49,20 @@ existing normalized lesson/message projections; no database migration or Rust
 command was added. API keys remain in the OS keyring, scoped by endpoint, and are
 absent from checkpoints. See [ADR-0009](../adr/ADR-0009-grounded-objectives-and-training-checkpoints.md)
 and [Teaching loop](../development/TEACHING_LOOP.md).
+
+## Complete learning packs
+
+Hotel Check-in adds an optional authored `learningPack`: preparation, vocabulary
+meanings, scenario facts, model dialogue, per-stage guided material, variations and
+independent review. Cross-references are validated at the content boundary.
+
+A selected variation is recorded on the immutable source. A pure resolver
+compiles its facts, stages, opening and guided prompts into the course snapshot;
+the source remains editable and reusable for a different challenge. Saved-session
+validation compares the snapshot with the resolved source, including after JSON
+import/export. The same hotel facts reach dialogue and objective evaluation.
+
+Independent review responses are optional learner data in the existing Training
+checkpoint. Only a completed course's valid review-exercise ids are accepted.
+Saving uses the same atomic upsert and failure behavior; database schema and Rust
+commands are unchanged. See [Hotel Check-in](../development/HOTEL_CHECKIN.md).
