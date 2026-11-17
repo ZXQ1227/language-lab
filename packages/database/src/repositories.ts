@@ -455,7 +455,7 @@ export class ReviewTasksRepo extends BaseRepo {
   async setStatus(id: string, status: S.ReviewTaskRow["status"]): Promise<void> {
     const ts = nowMs();
     await this.db.execute(
-      "UPDATE review_tasks SET status = ?1, completed_at = ?2, updated_at = ?2 WHERE id = ?3",
+      "UPDATE review_tasks SET status = ?1, completed_at = ?2, updated_at = ?2 WHERE id = ?4",
       [status, status === "pending" ? null : ts, ts, id],
     );
   }

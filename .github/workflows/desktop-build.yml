@@ -1,0 +1,34 @@
+name: Desktop Build (placeholder)
+
+# Placeholder for the packaging pipeline (post-v0.1 prerequisite:
+# signing + notarization). Enable manually until it is wired up.
+#
+# Planned implementation:
+#   strategy:
+#     matrix:
+#       include:
+#         - platform: macos-latest   # universal build (aarch64 + x86_64)
+#         - platform: windows-latest # verifies WebView2 path + Windows CI
+#     steps:
+#       - install Rust stable (with rustfmt/clippy)
+#       - pnpm install --frozen-lockfile
+#       - cargo test (workspace: src-tauri)
+#       - pnpm --filter @language-lab/desktop tauri build
+#       - upload bundles via tauri-apps/tauri-action@v0
+#   secrets (to be added when signing is set up):
+#       APPLE_CERTIFICATE, APPLE_CERTIFICATE_PASSWORD,
+#       APPLE_IDENTITY_ID, APPLE_ID, APPLE_PASSWORD, APPLE_TEAM_ID
+
+on:
+  workflow_dispatch:
+
+jobs:
+  placeholder:
+    name: Packaging pipeline not yet wired
+    runs-on: ubuntu-latest
+    steps:
+      - name: Placeholder
+        run: |
+          echo "Desktop build workflow is a placeholder."
+          echo "Real packaging (tauri build + signing + artifacts) lands with the desktop packaging task."
+          echo "Track: blueprint v1.1 - release engineering section."

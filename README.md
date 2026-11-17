@@ -68,6 +68,31 @@ To run the desktop shell (requires Rust):
 pnpm --filter @language-lab/desktop tauri dev
 ```
 
+## Testing
+
+```bash
+pnpm test         # unit tests (Vitest)
+pnpm test:e2e     # browser e2e (Playwright, mocks the Tauri IPC bridge)
+pnpm typecheck    # TypeScript across the monorepo
+pnpm lint         # ESLint
+```
+
+Unit tests never touch a real model or the filesystem: model calls run against
+`MockProvider`, database repository tests run against an in-memory transport
+fake, and e2e tests mock `window.__TAURI_INTERNALS__` in a plain browser.
+
+## CI
+
+GitHub Actions (`.github/workflows/ci.yml`) runs on every pull request and on
+`main`: typecheck → lint → unit tests → frontend build, plus a Playwright e2e
+job. Test results are uploaded as JUnit / HTML artifacts on every run.
+`.github/workflows/desktop-build.yml` is a placeholder for the packaging
+pipeline (enabled once signing is set up).
+
+**Branch protection (required):** in GitHub repo settings, add a rule for
+`main` requiring the `quality` and `e2e` checks to pass before merging. CI
+failure then blocks merges.
+
 ## Docs
 
 - `docs/product/PRD.md` — product requirements

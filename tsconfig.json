@@ -17,6 +17,7 @@
     "packages/*/src/**/*.ts",
     "apps/desktop/src/**/*.ts",
     "apps/desktop/src/**/*.tsx",
-    "tests/unit/**/*.ts"
+    "tests/unit/**/*.ts",
+    "tests/e2e/**/*.ts"
   ]
 }
