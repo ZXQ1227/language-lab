@@ -8,8 +8,16 @@
   "exports": {
     ".": "./src/index.ts"
   },
+  "scripts": {
+    "db:generate": "drizzle-kit generate --config=drizzle.config.ts"
+  },
   "dependencies": {
     "@language-lab/shared": "workspace:*",
+    "@tauri-apps/api": "^2.0.0",
+    "drizzle-orm": "^0.44.0",
     "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.31.0"
   }
 }

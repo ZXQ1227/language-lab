@@ -15,15 +15,26 @@ interface HealthReport {
   arch: string;
 }
 
+interface DbStatus {
+  ok: boolean;
+  migrationsApplied: number;
+  tables: number;
+  path: string;
+}
+
 const currentPhase: LessonPhase = "setup";
 
 export function App() {
   const [health, setHealth] = useState<HealthReport | null>(null);
+  const [dbStatus, setDbStatus] = useState<DbStatus | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     invoke<HealthReport>("health_check")
       .then(setHealth)
+      .catch((e) => setError(String(e)));
+    invoke<DbStatus>("db_status")
+      .then(setDbStatus)
       .catch((e) => setError(String(e)));
   }, []);
 
@@ -42,7 +53,8 @@ export function App() {
               app version: <code>{health.appVersion}</code>
             </li>
             <li>
-              platform: <code>
+              platform:{" "}
+              <code>
                 {health.os} / {health.arch}
               </code>
             </li>
@@ -51,9 +63,29 @@ export function App() {
           <p>{error ? `IPC error: ${error}` : "calling health_check…"}</p>
         )}
       </section>
+      <section>
+        <h2>Local database</h2>
+        {dbStatus ? (
+          <ul>
+            <li>
+              status: <code>{dbStatus.ok ? "ok" : "error"}</code>
+            </li>
+            <li>
+              migrations applied: <code>{dbStatus.migrationsApplied}</code>
+            </li>
+            <li>
+              tables: <code>{dbStatus.tables}</code>
+            </li>
+            <li>
+              path: <code>{dbStatus.path}</code>
+            </li>
+          </ul>
+        ) : (
+          <p>{error ? `DB error: ${error}` : "querying db_status…"}</p>
+        )}
+      </section>
       <p>
-        Workspace wiring check — core package loaded, lesson phase:{" "}
-        <code>{currentPhase}</code>
+        Workspace wiring check — core package loaded, lesson phase: <code>{currentPhase}</code>
       </p>
     </main>
   );
