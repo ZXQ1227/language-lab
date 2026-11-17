@@ -10,6 +10,11 @@ import {
   validateStageAssessment,
   resolveCourseTemplate,
   type ScenarioContent,
+  type DialogueSupport,
+  detectDialogueSupport,
+  dialogueMoveSchema,
+  dialogueSupportSchema,
+  validateDialogueMemory,
 } from "@language-lab/core";
 import {
   createDefaultSkillRegistry,
@@ -81,6 +86,8 @@ export const trainingSessionSchema = z
           z.object({ original: z.string(), corrected: z.string(), explanation: z.string() }),
         ),
         assessment: stageAssessmentSchema.optional(),
+        supportRequest: dialogueSupportSchema.optional(),
+        move: dialogueMoveSchema.optional(),
       })
       .optional(),
     report: lessonEvaluationSchema.optional(),
@@ -101,6 +108,15 @@ export const trainingSessionSchema = z
       ctx.addIssue({
         code: "custom",
         message: "Training checkpoint has inconsistent state or transcript",
+      });
+    }
+    try {
+      validateDialogueMemory(session.state.dialogueMemory ?? [], session.messages);
+    } catch {
+      ctx.addIssue({
+        code: "custom",
+        path: ["state", "dialogueMemory"],
+        message: "Saved dialogue memory has invalid learner citations",
       });
     }
     if (
@@ -237,6 +253,7 @@ export function supportsGuidedDemo(scenario: ScenarioContent): boolean {
     stages: item.courseTemplate?.stages,
     language: item.courseTemplate?.targetLanguage,
     learningPack: item.courseTemplate?.learningPack,
+    character: item.courseTemplate?.character,
   });
   return (
     !!original &&
@@ -287,6 +304,23 @@ function makeSkills(scenario: ScenarioContent, demo: boolean) {
     ...createMockDialogueRoleplaySkill(),
     async execute(input, context) {
       const stage = getCurrentCourseStage(context.lessonState);
+      if (input.supportRequest === "repeat")
+        return createMockDialogueRoleplaySkill().execute(input, context);
+      if (input.supportRequest === "hint") {
+        const hint =
+          stage?.hints.find(
+            (candidate) =>
+              !input.recentMessages.some(
+                (message) => message.role === "assistant" && message.content.includes(candidate),
+              ),
+          ) ?? stage?.hints[0];
+        return {
+          reply: hint ? `A hint: ${hint}` : "Try one short reply for the current task.",
+          tone: "encouraging",
+          move: "hint",
+          memoryUpdates: [],
+        };
+      }
       return {
         reply: stage
           ? (guidedMaterial(scenario, stage.id)?.prompt ?? "Please try the suggested reply.")
@@ -380,7 +414,11 @@ export async function runTrainingTurn(
   session: TrainingSession,
   utterance: string,
   gateway: ModelGateway,
+  supportRequest?: DialogueSupport,
 ): Promise<TrainingSession> {
+  supportRequest = supportRequest ?? detectDialogueSupport(utterance);
+  if (supportRequest === "simplify" && session.provider.mode === "demo")
+    throw new Error("Connect AI to request simpler English");
   if (session.state.turnCount >= 100)
     throw new Error("This lesson has reached its 100-turn limit. Start a new practice session.");
   const result = await runtime(
@@ -394,20 +432,33 @@ export async function runTrainingTurn(
     conversationId: session.id,
     utterance: utterance.trim(),
     mode: "text",
+    supportRequest,
   });
   return trainingSessionSchema.parse({
     ...session,
     state: result.state,
     messages: [
       ...session.messages,
-      { seq: session.messages.length, role: "user", content: utterance.trim() },
-      { seq: session.messages.length + 1, role: "assistant", content: result.reply },
+      {
+        seq: session.messages.length,
+        role: "user",
+        content: utterance.trim(),
+        ...(supportRequest ? { purpose: "support" as const } : {}),
+      },
+      {
+        seq: session.messages.length + 1,
+        role: "assistant",
+        content: result.reply,
+        ...(supportRequest ? { purpose: "support" as const } : {}),
+      },
     ],
     events: [...session.events, ...result.persistedEvents],
     lastTurn: {
       action: result.teachingAction,
       errors: result.analysis.errors,
-      assessment: result.assessment,
+      assessment: result.assessment ?? (supportRequest ? session.lastTurn?.assessment : undefined),
+      supportRequest,
+      move: result.dialogueMove,
     },
   });
 }
@@ -423,6 +474,12 @@ export async function finishTrainingSession(
   });
   return trainingSessionSchema.parse({ ...session, ...result });
 }
+
+export const dialogueSupportText: Record<DialogueSupport, string> = {
+  repeat: "Please repeat your last reply.",
+  simplify: "Could you say that in simpler English?",
+  hint: "Could you give me one hint?",
+};
 
 export function saveCourseReview(
   session: TrainingSession,

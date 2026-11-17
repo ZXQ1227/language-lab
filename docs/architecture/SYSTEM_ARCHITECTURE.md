@@ -66,3 +66,20 @@ Independent review responses are optional learner data in the existing Training
 checkpoint. Only a completed course's valid review-exercise ids are accepted.
 Saving uses the same atomic upsert and failure behavior; database schema and Rust
 commands are unchanged. See [Hotel Check-in](../development/HOTEL_CHECKIN.md).
+
+## Dynamic role dialogue
+
+Course snapshots may include an authored character profile. Reply generation uses
+that profile, bounded recent dialogue, cited learner memory, current criteria and
+the previous completed stage. The core validates memory updates against actual
+learner practice messages and preserves at most 12 details in the existing state.
+Learner statements remain distinct from authoritative scenario facts.
+
+Help controls and recognised standalone English requests follow a separate
+support path: no diagnosis, vocabulary tracking or objective evaluation. Saved
+support messages cannot serve as completion evidence or memory; reviews exclude
+them. Hints obey the existing budget, while exact repeat needs no model. A single
+duplicate-response repair attempt is allowed before the operation fails safely.
+All state, support markers and memory use the existing atomic checkpoint.
+See [ADR-0010](../adr/ADR-0010-dialogue-memory-and-support-requests.md) and
+[Dialogue Roleplay](../development/DIALOGUE_ROLEPLAY.md).

@@ -35,7 +35,7 @@ webview.
 
 ## What advances a stage
 
-Each turn runs diagnosis and vocabulary tracking, then the new
+Each practice turn runs diagnosis and vocabulary tracking, then
 `skills.objective_evaluator` for the current authored stage. The skill returns one
 assessment for every zero-based success-criterion index, with `met`, cited
 `messageSeq`/`quote` pairs, and feedback.
@@ -95,6 +95,12 @@ switches between the latest 50 sessions. Older checkpoints stay in SQLite. New
 lessons keep previous sessions. The current text lesson limit is 100 learner
 turns, keeping the full learner evidence inside the 200-message history window.
 Unsent drafts are not saved.
+
+Conversation help uses a separate non-assessed path. Support exchanges do not
+complete criteria or add vocabulary/errors; they are excluded from review
+transcripts. They count toward the same physical exchange limit. The lesson
+checkpoint also preserves grounded dialogue memory and the previous dialogue
+move. See [Dialogue Roleplay](DIALOGUE_ROLEPLAY.md).
 
 ## Verification
 

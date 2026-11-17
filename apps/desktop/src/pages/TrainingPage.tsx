@@ -43,6 +43,11 @@ function LessonSetup({ course }: { course: ScenarioContent }) {
         {course.title} · {course.difficulty}
       </h2>
       <p className="text-sm text-slate-600">Your role: {course.courseTemplate?.roles.learner}</p>
+      {template?.character && (
+        <p className="text-sm text-slate-600">
+          Practice partner: {template.character.name} · {template.character.traits.join(", ")}
+        </p>
+      )}
       {course.courseTemplate?.learningPack && (
         <>
           <label className="block text-sm">
@@ -140,6 +145,7 @@ export function TrainingPage() {
     prepare,
     resume,
     send,
+    requestSupport,
     finish,
     updateKey,
     saveReviewAnswers,
@@ -299,7 +305,11 @@ export function TrainingPage() {
                     className={`max-w-[90%] rounded-lg p-4 text-sm ${message.role === "user" ? "ml-auto bg-slate-900 text-white" : "border border-slate-200 bg-white"}`}
                   >
                     <p className="mb-1 text-xs font-medium">
-                      {message.role === "user" ? "You" : "Practice partner"}
+                      {message.role === "user"
+                        ? message.purpose === "support"
+                          ? "You · help request"
+                          : "You"
+                        : (session.state.courseTemplate?.character?.name ?? "Practice partner")}
                     </p>
                     <p className="whitespace-pre-wrap">{message.content}</p>
                   </li>
@@ -354,6 +364,45 @@ export function TrainingPage() {
                     });
                   }}
                 >
+                  <div role="group" aria-label="Practice help" className="space-y-2 text-sm">
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        className="rounded border border-slate-300 bg-white px-3 py-2 disabled:opacity-40"
+                        disabled={busy}
+                        onClick={() => void requestSupport("repeat")}
+                      >
+                        Repeat last reply
+                      </button>
+                      {session.provider.mode === "ai" && (
+                        <button
+                          type="button"
+                          className="rounded border border-slate-300 bg-white px-3 py-2 disabled:opacity-40"
+                          disabled={busy}
+                          onClick={() => void requestSupport("simplify")}
+                        >
+                          Use simpler English
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        className="rounded border border-slate-300 bg-white px-3 py-2 disabled:opacity-40"
+                        disabled={
+                          busy ||
+                          session.state.hintsGiven >=
+                            (session.state.courseTemplate?.teachingPolicy.maxHints ?? 3)
+                        }
+                        onClick={() => void requestSupport("hint")}
+                      >
+                        Give me a hint
+                      </button>
+                    </div>
+                    <p className="text-xs text-slate-500">
+                      Hints used: {session.state.hintsGiven}/
+                      {session.state.courseTemplate?.teachingPolicy.maxHints ?? 3}. Help requests do
+                      not complete objectives.
+                    </p>
+                  </div>
                   {example && (
                     <div className="rounded-lg bg-slate-50 p-3 text-sm">
                       <p>Suggested reply: {example}</p>
@@ -379,7 +428,7 @@ export function TrainingPage() {
                     />
                   </label>
                   <button type="submit" className={button} disabled={busy || !reply.trim()}>
-                    {busy ? "Assessing and saving…" : "Send reply"}
+                    {busy ? "Responding and saving…" : "Send reply"}
                   </button>
                 </form>
               )}

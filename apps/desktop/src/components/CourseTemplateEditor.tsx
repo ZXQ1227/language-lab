@@ -165,6 +165,12 @@ export function CourseTemplateEditor({ scenario }: { scenario: ScenarioContent }
             <p>
               <strong>Practice partner:</strong> {displayTemplate.roles.partner}
             </p>
+            {displayTemplate.character && (
+              <p>
+                <strong>Character:</strong> {displayTemplate.character.name} ·{" "}
+                {displayTemplate.character.traits.join(", ")}
+              </p>
+            )}
             <p>
               <strong>Opening:</strong> {displayTemplate.openingLine}
             </p>

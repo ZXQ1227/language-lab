@@ -5,6 +5,8 @@ import type {
   LessonState,
   StageAssessment,
   TeachingAction,
+  DialogueSupport,
+  DialogueMove,
 } from "@language-lab/core";
 import type { DiagnosedError } from "@language-lab/skills";
 
@@ -18,6 +20,7 @@ export interface AgentInput {
   /** ASR confidence if the input came through the voice path. */
   readonly confidence?: number;
   readonly mode: ConversationMode;
+  readonly supportRequest?: DialogueSupport;
 }
 
 export interface LessonInitInput {
@@ -48,10 +51,12 @@ export interface AgentOutput {
     readonly vocabularyUsed: readonly string[];
     readonly vocabularyMissed: readonly string[];
     readonly errors: readonly DiagnosedError[];
-    readonly fluency: "fluent" | "hesitant" | "halting";
+    readonly fluency: "fluent" | "hesitant" | "halting" | "not_assessed";
   };
   readonly state: LessonState;
   readonly assessment?: StageAssessment;
+  readonly dialogueMove?: DialogueMove;
+  readonly supportRequest?: DialogueSupport;
   /** Domain events the orchestrator persisted through the data ports. */
   readonly persistedEvents: readonly { type: string; payload?: Record<string, unknown> }[];
   readonly skillTrace: readonly { skillId: string; durationMs: number; ok: boolean }[];

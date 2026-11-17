@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { learningPackSchema } from "./course-pack";
+import { roleplayCharacterSchema } from "./dialogue";
 
 const text = z.string().trim().min(1);
 export const cefrLevelSchema = z.enum(["A1", "A2", "B1", "B2", "C1", "C2"]);
@@ -27,6 +28,7 @@ export const courseTemplateSchema = z
     estimatedMinutes: z.number().int().min(1).max(120),
     setting: text,
     roles: z.strictObject({ learner: text, partner: text }),
+    character: roleplayCharacterSchema.optional(),
     openingLine: text,
     targetPatterns: z.array(z.strictObject({ pattern: text, example: text })).min(1),
     stages: z.array(courseStageSchema).min(1).max(12),

@@ -12,6 +12,9 @@ import {
   createInitialLessonState,
   createLessonStateFromScenario,
   getCurrentCourseStage,
+  dialogueSupportSchema,
+  detectDialogueSupport,
+  mergeDialogueMemory,
   type LessonState,
   type StageAssessment,
 } from "@language-lab/core";
@@ -20,6 +23,7 @@ import type {
   LessonEvaluatorOutput,
   SkillContext,
   StudentProfileView,
+  DialogueRoleplayOutput,
 } from "@language-lab/skills";
 import { SkillValidationError } from "@language-lab/skills";
 import type { AgentEvent } from "./events";
@@ -172,41 +176,55 @@ export class TeachingOrchestrator {
 
     const profile = await this.deps.profile.profile(input.userId);
     const context = await this.buildContext(input, state, profile);
+    const support =
+      input.supportRequest !== undefined
+        ? dialogueSupportSchema.parse(input.supportRequest)
+        : detectDialogueSupport(input.utterance);
+    if (
+      support === "hint" &&
+      state.hintsGiven >= (state.courseTemplate?.teachingPolicy.maxHints ?? 3)
+    )
+      throw new Error("The lesson hint budget is exhausted");
 
     // 1. Structured analysis (two independent skills).
-    const diagnosis = await this.runSkill<{
-      errors: DiagnosedError[];
-      fluency: "fluent" | "hesitant" | "halting";
-      intent: string;
-    }>(
-      "skills.error_diagnosis",
-      { utterance: input.utterance, studentLevel: state.difficulty },
-      context,
-      trace,
-    );
+    const diagnosis = support
+      ? { errors: [], fluency: "fluent" as const, intent: `support:${support}` }
+      : await this.runSkill<{
+          errors: DiagnosedError[];
+          fluency: "fluent" | "hesitant" | "halting";
+          intent: string;
+        }>(
+          "skills.error_diagnosis",
+          { utterance: input.utterance, studentLevel: state.difficulty },
+          context,
+          trace,
+        );
 
-    const vocabulary = await this.runSkill<{ used: string[]; missed: string[] }>(
-      "skills.vocabulary_tracker",
-      { utterance: input.utterance, targetVocabulary: [...state.targetVocabulary] },
-      context,
-      trace,
-    );
+    const vocabulary = support
+      ? { used: [], missed: [] }
+      : await this.runSkill<{ used: string[]; missed: string[] }>(
+          "skills.vocabulary_tracker",
+          { utterance: input.utterance, targetVocabulary: [...state.targetVocabulary] },
+          context,
+          trace,
+        );
 
     const recentMessages = (await this.deps.data.recentMessages(input.conversationId, 200)).slice(
       -200,
     );
+    const transcript = [
+      ...recentMessages,
+      {
+        seq: Math.max(-1, ...recentMessages.map((message) => message.seq)) + 1,
+        role: "user" as const,
+        content: input.utterance,
+        ...(support ? { purpose: "support" as const } : {}),
+      },
+    ];
     let assessedState = state;
     let assessment: StageAssessment | undefined;
     const stage = getCurrentCourseStage(state);
-    if (stage) {
-      const transcript = [
-        ...recentMessages,
-        {
-          seq: Math.max(-1, ...recentMessages.map((message) => message.seq)) + 1,
-          role: "user" as const,
-          content: input.utterance,
-        },
-      ];
+    if (stage && !support) {
       assessment = await this.runSkill<StageAssessment>(
         "skills.objective_evaluator",
         {
@@ -231,25 +249,33 @@ export class TeachingOrchestrator {
     const assessedContext = { ...context, lessonState: assessedState };
 
     // 2. Deterministic teaching decision (rule-based skill).
-    const intervention = await this.runSkill<{
-      action: AgentOutput["teachingAction"];
-      rationale: string;
-      correction?: { original: string; corrected: string; explanation: string };
-    }>(
-      "skills.teaching_intervention",
-      {
-        errors: diagnosis.errors,
-        fluency: diagnosis.fluency,
-        hintsGiven: state.hintsGiven,
-        correctionsGiven: state.correctionsGiven,
-        allObjectivesCompleted:
-          assessedState.objectives.length > 0 && assessedState.objectives.every((o) => o.completed),
-        objectiveCount: state.objectives.length,
-        policy: state.courseTemplate?.teachingPolicy,
-      },
-      assessedContext,
-      trace,
-    );
+    const intervention = support
+      ? {
+          action:
+            support === "hint" ? ("provide_hint" as const) : ("continue_conversation" as const),
+          rationale: `Learner requested ${support}; do not assess this control message`,
+          correction: undefined,
+        }
+      : await this.runSkill<{
+          action: AgentOutput["teachingAction"];
+          rationale: string;
+          correction?: { original: string; corrected: string; explanation: string };
+        }>(
+          "skills.teaching_intervention",
+          {
+            errors: diagnosis.errors,
+            fluency: diagnosis.fluency,
+            hintsGiven: state.hintsGiven,
+            correctionsGiven: state.correctionsGiven,
+            allObjectivesCompleted:
+              assessedState.objectives.length > 0 &&
+              assessedState.objectives.every((o) => o.completed),
+            objectiveCount: state.objectives.length,
+            policy: state.courseTemplate?.teachingPolicy,
+          },
+          assessedContext,
+          trace,
+        );
     this.emit({
       kind: "decision_made",
       at: this.now,
@@ -259,7 +285,7 @@ export class TeachingOrchestrator {
 
     // 3. In-character reply generation.
     const nextStage = getCurrentCourseStage(assessedState);
-    const roleplay = await this.runSkill<{ reply: string; tone: string }>(
+    const roleplay = await this.runSkill<DialogueRoleplayOutput>(
       "skills.dialogue_roleplay",
       {
         roleCard: {
@@ -269,6 +295,7 @@ export class TeachingOrchestrator {
           setting:
             state.courseTemplate?.setting ??
             `practice conversation, difficulty ${state.difficulty}`,
+          character: state.courseTemplate?.character,
         },
         course: state.courseTemplate
           ? {
@@ -278,19 +305,23 @@ export class TeachingOrchestrator {
               targetVocabulary: [...state.targetVocabulary],
               targetPatterns: state.courseTemplate.targetPatterns,
               stage: nextStage,
+              previousStage: stage && nextStage?.id !== stage.id ? stage : undefined,
               assessment: nextStage ? assessedState.stageAssessments?.[nextStage.id] : undefined,
               scenarioFacts: state.courseTemplate.learningPack?.scenarioFacts,
               allowHints: state.hintsGiven < state.courseTemplate.teachingPolicy.maxHints,
             }
           : undefined,
         utterance: input.utterance,
+        supportRequest: support,
+        learnerMemory: state.dialogueMemory,
+        previousMove: state.lastDialogueMove,
         intervention: {
           action: intervention.action,
           note: intervention.correction
             ? `Correct gently: "${intervention.correction.original}" -> "${intervention.correction.corrected}" (${intervention.correction.explanation})`
             : undefined,
         },
-        recentMessages: recentMessages.slice(-10),
+        recentMessages: recentMessages.slice(-20),
       },
       assessedContext,
       trace,
@@ -298,12 +329,40 @@ export class TeachingOrchestrator {
 
     // 4. Deterministic state update + domain events.
     const vocabularyUsed = vocabulary.used;
-    const newState = applyTeachingAction(assessedState, intervention.action, {
-      vocabularyUsed,
-      now: this.now,
-    });
+    const memory = mergeDialogueMemory(
+      state.dialogueMemory ?? [],
+      roleplay.memoryUpdates ?? [],
+      transcript,
+    );
+    const dialogueMove =
+      roleplay.move ??
+      support ??
+      (intervention.action === "complete_task"
+        ? "close"
+        : intervention.action === "provide_hint"
+          ? "hint"
+          : "respond");
+    const newState = applyTeachingAction(
+      {
+        ...assessedState,
+        ...(memory.length || state.dialogueMemory ? { dialogueMemory: memory } : {}),
+        lastDialogueMove: dialogueMove,
+      },
+      intervention.action,
+      {
+        vocabularyUsed,
+        now: this.now,
+      },
+    );
 
     const persistedEvents: { type: string; payload?: Record<string, unknown> }[] = [];
+    if (support)
+      persistedEvents.push({ type: "dialogue_support_requested", payload: { request: support } });
+    if (roleplay.memoryUpdates?.length)
+      persistedEvents.push({
+        type: "dialogue_memory_updated",
+        payload: { items: roleplay.memoryUpdates },
+      });
     if (assessment) persistedEvents.push({ type: "stage_assessed", payload: { ...assessment } });
     for (const word of vocabularyUsed) {
       persistedEvents.push({ type: "vocabulary_used", payload: { word } });
@@ -351,10 +410,12 @@ export class TeachingOrchestrator {
         vocabularyUsed,
         vocabularyMissed: vocabulary.missed,
         errors: diagnosis.errors,
-        fluency: diagnosis.fluency,
+        fluency: support ? "not_assessed" : diagnosis.fluency,
       },
       state: newState,
       assessment,
+      dialogueMove,
+      supportRequest: support,
       persistedEvents,
       skillTrace: trace,
       elapsedMs,

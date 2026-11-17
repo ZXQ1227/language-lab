@@ -6,6 +6,7 @@
 // by lessonStateSchema, so it round-trips through SQLite / IPC / backups.
 
 import { z } from "zod";
+import { dialogueMemorySchema, dialogueMoveSchema, type DialogueMemoryItem } from "./dialogue";
 import {
   stageAssessmentSchema,
   validateStageAssessment,
@@ -24,6 +25,7 @@ import {
 export * from "./scenario";
 export * from "./assessment";
 export * from "./course-pack";
+export * from "./dialogue";
 
 export type LessonPhase = "setup" | "briefing" | "practice" | "debrief" | "done";
 
@@ -79,6 +81,8 @@ export interface LessonState {
   /** Validated snapshot: content updates cannot change an in-progress course. */
   readonly courseTemplate?: CourseTemplate;
   readonly stageAssessments?: Record<string, StageAssessment>;
+  readonly dialogueMemory?: DialogueMemoryItem[];
+  readonly lastDialogueMove?: z.infer<typeof dialogueMoveSchema>;
 }
 
 export const lessonStateSchema = z
@@ -97,6 +101,8 @@ export const lessonStateSchema = z
     updatedAt: z.number().int().nonnegative(),
     courseTemplate: courseTemplateSchema.optional(),
     stageAssessments: z.record(z.string(), stageAssessmentSchema).optional(),
+    dialogueMemory: dialogueMemorySchema.optional(),
+    lastDialogueMove: dialogueMoveSchema.optional(),
   })
   .superRefine((state, ctx) => {
     if (!state.courseTemplate) {

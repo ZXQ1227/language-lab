@@ -139,7 +139,15 @@ test("connected AI rejects invented citations, then completes a free-form lesson
         strengths: ["polite ordering"],
         improvements: ["try a different order"],
       };
-    } else output = { reply: "Thank you. Let's continue with the next step.", tone: "encouraging" };
+    } else
+      output = {
+        reply: system.includes("Current stage: Choose size and milk")
+          ? "What size and milk would you like?"
+          : system.includes("Current stage: Confirm the order")
+            ? "Is that for here or to go?"
+            : "Thank you. Your order is confirmed.",
+        tone: "encouraging",
+      };
     await route.fulfill({
       status: 200,
       headers: { "access-control-allow-origin": "*" },

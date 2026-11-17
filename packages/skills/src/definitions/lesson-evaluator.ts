@@ -11,6 +11,7 @@ const inputSchema = z.object({
       seq: z.number(),
       role: z.enum(["user", "assistant", "system"]) satisfies z.ZodType<MessageView["role"]>,
       content: z.string(),
+      purpose: z.literal("support").optional(),
     }),
   ),
   vocabularySeen: z.record(z.string(), z.number()),
@@ -42,6 +43,7 @@ export function createLessonEvaluatorSkill(): SkillDefinition<
     outputSchema,
     async execute(input, context: SkillContext) {
       const transcript = input.transcript
+        .filter((message) => message.purpose !== "support")
         .map((m) => `${m.role}: ${m.content}`)
         .join("\n")
         .slice(-12000);
@@ -59,6 +61,7 @@ export function createLessonEvaluatorSkill(): SkillDefinition<
                 `Level: ${context.studentProfile.level}`,
                 `Objectives: ${input.objectivesCompleted}/${input.objectiveCount}`,
                 `Corrections given: ${input.correctionsGiven}`,
+                `Hints given: ${context.lessonState.hintsGiven}. Distinguish supported performance from independent mastery; partner replies are not learner evidence.`,
                 `Vocabulary used: ${JSON.stringify(input.vocabularySeen)}`,
                 `Verified stage evidence: ${JSON.stringify(context.lessonState.stageAssessments ?? {})}`,
                 "--- transcript ---",

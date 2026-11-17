@@ -75,6 +75,47 @@
           "required": ["learner", "partner"],
           "additionalProperties": false
         },
+        "character": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 60
+            },
+            "traits": {
+              "minItems": 1,
+              "maxItems": 5,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 80
+              }
+            },
+            "speakingStyle": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 300
+            },
+            "motivation": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 300
+            },
+            "boundaries": {
+              "maxItems": 8,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              }
+            }
+          },
+          "required": ["name", "traits", "speakingStyle", "motivation", "boundaries"],
+          "additionalProperties": false
+        },
         "openingLine": {
           "type": "string",
           "minLength": 1

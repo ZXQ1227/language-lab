@@ -42,6 +42,8 @@ For text practice, evidence-based stage progression, connected AI and local
 checkpoint persistence, see [Teaching loop](TEACHING_LOOP.md).
 For the first complete course, study material, challenge variants and independent
 review answers, see [Hotel Check-in](HOTEL_CHECKIN.md).
+For dynamic character replies, grounded dialogue memory and conversation support,
+see [Dialogue Roleplay](DIALOGUE_ROLEPLAY.md).
 
 ## Data locations (macOS dev)
 

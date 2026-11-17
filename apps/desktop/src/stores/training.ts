@@ -1,12 +1,20 @@
 import { create } from "zustand";
 import { createRepositories, createTauriTransport } from "@language-lab/database";
-import { scenarioContentSchema, type ScenarioContent } from "@language-lab/core";
+import {
+  scenarioContentSchema,
+  dialogueSupportSchema,
+  detectDialogueSupport,
+  type DialogueSupport,
+  type ScenarioContent,
+} from "@language-lab/core";
+import { createMockGateway } from "@language-lab/model-gateway";
 import { call } from "../lib/ipc";
 import {
   createTrainingSession,
   finishTrainingSession,
   runTrainingTurn,
   saveCourseReview,
+  dialogueSupportText,
   trainingProviderSchema,
   trainingSessionSchema,
   type TrainingProvider,
@@ -28,6 +36,7 @@ interface TrainingStore {
   resume: (id: string) => void;
   start: (course: ScenarioContent, provider: TrainingProvider, key?: string) => Promise<void>;
   send: (utterance: string) => Promise<boolean>;
+  requestSupport: (request: DialogueSupport) => Promise<boolean>;
   finish: () => Promise<void>;
   updateKey: (key: string) => Promise<void>;
   saveReviewAnswers: (answers: Record<string, string>) => Promise<boolean>;
@@ -118,7 +127,9 @@ export const useTrainingStore = create<TrainingStore>((set, get) => {
         const next = await runTrainingTurn(
           current,
           utterance,
-          await trainingGateway(current.provider),
+          detectDialogueSupport(utterance) === "repeat"
+            ? createMockGateway()
+            : await trainingGateway(current.provider),
         );
         await commit(next);
       }),
@@ -129,6 +140,20 @@ export const useTrainingStore = create<TrainingStore>((set, get) => {
         await commit(await finishTrainingSession(current, await trainingGateway(current.provider)));
       });
     },
+    requestSupport: async (rawRequest) =>
+      operation(async () => {
+        const request = dialogueSupportSchema.parse(rawRequest);
+        const current = get().session;
+        if (!current) throw new Error("Start or resume a lesson first");
+        await commit(
+          await runTrainingTurn(
+            current,
+            dialogueSupportText[request],
+            request === "repeat" ? createMockGateway() : await trainingGateway(current.provider),
+            request,
+          ),
+        );
+      }),
     updateKey: async (key) => {
       await operation(async () => {
         const current = get().session;

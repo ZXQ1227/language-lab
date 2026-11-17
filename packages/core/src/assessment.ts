@@ -5,6 +5,7 @@ export const evidenceMessageSchema = z.object({
   seq: z.number().int().nonnegative(),
   role: z.enum(["user", "assistant", "system"]),
   content: z.string().min(1),
+  purpose: z.literal("support").optional(),
 });
 export type EvidenceMessage = z.infer<typeof evidenceMessageSchema>;
 
@@ -51,7 +52,12 @@ export function validateStageAssessment(
       throw new Error("Completed criterion needs learner evidence");
     for (const citation of criterion.evidence) {
       const message = messages.get(citation.messageSeq);
-      if (!message || message.role !== "user" || !message.content.includes(citation.quote)) {
+      if (
+        !message ||
+        message.role !== "user" ||
+        message.purpose === "support" ||
+        !message.content.includes(citation.quote)
+      ) {
         throw new Error("Assessment citation must quote an existing learner message exactly");
       }
     }

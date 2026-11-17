@@ -28,6 +28,7 @@ export interface MessageView {
   readonly seq: number;
   readonly role: MessageRole;
   readonly content: string;
+  readonly purpose?: "support";
 }
 
 /** Student profile as seen by skills. */
