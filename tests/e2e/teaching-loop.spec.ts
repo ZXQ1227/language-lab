@@ -58,8 +58,10 @@ test("a failed checkpoint write preserves the reply and retries without duplicat
   await expect(page.getByLabel("Conversation").getByText(reply, { exact: true })).toHaveCount(0);
   await page.getByRole("button", { name: "Send reply", exact: true }).click();
   await expect(page.getByText("Current step: Choose size and milk", { exact: true })).toBeVisible();
-  const checkpoints = await page.evaluate(
-    () => JSON.parse(sessionStorage.getItem("language-lab-e2e-state")!).trainingCheckpoints,
+  const checkpoints = await page.evaluate(() =>
+    JSON.parse(sessionStorage.getItem("language-lab-e2e-state")!).trainingCheckpoints.filter(
+      (row: { type: string }) => row.type === "training_checkpoint",
+    ),
   );
   expect(checkpoints).toHaveLength(1);
   const saved = JSON.parse(checkpoints[0].payload);

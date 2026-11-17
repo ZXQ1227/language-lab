@@ -64,6 +64,7 @@ describe("dialogue state in Training", () => {
       saved.state.turnCount++;
       saved.state.interventionState.practiceTurns++;
     }
+    delete saved.learningMemory;
     session = trainingSessionSchema.parse(saved);
     const next = await runTrainingTurn(session, "What information do you need?", gateway);
     const request = generation.mock.calls[5]![0];

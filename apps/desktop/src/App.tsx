@@ -9,11 +9,13 @@ import { ScenariosPage } from "./pages/ScenariosPage";
 import { TrainingPage } from "./pages/TrainingPage";
 import { ReportsPage } from "./pages/ReportsPage";
 import { SettingsPage } from "./pages/SettingsPage";
+import { LearningMemoryPage } from "./pages/LearningMemoryPage";
 
 const NAV_ITEMS: { id: PageId; label: string }[] = [
   { id: "dashboard", label: "Dashboard" },
   { id: "scenarios", label: "Scenarios" },
   { id: "training", label: "Training" },
+  { id: "memory", label: "Learning memory" },
   { id: "reports", label: "Reports" },
   { id: "settings", label: "Settings" },
 ];
@@ -24,6 +26,7 @@ const PAGES: Record<PageId, React.ReactNode> = {
   training: <TrainingPage />,
   reports: <ReportsPage />,
   settings: <SettingsPage />,
+  memory: <LearningMemoryPage />,
 };
 
 export function App() {

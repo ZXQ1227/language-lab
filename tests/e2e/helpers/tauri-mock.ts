@@ -17,6 +17,15 @@ export interface MockScenarioRow {
 }
 
 export interface MockState {
+  profiles?: {
+    id: string;
+    user_id: string;
+    target_language: string;
+    level: string;
+    goals: string;
+    created_at: number;
+    updated_at: number;
+  }[];
   lessons: { id: string; scenarioId: string; status: string }[];
   scenarios: MockScenarioRow[];
   trainingCheckpoints?: {
@@ -44,11 +53,23 @@ export async function installTauriMock(page: Page, state?: MockState): Promise<v
     const read = () => JSON.parse(window.sessionStorage.getItem(KEY)!) as MockState;
     const write = (s: MockState) => window.sessionStorage.setItem(KEY, JSON.stringify(s));
     let failNextTrainingSave = false;
+    let failNextMemorySave = false;
+    let failNextProfileSave = false;
+    let failNextMemoryRead = false;
     const secrets = new Map<string, string>();
 
     const invokeFn = async (cmd: string, args?: Record<string, unknown>) => {
       const s = read();
       switch (cmd) {
+        case "test_fail_next_memory":
+          failNextMemorySave = true;
+          return null;
+        case "test_fail_next_profile":
+          failNextProfileSave = true;
+          return null;
+        case "test_fail_next_memory_read":
+          failNextMemoryRead = true;
+          return null;
         case "test_fail_next_checkpoint":
           failNextTrainingSave = true;
           return null;
@@ -69,10 +90,40 @@ export async function installTauriMock(page: Page, state?: MockState): Promise<v
         case "db_execute": {
           const sql = String(args?.sql ?? "");
           const params = (args?.params as unknown[]) ?? [];
+          if (sql.startsWith("INSERT INTO student_profiles")) {
+            if (failNextProfileSave) {
+              failNextProfileSave = false;
+              throw new Error("Injected profile write failure");
+            }
+            const profiles = s.profiles ?? [];
+            const index = profiles.findIndex((profile) => profile.user_id === String(params[1]));
+            const profile = {
+              id: String(params[0]),
+              user_id: String(params[1]),
+              target_language: String(params[2]),
+              level: String(params[3]),
+              goals: String(params[4]),
+              created_at: Number(params[5]),
+              updated_at: Number(params[5]),
+            };
+            if (index < 0) profiles.push(profile);
+            else
+              profiles[index] = {
+                ...profile,
+                id: profiles[index]!.id,
+                created_at: profiles[index]!.created_at,
+              };
+            write({ ...s, profiles });
+            return { rowsAffected: 1, lastInsertId: profile.id };
+          }
           if (sql.startsWith("INSERT INTO learning_events")) {
             if (failNextTrainingSave) {
               failNextTrainingSave = false;
               throw new Error("Injected checkpoint write failure");
+            }
+            if (failNextMemorySave && params.length === 8) {
+              failNextMemorySave = false;
+              throw new Error("Injected memory write failure");
             }
             const row = {
               id: String(params[0]),
@@ -88,6 +139,21 @@ export async function installTauriMock(page: Page, state?: MockState): Promise<v
             const index = checkpoints.findIndex((item) => item.id === row.id);
             if (index < 0) checkpoints.push(row);
             else checkpoints[index] = { ...row, created_at: checkpoints[index]!.created_at };
+            if (params.length === 8) {
+              const memory = {
+                ...row,
+                id: String(params[5]),
+                type: String(params[6]),
+                payload: String(params[7]),
+              };
+              const memoryIndex = checkpoints.findIndex((item) => item.id === memory.id);
+              if (memoryIndex < 0) checkpoints.push(memory);
+              else
+                checkpoints[memoryIndex] = {
+                  ...memory,
+                  created_at: checkpoints[memoryIndex]!.created_at,
+                };
+            }
             write({ ...s, trainingCheckpoints: checkpoints });
             return { rowsAffected: 1, lastInsertId: row.id };
           }
@@ -121,8 +187,54 @@ export async function installTauriMock(page: Page, state?: MockState): Promise<v
         }
         case "db_select": {
           const sql = String(args?.sql ?? "");
-          if (sql.startsWith("SELECT * FROM learning_events"))
-            return [...(s.trainingCheckpoints ?? [])].sort((a, b) => b.updated_at - a.updated_at);
+          const params = (args?.params as unknown[]) ?? [];
+          if (sql.startsWith("SELECT * FROM student_profiles"))
+            return (s.profiles ?? []).filter((profile) =>
+              sql.includes("user_id =")
+                ? profile.user_id === String(params[0])
+                : profile.id === String(params[0]),
+            );
+          if (sql.startsWith("SELECT source.* FROM learning_events")) {
+            const rows = s.trainingCheckpoints ?? [];
+            return rows
+              .filter(
+                (row) =>
+                  row.user_id === String(params[1]) &&
+                  row.type === String(params[2]) &&
+                  row.id > String(params[3]) &&
+                  !rows.some(
+                    (memory) =>
+                      memory.id === `memory-${row.id.slice(9)}` &&
+                      memory.user_id === row.user_id &&
+                      memory.type === String(params[0]),
+                  ),
+              )
+              .sort((a, b) => a.id.localeCompare(b.id))
+              .slice(0, Number(params[4]));
+          }
+          if (sql.startsWith("SELECT * FROM learning_events")) {
+            if (sql.includes("ORDER BY id") && failNextMemoryRead) {
+              failNextMemoryRead = false;
+              throw new Error("Injected memory read failure");
+            }
+            const rows = [...(s.trainingCheckpoints ?? [])];
+            if (sql.includes("WHERE id ="))
+              return rows.filter(
+                (row) =>
+                  row.id === String(params[0]) &&
+                  (params[1] === undefined || row.user_id === String(params[1])) &&
+                  (params[2] === undefined || row.type === String(params[2])),
+              );
+            const filtered = rows.filter(
+              (row) => row.user_id === String(params[0]) && row.type === String(params[1]),
+            );
+            return sql.includes("ORDER BY id")
+              ? filtered
+                  .filter((row) => row.id > String(params[2]))
+                  .sort((a, b) => a.id.localeCompare(b.id))
+                  .slice(0, Number(params[3]))
+              : filtered.sort((a, b) => b.updated_at - a.updated_at).slice(0, Number(params[2]));
+          }
           if (sql.startsWith("SELECT * FROM lessons")) {
             return s.lessons.map((l) => ({
               id: l.id,

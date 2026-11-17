@@ -4,7 +4,14 @@
 import { expect, test } from "@playwright/test";
 import { installTauriMock } from "./helpers/tauri-mock";
 
-const PAGES = ["Dashboard", "Scenarios", "Training", "Reports", "Settings"] as const;
+const PAGES = [
+  "Dashboard",
+  "Scenarios",
+  "Training",
+  "Learning memory",
+  "Reports",
+  "Settings",
+] as const;
 
 test.beforeEach(async ({ page }) => {
   await installTauriMock(page);

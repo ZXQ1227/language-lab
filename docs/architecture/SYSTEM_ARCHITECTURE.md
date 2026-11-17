@@ -134,3 +134,21 @@ atomic checkpoint saves reply, history and reason together. Explanations become
 optional in feedback. No SQL or IPC changes are needed. See
 [ADR-0013](../adr/ADR-0013-gentle-intervention-timing-and-delivery.md) and
 [Teaching Intervention](../development/TEACHING_INTERVENTION.md).
+
+## Four-type learning memory
+
+The memory package validates explicit profile preferences and structured lesson
+contributions. Training derives knowledge/error observations and episode facts
+from saved learner evidence, keeping supported practice separate from model
+observations. Global memory replaces each lesson's contribution; use and diagnosis
+counts never automatically establish mastery or an assessed profile level.
+
+A single SQLite multi-row UPSERT now commits the canonical Training checkpoint
+and a compact `learning_memory_contribution` row together. Profile edits use a
+single profile UPSERT. Both use existing tables and IPC, with no migration. Reads
+filter learner/type and page all memory sources beyond the 50-lesson resume list;
+legacy checkpoints are derived without silent rewrites. The Memory page exposes
+four categories, profile editing and exact source-lesson opening. Teaching receives
+a bounded language-scoped view while current course facts and criteria remain
+authoritative. See [ADR-0014](../adr/ADR-0014-four-type-learning-memory.md) and
+[Learning Memory](../development/LEARNING_MEMORY.md).

@@ -3,7 +3,7 @@
 
 import { create } from "zustand";
 
-export type PageId = "dashboard" | "scenarios" | "training" | "reports" | "settings";
+export type PageId = "dashboard" | "scenarios" | "training" | "memory" | "reports" | "settings";
 
 interface NavState {
   page: PageId;

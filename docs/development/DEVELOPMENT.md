@@ -50,6 +50,8 @@ For conservative grammar/word-choice diagnosis, exact error evidence, correction
 delivery and saved feedback, see [Error Diagnosis](ERROR_DIAGNOSIS.md).
 For in-conversation recasts, spacing, repeat suppression and delivery verification,
 see [Teaching Intervention](TEACHING_INTERVENTION.md).
+For explicit profiles, cross-lesson knowledge/error/episode memory, atomic writes,
+legacy reads and the Memory page, see [Learning Memory](LEARNING_MEMORY.md).
 
 ## Data locations (macOS dev)
 

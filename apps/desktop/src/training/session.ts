@@ -32,6 +32,14 @@ import {
   SkillRegistry,
 } from "@language-lab/skills";
 import type { ModelGateway } from "@language-lab/model-gateway";
+import {
+  defaultProfileMemory,
+  lessonMemoryContributionSchema,
+  projectLearningMemory,
+  selectLearningMemory,
+  type MemorySnapshot,
+} from "@language-lab/memory";
+import { buildLearningContribution } from "./learningMemory";
 import { loadScenarioContent } from "../content/scenarioContent";
 
 const endpointSchema = z
@@ -80,6 +88,7 @@ export const trainingSessionSchema = z
     version: z.literal(1),
     vocabularyTrackingVersion: z.literal(1).optional(),
     diagnoses: z.array(errorDiagnosisRecordSchema).max(100).optional(),
+    learningMemory: lessonMemoryContributionSchema.optional(),
     id: z.string().min(1),
     scenario: scenarioContentSchema,
     provider: trainingProviderSchema,
@@ -103,6 +112,21 @@ export const trainingSessionSchema = z
     reviewAnswers: z.record(z.string(), z.string().max(2000)).optional(),
   })
   .superRefine((session, ctx) => {
+    if (session.learningMemory) {
+      try {
+        if (
+          JSON.stringify(session.learningMemory) !==
+          JSON.stringify(buildLearningContribution(session))
+        )
+          throw new Error("Unverified memory projection");
+      } catch {
+        ctx.addIssue({
+          code: "custom",
+          path: ["learningMemory"],
+          message: "Learning memory must match saved learner practice and diagnosis evidence",
+        });
+      }
+    }
     try {
       validateDiagnosisRecords(session.diagnoses ?? [], session.messages);
       if (
@@ -228,6 +252,11 @@ export const trainingSessionSchema = z
     }
   });
 export type TrainingSession = z.infer<typeof trainingSessionSchema>;
+
+function finalizeCheckpoint(raw: Record<string, unknown>): TrainingSession {
+  const session = trainingSessionSchema.parse({ ...raw, learningMemory: undefined });
+  return { ...session, learningMemory: buildLearningContribution(session) };
+}
 
 function trainingVocabularyCounts(state: LessonState, messages: readonly EvidenceMessage[]) {
   return vocabularyCounts(
@@ -402,7 +431,18 @@ function runtime(
   provider: TrainingProvider,
   gateway: ModelGateway,
   saved?: TrainingSession,
+  memory?: MemorySnapshot,
 ) {
+  const snapshot =
+    memory ??
+    selectLearningMemory(
+      projectLearningMemory(
+        defaultProfileMemory(),
+        saved ? [saved.learningMemory ?? buildLearningContribution(saved)] : [],
+      ),
+      scenario.courseTemplate!.targetLanguage,
+      scenario.targetVocabulary,
+    );
   // Old checkpoints are upgraded only in this private draft and committed atomically.
   let state = saved
     ? lessonStateSchema.parse({
@@ -425,25 +465,13 @@ function runtime(
     profile: {
       profile: async () => ({
         userId: "local-training-user",
-        targetLanguage: scenario.courseTemplate!.targetLanguage,
-        level: scenario.difficulty,
-        goals: [...scenario.objectives],
+        targetLanguage: snapshot.profile.targetLanguage,
+        level: snapshot.profile.level,
+        goals: snapshot.profile.goals,
       }),
     },
     memory: {
-      snapshot: async () => ({
-        profile: {
-          targetLanguage: scenario.courseTemplate!.targetLanguage,
-          level: scenario.difficulty,
-          goals: [...scenario.objectives],
-        },
-        knowledge: Object.keys(state?.vocabularySeen ?? {}).map((item) => ({
-          item,
-          mastery: "learning" as const,
-        })),
-        errors: [],
-        episodes: [],
-      }),
+      snapshot: async () => snapshot,
     },
     data: {
       findScenario: async (id) => (id === scenario.id ? scenario : null),
@@ -457,6 +485,7 @@ export async function createTrainingSession(
   raw: unknown,
   rawProvider: unknown,
   gateway: ModelGateway,
+  memory?: MemorySnapshot,
 ): Promise<TrainingSession> {
   const scenario = scenarioContentSchema.parse(raw);
   const provider = trainingProviderSchema.parse(rawProvider);
@@ -464,15 +493,15 @@ export async function createTrainingSession(
   if (provider.mode === "demo" && !supportsGuidedDemo(scenario))
     throw new Error("Connect AI to practise this custom course");
   const id = crypto.randomUUID();
-  const { state } = await runtime(scenario, provider, gateway).initLesson({
+  const { state } = await runtime(scenario, provider, gateway, undefined, memory).initLesson({
     userId: "local-training-user",
     lessonId: id,
     conversationId: id,
-    studentLevel: scenario.difficulty,
-    studentGoals: scenario.objectives,
+    studentLevel: memory?.profile.level ?? scenario.difficulty,
+    studentGoals: memory?.profile.goals ?? [],
     scenarioCandidates: [scenario],
   });
-  return trainingSessionSchema.parse({
+  return finalizeCheckpoint({
     version: 1,
     vocabularyTrackingVersion: 1,
     id,
@@ -490,6 +519,7 @@ export async function runTrainingTurn(
   utterance: string,
   gateway: ModelGateway,
   supportRequest?: DialogueSupport,
+  memory?: MemorySnapshot,
 ): Promise<TrainingSession> {
   supportRequest = supportRequest ?? detectDialogueSupport(utterance);
   if (supportRequest === "simplify" && session.provider.mode === "demo")
@@ -501,6 +531,7 @@ export async function runTrainingTurn(
     session.provider,
     gateway,
     session,
+    memory,
   ).processStudentTurn({
     userId: "local-training-user",
     lessonId: session.id,
@@ -509,7 +540,7 @@ export async function runTrainingTurn(
     mode: "text",
     supportRequest,
   });
-  return trainingSessionSchema.parse({
+  return finalizeCheckpoint({
     ...session,
     vocabularyTrackingVersion: 1,
     state: result.state,
@@ -561,14 +592,21 @@ export async function runTrainingTurn(
 export async function finishTrainingSession(
   session: TrainingSession,
   gateway: ModelGateway,
+  memory?: MemorySnapshot,
 ): Promise<TrainingSession> {
-  const result = await runtime(session.scenario, session.provider, gateway, session).finishLesson({
+  const result = await runtime(
+    session.scenario,
+    session.provider,
+    gateway,
+    session,
+    memory,
+  ).finishLesson({
     userId: "local-training-user",
     lessonId: session.id,
     conversationId: session.id,
     diagnoses: session.diagnoses,
   });
-  return trainingSessionSchema.parse({ ...session, ...result, vocabularyTrackingVersion: 1 });
+  return finalizeCheckpoint({ ...session, ...result, vocabularyTrackingVersion: 1 });
 }
 
 export const dialogueSupportText: Record<DialogueSupport, string> = {
@@ -581,7 +619,7 @@ export function saveCourseReview(
   session: TrainingSession,
   answers: Record<string, string>,
 ): TrainingSession {
-  return trainingSessionSchema.parse({
+  return finalizeCheckpoint({
     ...session,
     reviewAnswers: answers,
     state: { ...session.state, updatedAt: Date.now() },

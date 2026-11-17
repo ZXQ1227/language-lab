@@ -8,6 +8,15 @@ import {
   type ScenarioContent,
 } from "@language-lab/core";
 import { createMockGateway } from "@language-lab/model-gateway";
+import {
+  defaultProfileMemory,
+  projectLearningMemory,
+  selectLearningMemory,
+  writeLearningProfile,
+  type LearningMemoryDocument,
+  type LessonMemoryContribution,
+  type LearningProfile,
+} from "@language-lab/memory";
 import { call } from "../lib/ipc";
 import {
   createTrainingSession,
@@ -21,6 +30,8 @@ import {
   type TrainingSession,
 } from "../training/session";
 import { saveTrainingKey, trainingGateway } from "../training/gateway";
+import { buildLearningContribution } from "../training/learningMemory";
+import { LOCAL_LEARNER_ID, readLearningMemory } from "../training/learningMemoryPersistence";
 
 const repositories = () => createRepositories(createTauriTransport(call));
 
@@ -31,6 +42,10 @@ interface TrainingStore {
   loaded: boolean;
   busy: boolean;
   error: string | null;
+  learningMemory: LearningMemoryDocument | null;
+  memoryContributions: LessonMemoryContribution[];
+  saveProfile: (profile: LearningProfile) => Promise<boolean>;
+  openLesson: (id: string) => Promise<boolean>;
   load: () => Promise<void>;
   prepare: (course?: ScenarioContent) => void;
   resume: (id: string) => void;
@@ -45,18 +60,43 @@ interface TrainingStore {
 export const useTrainingStore = create<TrainingStore>((set, get) => {
   async function commit(session: TrainingSession) {
     const checkpoint = trainingSessionSchema.parse(session);
+    const contribution = checkpoint.learningMemory ?? buildLearningContribution(checkpoint);
+    const contributions = [
+      ...get().memoryContributions.filter((item) => item.lessonId !== checkpoint.id),
+      contribution,
+    ];
+    const previousMemory = get().learningMemory;
+    const learningMemory = projectLearningMemory(
+      previousMemory?.profile ?? defaultProfileMemory(),
+      contributions,
+      previousMemory?.profileSaved ?? false,
+    );
     await repositories().learningEvents.saveTrainingCheckpoint({
       id: checkpoint.id,
       payload: checkpoint,
+      memory: contribution,
     });
     set({
       session: checkpoint,
       pendingCourse: null,
+      memoryContributions: contributions,
+      learningMemory,
       sessions: [checkpoint, ...get().sessions.filter((item) => item.id !== checkpoint.id)].slice(
         0,
         50,
       ),
     });
+  }
+  async function snapshot(course: ScenarioContent) {
+    if (!get().learningMemory) {
+      const loaded = await readLearningMemory(repositories());
+      set({ learningMemory: loaded.document, memoryContributions: loaded.contributions });
+    }
+    return selectLearningMemory(
+      get().learningMemory!,
+      course.courseTemplate!.targetLanguage,
+      course.targetVocabulary,
+    );
   }
   async function operation(work: () => Promise<void>): Promise<boolean> {
     if (get().busy) return false;
@@ -78,15 +118,27 @@ export const useTrainingStore = create<TrainingStore>((set, get) => {
     busy: false,
     loaded: false,
     error: null,
+    learningMemory: null,
+    memoryContributions: [],
     load: async () => {
       await operation(async () => {
         const repos = repositories();
         await repos.users.ensureLocalLearner();
         const rows = await repos.learningEvents.listTrainingCheckpoints();
-        const sessions = rows.map((row) => trainingSessionSchema.parse(JSON.parse(row.payload)));
+        const memory = await readLearningMemory(repos);
+        const latestSessions = rows.map((row) =>
+          trainingSessionSchema.parse(JSON.parse(row.payload)),
+        );
+        const current = get().session;
+        const sessions =
+          current && !latestSessions.some((session) => session.id === current.id)
+            ? [current, ...latestSessions].slice(0, 50)
+            : latestSessions;
         set({
           sessions,
           loaded: true,
+          learningMemory: memory.document,
+          memoryContributions: memory.contributions,
           session: get().pendingCourse ? null : (get().session ?? sessions[0] ?? null),
         });
       });
@@ -116,6 +168,7 @@ export const useTrainingStore = create<TrainingStore>((set, get) => {
           course,
           provider,
           await trainingGateway(provider),
+          await snapshot(course),
         );
         await commit(session);
       });
@@ -130,6 +183,8 @@ export const useTrainingStore = create<TrainingStore>((set, get) => {
           detectDialogueSupport(utterance) === "repeat"
             ? createMockGateway()
             : await trainingGateway(current.provider),
+          undefined,
+          await snapshot(current.scenario),
         );
         await commit(next);
       }),
@@ -137,7 +192,13 @@ export const useTrainingStore = create<TrainingStore>((set, get) => {
       await operation(async () => {
         const current = get().session;
         if (!current) throw new Error("Start or resume a lesson first");
-        await commit(await finishTrainingSession(current, await trainingGateway(current.provider)));
+        await commit(
+          await finishTrainingSession(
+            current,
+            await trainingGateway(current.provider),
+            await snapshot(current.scenario),
+          ),
+        );
       });
     },
     requestSupport: async (rawRequest) =>
@@ -151,6 +212,7 @@ export const useTrainingStore = create<TrainingStore>((set, get) => {
             dialogueSupportText[request],
             request === "repeat" ? createMockGateway() : await trainingGateway(current.provider),
             request,
+            await snapshot(current.scenario),
           ),
         );
       }),
@@ -167,6 +229,28 @@ export const useTrainingStore = create<TrainingStore>((set, get) => {
         const current = get().session;
         if (!current) throw new Error("Complete a course before saving review answers");
         await commit(saveCourseReview(current, answers));
+      }),
+    saveProfile: async (rawProfile) =>
+      operation(async () => {
+        await repositories().users.ensureLocalLearner();
+        if (!get().learningMemory) {
+          const memory = await readLearningMemory(repositories());
+          set({ learningMemory: memory.document, memoryContributions: memory.contributions });
+        }
+        const profile = await writeLearningProfile(repositories(), LOCAL_LEARNER_ID, rawProfile);
+        set({ learningMemory: projectLearningMemory(profile, get().memoryContributions, true) });
+      }),
+    openLesson: async (id) =>
+      operation(async () => {
+        const row = await repositories().learningEvents.findTrainingCheckpoint(id);
+        if (!row) throw new Error("The source lesson could not be found");
+        const session = trainingSessionSchema.parse(JSON.parse(row.payload));
+        if (session.id !== id) throw new Error("Source lesson identity is inconsistent");
+        set({
+          session,
+          pendingCourse: null,
+          sessions: [session, ...get().sessions.filter((item) => item.id !== id)].slice(0, 50),
+        });
       }),
   };
 });

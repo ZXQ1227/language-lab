@@ -47,3 +47,10 @@ also allow partial turns after a failure.
 - The first implementation supports at most 100 turns per lesson and lists the
   latest 50 checkpoints. Native keyring and actual model quality need separate
   validation on a supported desktop.
+
+## Addendum: Learning Memory
+
+ADR-0014 adds one compact memory projection row per Training lesson. Checkpoint
+and projection are written by one multi-row UPSERT, preserving the atomic
+publication rule. The checkpoint remains the canonical source; existing ordinary
+append-only events and independent normalized projections remain untouched.

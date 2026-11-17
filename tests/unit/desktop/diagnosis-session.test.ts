@@ -164,6 +164,7 @@ describe("grounded language feedback checkpoints", () => {
     const legacy = trainingSessionSchema.parse({
       ...saved,
       diagnoses: undefined,
+      learningMemory: undefined,
       state: { ...saved.state, interventionState: undefined },
     });
     expect(legacy.diagnoses).toBeUndefined();

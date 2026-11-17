@@ -62,6 +62,26 @@ export class UsersRepo extends BaseRepo {
 }
 
 export class StudentProfilesRepo extends BaseRepo {
+  /** One statement keeps an explicit profile edit atomic. */
+  async save(input: {
+    userId: string;
+    targetLanguage: string;
+    level: string;
+    goals: string[];
+  }): Promise<void> {
+    const ts = nowMs();
+    await this.db.execute(
+      "INSERT INTO student_profiles (id, user_id, target_language, level, goals, created_at, updated_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?6) ON CONFLICT(user_id) DO UPDATE SET target_language = excluded.target_language, level = excluded.level, goals = excluded.goals, updated_at = excluded.updated_at",
+      [
+        `profile-${input.userId}`,
+        input.userId,
+        input.targetLanguage,
+        input.level,
+        JSON.stringify(input.goals),
+        ts,
+      ],
+    );
+  }
   async create(input: {
     id?: string;
     userId: string;
@@ -283,8 +303,27 @@ export class LearningEventsRepo extends BaseRepo {
   async saveTrainingCheckpoint(input: {
     id: string;
     payload: Record<string, unknown>;
+    memory?: Record<string, unknown>;
   }): Promise<void> {
     const ts = nowMs();
+    if (input.memory) {
+      await this.db.execute(
+        `INSERT INTO learning_events (id, user_id, lesson_id, type, payload, occurred_at, created_at, updated_at)
+        VALUES (?1, ?2, NULL, ?3, ?4, ?5, ?5, ?5), (?6, ?2, NULL, ?7, ?8, ?5, ?5, ?5)
+        ON CONFLICT(id) DO UPDATE SET payload = excluded.payload, occurred_at = excluded.occurred_at, updated_at = excluded.updated_at`,
+        [
+          `training-${input.id}`,
+          "local-training-user",
+          "training_checkpoint",
+          JSON.stringify(input.payload),
+          ts,
+          `memory-${input.id}`,
+          "learning_memory_contribution",
+          JSON.stringify(input.memory),
+        ],
+      );
+      return;
+    }
     await this.db.execute(
       `INSERT INTO learning_events (id, user_id, lesson_id, type, payload, occurred_at, created_at, updated_at)
        VALUES (?1, ?2, NULL, ?3, ?4, ?5, ?5, ?5)
@@ -306,6 +345,52 @@ export class LearningEventsRepo extends BaseRepo {
         "SELECT * FROM learning_events WHERE user_id = ?1 AND type = ?2 ORDER BY updated_at DESC LIMIT ?3",
         ["local-training-user", "training_checkpoint", 50],
       ),
+    );
+  }
+  async listMemoryContributions(
+    userId: string,
+    afterId = "",
+    limit = 100,
+  ): Promise<S.LearningEventRow[]> {
+    if (!Number.isInteger(limit) || limit < 1 || limit > 200)
+      throw new Error("Memory page size must be between 1 and 200");
+    return parse(
+      S.learningEventRow,
+      await this.db.select(
+        "SELECT * FROM learning_events WHERE user_id = ?1 AND type = ?2 AND id > ?3 ORDER BY id LIMIT ?4",
+        [userId, "learning_memory_contribution", afterId, limit],
+      ),
+    );
+  }
+  async listLegacyMemorySources(
+    userId: string,
+    afterId = "",
+    limit = 100,
+  ): Promise<S.LearningEventRow[]> {
+    if (!Number.isInteger(limit) || limit < 1 || limit > 200)
+      throw new Error("Memory page size must be between 1 and 200");
+    return parse(
+      S.learningEventRow,
+      await this.db.select(
+        `SELECT source.* FROM learning_events AS source
+      LEFT JOIN learning_events AS memory ON memory.id = 'memory-' || substr(source.id, 10) AND memory.user_id = source.user_id AND memory.type = ?1
+      WHERE source.user_id = ?2 AND source.type = ?3 AND source.id > ?4 AND memory.id IS NULL ORDER BY source.id LIMIT ?5`,
+        ["learning_memory_contribution", userId, "training_checkpoint", afterId, limit],
+      ),
+    );
+  }
+  async findTrainingCheckpoint(
+    id: string,
+    userId = "local-training-user",
+  ): Promise<S.LearningEventRow | null> {
+    return (
+      parse(
+        S.learningEventRow,
+        await this.db.select(
+          "SELECT * FROM learning_events WHERE id = ?1 AND user_id = ?2 AND type = ?3",
+          [`training-${id}`, userId, "training_checkpoint"],
+        ),
+      )[0] ?? null
     );
   }
   async record(input: {
