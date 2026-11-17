@@ -1,0 +1,80 @@
+# Language Lab
+
+Local-first AI language learning desktop app, built with Tauri 2 + React + TypeScript.
+
+Language Lab is an AI-native language learning application: a teaching agent with
+skills and a lesson state machine, student data stored locally in SQLite, and an
+installation protocol that lets AI coding assistants (Codex, Claude Code, ...)
+install the app from this repository.
+
+## Stack
+
+| Layer         | Choice                                                        |
+| ------------- | ------------------------------------------------------------- |
+| Desktop shell | Tauri 2                                                       |
+| Frontend      | React 19 + Vite + TypeScript                                  |
+| System layer  | Rust (SQLite via rusqlite, keyring, AI proxy)                 |
+| Data access   | Rust-side SQLite; Drizzle as build-time schema/migration tool |
+| Validation    | Zod                                                           |
+| Testing       | Vitest + Playwright                                           |
+| CI/CD         | GitHub Actions (macOS + Windows)                              |
+
+No Python. No Docker. No cloud backend. Student data never leaves the machine.
+
+## Repository layout
+
+```
+apps/
+  desktop/            Tauri 2 shell + React frontend
+packages/
+  core/               Lesson, conversation, events, teaching state machine
+  agent-runtime/      Teaching agent orchestrator
+  skills/             Skill contract and skill implementations
+  memory/             Profile / knowledge / error / episodic memory
+  model-gateway/      LLM / ASR / TTS provider interfaces
+  database/           Persistence boundary (Rust-side SQLite over IPC)
+  shared/             Cross-package types, ids, result types
+content/              Teaching assets: scenarios, vocabulary, expressions, evaluation
+docs/                 Product, architecture, installation, development docs
+scripts/              Maintenance scripts (doctor, verify-release, validate-content)
+tests/                unit / integration / e2e / evals
+```
+
+Architecture rules that matter:
+
+- **The webview has no Node.js.** Anything depending on Node native modules
+  cannot ship. SQLite runs in the Rust process, reached over IPC.
+- **Provider API keys live in the OS keyring**, read by the Rust core. They never
+  enter the webview. Outbound AI calls go through a Rust proxy by default.
+- **`content/` is product content; the SQLite database is user data.** The two
+  are never mixed, and updates never overwrite user data.
+- **Skills and the agent are separated.** The agent decides _when_ to call a
+  skill; skills do the task with zod-validated inputs and outputs.
+
+## Getting started (development)
+
+Requirements: Node >= 20, pnpm, Rust toolchain (stable) for the Tauri shell.
+
+```bash
+pnpm install
+pnpm typecheck   # TypeScript check across the monorepo
+pnpm lint        # ESLint
+pnpm dev         # Vite dev server (frontend only)
+```
+
+To run the desktop shell (requires Rust):
+
+```bash
+pnpm --filter @language-lab/desktop tauri dev
+```
+
+## Docs
+
+- `docs/product/PRD.md` — product requirements
+- `docs/architecture/` — system, agent and memory architecture
+- `docs/installation/AI_INSTALL.md` — LLAIP: the agent installation protocol
+- `AGENTS.md` — how AI assistants should operate on this repository
+
+## License
+
+MIT
