@@ -10,6 +10,9 @@
   },
   "dependencies": {
     "@language-lab/core": "workspace:*",
-    "@language-lab/shared": "workspace:*"
+    "@language-lab/memory": "workspace:*",
+    "@language-lab/model-gateway": "workspace:*",
+    "@language-lab/shared": "workspace:*",
+    "@language-lab/skills": "workspace:*"
   }
 }

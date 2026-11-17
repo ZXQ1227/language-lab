@@ -20,6 +20,13 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.20.0",
+    "@language-lab/agent-runtime": "workspace:*",
+    "@language-lab/core": "workspace:*",
+    "@language-lab/database": "workspace:*",
+    "@language-lab/memory": "workspace:*",
+    "@language-lab/model-gateway": "workspace:*",
+    "@language-lab/shared": "workspace:*",
+    "@language-lab/skills": "workspace:*",
     "eslint": "^9.20.0",
     "eslint-config-prettier": "^10.0.0",
     "globals": "^16.0.0",

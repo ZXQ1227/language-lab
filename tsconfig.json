@@ -4,6 +4,12 @@
     "types": [],
     "baseUrl": ".",
     "paths": {
+      "@language-lab/core": ["packages/core/src/index.ts"],
+      "@language-lab/shared": ["packages/shared/src/index.ts"],
+      "@language-lab/memory": ["packages/memory/src/index.ts"],
+      "@language-lab/skills": ["packages/skills/src/index.ts"],
+      "@language-lab/agent-runtime": ["packages/agent-runtime/src/index.ts"],
+      "@language-lab/database": ["packages/database/src/index.ts"],
       "@language-lab/model-gateway": ["packages/model-gateway/src/index.ts"]
     }
   },

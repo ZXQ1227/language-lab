@@ -11,6 +11,27 @@ importers:
       '@eslint/js':
         specifier: ^9.20.0
         version: 9.39.5
+      '@language-lab/agent-runtime':
+        specifier: workspace:*
+        version: link:packages/agent-runtime
+      '@language-lab/core':
+        specifier: workspace:*
+        version: link:packages/core
+      '@language-lab/database':
+        specifier: workspace:*
+        version: link:packages/database
+      '@language-lab/memory':
+        specifier: workspace:*
+        version: link:packages/memory
+      '@language-lab/model-gateway':
+        specifier: workspace:*
+        version: link:packages/model-gateway
+      '@language-lab/shared':
+        specifier: workspace:*
+        version: link:packages/shared
+      '@language-lab/skills':
+        specifier: workspace:*
+        version: link:packages/skills
       eslint:
         specifier: ^9.20.0
         version: 9.39.4(supports-color@7.2.0)
@@ -93,9 +114,18 @@ importers:
       '@language-lab/core':
         specifier: workspace:*
         version: link:../core
+      '@language-lab/memory':
+        specifier: workspace:*
+        version: link:../memory
+      '@language-lab/model-gateway':
+        specifier: workspace:*
+        version: link:../model-gateway
       '@language-lab/shared':
         specifier: workspace:*
         version: link:../shared
+      '@language-lab/skills':
+        specifier: workspace:*
+        version: link:../skills
 
   packages/core:
     dependencies:

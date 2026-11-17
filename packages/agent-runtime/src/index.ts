@@ -1,26 +1,14 @@
 // @language-lab/agent-runtime
-// Teaching Agent orchestrator: receives student input, loads state and memory,
-// routes to skills, and decides the teaching action.
+// The single Teaching Agent: receives student input, loads state and memory,
+// routes analysis to skills, makes the teaching decision deterministically,
+// generates the reply and persists the new state.
 //
-// Blueprint rule: "analyze student utterance" and "generate roleplay response"
-// are separate steps. The orchestrator uses structured analysis + deterministic
-// logic for teaching decisions. No implementation yet.
+// Boundary rules (blueprint 3.1 / Task 06):
+// - The orchestrator decides and schedules; skills execute.
+// - Skills are always invoked through the SkillRegistry (schema-validated).
+// - Persistence goes through injected ports, never direct DB access.
 
-import type { LearningEvent, LessonState, TeachingAction } from "@language-lab/core";
-
-export interface StudentUtteranceAnalysis {
-  readonly intent: string;
-  readonly vocabularyUsed: readonly string[];
-  readonly suspectedErrors: readonly string[];
-}
-
-export interface OrchestratorTurn {
-  readonly analysis: StudentUtteranceAnalysis;
-  readonly teachingAction: TeachingAction;
-  readonly events: readonly LearningEvent[];
-}
-
-export interface Orchestrator {
-  /** Processes one student turn end-to-end. Implementation comes later. */
-  processStudentTurn(input: string, lessonState: LessonState): Promise<OrchestratorTurn>;
-}
+export * from "./events";
+export * from "./types";
+export * from "./ports";
+export * from "./orchestrator";

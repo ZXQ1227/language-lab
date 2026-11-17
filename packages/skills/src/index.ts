@@ -1,29 +1,83 @@
 // @language-lab/skills
-// Skill contract shared by every skill implementation.
+// Skill contract, registry and the first batch of teaching skills.
 //
-// Every skill must declare zod schemas for its input and output so the
-// orchestrator can validate LLM outputs at the boundary.
+// Each definition exports a real (LLM-backed) and a mock (deterministic)
+// factory with identical interfaces, so tests and offline development can
+// swap implementations without touching the orchestrator.
 
-import type { LessonState } from "@language-lab/core";
-import type { ModelGateway } from "@language-lab/model-gateway";
-import type { MemorySnapshot } from "@language-lab/memory";
-import type { ZodSchema } from "zod";
+export * from "./context";
+export * from "./contract";
+export * from "./registry";
+export * from "./definitions/scenario-selector";
+export * from "./definitions/dialogue-roleplay";
+export * from "./definitions/vocabulary-tracker";
+export * from "./definitions/error-diagnosis";
+export * from "./definitions/teaching-intervention";
+export * from "./definitions/lesson-evaluator";
+export * from "./definitions/review-generator";
 
-export interface SkillContext {
-  readonly userId: string;
-  readonly lessonId: string;
-  readonly conversationId: string;
-  readonly studentProfile: Record<string, unknown>;
-  readonly lessonState: LessonState;
-  readonly memory: MemorySnapshot;
-  readonly modelGateway: ModelGateway;
+import { SkillRegistry } from "./registry";
+import {
+  createScenarioSelectorSkill,
+  createMockScenarioSelectorSkill,
+} from "./definitions/scenario-selector";
+import {
+  createDialogueRoleplaySkill,
+  createMockDialogueRoleplaySkill,
+} from "./definitions/dialogue-roleplay";
+import {
+  createVocabularyTrackerSkill,
+  createMockVocabularyTrackerSkill,
+} from "./definitions/vocabulary-tracker";
+import {
+  createErrorDiagnosisSkill,
+  createMockErrorDiagnosisSkill,
+} from "./definitions/error-diagnosis";
+import {
+  createTeachingInterventionSkill,
+  createMockTeachingInterventionSkill,
+} from "./definitions/teaching-intervention";
+import {
+  createLessonEvaluatorSkill,
+  createMockLessonEvaluatorSkill,
+} from "./definitions/lesson-evaluator";
+import {
+  createReviewGeneratorSkill,
+  createMockReviewGeneratorSkill,
+} from "./definitions/review-generator";
+
+export const FIRST_BATCH_SKILL_IDS = [
+  "skills.scenario_selector",
+  "skills.dialogue_roleplay",
+  "skills.vocabulary_tracker",
+  "skills.error_diagnosis",
+  "skills.teaching_intervention",
+  "skills.lesson_evaluator",
+  "skills.review_generator",
+] as const;
+
+/** Registry preloaded with the real (LLM-backed) first batch. */
+export function createDefaultSkillRegistry(): SkillRegistry {
+  const registry = new SkillRegistry();
+  registry.register(createScenarioSelectorSkill());
+  registry.register(createDialogueRoleplaySkill());
+  registry.register(createVocabularyTrackerSkill());
+  registry.register(createErrorDiagnosisSkill());
+  registry.register(createTeachingInterventionSkill());
+  registry.register(createLessonEvaluatorSkill());
+  registry.register(createReviewGeneratorSkill());
+  return registry;
 }
 
-export interface SkillDefinition<TInput, TOutput> {
-  readonly id: string;
-  readonly version: string;
-  readonly description: string;
-  readonly inputSchema: ZodSchema<TInput>;
-  readonly outputSchema: ZodSchema<TOutput>;
-  execute(input: TInput, context: SkillContext): Promise<TOutput>;
+/** Registry preloaded with deterministic mock skills (no model calls). */
+export function createMockSkillRegistry(): SkillRegistry {
+  const registry = new SkillRegistry();
+  registry.register(createMockScenarioSelectorSkill());
+  registry.register(createMockDialogueRoleplaySkill());
+  registry.register(createMockVocabularyTrackerSkill());
+  registry.register(createMockErrorDiagnosisSkill());
+  registry.register(createMockTeachingInterventionSkill());
+  registry.register(createMockLessonEvaluatorSkill());
+  registry.register(createMockReviewGeneratorSkill());
+  return registry;
 }
