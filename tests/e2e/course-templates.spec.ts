@@ -25,6 +25,8 @@ test("previews authored steps and validates configuration before export", async 
   await expect(cafe.getByRole("alert")).toContainText("between 0 and 20");
   await expect(cafe.getByRole("button", { name: "Export course JSON" })).toBeDisabled();
   await cafe.getByLabel("Maximum hints").fill("0");
+  await cafe.getByLabel("Practice turns between corrections").fill("2");
+  await cafe.getByLabel("Practice turns before repeating a correction").fill("6");
   await expect(cafe.getByRole("alert")).toHaveCount(0);
   await expect(cafe.getByRole("button", { name: "Export course JSON" })).toBeEnabled();
 });
@@ -43,6 +45,8 @@ test("exports configured content and reimports it without changing shipped templ
   await cafe.getByLabel("Correction style").selectOption("off");
   await cafe.getByLabel("Maximum hints").fill("0");
   const downloadEvent = page.waitForEvent("download");
+  await cafe.getByLabel("Practice turns between corrections").fill("2");
+  await cafe.getByLabel("Practice turns before repeating a correction").fill("6");
   await cafe.getByRole("button", { name: "Export course JSON" }).click();
   const download = await downloadEvent;
   expect(download.suggestedFilename()).toBe("cafe-order-course.json");
@@ -52,6 +56,8 @@ test("exports configured content and reimports it without changing shipped templ
   expect(template.courseTemplate.teachingPolicy).toMatchObject({
     correctionMode: "off",
     maxHints: 0,
+    correctionCooldownTurns: 2,
+    repeatCorrectionCooldownTurns: 6,
   });
   expect(template.courseTemplate.stages).toEqual(cafeOrder.courseTemplate.stages);
   await page
@@ -62,6 +68,10 @@ test("exports configured content and reimports it without changing shipped templ
   await expect(imported.getByLabel("Practice level")).toHaveValue("B2");
   await expect(imported.getByLabel("Maximum hints")).toHaveValue("0");
   await expect(imported.getByLabel("Correction style")).toHaveValue("off");
+  await expect(imported.getByLabel("Practice turns between corrections")).toHaveValue("2");
+  await expect(imported.getByLabel("Practice turns before repeating a correction")).toHaveValue(
+    "6",
+  );
   await imported.getByLabel("Practice level").selectOption("A1");
   // Reimporting the same source resets unsaved edits to the file's configuration.
   await page.getByLabel("Import course template").setInputFiles({

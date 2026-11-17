@@ -9,6 +9,8 @@ export const teachingPolicySchema = z.strictObject({
   correctionMode: z.enum(["gentle", "off"]),
   maxCorrections: z.number().int().min(0).max(20),
   maxHints: z.number().int().min(0).max(20),
+  correctionCooldownTurns: z.number().int().min(0).max(10).optional(),
+  repeatCorrectionCooldownTurns: z.number().int().min(0).max(10).optional(),
 });
 
 export const courseStageSchema = z.strictObject({

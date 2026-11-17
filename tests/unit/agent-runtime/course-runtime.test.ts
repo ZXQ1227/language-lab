@@ -20,8 +20,11 @@ function setup() {
   const states = new Map<string, LessonState>();
   const llm = new MockLlmProvider(
     {},
-    Array.from({ length: 6 }, () =>
-      JSON.stringify({ reply: "What would you like?", tone: "encouraging" }),
+    Array.from({ length: 6 }, (_, index) =>
+      JSON.stringify({
+        reply: index === 0 ? "You can say I went. What would you like?" : "What would you like?",
+        tone: "encouraging",
+      }),
     ),
   );
   const generation = vi.spyOn(llm, "generateStructured");

@@ -117,3 +117,20 @@ excluded, original learner text remains intact, and review receives the same
 source/uncertainty information. No SQL or IPC changes are required. See
 [ADR-0012](../adr/ADR-0012-grounded-language-diagnosis.md) and
 [Error Diagnosis](../development/ERROR_DIAGNOSIS.md).
+
+## Gentle intervention timing and delivery
+
+Shared core rules choose one short correction within lesson limits, leave
+configurable practice intervals and suppress exact recent reminders. Optional
+versioned intervention state persists practice positions and bounded delivery
+marks. Training reconstructs it from actual practice and recorded corrections;
+support exchanges do not advance the interval. Legacy known history is seeded
+privately while preserving budgets.
+
+Dialogue receives one approved structured correction. Its reply must include
+the corrected expression and stay within a brief-response limit; one combined
+repair is allowed. The orchestrator verifies delivery before counting it, and the
+atomic checkpoint saves reply, history and reason together. Explanations become
+optional in feedback. No SQL or IPC changes are needed. See
+[ADR-0013](../adr/ADR-0013-gentle-intervention-timing-and-delivery.md) and
+[Teaching Intervention](../development/TEACHING_INTERVENTION.md).

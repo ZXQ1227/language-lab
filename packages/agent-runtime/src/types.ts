@@ -9,6 +9,7 @@ import type {
   DialogueMove,
   VocabularyMatch,
   ErrorDiagnosis,
+  InterventionReason,
 } from "@language-lab/core";
 import type { DiagnosedError } from "@language-lab/skills";
 
@@ -62,6 +63,7 @@ export interface AgentOutput {
   readonly dialogueMove?: DialogueMove;
   readonly supportRequest?: DialogueSupport;
   readonly correction?: DiagnosedError;
+  readonly interventionReason?: InterventionReason;
   /** Domain events the orchestrator persisted through the data ports. */
   readonly persistedEvents: readonly { type: string; payload?: Record<string, unknown> }[];
   readonly skillTrace: readonly { skillId: string; durationMs: number; ok: boolean }[];

@@ -17,6 +17,8 @@ import {
   mergeDialogueMemory,
   validateDiagnosisRecords,
   validateDiagnosedErrors,
+  advanceInterventionState,
+  lightCorrectionReplyIssue,
   type ErrorDiagnosisRecord,
   type LessonState,
   type StageAssessment,
@@ -28,6 +30,7 @@ import type {
   StudentProfileView,
   DialogueRoleplayOutput,
   VocabularyTrackerOutput,
+  TeachingInterventionOutput,
 } from "@language-lab/skills";
 import { SkillValidationError } from "@language-lab/skills";
 import type { AgentEvent } from "./events";
@@ -269,18 +272,15 @@ export class TeachingOrchestrator {
     const assessedContext = { ...context, lessonState: assessedState };
 
     // 2. Deterministic teaching decision (rule-based skill).
-    const intervention = support
+    const intervention: TeachingInterventionOutput = support
       ? {
           action:
             support === "hint" ? ("provide_hint" as const) : ("continue_conversation" as const),
           rationale: `Learner requested ${support}; do not assess this control message`,
           correction: undefined,
+          reason: "support_request",
         }
-      : await this.runSkill<{
-          action: AgentOutput["teachingAction"];
-          rationale: string;
-          correction?: { original: string; corrected: string; explanation: string };
-        }>(
+      : await this.runSkill<TeachingInterventionOutput>(
           "skills.teaching_intervention",
           {
             errors: diagnosis.errors,
@@ -292,6 +292,7 @@ export class TeachingOrchestrator {
               assessedState.objectives.every((o) => o.completed),
             objectiveCount: state.objectives.length,
             policy: state.courseTemplate?.teachingPolicy,
+            history: state.interventionState,
           },
           assessedContext,
           trace,
@@ -307,6 +308,8 @@ export class TeachingOrchestrator {
         ? diagnosis.errors.find(
             (error) =>
               error.original === intervention.correction?.original &&
+              error.start === intervention.correction.start &&
+              error.end === intervention.correction.end &&
               error.corrected === intervention.correction.corrected &&
               error.explanation === intervention.correction.explanation,
           )
@@ -348,6 +351,7 @@ export class TeachingOrchestrator {
         previousMove: state.lastDialogueMove,
         intervention: {
           action: intervention.action,
+          correction,
           note: intervention.correction
             ? `Correct gently: "${intervention.correction.original}" -> "${intervention.correction.corrected}" (${intervention.correction.explanation})`
             : undefined,
@@ -357,6 +361,11 @@ export class TeachingOrchestrator {
       assessedContext,
       trace,
     );
+
+    if (correction) {
+      const issue = lightCorrectionReplyIssue(roleplay.reply, correction);
+      if (issue) throw new Error(issue);
+    }
 
     // 4. Deterministic state update + domain events.
     const vocabularyUsed = vocabulary.used;
@@ -378,6 +387,18 @@ export class TeachingOrchestrator {
         ...assessedState,
         ...(memory.length || state.dialogueMemory ? { dialogueMemory: memory } : {}),
         lastDialogueMove: dialogueMove,
+        ...(!support
+          ? {
+              interventionState: advanceInterventionState(
+                state.interventionState ?? {
+                  version: 1,
+                  practiceTurns: state.turnCount,
+                  corrections: [],
+                },
+                correction,
+              ),
+            }
+          : {}),
       },
       intervention.action,
       {
@@ -391,6 +412,15 @@ export class TeachingOrchestrator {
       persistedEvents.push({
         type: "utterance_diagnosed",
         payload: { messageSeq: transcript.at(-1)!.seq, diagnosis },
+      });
+    if (!support)
+      persistedEvents.push({
+        type: "teaching_intervention_decided",
+        payload: {
+          messageSeq: transcript.at(-1)!.seq,
+          action: intervention.action,
+          reason: intervention.reason,
+        },
       });
     if (support)
       persistedEvents.push({ type: "dialogue_support_requested", payload: { request: support } });
@@ -462,6 +492,7 @@ export class TeachingOrchestrator {
       dialogueMove,
       supportRequest: support,
       correction,
+      interventionReason: support ? undefined : intervention.reason,
       persistedEvents,
       skillTrace: trace,
       elapsedMs,

@@ -161,7 +161,11 @@ describe("grounded language feedback checkpoints", () => {
     const assistantCitation = JSON.parse(JSON.stringify(saved));
     assistantCitation.diagnoses[0].messageSeq = 0;
     expect(trainingSessionSchema.safeParse(assistantCitation).success).toBe(false);
-    const legacy = trainingSessionSchema.parse({ ...saved, diagnoses: undefined });
+    const legacy = trainingSessionSchema.parse({
+      ...saved,
+      diagnoses: undefined,
+      state: { ...saved.state, interventionState: undefined },
+    });
     expect(legacy.diagnoses).toBeUndefined();
     expect(legacy.lastTurn?.errors[0]?.corrected).toBe("reservation");
   });

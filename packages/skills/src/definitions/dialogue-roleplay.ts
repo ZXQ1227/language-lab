@@ -13,6 +13,10 @@ import {
   roleplayCharacterSchema,
   stageAssessmentSchema,
   teachingActionSchema,
+  diagnosedErrorSchema,
+  validateDiagnosedErrors,
+  lightCorrectionReplyIssue,
+  isLightCorrection,
 } from "@language-lab/core";
 
 const inputSchema = z.object({
@@ -22,7 +26,16 @@ const inputSchema = z.object({
     character: roleplayCharacterSchema.optional(),
   }),
   utterance: z.string().trim().min(1).max(4000),
-  intervention: z.object({ action: teachingActionSchema, note: z.string().optional() }),
+  intervention: z
+    .object({
+      action: teachingActionSchema,
+      note: z.string().optional(),
+      correction: diagnosedErrorSchema.optional(),
+    })
+    .refine(
+      (value) => !value.correction || value.action === "light_correction",
+      "Approved corrections require a light-correction directive",
+    ),
   recentMessages: z.array(evidenceMessageSchema).max(20),
   supportRequest: dialogueSupportSchema.optional(),
   learnerMemory: dialogueMemorySchema.optional(),
@@ -55,7 +68,7 @@ export type DialogueRoleplayOutput = z.infer<typeof outputSchema>;
 const DIRECTIVES = {
   continue_conversation: "Continue the roleplay naturally; do not correct anything.",
   light_correction:
-    "Briefly give the supplied correction, then return to the character's conversation.",
+    "Give exactly one brief, friendly recast using the approved corrected wording, then answer the learner's intended meaning and direct questions and continue the scene. Keep the whole reply within 600 characters. Do not read out the original error, category or grammar explanation, add other corrections, demand repetition or turn the exchange into a grammar lesson.",
   provide_hint:
     "Give one gentle scaffold for an unmet criterion without completing the learner's task for them.",
   change_difficulty: "Use language appropriate to the configured difficulty.",
@@ -111,6 +124,12 @@ export function createDialogueRoleplaySkill(): SkillDefinition<
     outputSchema,
     async execute(input, context) {
       const last = lastPartner(input);
+      const correction = input.intervention.correction;
+      if (correction) {
+        validateDiagnosedErrors(input.utterance, [correction]);
+        if (!isLightCorrection(correction))
+          throw new Error("The approved correction is too long for a light recast");
+      }
       if (input.supportRequest === "repeat") {
         if (!last) throw new Error("There is no partner reply to repeat yet");
         return { reply: last.content, tone: "neutral", move: "repeat", memoryUpdates: [] };
@@ -162,6 +181,9 @@ export function createDialogueRoleplaySkill(): SkillDefinition<
             : "",
         `Directive: ${DIRECTIVES[input.intervention.action]}`,
         input.intervention.note ? `Supplied correction: ${input.intervention.note}` : "",
+        correction
+          ? `Approved correction data: ${JSON.stringify({ original: correction.original, corrected: correction.corrected })}. Include the corrected wording in a short recast. The explanation belongs in the feedback panel, not in your scene reply.`
+          : "",
         input.supportRequest === "simplify"
           ? "The learner requested simpler English: rephrase the last partner reply using shorter sentences and everyday words, preserve all factual details, and do not advance the task or add a new question. Set move to simplify."
           : "",
@@ -176,17 +198,14 @@ export function createDialogueRoleplaySkill(): SkillDefinition<
         .filter(Boolean)
         .join("\n");
       const history = boundedHistory(input);
+      let repair = "";
       for (let attempt = 0; attempt < 2; attempt++) {
         const result = await context.modelGateway.llm.generateStructured(
           {
             messages: [
               {
                 role: "system",
-                content:
-                  system +
-                  (attempt
-                    ? "\nYour previous candidate duplicated the last partner reply. Address the latest learner message in a different, context-specific way; preserve all facts."
-                    : ""),
+                content: system + repair,
               },
               ...history,
               { role: "user", content: input.utterance },
@@ -207,8 +226,19 @@ export function createDialogueRoleplaySkill(): SkillDefinition<
           throw new Error("The partner attempted a hint without a teaching directive");
         if (input.supportRequest && output.move && output.move !== input.supportRequest)
           throw new Error("The partner did not follow the requested dialogue support action");
-        if (!last || !sameReply(output.reply, last.content))
+        const correctionIssue = correction
+          ? lightCorrectionReplyIssue(output.reply, correction)
+          : undefined;
+        const duplicate = last && sameReply(output.reply, last.content);
+        if (!correctionIssue && !duplicate)
           return { ...output, move: output.move ?? input.supportRequest };
+        if (attempt === 1 && correctionIssue)
+          throw new Error(
+            "The practice partner could not deliver the approved brief correction. Please try again.",
+          );
+        repair = correctionIssue
+          ? `\nYour previous candidate failed the light-correction contract: ${correctionIssue}. Give one brief approved recast and then respond to the learner's meaning. Do not add other corrections.`
+          : "\nYour previous candidate duplicated the last partner reply. Address the latest learner message in a different, context-specific way; preserve all facts.";
       }
       throw new Error("The practice partner repeated its reply. Please try again.");
     },
@@ -236,7 +266,7 @@ export function createMockDialogueRoleplaySkill(): SkillDefinition<
         complete_task: "Nice work, that task is complete!",
       };
       return {
-        reply: `${openers[input.intervention.action]} [mock reply to: "${input.utterance}"]`,
+        reply: `${input.intervention.correction ? `You can say: “${input.intervention.correction.corrected}”. ` : ""}${openers[input.intervention.action]} [mock reply to: "${input.intervention.correction ? input.utterance.slice(0, 200) : input.utterance}"]`,
         tone: input.intervention.action === "light_correction" ? "corrective" : "encouraging",
         memoryUpdates: [],
       };

@@ -204,6 +204,16 @@
               "type": "integer",
               "minimum": 0,
               "maximum": 20
+            },
+            "correctionCooldownTurns": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 10
+            },
+            "repeatCorrectionCooldownTurns": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 10
             }
           },
           "required": ["correctionMode", "maxCorrections", "maxHints"],

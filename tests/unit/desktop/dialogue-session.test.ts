@@ -62,6 +62,7 @@ describe("dialogue state in Training", () => {
         content: `A partner response ${index}.`,
       });
       saved.state.turnCount++;
+      saved.state.interventionState.practiceTurns++;
     }
     session = trainingSessionSchema.parse(saved);
     const next = await runTrainingTurn(session, "What information do you need?", gateway);

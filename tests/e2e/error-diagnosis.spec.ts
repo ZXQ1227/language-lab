@@ -89,7 +89,14 @@ async function startHotel(
         "How many nights are you staying?",
         "Could you confirm your booking name?",
       ];
-      output = { reply: responses[replies++ % responses.length], tone: "encouraging" };
+      const approved = system.match(
+        /Approved correction data: (.+?)\. Include the corrected wording/,
+      );
+      const correction = approved ? (JSON.parse(approved[1]!).corrected as string) : undefined;
+      output = {
+        reply: `${correction ? `You can say: “${correction}”. ` : ""}${responses[replies++ % responses.length]}`,
+        tone: "encouraging",
+      };
     }
     await route.fulfill({
       status: 200,
@@ -122,6 +129,7 @@ test("prioritizes vocabulary meaning, highlights evidence and restores feedback 
   const feedback = page.getByLabel("Language feedback", { exact: true });
   await expect(feedback.getByText("Word choice · Affects meaning", { exact: true })).toBeVisible();
   await expect(feedback.locator("mark")).toHaveText("reserve");
+  await feedback.getByText("Why this wording?", { exact: true }).click();
   await expect(
     feedback.getByText("A hotel booking is a reservation.", { exact: true }),
   ).toBeVisible();

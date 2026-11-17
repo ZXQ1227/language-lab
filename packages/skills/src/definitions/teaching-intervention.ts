@@ -4,18 +4,17 @@
 
 import { z } from "zod";
 import type { SkillDefinition } from "../contract";
-import type { SkillContext } from "../context";
-import { teachingActionSchema, teachingPolicySchema } from "@language-lab/core";
+import {
+  teachingActionSchema,
+  teachingPolicySchema,
+  diagnosedErrorSchema,
+  interventionStateSchema,
+  interventionReasonSchema,
+  decideTeachingIntervention,
+} from "@language-lab/core";
 
 const inputSchema = z.object({
-  errors: z.array(
-    z.object({
-      category: z.string(),
-      original: z.string(),
-      corrected: z.string(),
-      explanation: z.string(),
-    }),
-  ),
+  errors: z.array(diagnosedErrorSchema).max(5),
   fluency: z.enum(["fluent", "hesitant", "halting", "not_assessed"]),
   hintsGiven: z.number().int().nonnegative(),
   correctionsGiven: z.number().int().nonnegative(),
@@ -23,18 +22,14 @@ const inputSchema = z.object({
   /** Total objectives; 0 means the lesson has none (free conversation). */
   objectiveCount: z.number().int().nonnegative(),
   policy: teachingPolicySchema.optional(),
+  history: interventionStateSchema.optional(),
 });
 
 const outputSchema = z.object({
   action: teachingActionSchema,
   rationale: z.string(),
-  correction: z
-    .object({
-      original: z.string(),
-      corrected: z.string(),
-      explanation: z.string(),
-    })
-    .optional(),
+  reason: interventionReasonSchema,
+  correction: diagnosedErrorSchema.optional(),
 });
 
 export type TeachingInterventionInput = z.infer<typeof inputSchema>;
@@ -46,49 +41,13 @@ export function createTeachingInterventionSkill(): SkillDefinition<
 > {
   return {
     id: "skills.teaching_intervention",
-    version: "0.1.0",
-    description: "Deterministic teaching decision: correct, hint, continue or complete.",
+    version: "0.2.0",
+    description:
+      "Selects one brief correction with practice spacing, repeat suppression and explicit policy reasons.",
     inputSchema,
     outputSchema,
-    async execute(input, _context: SkillContext) {
-      if (input.allObjectivesCompleted) {
-        return {
-          action: "complete_task",
-          rationale: "all lesson objectives are completed",
-        };
-      }
-
-      // Authored courses enforce explicit per-lesson caps. Legacy lessons
-      // retain their existing light-touch correction heuristic.
-      const correctionBudgetOk = input.policy
-        ? input.policy.correctionMode === "gentle" &&
-          input.correctionsGiven < input.policy.maxCorrections
-        : input.correctionsGiven <
-          Math.ceil((input.hintsGiven + input.correctionsGiven + 1) / 3) + 1;
-      const firstError = input.errors[0];
-      if (firstError && correctionBudgetOk) {
-        return {
-          action: "light_correction",
-          rationale: `correcting ${firstError.category} error (budget: ${input.correctionsGiven} so far)`,
-          correction: {
-            original: firstError.original,
-            corrected: firstError.corrected,
-            explanation: firstError.explanation,
-          },
-        };
-      }
-
-      if (
-        input.fluency === "halting" &&
-        (!input.policy || input.hintsGiven < input.policy.maxHints)
-      ) {
-        return {
-          action: "provide_hint",
-          rationale: "student fluency is halting; scaffold with a hint",
-        };
-      }
-
-      return { action: "continue_conversation", rationale: "no intervention warranted" };
+    async execute(input) {
+      return decideTeachingIntervention(input);
     },
   };
 }

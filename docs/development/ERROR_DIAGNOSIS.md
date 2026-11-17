@@ -68,6 +68,10 @@ distinct: detected issues can be retained without being delivered during the
 conversation. Only a correction matching an accepted diagnosis can reach the
 partner's correction directive.
 
+Intervention also spaces corrections, suppresses exact recent reminders and
+verifies a brief recast before counting delivery. Course intervals and behavior
+are documented in [Teaching Intervention](TEACHING_INTERVENTION.md).
+
 Training's **Language feedback** shows the delivered issue's type, priority,
 highlighted original context, suggested wording and explanation. Earlier
 delivered feedback remains available after another reply, help or restart. The

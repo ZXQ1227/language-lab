@@ -1,5 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
-import { createLessonStateFromScenario, scenarioContentSchema } from "@language-lab/core";
+import {
+  createLessonStateFromScenario,
+  groundErrorDiagnosis,
+  scenarioContentSchema,
+} from "@language-lab/core";
 import { createGateway, MockLlmProvider } from "@language-lab/model-gateway";
 import {
   createDialogueRoleplaySkill,
@@ -71,6 +75,58 @@ function setup(replies: unknown[] = []) {
 }
 
 describe("dynamic Dialogue Roleplay", () => {
+  const correction = groundErrorDiagnosis("I go yesterday.", {
+    intent: "visit",
+    errors: [
+      { category: "tense", original: "I go", corrected: "I went", explanation: "Use past tense." },
+    ],
+  }).errors[0]!;
+  const recastInput: Partial<DialogueRoleplayInput> = {
+    utterance: "I go yesterday.",
+    intervention: { action: "light_correction", correction },
+  };
+
+  it("repairs a missing approved recast while preserving the same learner turn", async () => {
+    const { call, generation } = setup([
+      { reply: "What happened at the hotel?", tone: "neutral" },
+      { reply: "You can say ‘I went’. What happened at the hotel?", tone: "encouraging" },
+    ]);
+    expect((await call(recastInput)).reply).toContain("I went");
+    expect(generation).toHaveBeenCalledTimes(2);
+    expect(generation.mock.calls[1]![0].messages[0]?.content).toContain(
+      "omitted the approved corrected wording",
+    );
+    expect(generation.mock.calls[0]![0].messages[0]?.content).toContain(
+      "then answer the learner's intended meaning",
+    );
+    expect(generation.mock.calls[0]![0].messages[0]?.content).toContain(
+      "Do not read out the original error",
+    );
+  });
+
+  it("bounds correction delivery repair and rejects a correction attached to a continue directive", async () => {
+    const { call, generation } = setup([
+      { reply: "What happened?", tone: "neutral" },
+      { reply: "Where did you stay?", tone: "neutral" },
+    ]);
+    await expect(call(recastInput)).rejects.toThrow(
+      "could not deliver the approved brief correction",
+    );
+    expect(generation).toHaveBeenCalledTimes(2);
+    await expect(
+      call({ intervention: { action: "continue_conversation", correction } }),
+    ).rejects.toThrow("require a light-correction");
+    expect(generation).toHaveBeenCalledTimes(2);
+  });
+
+  it("repairs a lecture-length correction instead of counting it as gentle delivery", async () => {
+    const { call, generation } = setup([
+      { reply: "I went. " + "Grammar explanation. ".repeat(35), tone: "corrective" },
+      { reply: "You can say I went. How was your visit?", tone: "encouraging" },
+    ]);
+    expect((await call(recastInput)).reply.length).toBeLessThanOrEqual(600);
+    expect(generation).toHaveBeenCalledTimes(2);
+  });
   it("excludes both sides of help exchanges from review and reports hint usage", async () => {
     const { context, generation } = setup([
       { score: 70, summary: "Practise independently.", strengths: [], improvements: [] },

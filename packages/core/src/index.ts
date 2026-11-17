@@ -7,6 +7,7 @@
 
 import { z } from "zod";
 import { vocabularyKey } from "./vocabulary";
+import { interventionStateSchema, type InterventionState } from "./intervention";
 import { dialogueMemorySchema, dialogueMoveSchema, type DialogueMemoryItem } from "./dialogue";
 import {
   stageAssessmentSchema,
@@ -29,6 +30,7 @@ export * from "./course-pack";
 export * from "./dialogue";
 export * from "./vocabulary";
 export * from "./diagnosis";
+export * from "./intervention";
 
 export type LessonPhase = "setup" | "briefing" | "practice" | "debrief" | "done";
 
@@ -86,6 +88,7 @@ export interface LessonState {
   readonly stageAssessments?: Record<string, StageAssessment>;
   readonly dialogueMemory?: DialogueMemoryItem[];
   readonly lastDialogueMove?: z.infer<typeof dialogueMoveSchema>;
+  readonly interventionState?: InterventionState;
 }
 
 export const lessonStateSchema = z
@@ -106,8 +109,19 @@ export const lessonStateSchema = z
     stageAssessments: z.record(z.string(), stageAssessmentSchema).optional(),
     dialogueMemory: dialogueMemorySchema.optional(),
     lastDialogueMove: dialogueMoveSchema.optional(),
+    interventionState: interventionStateSchema.optional(),
   })
   .superRefine((state, ctx) => {
+    if (
+      state.interventionState &&
+      (state.interventionState.practiceTurns > state.turnCount ||
+        state.interventionState.corrections.length > state.correctionsGiven)
+    )
+      ctx.addIssue({
+        code: "custom",
+        path: ["interventionState"],
+        message: "Intervention history cannot exceed lesson turns or delivered corrections",
+      });
     if (!state.courseTemplate) {
       if (Object.keys(state.stageAssessments ?? {}).length)
         ctx.addIssue({

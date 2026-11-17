@@ -21,6 +21,12 @@ export function CourseTemplateEditor({ scenario }: { scenario: ScenarioContent }
     String(template?.teachingPolicy.maxCorrections ?? 3),
   );
   const [maxHints, setMaxHints] = useState(String(template?.teachingPolicy.maxHints ?? 3));
+  const [correctionCooldown, setCorrectionCooldown] = useState(
+    String(template?.teachingPolicy.correctionCooldownTurns ?? 1),
+  );
+  const [repeatCooldown, setRepeatCooldown] = useState(
+    String(template?.teachingPolicy.repeatCorrectionCooldownTurns ?? 4),
+  );
   const [exportError, setExportError] = useState<string | null>(null);
   if (!template) return null;
 
@@ -34,10 +40,14 @@ export function CourseTemplateEditor({ scenario }: { scenario: ScenarioContent }
         correctionMode,
         maxCorrections: maxCorrections.trim() === "" ? NaN : Number(maxCorrections),
         maxHints: maxHints.trim() === "" ? NaN : Number(maxHints),
+        correctionCooldownTurns:
+          correctionCooldown.trim() === "" ? NaN : Number(correctionCooldown),
+        repeatCorrectionCooldownTurns: repeatCooldown.trim() === "" ? NaN : Number(repeatCooldown),
       },
     });
   } catch {
-    validationError = "Enter whole-number feedback budgets between 0 and 20.";
+    validationError =
+      "Enter whole-number feedback budgets between 0 and 20, and correction intervals between 0 and 10.";
   }
   const preview = configured
     ? createLessonStateFromScenario({ lessonId: "preview", scenario: configured, now: 0 })
@@ -142,6 +152,30 @@ export function CourseTemplateEditor({ scenario }: { scenario: ScenarioContent }
               step={1}
               value={maxHints}
               onChange={(event) => setMaxHints(event.target.value)}
+            />
+          </label>
+          <label className="text-sm text-slate-600">
+            Practice turns between corrections
+            <input
+              className={controlClass}
+              type="number"
+              min={0}
+              max={10}
+              step={1}
+              value={correctionCooldown}
+              onChange={(event) => setCorrectionCooldown(event.target.value)}
+            />
+          </label>
+          <label className="text-sm text-slate-600">
+            Practice turns before repeating a correction
+            <input
+              className={controlClass}
+              type="number"
+              min={0}
+              max={10}
+              step={1}
+              value={repeatCooldown}
+              onChange={(event) => setRepeatCooldown(event.target.value)}
             />
           </label>
         </div>

@@ -21,6 +21,7 @@ import {
   type EvidenceMessage,
   errorDiagnosisRecordSchema,
   validateDiagnosisRecords,
+  deriveInterventionState,
 } from "@language-lab/core";
 import {
   createDefaultSkillRegistry,
@@ -104,6 +105,12 @@ export const trainingSessionSchema = z
   .superRefine((session, ctx) => {
     try {
       validateDiagnosisRecords(session.diagnoses ?? [], session.messages);
+      if (
+        session.state.interventionState &&
+        JSON.stringify(session.state.interventionState) !==
+          JSON.stringify(deriveInterventionState(session.messages, session.diagnoses ?? []))
+      )
+        throw new Error("Intervention state does not match practice evidence");
       const shown = (session.diagnoses ?? []).filter(
         (record) => record.correctionIndex !== undefined,
       ).length;
@@ -375,9 +382,13 @@ function makeSkills(scenario: ScenarioContent, demo: boolean) {
         };
       }
       return {
-        reply: stage
-          ? (guidedMaterial(scenario, stage.id)?.prompt ?? "Please try the suggested reply.")
-          : "Well done! You completed all practice steps. You can now review the lesson.",
+        reply:
+          (input.intervention.correction
+            ? `You can say: “${input.intervention.correction.corrected}”. `
+            : "") +
+          (stage
+            ? (guidedMaterial(scenario, stage.id)?.prompt ?? "Please try the suggested reply.")
+            : "Well done! You completed all practice steps. You can now review the lesson."),
         tone: input.intervention.action === "light_correction" ? "corrective" : "encouraging",
       };
     },
@@ -397,6 +408,9 @@ function runtime(
     ? lessonStateSchema.parse({
         ...saved.state,
         vocabularySeen: trainingVocabularyCounts(saved.state, saved.messages),
+        interventionState:
+          saved.state.interventionState ??
+          deriveInterventionState(saved.messages, saved.diagnoses ?? []),
       })
     : undefined;
   return new TeachingOrchestrator({
@@ -521,6 +535,7 @@ export async function runTrainingTurn(
           {
             messageSeq: session.messages.length,
             diagnosis: result.analysis.diagnosis,
+            interventionReason: result.interventionReason,
             ...(result.correction
               ? {
                   correctionIndex: result.analysis.diagnosis.errors.findIndex(

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type { EvidenceMessage } from "./assessment";
+import { interventionReasonSchema, lightCorrectionReplyIssue } from "./intervention";
 
 const text = z.string().trim().min(1);
 const category = z.enum(["grammar", "vocabulary", "collocation", "tense", "article", "spelling"]);
@@ -62,6 +63,7 @@ export const errorDiagnosisRecordSchema = z.object({
   messageSeq: z.number().int().nonnegative(),
   diagnosis: errorDiagnosisSchema,
   correctionIndex: z.number().int().min(0).max(4).optional(),
+  interventionReason: interventionReasonSchema.optional(),
 });
 export type ErrorDiagnosisRecord = z.infer<typeof errorDiagnosisRecordSchema>;
 export class DiagnosisEvidenceError extends Error {}
@@ -178,5 +180,25 @@ export function validateDiagnosisRecords(
     validateDiagnosedErrors(message.content, record.diagnosis.errors);
     if (record.correctionIndex !== undefined && !record.diagnosis.errors[record.correctionIndex])
       throw new DiagnosisEvidenceError("Shown correction must reference a diagnosed error");
+    if (record.interventionReason !== undefined) {
+      if (record.interventionReason === "support_request")
+        throw new DiagnosisEvidenceError("Support controls cannot create diagnosis records");
+      if (
+        (record.interventionReason === "correct_error") !==
+        (record.correctionIndex !== undefined)
+      )
+        throw new DiagnosisEvidenceError("Intervention reason must match correction delivery");
+      if (record.correctionIndex !== undefined) {
+        const reply = transcript.find((item) => item.seq === record.messageSeq + 1);
+        if (
+          !reply ||
+          reply.role !== "assistant" ||
+          lightCorrectionReplyIssue(reply.content, record.diagnosis.errors[record.correctionIndex]!)
+        )
+          throw new DiagnosisEvidenceError(
+            "Saved partner reply must include the approved brief correction",
+          );
+      }
+    }
   }
 }

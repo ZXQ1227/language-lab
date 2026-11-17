@@ -39,7 +39,10 @@ function Correction({
       <p>
         {error.original} → <strong>{error.corrected}</strong>
       </p>
-      <p>{error.explanation}</p>
+      <details>
+        <summary className="cursor-pointer text-slate-700">Why this wording?</summary>
+        <p className="mt-2">{error.explanation}</p>
+      </details>
       {record.diagnosis.errors.length > 1 && (
         <p className="text-xs text-slate-600">
           One point to focus on before continuing the conversation.
@@ -69,6 +72,14 @@ export function LanguageFeedback({ session }: { session: TrainingSession }) {
       )}
       {latest.correctionIndex !== undefined ? (
         <Correction record={latest} session={session} />
+      ) : latest.interventionReason === "correction_spacing" ? (
+        <p>Let's keep the conversation moving. Corrections are spaced between practice turns.</p>
+      ) : latest.interventionReason === "recently_corrected" ? (
+        <p>You have seen this correction recently. Keep practising before another reminder.</p>
+      ) : latest.interventionReason === "not_lightweight" ? (
+        <p>This suggestion needs a longer rewrite. Let's keep the conversation moving.</p>
+      ) : latest.interventionReason === "objectives_complete" ? (
+        <p>The scene is complete. Continue to your lesson review.</p>
       ) : policy?.correctionMode === "off" ? (
         <p>Live corrections are turned off for this course.</p>
       ) : latest.diagnosis.errors.length > 0 ? (
