@@ -56,6 +56,8 @@ For evidence-based post-lesson recaps, report history, source opening and saved
 personal reflection, see [Learning Report](LEARNING_REPORT.md).
 For source-grounded follow-up tasks, retrieval/production practice, saved attempts
 and the due/upcoming review queue, see [Review Generator](REVIEW_GENERATOR.md).
+For microphone capture, confirmed ASR input, device/provider TTS, speech settings
+and platform validation requirements, see [Voice loop](VOICE_LOOP.md).
 
 ## Data locations (macOS dev)
 

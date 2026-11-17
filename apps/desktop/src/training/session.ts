@@ -28,6 +28,8 @@ import {
   validateReviewPlan,
   recordReviewAttempt,
   type ReviewAttempt,
+  speechInputSchema,
+  type SpeechInput,
 } from "@language-lab/core";
 import {
   createDefaultSkillRegistry,
@@ -123,6 +125,19 @@ export const trainingSessionSchema = z
     reviewAnswers: z.record(z.string(), z.string().max(2000)).optional(),
   })
   .superRefine((session, ctx) => {
+    if (
+      session.messages.some(
+        (message) =>
+          message.speech &&
+          message.speech.language.toLowerCase() !==
+            session.state.courseTemplate?.targetLanguage.toLowerCase(),
+      )
+    )
+      ctx.addIssue({
+        code: "custom",
+        path: ["messages"],
+        message: "Speech input language must match the saved course",
+      });
     if (session.reviewPlan) {
       try {
         validateReviewPlan(session.reviewPlan, session);
@@ -563,7 +578,9 @@ export async function runTrainingTurn(
   gateway: ModelGateway,
   supportRequest?: DialogueSupport,
   memory?: MemorySnapshot,
+  speech?: SpeechInput,
 ): Promise<TrainingSession> {
+  if (speech) speech = speechInputSchema.parse(speech);
   supportRequest = supportRequest ?? detectDialogueSupport(utterance);
   if (supportRequest === "simplify" && session.provider.mode === "demo")
     throw new Error("Connect AI to request simpler English");
@@ -580,7 +597,8 @@ export async function runTrainingTurn(
     lessonId: session.id,
     conversationId: session.id,
     utterance: utterance.trim(),
-    mode: "text",
+    mode: speech ? "voice" : "text",
+    confidence: speech?.confidence,
     supportRequest,
   });
   return finalizeCheckpoint({
@@ -593,6 +611,7 @@ export async function runTrainingTurn(
         seq: session.messages.length,
         role: "user",
         content: utterance.trim(),
+        ...(speech ? { speech } : {}),
         ...(supportRequest ? { purpose: "support" as const } : {}),
       },
       {

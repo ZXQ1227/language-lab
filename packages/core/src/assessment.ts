@@ -1,12 +1,25 @@
 import { z } from "zod";
 import type { CourseStage } from "./scenario";
 
-export const evidenceMessageSchema = z.object({
-  seq: z.number().int().nonnegative(),
-  role: z.enum(["user", "assistant", "system"]),
-  content: z.string().min(1),
-  purpose: z.literal("support").optional(),
+export const speechInputSchema = z.object({
+  providerId: z.string().trim().min(1).max(200),
+  language: z.string().regex(/^[a-zA-Z]{2,3}(?:-[a-zA-Z0-9]{2,8})*$/),
+  edited: z.boolean(),
+  confidence: z.number().min(0).max(1).optional(),
 });
+export type SpeechInput = z.infer<typeof speechInputSchema>;
+export const evidenceMessageSchema = z
+  .object({
+    seq: z.number().int().nonnegative(),
+    role: z.enum(["user", "assistant", "system"]),
+    content: z.string().min(1),
+    purpose: z.literal("support").optional(),
+    speech: speechInputSchema.optional(),
+  })
+  .refine(
+    (message) => !message.speech || message.role === "user",
+    "Only learner messages may carry speech input metadata",
+  );
 export type EvidenceMessage = z.infer<typeof evidenceMessageSchema>;
 
 export const stageAssessmentSchema = z.strictObject({

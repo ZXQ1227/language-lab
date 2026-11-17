@@ -1,9 +1,9 @@
 import { useEffect } from "react";
 import { useSystemStore } from "../stores/system";
+import { SpeechSettings } from "../components/SpeechSettings";
 
-// Settings: system facts + where provider keys will live (OS keyring via the
-// Rust core - never in webview storage). Provider setup UI lands with the
-// first provider configuration task.
+// System facts and speech configuration. Credentials use the OS keyring via
+// the Rust core; conversation-model configuration stays with lesson setup.
 
 export function SettingsPage() {
   const { dbStatus, error, refresh } = useSystemStore();
@@ -44,11 +44,11 @@ export function SettingsPage() {
       <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
         <h2 className="text-sm font-semibold text-slate-700">AI providers</h2>
         <p className="mt-2 text-sm text-slate-600">
-          API keys are stored in the OS keyring through the Rust core. Provider setup UI arrives
-          with the first provider configuration task; the Model Gateway already runs against mock
-          providers today.
+          API keys are stored in the OS keyring through the Rust core. Configure the conversation
+          model when starting a lesson; speech providers are configured below.
         </p>
       </div>
+      <SpeechSettings />
     </section>
   );
 }

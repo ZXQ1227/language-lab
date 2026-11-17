@@ -58,11 +58,15 @@ export async function installTauriMock(page: Page, state?: MockState): Promise<v
     let failNextMemoryRead = false;
     let failNextReviewSave = false;
     let failNextReviewRead = false;
+    let failNextSpeechSettings = false;
     const secrets = new Map<string, string>();
 
     const invokeFn = async (cmd: string, args?: Record<string, unknown>) => {
       const s = read();
       switch (cmd) {
+        case "test_fail_next_speech_settings":
+          failNextSpeechSettings = true;
+          return null;
         case "test_fail_next_review":
           failNextReviewSave = true;
           return null;
@@ -125,6 +129,10 @@ export async function installTauriMock(page: Page, state?: MockState): Promise<v
             return { rowsAffected: 1, lastInsertId: profile.id };
           }
           if (sql.startsWith("INSERT INTO learning_events")) {
+            if (params[2] === "voice_settings" && failNextSpeechSettings) {
+              failNextSpeechSettings = false;
+              throw new Error("Injected speech settings write failure");
+            }
             if (failNextTrainingSave) {
               failNextTrainingSave = false;
               throw new Error("Injected checkpoint write failure");

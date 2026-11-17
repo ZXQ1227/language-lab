@@ -15,3 +15,4 @@ export * from "./keys";
 export * from "./gateway";
 export * from "./providers/mock";
 export * from "./providers/openai-compatible";
+export * from "./providers/openai-audio";

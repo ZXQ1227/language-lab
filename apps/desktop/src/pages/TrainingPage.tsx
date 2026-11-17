@@ -4,11 +4,14 @@ import {
   getCurrentCourseStage,
   resolveCourseTemplate,
   type ScenarioContent,
+  type SpeechInput,
 } from "@language-lab/core";
 import { CourseStudyPack, CourseReviewPractice } from "../components/CourseStudyPack";
 import { LearningReport } from "../components/LearningReport";
 import { VocabularyProgress } from "../components/VocabularyProgress";
 import { LanguageFeedback } from "../components/LanguageFeedback";
+import { VoiceInput } from "../components/VoiceInput";
+import { useSpeechLoop } from "../speech/useSpeechLoop";
 import { loadScenarioContent } from "../content/scenarioContent";
 import { useTrainingStore } from "../stores/training";
 import { getGuidedExample, supportsGuidedDemo, type TrainingProvider } from "../training/session";
@@ -155,12 +158,25 @@ export function TrainingPage() {
   } = useTrainingStore();
   const [courseSlug, setCourseSlug] = useState(courses[0]!.slug);
   const [reply, setReply] = useState("");
+  const [speechDraft, setSpeechDraft] = useState<{ input: SpeechInput; recognized: string } | null>(
+    null,
+  );
   const [key, setKey] = useState("");
+  const language = session?.state.courseTemplate?.targetLanguage ?? "en";
+  const voice = useSpeechLoop(session?.id, language);
+  const readSavedReply = (saved: boolean, lessonId: string) => {
+    const current = useTrainingStore.getState().session;
+    if (saved && current?.id === lessonId) {
+      const message = current.messages.at(-1);
+      if (message?.role === "assistant") voice.readAfterSave(message.content);
+    }
+  };
   useEffect(() => {
     if (!loaded) void load();
   }, [loaded, load]);
   useEffect(() => {
     setReply("");
+    setSpeechDraft(null);
     setKey("");
   }, [session?.id]);
   const course = pendingCourse ?? courses.find((item) => item.slug === courseSlug)!;
@@ -302,6 +318,44 @@ export function TrainingPage() {
                 </details>
               )}
               <VocabularyProgress session={session} />
+              <section aria-label="Speech playback" className="space-y-2 text-sm">
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    className="rounded border border-slate-300 bg-white px-3 py-2 disabled:opacity-40"
+                    disabled={
+                      busy ||
+                      voice.capturing ||
+                      !voice.settings ||
+                      voice.settings.tts.mode === "off"
+                    }
+                    onClick={() =>
+                      voice.speak(
+                        [...session.messages]
+                          .reverse()
+                          .find((message) => message.role === "assistant")?.content ?? "",
+                      )
+                    }
+                  >
+                    Read latest partner reply
+                  </button>
+                  <button
+                    type="button"
+                    className="rounded border border-slate-300 bg-white px-3 py-2 disabled:opacity-40"
+                    disabled={!["loading", "speaking"].includes(voice.playback.phase)}
+                    onClick={voice.stopPlayback}
+                  >
+                    Stop playback
+                  </button>
+                </div>
+                {voice.playback.phase === "loading" && <p role="status">Preparing speech…</p>}
+                {voice.playback.phase === "speaking" && <p role="status">Reading partner reply…</p>}
+                {voice.playback.error && (
+                  <p role="alert" className="text-red-700">
+                    {voice.playback.error} Your saved lesson is unchanged; retry the read button.
+                  </p>
+                )}
+              </section>
               <ol aria-label="Conversation" className="space-y-3">
                 {session.messages.map((message) => (
                   <li
@@ -312,10 +366,27 @@ export function TrainingPage() {
                       {message.role === "user"
                         ? message.purpose === "support"
                           ? "You · help request"
-                          : "You"
+                          : message.speech
+                            ? `You · speech transcript${message.speech.edited ? " · edited" : " · reviewed"}`
+                            : "You"
                         : (session.state.courseTemplate?.character?.name ?? "Practice partner")}
                     </p>
                     <p className="whitespace-pre-wrap">{message.content}</p>
+                    {message.role === "assistant" && (
+                      <button
+                        type="button"
+                        className="mt-2 text-xs underline disabled:opacity-40"
+                        disabled={
+                          busy ||
+                          voice.capturing ||
+                          !voice.settings ||
+                          voice.settings.tts.mode === "off"
+                        }
+                        onClick={() => voice.speak(message.content)}
+                      >
+                        Read message {message.seq}
+                      </button>
+                    )}
                   </li>
                 ))}
               </ol>
@@ -366,8 +437,23 @@ export function TrainingPage() {
                   className="space-y-3"
                   onSubmit={(event) => {
                     event.preventDefault();
-                    void send(reply).then((saved) => {
-                      if (saved) setReply("");
+                    voice.stopPlayback();
+                    void send(
+                      reply,
+                      speechDraft
+                        ? {
+                            ...speechDraft.input,
+                            edited:
+                              speechDraft.input.edited || reply.trim() !== speechDraft.recognized,
+                          }
+                        : undefined,
+                    ).then((saved) => {
+                      if (saved) {
+                        setReply("");
+                        setSpeechDraft(null);
+                        voice.cancel();
+                      }
+                      readSavedReply(saved, session.id);
                     });
                   }}
                 >
@@ -376,8 +462,13 @@ export function TrainingPage() {
                       <button
                         type="button"
                         className="rounded border border-slate-300 bg-white px-3 py-2 disabled:opacity-40"
-                        disabled={busy}
-                        onClick={() => void requestSupport("repeat")}
+                        disabled={busy || voice.capturing}
+                        onClick={() => {
+                          voice.stopPlayback();
+                          void requestSupport("repeat").then((saved) =>
+                            readSavedReply(saved, session.id),
+                          );
+                        }}
                       >
                         Repeat last reply
                       </button>
@@ -385,8 +476,13 @@ export function TrainingPage() {
                         <button
                           type="button"
                           className="rounded border border-slate-300 bg-white px-3 py-2 disabled:opacity-40"
-                          disabled={busy}
-                          onClick={() => void requestSupport("simplify")}
+                          disabled={busy || voice.capturing}
+                          onClick={() => {
+                            voice.stopPlayback();
+                            void requestSupport("simplify").then((saved) =>
+                              readSavedReply(saved, session.id),
+                            );
+                          }}
                         >
                           Use simpler English
                         </button>
@@ -396,10 +492,16 @@ export function TrainingPage() {
                         className="rounded border border-slate-300 bg-white px-3 py-2 disabled:opacity-40"
                         disabled={
                           busy ||
+                          voice.capturing ||
                           session.state.hintsGiven >=
                             (session.state.courseTemplate?.teachingPolicy.maxHints ?? 3)
                         }
-                        onClick={() => void requestSupport("hint")}
+                        onClick={() => {
+                          voice.stopPlayback();
+                          void requestSupport("hint").then((saved) =>
+                            readSavedReply(saved, session.id),
+                          );
+                        }}
                       >
                         Give me a hint
                       </button>
@@ -415,9 +517,12 @@ export function TrainingPage() {
                       <p>Suggested reply: {example}</p>
                       <button
                         type="button"
-                        disabled={busy}
+                        disabled={busy || voice.capturing}
                         className="mt-2 font-medium underline"
-                        onClick={() => setReply(example)}
+                        onClick={() => {
+                          setReply(example);
+                          setSpeechDraft(null);
+                        }}
                       >
                         Use suggested reply
                       </button>
@@ -430,11 +535,29 @@ export function TrainingPage() {
                       rows={3}
                       maxLength={4000}
                       value={reply}
-                      disabled={busy}
-                      onChange={(event) => setReply(event.target.value)}
+                      disabled={busy || voice.capturing}
+                      onChange={(event) => {
+                        setReply(event.target.value);
+                        if (!event.target.value.trim()) setSpeechDraft(null);
+                      }}
                     />
                   </label>
-                  <button type="submit" className={button} disabled={busy || !reply.trim()}>
+                  <VoiceInput
+                    voice={voice}
+                    busy={busy}
+                    hasDraft={!!reply.trim()}
+                    remainingCharacters={4000 - (reply.trim() ? reply.length + 1 : 0)}
+                    language={language}
+                    onUse={(text, recognized, input) => {
+                      setReply((previous) => (previous.trim() ? `${previous}\n${text}` : text));
+                      setSpeechDraft({ input, recognized });
+                    }}
+                  />
+                  <button
+                    type="submit"
+                    className={button}
+                    disabled={busy || voice.capturing || !reply.trim()}
+                  >
                     {busy ? "Responding and saving…" : "Send reply"}
                   </button>
                 </form>

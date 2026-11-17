@@ -8,6 +8,7 @@ import {
   type ScenarioContent,
   type ReviewPlan,
   type ReviewAttempt,
+  type SpeechInput,
 } from "@language-lab/core";
 import { createMockGateway } from "@language-lab/model-gateway";
 import {
@@ -70,7 +71,7 @@ interface TrainingStore {
   prepare: (course?: ScenarioContent) => void;
   resume: (id: string) => void;
   start: (course: ScenarioContent, provider: TrainingProvider, key?: string) => Promise<void>;
-  send: (utterance: string) => Promise<boolean>;
+  send: (utterance: string, speech?: SpeechInput) => Promise<boolean>;
   requestSupport: (request: DialogueSupport) => Promise<boolean>;
   finish: () => Promise<void>;
   updateKey: (key: string) => Promise<void>;
@@ -209,7 +210,7 @@ export const useTrainingStore = create<TrainingStore>((set, get) => {
         await commit(session);
       });
     },
-    send: async (utterance) =>
+    send: async (utterance, speech) =>
       operation(async () => {
         const current = get().session;
         if (!current) throw new Error("Start or resume a lesson first");
@@ -221,6 +222,7 @@ export const useTrainingStore = create<TrainingStore>((set, get) => {
             : await trainingGateway(current.provider),
           undefined,
           await snapshot(current.scenario),
+          speech,
         );
         await commit(next);
       }),

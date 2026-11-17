@@ -82,8 +82,13 @@ export interface AsrResult {
 export interface AsrProvider {
   readonly id: string;
   /** Raw recordings are processed in-memory and never persisted. */
-  transcribe(audio: Uint8Array, mimeType: string, options?: CallOptions): Promise<AsrResult>;
+  transcribe(audio: Uint8Array, mimeType: string, options?: AsrOptions): Promise<AsrResult>;
   healthCheck(options?: CallOptions): Promise<HealthReport>;
+}
+
+export interface AsrOptions extends CallOptions {
+  /** ISO language hint from the course, never an assessment of the speaker. */
+  readonly language?: string;
 }
 
 export interface TtsResult {

@@ -36,6 +36,7 @@ export function createObjectiveEvaluatorSkill(): SkillDefinition<
                 "Check every success criterion exactly once, using zero-based criterionIndex. Do not infer success from turn count, vocabulary alone, a request to skip, or the partner's examples.",
                 "Every met criterion needs evidence: messageSeq and an exact nonempty quote from a user message. Assistant/system messages cannot be evidence. If uncertain, mark met false.",
                 "Messages with purpose=support are button-generated help requests, not learner practice; never cite them as evidence.",
+                "Speech metadata is recognition provenance only. Judge the confirmed message content; recognition confidence does not measure language ability, pronunciation or fluency.",
                 "Retain previously demonstrated criteria only when the supplied transcript supports their citations. Feedback should explain the next unmet criterion concisely in English.",
                 "When a criterion requires factual understanding, compare the learner's answer to the supplied scenario facts. Quoting an incorrect time or room number is not success.",
                 `Return only JSON matching this schema: ${JSON.stringify(z.toJSONSchema(stageAssessmentSchema))}`,

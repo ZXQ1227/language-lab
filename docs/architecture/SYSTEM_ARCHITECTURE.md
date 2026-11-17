@@ -191,3 +191,24 @@ plans generate explicitly and idempotently. No schema migration, IPC or dependen
 edge changes are needed. See
 [ADR-0016](../adr/ADR-0016-targeted-follow-up-review.md) and
 [Review Generator](../development/REVIEW_GENERATOR.md).
+
+## Confirmed voice input and reply playback
+
+OpenAI-compatible ASR/TTS adapters now implement the existing Model Gateway audio
+interfaces with bounded bodies, full-call deadlines, cancellation and sanitized
+errors. Nonsecret speech settings use a learner-scoped SQLite event; credentials
+remain in separate endpoint-scoped OS keyring entries. The direct-fetch fallback
+in ADR-0002 remains in effect and requires provider CORS support.
+
+Training captures audio on explicit action, negotiates the platform's supported
+MediaRecorder format and shows an editable recognition preview before the learner
+adds it to the composer and sends it. Only confirmed words enter teaching and
+the atomic checkpoint. Optional speech provenance is backward compatible and
+cannot establish pronunciation, oral fluency or mastery. Audio and raw recognition
+drafts are never persisted. Track/resource cleanup and generation guards prevent
+late microphone, recognition or playback results crossing lesson/navigation
+boundaries. Reply reading uses matching installed local voices or configured MP3
+TTS; opt-in automatic reading occurs only after successful saves. See
+[ADR-0017](../adr/ADR-0017-confirmed-speech-and-reply-playback.md) and
+[Voice loop](../development/VOICE_LOOP.md) for native permission configuration,
+transport limits and the required physical-device validation matrix.

@@ -49,7 +49,9 @@ test("settings shows the database location and keyring note", async ({ page }) =
   await page.getByRole("button", { name: "Settings", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Settings" })).toBeVisible();
   await expect(page.locator("code", { hasText: ":e2e-mock:" })).toBeVisible();
-  await expect(page.getByText(/OS keyring/)).toBeVisible();
+  await expect(
+    page.getByText(/API keys are stored in the OS keyring through the Rust core/),
+  ).toBeVisible();
 });
 
 test("scenarios page shows the bundled scenario library after content sync", async ({ page }) => {
