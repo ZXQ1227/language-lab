@@ -2,6 +2,7 @@
 // narrowly-scoped command - no shell execution, no broad filesystem access.
 
 pub mod db;
+pub mod secrets;
 
 use std::path::PathBuf;
 use tauri::Manager;
@@ -60,7 +61,10 @@ pub fn run() {
             db::db_select,
             db::db_status,
             db::db_backup,
-            db::db_restore
+            db::db_restore,
+            secrets::secrets_set,
+            secrets::secrets_get,
+            secrets::secrets_delete
         ])
         .setup(|app| {
             let handle = app.handle().clone();

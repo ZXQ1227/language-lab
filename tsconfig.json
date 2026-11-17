@@ -1,7 +1,16 @@
 {
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "types": []
+    "types": [],
+    "baseUrl": ".",
+    "paths": {
+      "@language-lab/model-gateway": ["packages/model-gateway/src/index.ts"]
+    }
   },
-  "include": ["packages/*/src/**/*.ts", "apps/desktop/src/**/*.ts", "apps/desktop/src/**/*.tsx"]
+  "include": [
+    "packages/*/src/**/*.ts",
+    "apps/desktop/src/**/*.ts",
+    "apps/desktop/src/**/*.tsx",
+    "tests/unit/**/*.ts"
+  ]
 }
