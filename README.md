@@ -19,7 +19,8 @@ install the app from this repository.
 | Testing       | Vitest + Playwright                                           |
 | CI/CD         | GitHub Actions (macOS + Windows)                              |
 
-No Python. No Docker. No cloud backend. Student data never leaves the machine.
+No Python. No Docker. No cloud backend. Learning records are stored locally;
+using a connected provider sends the selected request data to that endpoint.
 
 ## Repository layout
 
@@ -44,12 +45,27 @@ Architecture rules that matter:
 
 - **The webview has no Node.js.** Anything depending on Node native modules
   cannot ship. SQLite runs in the Rust process, reached over IPC.
-- **Provider API keys live in the OS keyring**, read by the Rust core. They never
-  enter the webview. Outbound AI calls go through a Rust proxy by default.
+- **Provider API keys live in the OS keyring**, resolved at call time and never
+  persisted in webview storage. The planned Rust proxy and current gateway
+  direct-fetch fallback are documented in [ADR-0002](docs/adr/ADR-0002-keys-in-keyring-rust-proxy.md).
 - **`content/` is product content; the SQLite database is user data.** The two
   are never mixed, and updates never overwrite user data.
 - **Skills and the agent are separated.** The agent decides _when_ to call a
   skill; skills do the task with zod-validated inputs and outputs.
+
+## Development governance
+
+Read [AGENTS.md](AGENTS.md) before changing the project. It defines the required
+12-rule task workflow: read the design first, implement one clear task, preserve
+architecture, explain dependencies, protect credentials and learner data, ship
+migrations, test agent/skill behavior, validate model outputs, run checks, preserve
+test coverage and update documentation.
+
+Keep `main` stable. Start independent work from the latest `origin/main`, use a
+focused `feat/*`, `fix/*` or `chore/*` branch, and merge through a reviewed PR with
+required checks passing. `release/v0.1.0` is for release stabilization. See
+[Git workflow](AGENTS.md#git-workflow) and the
+[Development Guide](docs/development/DEVELOPMENT.md#task-checklist).
 
 ## Getting started (development)
 
@@ -77,17 +93,19 @@ pnpm typecheck    # TypeScript across the monorepo
 pnpm lint         # ESLint
 ```
 
-Unit tests never touch a real model or the filesystem: model calls run against
-`MockProvider`, database repository tests run against an in-memory transport
-fake, and e2e tests mock `window.__TAURI_INTERNALS__` in a plain browser.
+Automated tests use synthetic fixtures, mock providers and isolated database
+transports. They never use real provider credentials or a learner's live database.
+Browser e2e tests mock `window.__TAURI_INTERNALS__`; they do not replace native
+platform verification. Follow the task checks in the Development Guide.
 
 ## CI
 
 GitHub Actions (`.github/workflows/ci.yml`) runs on every pull request and on
 `main`: typecheck → lint → unit tests → frontend build, plus a Playwright e2e
 job. Test results are uploaded as JUnit / HTML artifacts on every run.
-`.github/workflows/desktop-build.yml` is a placeholder for the packaging
-pipeline (enabled once signing is set up).
+`.github/workflows/desktop-build.yml` builds unsigned macOS/Windows artifacts on
+push to `main` and manual dispatch. Signing remains required for public release
+(see [ADR-0007](docs/adr/ADR-0007-ci-gates-unsigned-bundles.md)).
 
 **Branch protection (required):** in GitHub repo settings, add a rule for
 `main` requiring the `quality` and `e2e` checks to pass before merging. CI
