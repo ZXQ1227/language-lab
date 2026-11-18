@@ -89,5 +89,68 @@
     "details": "Technical details:",
     "missingKey": "Save an API key for this {{kind}} endpoint in Settings first",
     "missingVoice": "No installed device voice is available for {{language}}. Choose a TTS provider in Settings or use text."
+  },
+  "workspace": {
+    "monogram": "LL",
+    "sections": {
+      "home": "Home",
+      "conversation": "Conversation",
+      "review": "Review",
+      "profile": "My learning"
+    },
+    "sectionNavigation": "Section navigation",
+    "pages": {
+      "plan": "Plan",
+      "scenarios": "Course library",
+      "conversation": "Practice modes",
+      "training": "Training",
+      "listening": "Listening & discussion",
+      "review": "Practice queue",
+      "vocabulary": "Vocabulary",
+      "sentences": "Sentence practice",
+      "corrections": "Corrections",
+      "reports": "Reports",
+      "profile": "Overview",
+      "memory": "Learning memory",
+      "settings": "Settings"
+    },
+    "diagnostics": "System diagnostics",
+    "learningPlan": "Learning plan",
+    "resume": "In progress",
+    "resumeAction": "Continue lesson",
+    "recommended": "Recommended for you",
+    "preferences": "Learning preferences",
+    "duration": "{{minutes}} min",
+    "beginCourse": "Set up lesson",
+    "anotherCourse": "Try another suggestion",
+    "noMatchingCourse": "The library has no course for {{language}} yet.",
+    "browseCourses": "Browse courses",
+    "recent": "Recently completed",
+    "allHistory": "All lesson history",
+    "noHistory": "Completed lessons will appear here.",
+    "modes": {
+      "roleplay": {
+        "title": "Scenario roleplay",
+        "description": "Practise a scene with a conversation partner and clear goals."
+      },
+      "guided": {
+        "title": "Guided Hotel Check-in",
+        "description": "Review a model dialogue and practise each step with suggested replies."
+      },
+      "listen": {
+        "title": "Listen and respond",
+        "description": "Listen to a course opening, then respond in the same scenario."
+      }
+    },
+    "listeningInstructions": "Listen to the opening and think of a reply. Reveal the transcript when you are ready.",
+    "playOpening": "Play opening",
+    "hideTranscript": "Hide transcript",
+    "showTranscript": "Show transcript",
+    "replyInCourse": "Respond in this course",
+    "editPreferences": "Edit learning preferences",
+    "completedCount": "Completed lessons",
+    "practiceCount": "Practice replies",
+    "vocabularyCount": "Practised vocabulary",
+    "coursePath": "View course path"
   }
 }

@@ -34,11 +34,17 @@ export function formatNumber(value: number, options?: Intl.NumberFormatOptions):
 export function uiValue<T>(value: T): T | string {
   return typeof value === "number" ? formatNumber(value) : value;
 }
-export function formatDateTime(value: string | number | Date): string {
+function formatDateValue(value: string | number | Date, options: Intl.DateTimeFormatOptions) {
   const date = value instanceof Date ? value : new Date(value);
   if (!Number.isFinite(date.getTime())) return i18n.t("common:dateUnavailable");
   return new Intl.DateTimeFormat(
     regionalFormatLocale((i18n.resolvedLanguage ?? "en-US") as AppLocale, regionLocale),
-    { dateStyle: "short", timeStyle: "medium" },
+    options,
   ).format(date);
+}
+export function formatDateTime(value: string | number | Date): string {
+  return formatDateValue(value, { dateStyle: "short", timeStyle: "medium" });
+}
+export function formatDate(value: string | number | Date): string {
+  return formatDateValue(value, { dateStyle: "medium" });
 }

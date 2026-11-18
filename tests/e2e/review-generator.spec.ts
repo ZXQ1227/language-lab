@@ -1,3 +1,4 @@
+import { openWorkspacePage } from "./helpers/navigation";
 import { expect, test, type Page } from "@playwright/test";
 import { installTauriMock } from "./helpers/tauri-mock";
 
@@ -15,7 +16,7 @@ const checkpoints = async (page: Page) =>
     .filter((r) => r.type === "training_checkpoint")
     .map((r) => JSON.parse(r.payload));
 async function start(page: Page, course = "hotel-checkin") {
-  await nav(page, "Training");
+  await openWorkspacePage(page, "Training");
   const fresh = page.getByRole("button", { name: "New lesson", exact: true });
   if (await fresh.isVisible()) await fresh.click();
   await page.getByRole("combobox", { name: "Course", exact: true }).selectOption(course);
@@ -87,7 +88,7 @@ test("finishes atomically, recalls a source correction, records supported practi
   expect(saved.learningMemory).toEqual(source.learningMemory);
   expect(saved.messages).toEqual(source.messages);
   await page.reload();
-  await nav(page, "Review");
+  await openWorkspacePage(page, "Review");
   await expect(page.getByLabel("Review queue summary", { exact: true })).toContainText(
     "Practised: 1",
   );
@@ -105,7 +106,7 @@ test("retries failed attempt saves without losing the answer, reschedules once a
   await finish(page);
   await start(page, "cafe-order");
   await send(page, "My order is still in progress.");
-  await nav(page, "Review");
+  await openWorkspacePage(page, "Review");
   const answer = page.getByRole("textbox", { name: "Your review answer", exact: true });
   await expect(answer).toBeVisible();
   await answer.fill("I went");
@@ -121,12 +122,12 @@ test("retries failed attempt saves without losing the answer, reschedules once a
   const plan = (await checkpoints(page)).find((s) => s.state.phase === "done")!.reviewPlan;
   expect(plan.progress[0].attemptCount).toBe(1);
   expect(plan.progress[0].dueAt).toBe(plan.progress[0].attempts[0].at + 86_400_000);
-  await nav(page, "Training");
+  await openWorkspacePage(page, "Training");
   await expect(page.getByLabel("Conversation", { exact: true })).toContainText(
     "My order is still in progress.",
   );
   await expect(page.getByRole("textbox", { name: "Your reply", exact: true })).toBeVisible();
-  await nav(page, "Review");
+  await openWorkspacePage(page, "Review");
   await page
     .getByLabel("Review queue", { exact: true })
     .getByRole("button")
@@ -188,7 +189,7 @@ test("generates a legacy plan explicitly and preserves answers when reopened", a
   });
   const before = await rows(page);
   await page.reload();
-  await nav(page, "Reports");
+  await openWorkspacePage(page, "Reports");
   await expect(
     page.getByRole("button", { name: "Generate targeted review", exact: true }),
   ).toBeVisible();
@@ -217,14 +218,14 @@ test("shows due and upcoming tasks using saved dates, and recovers queue read fa
   page,
 }) => {
   await page.clock.install({ time: new Date("2026-11-17T02:00:00Z") });
-  await nav(page, "Review");
+  await openWorkspacePage(page, "Review");
   await expect(page.getByText(/No review tasks in this view/)).toBeVisible();
   await start(page, "cafe-order");
   await practice(page, 3);
   await finish(page);
   const plan = (await checkpoints(page))[0]!.reviewPlan;
   await page.evaluate(() => window.__llInvoke("test_fail_next_review_read"));
-  await nav(page, "Review");
+  await openWorkspacePage(page, "Review");
   await expect(page.getByRole("alert")).toContainText("Injected review read failure");
   await nav(page, "Retry review load");
   await expect(page.getByRole("alert")).toHaveCount(0);

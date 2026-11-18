@@ -68,3 +68,12 @@ tests/native-locale/Cargo.toml --target x86_64-pc-windows-gnu` and the equivalen
   are absent. Real macOS/Windows system-language switching and native webview
   behavior remain manual acceptance checks above. Real speech providers were not
   exercised by this interface task.
+
+## Learning navigation
+
+The sidebar groups pages into Home, Conversation, Review and My learning. At
+narrow widths it becomes a horizontal workspace switcher. The active workspace
+shows its subpages below the switcher or beside the sidebar. Existing in-lesson
+links still open their source, report or review in the corresponding workspace.
+Interface and speech preferences are under My learning → Settings. See the
+[desktop learning workspaces](../product/PRD.md#desktop-learning-workspaces).

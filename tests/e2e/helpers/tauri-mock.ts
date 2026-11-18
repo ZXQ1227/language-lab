@@ -5,6 +5,7 @@
 // full React UI without the Rust shell, without any real API key.
 
 import type { Page } from "@playwright/test";
+import { openWorkspacePage } from "./navigation";
 
 export interface MockScenarioRow {
   id: string;
@@ -371,7 +372,7 @@ export async function configureAiConnection(
   config: { endpoint?: string; model: string; apiKey?: string },
 ): Promise<void> {
   const { expect } = await import("@playwright/test");
-  await page.getByRole("button", { name: "Settings", exact: true }).click();
+  await openWorkspacePage(page, "Settings");
   if (config.endpoint) {
     await page.getByLabel("AI endpoint", { exact: true }).fill(config.endpoint);
   }
@@ -383,6 +384,6 @@ export async function configureAiConnection(
   }
   await page.getByRole("button", { name: "Save AI connection", exact: true }).click();
   await expect(page.getByText("Saved on this device.", { exact: true })).toBeVisible();
-  await page.getByRole("button", { name: "Training", exact: true }).click();
+  await openWorkspacePage(page, "Training");
   await expect(page.getByRole("button", { name: "Start lesson", exact: true })).toBeVisible();
 }

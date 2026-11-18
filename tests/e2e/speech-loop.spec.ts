@@ -1,3 +1,4 @@
+import { openWorkspacePage } from "./helpers/navigation";
 import { readFile } from "node:fs/promises";
 import { expect, test, type Page } from "@playwright/test";
 import { installTauriMock } from "./helpers/tauri-mock";
@@ -33,7 +34,7 @@ const rows = (page: Page) =>
 const checkpoint = async (page: Page) =>
   JSON.parse((await rows(page)).find((r) => r.type === "training_checkpoint")!.payload);
 async function configure(page: Page, playback = true) {
-  await nav(page, "Settings");
+  await openWorkspacePage(page, "Settings");
   await page.getByRole("checkbox", { name: "Enable speech recognition", exact: true }).check();
   await page.getByRole("textbox", { name: "ASR endpoint", exact: true }).fill(endpoint);
   if (playback) {
@@ -52,7 +53,7 @@ async function configure(page: Page, playback = true) {
   );
 }
 async function start(page: Page) {
-  await nav(page, "Training");
+  await openWorkspacePage(page, "Training");
   await nav(page, "Start lesson");
   await expect(page.getByRole("textbox", { name: "Your reply", exact: true })).toBeVisible();
 }
@@ -165,7 +166,7 @@ test("records, reviews, commits confirmed speech and plays the saved partner rep
   await expect.poll(() => speechCalls).toBe(2);
   expect((await checkpoint(page)).state.turnCount).toBe(1);
   await page.reload();
-  await nav(page, "Training");
+  await openWorkspacePage(page, "Training");
   await expect(page.getByLabel("Conversation")).toContainText("speech transcript · edited");
   expect(speechCalls).toBe(2);
 });
@@ -202,7 +203,7 @@ test("retries ASR explicitly, preserves an existing draft and cleans up recordin
   expect((await checkpoint(page)).state.turnCount).toBe(0);
   await nav(page, "Record reply");
   await expect(page.getByLabel("Voice input").getByRole("status")).toContainText("Recording…");
-  await nav(page, "Reports");
+  await openWorkspacePage(page, "Reports");
   expect(
     await page.evaluate(() =>
       window.__speechProbe.streams.every((s) =>
@@ -275,7 +276,7 @@ test("saves preferences without keys, rolls back a settings failure and restores
     "saved on this device",
   );
   await page.reload();
-  await nav(page, "Settings");
+  await openWorkspacePage(page, "Settings");
   await expect(page.getByRole("textbox", { name: "ASR model", exact: true })).toHaveValue(
     "another-asr-model",
   );

@@ -1,10 +1,11 @@
+import { openWorkspacePage } from "./helpers/navigation";
 import { expect, test, type Page } from "@playwright/test";
 import { installTauriMock } from "./helpers/tauri-mock";
 
 async function startHotel(page: Page) {
   await installTauriMock(page);
   await page.goto("/");
-  await page.getByRole("button", { name: "Training", exact: true }).click();
+  await openWorkspacePage(page, "Training");
   await page.getByRole("combobox", { name: "Course", exact: true }).selectOption("hotel-checkin");
   await page.getByRole("button", { name: "Start lesson", exact: true }).click();
   await page.getByText("Vocabulary progress · 0/12 used", { exact: true }).click();
@@ -40,7 +41,7 @@ test("tracks authored forms with original evidence, separate turn counts and res
   expect(saved.state.vocabularySeen).toEqual({ "key card": 1, elevator: 1 });
   expect(saved.vocabularyTrackingVersion).toBe(1);
   await page.reload();
-  await page.getByRole("button", { name: "Training", exact: true }).click();
+  await openWorkspacePage(page, "Training");
   await page.getByText("Vocabulary progress · 2/12 used", { exact: true }).click();
   await expect(
     page.getByText("key card · Used in 1 practice turn · 2 matches", { exact: true }),

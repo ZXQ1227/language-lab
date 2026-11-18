@@ -3,9 +3,9 @@ import { useTranslation } from "react-i18next";
 // Navigation is Zustand-driven (no router dependency for the desktop shell).
 
 import { useEffect } from "react";
-import { useNavStore, type PageId } from "./stores/nav";
+import { useNavStore, workspaces, type PageId } from "./stores/nav";
 import { syncScenarioContent } from "./content/syncScenarios";
-import { DashboardPage } from "./pages/DashboardPage";
+import { PlanPage, ConversationPage, ListeningPage, ProfilePage } from "./pages/LearningWorkspaces";
 import { ScenariosPage } from "./pages/ScenariosPage";
 import { TrainingPage } from "./pages/TrainingPage";
 import { ReportsPage } from "./pages/ReportsPage";
@@ -14,24 +14,20 @@ import { SettingsPage } from "./pages/SettingsPage";
 import { LearningMemoryPage } from "./pages/LearningMemoryPage";
 import { useLocaleStore } from "./stores/locale";
 
-const NAV_ITEMS: { id: PageId; label: string }[] = [
-  { id: "dashboard", label: "common:nav.dashboard" },
-  { id: "scenarios", label: "common:nav.scenarios" },
-  { id: "training", label: "common:nav.training" },
-  { id: "memory", label: "common:nav.memory" },
-  { id: "reports", label: "common:nav.reports" },
-  { id: "review", label: "common:nav.review" },
-  { id: "settings", label: "common:nav.settings" },
-];
-
 const PAGES: Record<PageId, React.ReactNode> = {
-  dashboard: <DashboardPage />,
+  plan: <PlanPage />,
   scenarios: <ScenariosPage />,
+  conversation: <ConversationPage />,
   training: <TrainingPage />,
-  reports: <ReportsPage />,
+  listening: <ListeningPage />,
   review: <ReviewPage />,
-  settings: <SettingsPage />,
+  vocabulary: <LearningMemoryPage key="vocabulary" view="vocabulary" />,
+  sentences: <ReviewPage key="sentences" sentencesOnly />,
+  corrections: <LearningMemoryPage key="corrections" view="corrections" />,
+  reports: <ReportsPage />,
+  profile: <ProfilePage />,
   memory: <LearningMemoryPage />,
+  settings: <SettingsPage />,
 };
 
 export function App() {
@@ -39,6 +35,7 @@ export function App() {
   const page = useNavStore((s) => s.page);
   const navigate = useNavStore((s) => s.navigate);
   const locale = useLocaleStore();
+  const workspace = workspaces.find(({ pages }) => pages.some((item) => item === page))!;
   useEffect(() => {
     const refresh = () => {
       if (document.visibilityState !== "hidden") void useLocaleStore.getState().refreshSystem();
@@ -64,51 +61,75 @@ export function App() {
   }, []);
 
   return (
-    <div className="flex min-h-screen bg-slate-100 text-slate-900">
-      <aside className="flex w-56 shrink-0 flex-col border-r border-slate-200 bg-white px-4 py-6">
-        <div className="px-2">
-          <p className="text-base font-semibold tracking-tight">{t("common:languageLab")}</p>
-          <p className="mt-0.5 text-xs text-slate-500">{t("common:localFirstEnglishLearning")}</p>
+    <div className="min-h-screen bg-stone-50 text-slate-900 lg:grid lg:grid-cols-[13.5rem_minmax(0,1fr)]">
+      <aside className="border-b border-emerald-950/15 bg-[#11332f] px-4 py-5 text-white lg:sticky lg:top-0 lg:flex lg:h-screen lg:flex-col lg:border-b-0 lg:px-5 lg:py-8">
+        <div className="flex items-center gap-3">
+          <span
+            aria-hidden="true"
+            className="grid size-9 place-items-center rounded-lg bg-[#def3ad] text-sm font-bold text-emerald-950"
+          >
+            {t("common:workspace.monogram")}
+          </span>
+          <p className="font-semibold tracking-tight">{t("common:languageLab")}</p>
         </div>
-        <nav aria-label={t("common:mainNavigation")} className="mt-8 space-y-1">
-          {NAV_ITEMS.map((item) => (
+        <nav
+          aria-label={t("common:mainNavigation")}
+          className="mt-5 grid grid-cols-4 gap-2 lg:mt-10 lg:grid-cols-1"
+        >
+          {workspaces.map(({ id, pages }) => (
             <button
-              key={item.id}
+              key={id}
               type="button"
-              onClick={() => navigate(item.id)}
-              aria-current={page === item.id ? "page" : undefined}
-              className={`block w-full rounded-md px-3 py-2 text-left text-sm font-medium transition-colors ${
-                page === item.id
-                  ? "bg-slate-900 text-white"
-                  : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-              }`}
+              onClick={() => {
+                if (workspace.id !== id) navigate(pages[0]);
+              }}
+              aria-current={workspace.id === id ? "true" : undefined}
+              className={`rounded-lg px-1 py-2.5 text-xs font-medium sm:px-3 sm:text-sm lg:px-4 lg:text-left ${workspace.id === id ? "bg-[#def3ad] text-emerald-950" : "text-emerald-50 hover:bg-white/10"}`}
             >
-              {t(item.label)}
+              {t(`common:workspace.sections.${id}`)}
             </button>
           ))}
         </nav>
-        <p className="mt-auto px-2 text-xs text-slate-400">
+        <p className="mt-auto hidden text-xs text-emerald-100/70 lg:block">
           {t("common:v001YourDataStaysOnThisDevice")}
         </p>
       </aside>
 
-      <main className="flex-1 px-10 py-8">
-        {locale.error && page !== "settings" && (
-          <div
-            role="status"
-            className="mb-4 rounded border border-amber-200 bg-amber-50 p-3 text-sm"
+      <main className="min-w-0 px-4 pb-12 sm:px-8 lg:px-10">
+        <div className="mx-auto max-w-6xl">
+          <nav
+            aria-label={t("common:workspace.sectionNavigation")}
+            className="mb-7 flex flex-wrap gap-x-5 gap-y-1 border-b border-stone-200 pt-3 sm:mb-9 sm:pt-5"
           >
-            {t(`common:locale.errors.${locale.error}`)}
-            <button
-              className="ml-2 underline"
-              disabled={locale.loading || locale.saving}
-              onClick={() => void locale.initialize()}
+            {workspace.pages.map((item) => (
+              <button
+                key={item}
+                type="button"
+                onClick={() => navigate(item)}
+                aria-current={page === item ? "page" : undefined}
+                className={`border-b-2 py-3 text-sm font-semibold ${page === item ? "border-emerald-700 text-emerald-900" : "border-transparent text-slate-600 hover:text-emerald-900"}`}
+              >
+                {t(`common:workspace.pages.${item}`)}
+              </button>
+            ))}
+          </nav>
+          {locale.error && page !== "settings" && (
+            <div
+              role="status"
+              className="mb-4 rounded border border-amber-200 bg-amber-50 p-3 text-sm"
             >
-              {t("common:locale.retry")}
-            </button>
-          </div>
-        )}
-        {PAGES[page]}
+              {t(`common:locale.errors.${locale.error}`)}
+              <button
+                className="ml-2 underline"
+                disabled={locale.loading || locale.saving}
+                onClick={() => void locale.initialize()}
+              >
+                {t("common:locale.retry")}
+              </button>
+            </div>
+          )}
+          {PAGES[page]}
+        </div>
       </main>
     </div>
   );

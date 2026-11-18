@@ -2,7 +2,7 @@ import { LocalizedError } from "../components/LocalizedError";
 import { formatDateTime, formatNumber } from "../i18n";
 import { useTranslation } from "react-i18next";
 import { uiValue } from "../i18n";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { checkReviewAnswer, type ReviewTask, type ReviewPlan } from "@language-lab/core";
 import { useTrainingStore } from "../stores/training";
 import { useNavStore } from "../stores/nav";
@@ -215,7 +215,7 @@ function AttemptHistory({ progress }: { progress: ReviewPlan["progress"][number]
   );
 }
 
-export function ReviewPage() {
+export function ReviewPage({ sentencesOnly = false }: { sentencesOnly?: boolean }) {
   const { t } = useTranslation();
   const {
     reviewPlans,
@@ -230,8 +230,11 @@ export function ReviewPage() {
   } = useTrainingStore();
   const navigate = useNavStore((s) => s.navigate);
   const [selected, setSelected] = useState(
-    reportSession?.reviewPlan?.progress.find((p) => p.status === "pending")?.taskId ?? "",
+    sentencesOnly
+      ? ""
+      : (reportSession?.reviewPlan?.progress.find((p) => p.status === "pending")?.taskId ?? ""),
   );
+  const initialLoad = useRef(false);
   const [filter, setFilter] = useState("pending");
   const [limit, setLimit] = useState(20);
   const queue = reviewPlans
@@ -242,6 +245,7 @@ export function ReviewPage() {
         progress: plan.progress.find((p) => p.taskId === task.id)!,
       })),
     )
+    .filter(({ task }) => !sentencesOnly || task.kind === "course_practice")
     .sort((a, b) => a.progress.dueAt - b.progress.dueAt || a.task.id.localeCompare(b.task.id));
   const now = Date.now();
   const matching = queue.filter(
@@ -264,8 +268,11 @@ export function ReviewPage() {
     if (!useTrainingStore.getState().error && active) await loadReport(active.plan.lessonId);
   };
   useEffect(() => {
-    void loadReviews();
-  }, [loadReviews]);
+    if (!busy && !initialLoad.current && !useTrainingStore.getState().busy) {
+      initialLoad.current = true;
+      void loadReviews();
+    }
+  }, [busy, loadReviews]);
   useEffect(() => {
     if (
       reviewsLoaded &&
@@ -280,10 +287,15 @@ export function ReviewPage() {
     }
   }, [reviewsLoaded, busy, error, selected, matching, loadReport]);
   return (
-    <section aria-label={t("review:review")} className="mx-auto max-w-5xl space-y-5">
+    <section
+      aria-label={sentencesOnly ? t("common:workspace.pages.sentences") : t("review:review")}
+      className="mx-auto max-w-5xl space-y-5"
+    >
       <div className="flex items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold">{t("review:review")}</h1>
+          <h1 className="text-2xl font-semibold">
+            {sentencesOnly ? t("common:workspace.pages.sentences") : t("review:review")}
+          </h1>
           <p className="mt-1 text-sm text-slate-500">
             {t("review:shortFollowUpPracticeBasedOnYourSavedLessonEvidence")}
           </p>

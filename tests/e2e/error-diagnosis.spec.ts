@@ -1,3 +1,4 @@
+import { openWorkspacePage } from "./helpers/navigation";
 import { expect, test, type Page } from "@playwright/test";
 import { configureAiConnection, installTauriMock } from "./helpers/tauri-mock";
 
@@ -46,7 +47,7 @@ async function startHotel(
 ) {
   await installTauriMock(page);
   await page.goto("/");
-  await page.getByRole("button", { name: "Scenarios", exact: true }).click();
+  await openWorkspacePage(page, "Scenarios");
   const card = page
     .getByRole("article")
     .filter({ has: page.getByRole("heading", { name: "Hotel Check-in", exact: true }) });
@@ -143,7 +144,7 @@ test("prioritizes vocabulary meaning, highlights evidence and restores feedback 
   await expect(feedback.locator("mark")).toHaveText("reserve");
   expect(calls.diagnosisCalls()).toBe(1);
   await page.reload();
-  await page.getByRole("button", { name: "Training", exact: true }).click();
+  await openWorkspacePage(page, "Training");
   await expect(feedback.getByText("Word choice · Affects meaning", { exact: true })).toBeVisible();
   await send(page, "I have a reservation under Alex Chen for two nights.");
   await expect(

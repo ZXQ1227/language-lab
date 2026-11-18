@@ -89,5 +89,68 @@
     "details": "技术详情：",
     "missingKey": "请先在设置中保存此 {{kind}} 服务的 API 密钥",
     "missingVoice": "设备没有可用于 {{language}} 的已安装语音，请在设置中选择 TTS 服务商，或使用文字。"
+  },
+  "workspace": {
+    "monogram": "LL",
+    "sections": {
+      "home": "首页",
+      "conversation": "对话",
+      "review": "复习",
+      "profile": "我的"
+    },
+    "sectionNavigation": "栏目导航",
+    "pages": {
+      "plan": "计划",
+      "scenarios": "课程库",
+      "conversation": "练习方式",
+      "training": "角色对话",
+      "listening": "听力讨论",
+      "review": "复习队列",
+      "vocabulary": "词汇",
+      "sentences": "句子练习",
+      "corrections": "纠错记录",
+      "reports": "课程记录",
+      "profile": "学习概览",
+      "memory": "学习记忆",
+      "settings": "设置"
+    },
+    "diagnostics": "系统诊断",
+    "learningPlan": "学习计划",
+    "resume": "进行中",
+    "resumeAction": "继续课程",
+    "recommended": "为你推荐",
+    "preferences": "学习偏好",
+    "duration": "{{minutes}} 分钟",
+    "beginCourse": "开始课程准备",
+    "anotherCourse": "换一门推荐",
+    "noMatchingCourse": "课程库暂未提供 {{language}} 课程。",
+    "browseCourses": "浏览课程",
+    "recent": "最近完成",
+    "allHistory": "全部学习历史",
+    "noHistory": "完成课程后，可以在这里查看记录。",
+    "modes": {
+      "roleplay": {
+        "title": "角色扮演",
+        "description": "和对话伙伴一起完成真实场景中的交际目标。"
+      },
+      "guided": {
+        "title": "酒店入住引导课",
+        "description": "先看示范对话，再借助建议回复逐步练习。"
+      },
+      "listen": {
+        "title": "听后回应",
+        "description": "先听课程开场白，再进入同一场景练习回应。"
+      }
+    },
+    "listeningInstructions": "听开场白并想一想怎样回应。准备好后，可以查看原文。",
+    "playOpening": "播放开场白",
+    "hideTranscript": "隐藏原文",
+    "showTranscript": "查看原文",
+    "replyInCourse": "进入课程练习回应",
+    "editPreferences": "编辑学习偏好",
+    "completedCount": "已完成课程",
+    "practiceCount": "练习回复",
+    "vocabularyCount": "练习过的词汇",
+    "coursePath": "查看课程路径"
   }
 }

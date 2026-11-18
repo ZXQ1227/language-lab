@@ -1,10 +1,14 @@
-// Navigation store: which page is active. Kept in Zustand instead of a
-// router dependency - a desktop shell has no deep-linking requirements yet.
-
 import { create } from "zustand";
 
-export type PageId =
-  "dashboard" | "scenarios" | "training" | "memory" | "reports" | "review" | "settings";
+export const workspaces = [
+  { id: "home", pages: ["plan", "scenarios"] },
+  { id: "conversation", pages: ["conversation", "training", "listening"] },
+  { id: "review", pages: ["review", "vocabulary", "sentences", "corrections", "reports"] },
+  { id: "profile", pages: ["profile", "memory", "settings"] },
+] as const;
+
+export type PageId = (typeof workspaces)[number]["pages"][number];
+export type WorkspaceId = (typeof workspaces)[number]["id"];
 
 interface NavState {
   page: PageId;
@@ -12,6 +16,6 @@ interface NavState {
 }
 
 export const useNavStore = create<NavState>((set) => ({
-  page: "dashboard",
+  page: "plan",
   navigate: (page) => set({ page }),
 }));

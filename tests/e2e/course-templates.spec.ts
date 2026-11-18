@@ -1,3 +1,4 @@
+import { openWorkspacePage } from "./helpers/navigation";
 import { readFile } from "node:fs/promises";
 import { expect, test } from "@playwright/test";
 import cafeOrder from "../../content/scenarios/cafe-order.json";
@@ -6,7 +7,7 @@ import { installTauriMock } from "./helpers/tauri-mock";
 test.beforeEach(async ({ page }) => {
   await installTauriMock(page);
   await page.goto("/");
-  await page.getByRole("button", { name: "Scenarios", exact: true }).click();
+  await openWorkspacePage(page, "Scenarios");
   await expect(
     page.getByRole("heading", { name: "Ordering at a cafe", exact: true }),
   ).toBeVisible();

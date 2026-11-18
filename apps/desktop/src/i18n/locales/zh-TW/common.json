@@ -89,5 +89,68 @@
     "details": "技術詳情：",
     "missingKey": "請先在設定中儲存此 {{kind}} 服務的 API 金鑰",
     "missingVoice": "裝置沒有可用於 {{language}} 的已安裝語音，請在設定中選擇 TTS 服務商，或使用文字。"
+  },
+  "workspace": {
+    "monogram": "LL",
+    "sections": {
+      "home": "首頁",
+      "conversation": "對話",
+      "review": "複習",
+      "profile": "我的"
+    },
+    "sectionNavigation": "區段導覽",
+    "pages": {
+      "plan": "計畫",
+      "scenarios": "課程庫",
+      "conversation": "練習方式",
+      "training": "角色對話",
+      "listening": "聽力討論",
+      "review": "複習佇列",
+      "vocabulary": "詞彙",
+      "sentences": "句子練習",
+      "corrections": "糾錯紀錄",
+      "reports": "課程紀錄",
+      "profile": "學習總覽",
+      "memory": "學習記憶",
+      "settings": "設定"
+    },
+    "diagnostics": "系統診斷",
+    "learningPlan": "學習計畫",
+    "resume": "進行中",
+    "resumeAction": "繼續課程",
+    "recommended": "為你推薦",
+    "preferences": "學習偏好",
+    "duration": "{{minutes}} 分鐘",
+    "beginCourse": "開始課程準備",
+    "anotherCourse": "換一門推薦",
+    "noMatchingCourse": "課程庫暫未提供 {{language}} 課程。",
+    "browseCourses": "瀏覽課程",
+    "recent": "最近完成",
+    "allHistory": "完整學習紀錄",
+    "noHistory": "完成課程後，可以在這裡查看紀錄。",
+    "modes": {
+      "roleplay": {
+        "title": "角色扮演",
+        "description": "與對話夥伴一起完成真實情境中的溝通目標。"
+      },
+      "guided": {
+        "title": "飯店入住引導課",
+        "description": "先看示範對話，再借助建議回覆逐步練習。"
+      },
+      "listen": {
+        "title": "聽後回應",
+        "description": "先聽課程開場白，再進入同一情境練習回應。"
+      }
+    },
+    "listeningInstructions": "聽開場白並想一想怎麼回應。準備好後，可以查看原文。",
+    "playOpening": "播放開場白",
+    "hideTranscript": "隱藏原文",
+    "showTranscript": "查看原文",
+    "replyInCourse": "進入課程練習回應",
+    "editPreferences": "編輯學習偏好",
+    "completedCount": "已完成課程",
+    "practiceCount": "練習回覆",
+    "vocabularyCount": "練習過的詞彙",
+    "coursePath": "查看課程路徑"
   }
 }

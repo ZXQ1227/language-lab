@@ -106,8 +106,13 @@ function ProfileEditor({ profile, saved }: { profile: LearningProfile; saved: bo
   );
 }
 
-export function LearningMemoryPage() {
+export function LearningMemoryPage({
+  view = "all",
+}: {
+  view?: "all" | "vocabulary" | "corrections";
+}) {
   const { t } = useTranslation();
+  const title = view === "all" ? t("memory:learningMemory") : t(`common:workspace.pages.${view}`);
   const { learningMemory: memory, loaded, busy, error, load, openLesson } = useTrainingStore();
   const navigate = useNavStore((state) => state.navigate);
   const [language, setLanguage] = useState("");
@@ -141,13 +146,15 @@ export function LearningMemoryPage() {
     ]),
   ].sort();
   return (
-    <section aria-label={t("memory:learningMemory")} className="mx-auto max-w-5xl space-y-5">
+    <section aria-label={title} className="mx-auto max-w-5xl space-y-5">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold">{t("memory:learningMemory")}</h1>
-          <p className="mt-1 text-sm text-slate-500">
-            {t("memory:yourProfileVocabularyObservationsLanguageIssuesAndPracticeHistoryAcross")}
-          </p>
+          <h1 className="text-2xl font-semibold">{title}</h1>
+          {view === "all" && (
+            <p className="mt-1 text-sm text-slate-500">
+              {t("memory:yourProfileVocabularyObservationsLanguageIssuesAndPracticeHistoryAcross")}
+            </p>
+          )}
         </div>
         <button type="button" className={button} disabled={busy} onClick={() => void load()}>
           {t("memory:refreshMemory")}
@@ -172,17 +179,19 @@ export function LearningMemoryPage() {
       {!memory && !error && <p role="status">{t("memory:loadingLearningMemory")}</p>}
       {memory && (
         <>
-          <section
-            aria-label={t("memory:profileMemory")}
-            className="space-y-3 rounded border border-slate-200 bg-white p-5"
-          >
-            <h2 className="font-semibold">{t("memory:profileMemory")}</h2>
-            <ProfileEditor
-              key={JSON.stringify(memory.profile)}
-              profile={memory.profile}
-              saved={memory.profileSaved}
-            />
-          </section>
+          {view === "all" && (
+            <section
+              aria-label={t("memory:profileMemory")}
+              className="space-y-3 rounded border border-slate-200 bg-white p-5"
+            >
+              <h2 className="font-semibold">{t("memory:profileMemory")}</h2>
+              <ProfileEditor
+                key={JSON.stringify(memory.profile)}
+                profile={memory.profile}
+                saved={memory.profileSaved}
+              />
+            </section>
+          )}
           <label className="block max-w-xs text-sm">
             {t("memory:memoryLanguage")}
             <select
@@ -199,114 +208,126 @@ export function LearningMemoryPage() {
               ))}
             </select>
           </label>
-          <section
-            aria-label={t("memory:knowledgeMemory")}
-            className="space-y-3 rounded border border-slate-200 bg-white p-5"
-          >
-            <h2 className="font-semibold">
-              {t("memory:knowledgeMemory2")}
-              {formatNumber(knowledge.length)}
-            </h2>
-            <p className="text-sm text-slate-500">
-              {t("memory:usageIsEvidenceOfPracticeNotCorrectnessOrMasteryGuided")}
-            </p>
-            {!knowledge.length && (
-              <p className="text-sm">
-                {t("memory:noVocabularyObservationsYetStartALessonToCollectEvidence")}
+          {view !== "corrections" && (
+            <section
+              aria-label={t("memory:knowledgeMemory")}
+              className="space-y-3 rounded border border-slate-200 bg-white p-5"
+            >
+              <h2 className="font-semibold">
+                {t("memory:knowledgeMemory2")}
+                {formatNumber(knowledge.length)}
+              </h2>
+              <p className="text-sm text-slate-500">
+                {t("memory:usageIsEvidenceOfPracticeNotCorrectnessOrMasteryGuided")}
               </p>
-            )}
-            <ul className="divide-y divide-slate-100">
-              {knowledge.slice(0, limit).map((item) => (
-                <li key={`${item.language}:${item.item}`} className="space-y-1 py-3 text-sm">
-                  <p className="font-medium">
-                    {item.item} · {item.language} ·{" "}
-                    {item.mastery === "new"
-                      ? t("memory:notUsedYet")
-                      : t("memory:learningNotAMasteryAssessment")}
-                  </p>
-                  <p>
-                    {t("memory:practiceTurns")}
-                    {formatNumber(item.practiceTurns)} {t("memory:matches")}
-                    {formatNumber(item.occurrences)} {t("memory:guided")}{" "}
-                    {formatNumber(item.guidedTurns)} {t("memory:freeConversation")}
-                    {formatNumber(item.freeTurns)}
-                  </p>
-                  {item.latest && (
-                    <>
-                      <blockquote className="break-words text-slate-600">
+              {!knowledge.length && (
+                <p className="text-sm">
+                  {t("memory:noVocabularyObservationsYetStartALessonToCollectEvidence")}
+                </p>
+              )}
+              <ul className="divide-y divide-slate-100">
+                {knowledge.slice(0, limit).map((item) => (
+                  <li key={`${item.language}:${item.item}`} className="space-y-1 py-3 text-sm">
+                    <p className="font-medium">
+                      {item.item} · {item.language} ·{" "}
+                      {item.mastery === "new"
+                        ? t("memory:notUsedYet")
+                        : t("memory:learningNotAMasteryAssessment")}
+                    </p>
+                    <p>
+                      {t("memory:practiceTurns")}
+                      {formatNumber(item.practiceTurns)} {t("memory:matches")}
+                      {formatNumber(item.occurrences)} {t("memory:guided")}{" "}
+                      {formatNumber(item.guidedTurns)} {t("memory:freeConversation")}
+                      {formatNumber(item.freeTurns)}
+                    </p>
+                    {item.latest && (
+                      <>
+                        <blockquote className="break-words text-slate-600">
+                          “{item.latest.quote}” · {item.latest.title}
+                        </blockquote>
+                        {sourceButton(item.latest.lessonId)}
+                      </>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+          {view !== "vocabulary" && (
+            <section
+              aria-label={t("memory:errorMemory")}
+              className="space-y-3 rounded border border-slate-200 bg-white p-5"
+            >
+              <h2 className="font-semibold">
+                {t("memory:errorMemory2")}
+                {formatNumber(errors.length)}
+              </h2>
+              <p className="text-sm text-slate-500">
+                {t("memory:savedDiagnosisObservationsNotProofOfAnOngoingMistakeDemo")}
+              </p>
+              {!errors.length && (
+                <p className="text-sm">{t("memory:noDiagnosedLanguageIssuesRecorded")}</p>
+              )}
+              <ul className="divide-y divide-slate-100">
+                {errors.slice(0, limit).map((item, index) => (
+                  <li key={`${item.language}:${index}`} className="space-y-1 py-3 text-sm">
+                    <p className="break-words font-medium">{item.pattern}</p>
+                    <p>
+                      {item.language} · {t(`training:categories.${item.category}`)}{" "}
+                      {t("memory:practiceReplies")}
+                      {formatNumber(item.count)} {t("memory:modelObservations")}
+                      {formatNumber(item.modelCount)} {t("memory:demoObservations")}
+                      {formatNumber(item.guidedCount)}
+                    </p>
+                    <details>
+                      <summary className="cursor-pointer">
+                        {t("memory:explanationAndSource")}
+                      </summary>
+                      <p className="my-2 break-words">{item.explanation}</p>
+                      <blockquote className="break-words">
                         “{item.latest.quote}” · {item.latest.title}
                       </blockquote>
                       {sourceButton(item.latest.lessonId)}
-                    </>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </section>
-          <section
-            aria-label={t("memory:errorMemory")}
-            className="space-y-3 rounded border border-slate-200 bg-white p-5"
-          >
-            <h2 className="font-semibold">
-              {t("memory:errorMemory2")}
-              {formatNumber(errors.length)}
-            </h2>
-            <p className="text-sm text-slate-500">
-              {t("memory:savedDiagnosisObservationsNotProofOfAnOngoingMistakeDemo")}
-            </p>
-            {!errors.length && (
-              <p className="text-sm">{t("memory:noDiagnosedLanguageIssuesRecorded")}</p>
-            )}
-            <ul className="divide-y divide-slate-100">
-              {errors.slice(0, limit).map((item, index) => (
-                <li key={`${item.language}:${index}`} className="space-y-1 py-3 text-sm">
-                  <p className="break-words font-medium">{item.pattern}</p>
-                  <p>
-                    {item.language} · {t(`training:categories.${item.category}`)}{" "}
-                    {t("memory:practiceReplies")}
-                    {formatNumber(item.count)} {t("memory:modelObservations")}
-                    {formatNumber(item.modelCount)} {t("memory:demoObservations")}
-                    {formatNumber(item.guidedCount)}
-                  </p>
-                  <details>
-                    <summary className="cursor-pointer">{t("memory:explanationAndSource")}</summary>
-                    <p className="my-2 break-words">{item.explanation}</p>
-                    <blockquote className="break-words">
-                      “{item.latest.quote}” · {item.latest.title}
-                    </blockquote>
-                    {sourceButton(item.latest.lessonId)}
-                  </details>
-                </li>
-              ))}
-            </ul>
-          </section>
-          <section
-            aria-label={t("memory:episodicMemory")}
-            className="space-y-3 rounded border border-slate-200 bg-white p-5"
-          >
-            <h2 className="font-semibold">
-              {t("memory:episodicMemory2")}
-              {formatNumber(episodes.length)}
-            </h2>
-            {!episodes.length && <p className="text-sm">{t("memory:noPracticeHistoryYet")}</p>}
-            <ul className="divide-y divide-slate-100">
-              {episodes.slice(0, limit).map((item) => (
-                <li key={item.lessonId} className="space-y-1 py-3 text-sm">
-                  <p className="font-medium">
-                    {item.title} · {item.language} ·{" "}
-                    {item.completed ? t("memory:completed") : t("memory:inProgress")}
-                  </p>
-                  <p>{item.summary}</p>
-                  <p className="text-xs text-slate-500">
-                    {t("memory:lastSaved")}
-                    {formatDateTime(item.at)}
-                  </p>
-                  {sourceButton(item.lessonId)}
-                </li>
-              ))}
-            </ul>
-          </section>
-          {Math.max(knowledge.length, errors.length, episodes.length) > limit && (
+                    </details>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+          {view === "all" && (
+            <section
+              aria-label={t("memory:episodicMemory")}
+              className="space-y-3 rounded border border-slate-200 bg-white p-5"
+            >
+              <h2 className="font-semibold">
+                {t("memory:episodicMemory2")}
+                {formatNumber(episodes.length)}
+              </h2>
+              {!episodes.length && <p className="text-sm">{t("memory:noPracticeHistoryYet")}</p>}
+              <ul className="divide-y divide-slate-100">
+                {episodes.slice(0, limit).map((item) => (
+                  <li key={item.lessonId} className="space-y-1 py-3 text-sm">
+                    <p className="font-medium">
+                      {item.title} · {item.language} ·{" "}
+                      {item.completed ? t("memory:completed") : t("memory:inProgress")}
+                    </p>
+                    <p>{item.summary}</p>
+                    <p className="text-xs text-slate-500">
+                      {t("memory:lastSaved")}
+                      {formatDateTime(item.at)}
+                    </p>
+                    {sourceButton(item.lessonId)}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+          {Math.max(
+            view === "corrections" ? 0 : knowledge.length,
+            view === "vocabulary" ? 0 : errors.length,
+            view === "all" ? episodes.length : 0,
+          ) > limit && (
             <button type="button" className={button} onClick={() => setLimit(limit + 20)}>
               {t("memory:showMoreMemories")}
             </button>

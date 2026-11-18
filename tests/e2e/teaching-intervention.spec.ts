@@ -1,10 +1,11 @@
+import { openWorkspacePage } from "./helpers/navigation";
 import { expect, test, type Page } from "@playwright/test";
 import { configureAiConnection, installTauriMock } from "./helpers/tauri-mock";
 
 async function prepareHotel(page: Page) {
   await installTauriMock(page);
   await page.goto("/");
-  await page.getByRole("button", { name: "Scenarios", exact: true }).click();
+  await openWorkspacePage(page, "Scenarios");
   const card = page
     .getByRole("article")
     .filter({ has: page.getByRole("heading", { name: "Hotel Check-in", exact: true }) });
@@ -52,7 +53,7 @@ test("keeps recasts brief, persists timing across help and restart, and avoids r
   await page.getByRole("button", { name: "Repeat last reply", exact: true }).click();
   await expect.poll(async () => (await checkpoint(page)).state.turnCount).toBe(2);
   await page.reload();
-  await page.getByRole("button", { name: "Training", exact: true }).click();
+  await openWorkspacePage(page, "Training");
   await send(page, "I am agree.");
   await expect(
     feedback.getByText(

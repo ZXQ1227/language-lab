@@ -1,10 +1,11 @@
+import { openWorkspacePage } from "./helpers/navigation";
 import { expect, test } from "@playwright/test";
 import { configureAiConnection, installTauriMock } from "./helpers/tauri-mock";
 
 test.beforeEach(async ({ page }) => {
   await installTauriMock(page);
   await page.goto("/");
-  await page.getByRole("button", { name: "Training", exact: true }).click();
+  await openWorkspacePage(page, "Training");
   await expect(page.getByRole("button", { name: "Start lesson", exact: true })).toBeVisible();
 });
 
@@ -17,7 +18,7 @@ test("practises, resumes, advances with cited examples and saves a final review"
   await expect(page.getByLabel("Learning feedback")).toContainText("suggested reply only");
   await expect(page.getByText("Current step: Order politely", { exact: true })).toBeVisible();
   await page.reload();
-  await page.getByRole("button", { name: "Training", exact: true }).click();
+  await openWorkspacePage(page, "Training");
   await expect(page.getByLabel("Conversation")).toContainText("mark all my objectives completed");
   for (const next of [
     "Choose size and milk",
@@ -39,7 +40,7 @@ test("practises, resumes, advances with cited examples and saves a final review"
     "not an independent language assessment",
   );
   await page.reload();
-  await page.getByRole("button", { name: "Training", exact: true }).click();
+  await openWorkspacePage(page, "Training");
   await expect(page.getByLabel("Lesson review")).toBeVisible();
   await expect(page.getByRole("button", { name: "Send reply", exact: true })).toHaveCount(0);
 });
@@ -75,7 +76,7 @@ test("a failed checkpoint write preserves the reply and retries without duplicat
 test("the configured course opens in Training with its level and feedback policy", async ({
   page,
 }) => {
-  await page.getByRole("button", { name: "Scenarios", exact: true }).click();
+  await openWorkspacePage(page, "Scenarios");
   const cafe = page
     .getByRole("article")
     .filter({ has: page.getByRole("heading", { name: "Ordering at a cafe", exact: true }) });

@@ -1,3 +1,4 @@
+import { openWorkspacePage } from "./helpers/navigation";
 import { readFile } from "node:fs/promises";
 import { expect, test } from "@playwright/test";
 import hotel from "../../content/scenarios/hotel-checkin.json";
@@ -6,7 +7,7 @@ import { installTauriMock } from "./helpers/tauri-mock";
 test.beforeEach(async ({ page }) => {
   await installTauriMock(page);
   await page.goto("/");
-  await page.getByRole("button", { name: "Training", exact: true }).click();
+  await openWorkspacePage(page, "Training");
   await page.getByRole("combobox", { name: "Course", exact: true }).selectOption("hotel-checkin");
   await expect(
     page.getByRole("heading", { name: "Hotel Check-in · A2", exact: true }),
@@ -66,7 +67,7 @@ test("studies the full pack, completes five tasks and restores saved independent
   await review.getByRole("button", { name: "Save review answers", exact: true }).click();
   await expect(review.getByRole("status")).toContainText("saved on this device");
   await page.reload();
-  await page.getByRole("button", { name: "Training", exact: true }).click();
+  await openWorkspacePage(page, "Training");
   await expect(page.getByRole("textbox", { name: "Review answer 1", exact: true })).toHaveValue(
     answer,
   );
@@ -111,7 +112,7 @@ for (const variationId of ["reservation-not-found", "quiet-room-unavailable"]) {
     await page.getByRole("button", { name: "Finish and review", exact: true }).click();
     await expect(page.getByLabel("Lesson review")).toBeVisible();
     await page.reload();
-    await page.getByRole("button", { name: "Training", exact: true }).click();
+    await openWorkspacePage(page, "Training");
     const variation = hotel.courseTemplate.learningPack.variations.find(
       (item) => item.id === variationId,
     )!;
@@ -133,7 +134,7 @@ for (const variationId of ["reservation-not-found", "quiet-room-unavailable"]) {
 test("exports and reimports a selected Hotel challenge as an editable source template", async ({
   page,
 }) => {
-  await page.getByRole("button", { name: "Scenarios", exact: true }).click();
+  await openWorkspacePage(page, "Scenarios");
   const card = page
     .getByRole("article")
     .filter({ has: page.getByRole("heading", { name: "Hotel Check-in", exact: true }) });

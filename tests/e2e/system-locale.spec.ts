@@ -1,3 +1,4 @@
+import { openWorkspacePage } from "./helpers/navigation";
 import { expect, test, type Page } from "@playwright/test";
 import { installTauriMock } from "./helpers/tauri-mock";
 
@@ -17,11 +18,11 @@ async function preferences(page: Page) {
     );
   });
 }
-for (const [locale, language, settings, heading] of [
-  ["zh-CN", "zh-CN", "设置", "界面语言"],
-  ["zh-Hant-HK", "zh-TW", "設定", "介面語言"],
-  ["en-GB", "en-US", "Settings", "Interface language"],
-  ["fr-FR", "en-US", "Settings", "Interface language"],
+for (const [locale, language, profile, settings, heading] of [
+  ["zh-CN", "zh-CN", "我的", "设置", "界面语言"],
+  ["zh-Hant-HK", "zh-TW", "我的", "設定", "介面語言"],
+  ["en-GB", "en-US", "My learning", "Settings", "Interface language"],
+  ["fr-FR", "en-US", "My learning", "Settings", "Interface language"],
 ]) {
   test(`starts from OS ${locale} without a language wizard`, async ({ page }) => {
     await installTauriMock(page, {
@@ -32,6 +33,7 @@ for (const [locale, language, settings, heading] of [
     });
     await page.goto("/");
     await expect(page.locator("html")).toHaveAttribute("lang", language!);
+    await page.getByRole("button", { name: profile, exact: true }).click();
     await page.getByRole("button", { name: settings, exact: true }).click();
     await expect(page.getByRole("combobox", { name: heading!, exact: true })).toBeDisabled();
     expect(await preferences(page)).toEqual([]);
@@ -44,6 +46,7 @@ test("persists manual override, ignores OS changes, and re-reads when following 
 }) => {
   await installTauriMock(page, { systemLocale: "zh-CN", lessons: [], scenarios: [] });
   await page.goto("/");
+  await page.getByRole("button", { name: "我的", exact: true }).click();
   await page.getByRole("button", { name: "设置", exact: true }).click();
   await page.getByLabel("跟随系统", { exact: true }).uncheck();
   await expect(page.getByRole("combobox", { name: "界面语言", exact: true })).toBeEnabled();
@@ -51,7 +54,7 @@ test("persists manual override, ignores OS changes, and re-reads when following 
   await expect(page.locator("html")).toHaveAttribute("lang", "en-US");
   await setSystem(page, "zh-TW");
   await page.reload();
-  await page.getByRole("button", { name: "Settings", exact: true }).click();
+  await openWorkspacePage(page, "Settings");
   await expect(page.locator("html")).toHaveAttribute("lang", "en-US");
   await expect(
     page.getByRole("checkbox", { name: "Follow system", exact: true }),
@@ -72,6 +75,7 @@ test("failed preference writes keep the current language and show a translated r
 }) => {
   await installTauriMock(page, { systemLocale: "zh-CN", lessons: [], scenarios: [] });
   await page.goto("/");
+  await page.getByRole("button", { name: "我的", exact: true }).click();
   await page.getByRole("button", { name: "设置", exact: true }).click();
   await page.evaluate(() => window.__llInvoke("test_fail_next_locale_settings"));
   await page.getByLabel("跟随系统", { exact: true }).click();
@@ -86,7 +90,7 @@ test("interface changes preserve an active course, draft and learning language",
 }) => {
   await installTauriMock(page, { systemLocale: "en-US", lessons: [], scenarios: [] });
   await page.goto("/");
-  await page.getByRole("button", { name: "Training", exact: true }).click();
+  await openWorkspacePage(page, "Training");
   await page.getByRole("combobox", { name: "Course", exact: true }).selectOption("hotel-checkin");
   await page.getByRole("button", { name: "Start lesson", exact: true }).click();
   const draft = page.locator("textarea").first();

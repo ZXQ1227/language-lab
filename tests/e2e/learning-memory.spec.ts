@@ -1,12 +1,13 @@
+import { openWorkspacePage } from "./helpers/navigation";
 import { expect, test, type Page } from "@playwright/test";
 import { installTauriMock } from "./helpers/tauri-mock";
 
 async function memory(page: Page) {
-  await page.getByRole("button", { name: "Learning memory", exact: true }).click();
+  await openWorkspacePage(page, "Learning memory");
   await expect(page.getByRole("heading", { name: "Profile memory", exact: true })).toBeVisible();
 }
 async function start(page: Page, course = "hotel-checkin") {
-  await page.getByRole("button", { name: "Training", exact: true }).click();
+  await openWorkspacePage(page, "Training");
   const fresh = page.getByRole("button", { name: "New lesson", exact: true });
   if (await fresh.isVisible()) await fresh.click();
   await page.getByRole("combobox", { name: "Course", exact: true }).selectOption(course);

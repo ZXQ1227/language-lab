@@ -1,9 +1,10 @@
+import { openWorkspacePage } from "./helpers/navigation";
 import { expect, test, type Page } from "@playwright/test";
 import { installTauriMock } from "./helpers/tauri-mock";
 
 const nav = (page: Page, name: string) => page.getByRole("button", { name, exact: true }).click();
 async function start(page: Page, course = "cafe-order") {
-  await nav(page, "Training");
+  await openWorkspacePage(page, "Training");
   const fresh = page.getByRole("button", { name: "New lesson", exact: true });
   if (await fresh.isVisible()) await fresh.click();
   await page.getByRole("combobox", { name: "Course", exact: true }).selectOption(course);
@@ -36,7 +37,7 @@ test.beforeEach(async ({ page }) => {
 test("shows an empty report view until a lesson is finished, retries a failed final save, and restores evidence", async ({
   page,
 }) => {
-  await nav(page, "Reports");
+  await openWorkspacePage(page, "Reports");
   await expect(page.getByText(/No completed reports in this view/)).toBeVisible();
   await start(page);
   await practice(page);
@@ -50,7 +51,7 @@ test("shows an empty report view until a lesson is finished, retries a failed fi
   await expect(page.getByLabel("Practice summary", { exact: true })).toContainText(
     "Practice replies: 3",
   );
-  await nav(page, "Reports");
+  await openWorkspacePage(page, "Reports");
   const report = page.getByLabel("Lesson review", { exact: true });
   await expect(report).toContainText("not an independent language assessment");
   await expect(report.getByLabel("Model commentary", { exact: true })).toHaveCount(0);
@@ -64,7 +65,7 @@ test("shows an empty report view until a lesson is finished, retries a failed fi
     "Repeat this scenario with different details",
   );
   await page.reload();
-  await nav(page, "Reports");
+  await openWorkspacePage(page, "Reports");
   await expect(report).toBeVisible();
   expect((await rows(page)).filter((r) => r.type === "learning_memory_contribution")).toHaveLength(
     1,
@@ -90,7 +91,7 @@ test("saves reflection atomically, preserves self-check answers and leaves activ
     .fill("Still working on my order.");
   await nav(page, "Send reply");
   await expect(page.getByRole("textbox", { name: "Your reply", exact: true })).toHaveValue("");
-  await nav(page, "Reports");
+  await openWorkspacePage(page, "Reports");
   const note = page.getByRole("textbox", { name: "What felt easy or difficult?", exact: true });
   await expect(note).toBeVisible();
   const before = await rows(page);
@@ -120,13 +121,13 @@ test("saves reflection atomically, preserves self-check answers and leaves activ
   expect(saved.reviewAnswers).toEqual(previous.reviewAnswers);
   expect(saved.learningMemory.knowledge).toEqual(previous.learningMemory.knowledge);
   expect(after.filter((r) => r.type === "learning_memory_contribution")).toHaveLength(2);
-  await nav(page, "Training");
+  await openWorkspacePage(page, "Training");
   await expect(page.getByLabel("Conversation", { exact: true })).toContainText(
     "Still working on my order.",
   );
   await expect(page.getByRole("textbox", { name: "Your reply", exact: true })).toBeVisible();
   await page.reload();
-  await nav(page, "Reports");
+  await openWorkspacePage(page, "Reports");
   await expect(note).toHaveValue("I needed help asking about the deposit.");
   await nav(page, "Open source lesson");
   await expect(page.getByRole("textbox", { name: "Review answer 1", exact: true })).toHaveValue(
@@ -166,7 +167,7 @@ test("opens legacy reports beyond the latest 50 resume checkpoints without silen
   });
   const before = await rows(page);
   await page.reload();
-  await nav(page, "Reports");
+  await openWorkspacePage(page, "Reports");
   await expect(page.getByLabel("Report history").getByRole("button")).toHaveCount(20);
   await expect(page.getByRole("button", { name: "Refresh reports", exact: true })).toBeEnabled();
   await nav(page, "Show more reports");
@@ -191,7 +192,7 @@ test("recovers report loading after a read failure and filters guided reports fr
   await practice(page);
   await nav(page, "Finish and review");
   await expect(page.getByLabel("Lesson review", { exact: true })).toBeVisible();
-  await nav(page, "Reports");
+  await openWorkspacePage(page, "Reports");
   await expect(page.getByLabel("Lesson reflection", { exact: true })).toBeVisible();
   await page.evaluate(() => window.__llInvoke("test_fail_next_memory_read"));
   await nav(page, "Refresh reports");

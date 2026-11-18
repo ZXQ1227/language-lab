@@ -1,10 +1,8 @@
-import { LocalizedError } from "../components/LocalizedError";
+import { LocalizedError } from "./LocalizedError";
+import { formatNumber } from "../i18n";
 import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
 import { useSystemStore } from "../stores/system";
-
-// Landing page: system status at a glance + the path into the next training
-// session (wired up when the teaching loop lands).
 
 function StatCard({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -15,7 +13,7 @@ function StatCard({ label, children }: { label: string; children: React.ReactNod
   );
 }
 
-export function DashboardPage() {
+export function SystemStatus() {
   const { t } = useTranslation();
   const { health, dbStatus, error, loading, refresh } = useSystemStore();
 
@@ -24,14 +22,8 @@ export function DashboardPage() {
   }, [refresh]);
 
   return (
-    <section aria-label={t("dashboard:dashboard")} className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold text-slate-900">{t("dashboard:dashboard")}</h1>
-        <p className="mt-1 text-sm text-slate-500">
-          {t("dashboard:localFirstAIEnglishLearningEverythingRunsOnThisMachine")}
-        </p>
-      </div>
-
+    <section aria-label={t("common:workspace.diagnostics")} className="space-y-4">
+      <h2 className="font-semibold">{t("common:workspace.diagnostics")}</h2>
       {error && (
         <div
           role="alert"
@@ -79,24 +71,20 @@ export function DashboardPage() {
           <StatCard label={t("dashboard:localDatabase")}>
             {dbStatus ? (
               <>
-                <code className="rounded bg-slate-100 px-1">{dbStatus.tables}</code>{" "}
+                <code className="rounded bg-slate-100 px-1">{formatNumber(dbStatus.tables)}</code>{" "}
                 {t("dashboard:tables")}{" "}
-                <code className="rounded bg-slate-100 px-1">{dbStatus.migrationsApplied}</code>{" "}
+                <code className="rounded bg-slate-100 px-1">
+                  {formatNumber(dbStatus.migrationsApplied)}
+                </code>{" "}
                 {t("dashboard:migrations")}
+                <p className="mt-2 break-all">
+                  {t("settings:location")}
+                  <code>{dbStatus.path}</code>
+                </p>
               </>
             ) : (
               t("dashboard:unavailable")
             )}
-          </StatCard>
-          <StatCard label={t("dashboard:nextSession")}>
-            <button
-              type="button"
-              disabled
-              title={t("dashboard:arrivesWithTheFirstTeachingLoop")}
-              className="rounded-md bg-slate-900 px-3 py-1.5 text-xs font-medium text-white disabled:opacity-40"
-            >
-              {t("dashboard:startTrainingComingSoon")}
-            </button>
           </StatCard>
         </div>
       )}

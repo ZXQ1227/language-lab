@@ -127,7 +127,12 @@ MIT
 
 The desktop interface follows the OS language by default, with simplified Chinese,
 traditional Chinese and English resources. Unsupported languages use English.
-Settings → Language allows a persistent manual override or returning to Follow
+My learning → Settings → Language allows a persistent manual override or returning to Follow
 system. This controls UI copy and regional formatting independently from course,
 AI-dialogue and teaching-explanation language. See
 [Task 03](docs/development/TASK_03_UI_FOUNDATION.md).
+
+The app opens to the learning plan and course library. Conversation contains
+roleplay, guided practice and listening. Review contains follow-up tasks and
+lesson history. My learning contains the local profile, progress and settings.
+See [desktop learning workspaces](docs/product/PRD.md#desktop-learning-workspaces).

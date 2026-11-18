@@ -1,3 +1,4 @@
+import { openWorkspacePage } from "./helpers/navigation";
 import { expect, test, type Page } from "@playwright/test";
 import hotel from "../../content/scenarios/hotel-checkin.json";
 import { configureAiConnection, installTauriMock } from "./helpers/tauri-mock";
@@ -5,7 +6,7 @@ import { configureAiConnection, installTauriMock } from "./helpers/tauri-mock";
 async function openHotel(page: Page) {
   await installTauriMock(page);
   await page.goto("/");
-  await page.getByRole("button", { name: "Training", exact: true }).click();
+  await openWorkspacePage(page, "Training");
   // Configure the AI connection before picking the course: navigating to
   // Settings resets this page's local course selection state.
   await configureAiConnection(page, { model: "test-character" });
@@ -66,7 +67,7 @@ test("guided repeat and hint preserve an unsent draft and never complete an obje
   page,
 }) => {
   await openHotel(page);
-  await page.getByRole("button", { name: "Scenarios", exact: true }).click();
+  await openWorkspacePage(page, "Scenarios");
   const card = page
     .getByRole("article")
     .filter({ has: page.getByRole("heading", { name: "Hotel Check-in", exact: true }) });
@@ -93,7 +94,7 @@ test("guided repeat and hint preserve an unsent draft and never complete an obje
   expect(saved.messages[1].purpose).toBe("support");
   expect(saved.messages[3].purpose).toBe("support");
   await page.reload();
-  await page.getByRole("button", { name: "Training", exact: true }).click();
+  await openWorkspacePage(page, "Training");
   await expect(page.getByRole("button", { name: "Give me a hint", exact: true })).toBeDisabled();
   await expect(
     page.getByText("Current step: Find your reservation", { exact: true }),
@@ -155,7 +156,7 @@ test("connected dialogue restores preferences, simplifies and repeats without lo
   ).toHaveCount(2);
   expect(replies).toBe(2);
   await page.reload();
-  await page.getByRole("button", { name: "Training", exact: true }).click();
+  await openWorkspacePage(page, "Training");
   await page
     .getByRole("textbox", { name: "Your reply", exact: true })
     .fill("What time is breakfast?");

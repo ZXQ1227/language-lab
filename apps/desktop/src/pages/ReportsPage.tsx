@@ -1,5 +1,5 @@
 import { LocalizedError } from "../components/LocalizedError";
-import { formatDateTime } from "../i18n";
+import { formatDate, formatDateTime } from "../i18n";
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { LearningReport } from "../components/LearningReport";
@@ -86,6 +86,13 @@ export function ReportsPage() {
   const [limit, setLimit] = useState(20);
   const reports =
     learningMemory?.episodes.filter((e) => e.completed && (!mode || e.mode === mode)) ?? [];
+  const days = new Map<string, typeof reports>();
+  for (const item of reports.slice(0, limit)) {
+    const day = formatDate(item.at);
+    const items = days.get(day);
+    if (items) items.push(item);
+    else days.set(day, [item]);
+  }
   useEffect(() => {
     if (!loaded) void load();
   }, [loaded, load]);
@@ -148,30 +155,39 @@ export function ReportsPage() {
               {t("reports:noCompletedReportsInThisViewFinishALessonAnd")}
             </p>
           )}
-          <ul aria-label={t("reports:reportHistory")} className="grid gap-2 sm:grid-cols-2">
-            {reports.slice(0, limit).map((item) => (
-              <li key={item.lessonId}>
-                <button
-                  disabled={busy}
-                  aria-pressed={selected === item.lessonId}
-                  className={`w-full rounded border p-3 text-left text-sm disabled:opacity-40 ${selected === item.lessonId ? "border-emerald-500 bg-emerald-50" : "border-slate-200 bg-white"}`}
-                  onClick={() => {
-                    setSelected(item.lessonId);
-                    void loadReport(item.lessonId);
-                  }}
-                >
-                  <span className="block font-medium">
-                    {item.title} · {item.difficulty}
-                  </span>
-                  <span className="text-xs text-slate-500">
-                    {item.mode === "demo" ? t("reports:guidedDemo") : t("reports:aIConversation")} ·{" "}
-                    {item.language} {t("reports:lastSaved")}
-                    {formatDateTime(item.at)}
-                  </span>
-                </button>
-              </li>
+          <div aria-label={t("reports:reportHistory")} role="group" className="space-y-4">
+            {Array.from(days, ([day, items]) => (
+              <section key={day} aria-label={day}>
+                <h2 className="mb-2 text-sm font-semibold text-slate-600">{day}</h2>
+                <ul className="grid gap-2 sm:grid-cols-2">
+                  {items.map((item) => (
+                    <li key={item.lessonId}>
+                      <button
+                        disabled={busy}
+                        aria-pressed={selected === item.lessonId}
+                        className={`w-full rounded border p-3 text-left text-sm disabled:opacity-40 ${selected === item.lessonId ? "border-emerald-500 bg-emerald-50" : "border-slate-200 bg-white"}`}
+                        onClick={() => {
+                          setSelected(item.lessonId);
+                          void loadReport(item.lessonId);
+                        }}
+                      >
+                        <span className="block font-medium">
+                          {item.title} · {item.difficulty}
+                        </span>
+                        <span className="text-xs text-slate-500">
+                          {item.mode === "demo"
+                            ? t("reports:guidedDemo")
+                            : t("reports:aIConversation")}{" "}
+                          · {item.language} {t("reports:lastSaved")}
+                          {formatDateTime(item.at)}
+                        </span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </section>
             ))}
-          </ul>
+          </div>
           {reports.length > limit && (
             <button className={button} onClick={() => setLimit(limit + 20)}>
               {t("reports:showMoreReports")}
