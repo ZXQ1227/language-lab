@@ -1,6 +1,36 @@
 # Development Guide
 
-Status: current for v0.0.1 (Tasks 01–09).
+This guide describes the development workflow. The current branch and relevant
+ADRs define which capabilities are implemented.
+
+## Task checklist
+
+[AGENTS.md](../../AGENTS.md) is the canonical source of development governance.
+Every human or AI coding task follows its 12 required rules.
+
+Before editing, read README, AGENTS, the system architecture and relevant ADRs
+and feature guides; check for directory-specific instructions. Define one clear
+outcome and its verification scope. Start independent work from the latest
+fetched `origin/main` on a focused feature/fix/chore branch. If unmerged work is a
+dependency, document the actual base and merge order explicitly. The recommended
+module branch examples and release branch are in
+[Git workflow](../../AGENTS.md#git-workflow).
+
+During implementation, preserve the agreed architecture and package edges. Explain
+new dependencies in the change description and relevant development docs. Keep
+credentials out of source/Git/logs; use synthetic fixtures and isolated databases
+instead of changing live learner data. Include versioned SQL migrations and
+backup/rollback coverage for SQL schema changes, and a compatibility strategy for
+stored JSON changes. Agent/skill changes need tests, and model outputs need schema
+validation before use. Do not delete or weaken tests to conceal failures.
+
+Before completion, run type checking, lint and relevant tests, check formatting,
+review the diff and update related documentation. Report the actual results and
+limitations, including checks blocked by the environment. Browser mocks do not
+establish native-device or real-provider behavior. State the branch/base, commit
+and verified push/merge status; creating or pushing a branch does not merge it.
+Open a PR against `main` for review with CI checks passing. Release stabilization
+uses `release/v0.1.0`; signing and publication follow ADR-0007.
 
 ## Prerequisites
 
@@ -53,10 +83,17 @@ review answers, see [Hotel Check-in](HOTEL_CHECKIN.md).
 
 1. `pnpm typecheck && pnpm lint && pnpm test`
 2. `pnpm test:e2e` when the change touches UI or IPC
-3. `pnpm format` (Prettier)
+3. Check formatting for changed files with `pnpm exec prettier --check <paths>`;
+   format those files as needed, and review the resulting diff.
 4. `pnpm --filter @language-lab/desktop tauri dev` smoke run when the change
    touches the Rust core or IPC commands
 5. Update the relevant ADR in `docs/adr/` if a documented decision changed.
+
+For a documentation-only task, run type checking, lint, the default unit suite
+and changed-document formatting/link checks. Do not add tests that only assert
+that documentation repeats its implementation. Run e2e/native checks when the
+change affects those behaviors. If a required check cannot run, explain why and
+what still needs validation; do not silently skip it or describe it as passed.
 
 ## CI
 
