@@ -17,6 +17,7 @@ test.beforeEach(async ({ page }) => {
 test("studies the full pack, completes five tasks and restores saved independent review", async ({
   page,
 }) => {
+  await page.getByText("Lesson reference", { exact: true }).click();
   const pack = page.getByRole("region", { name: "Course study pack" });
   await pack.getByText("Practice guest card", { exact: true }).click();
   await expect(

@@ -13,6 +13,7 @@ import { ReviewPage } from "./pages/ReviewPage";
 import { SettingsPage } from "./pages/SettingsPage";
 import { LearningMemoryPage } from "./pages/LearningMemoryPage";
 import { useLocaleStore } from "./stores/locale";
+import { useTrainingStore } from "./stores/training";
 
 const PAGES: Record<PageId, React.ReactNode> = {
   plan: <PlanPage />,
@@ -35,6 +36,10 @@ export function App() {
   const page = useNavStore((s) => s.page);
   const navigate = useNavStore((s) => s.navigate);
   const locale = useLocaleStore();
+  const lessonActive = useTrainingStore(
+    (s) => !!s.session && s.loaded && s.session.state.phase !== "done",
+  );
+  const focused = page === "training" && lessonActive;
   const workspace = workspaces.find(({ pages }) => pages.some((item) => item === page))!;
   useEffect(() => {
     const refresh = () => {
@@ -61,58 +66,70 @@ export function App() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-stone-50 text-slate-900 lg:grid lg:grid-cols-[13.5rem_minmax(0,1fr)]">
-      <aside className="border-b border-emerald-950/15 bg-[#11332f] px-4 py-5 text-white lg:sticky lg:top-0 lg:flex lg:h-screen lg:flex-col lg:border-b-0 lg:px-5 lg:py-8">
-        <div className="flex items-center gap-3">
-          <span
-            aria-hidden="true"
-            className="grid size-9 place-items-center rounded-lg bg-[#def3ad] text-sm font-bold text-emerald-950"
-          >
-            {t("common:workspace.monogram")}
-          </span>
-          <p className="font-semibold tracking-tight">{t("common:languageLab")}</p>
-        </div>
-        <nav
-          aria-label={t("common:mainNavigation")}
-          className="mt-5 grid grid-cols-4 gap-2 lg:mt-10 lg:grid-cols-1"
-        >
-          {workspaces.map(({ id, pages }) => (
-            <button
-              key={id}
-              type="button"
-              onClick={() => {
-                if (workspace.id !== id) navigate(pages[0]);
-              }}
-              aria-current={workspace.id === id ? "true" : undefined}
-              className={`rounded-lg px-1 py-2.5 text-xs font-medium sm:px-3 sm:text-sm lg:px-4 lg:text-left ${workspace.id === id ? "bg-[#def3ad] text-emerald-950" : "text-emerald-50 hover:bg-white/10"}`}
+    <div
+      className={
+        focused
+          ? "flex h-dvh overflow-hidden bg-stone-50 text-slate-900"
+          : "min-h-screen bg-stone-50 text-slate-900 lg:grid lg:grid-cols-[13.5rem_minmax(0,1fr)]"
+      }
+    >
+      {!focused && (
+        <aside className="border-b border-emerald-950/15 bg-[#11332f] px-4 py-5 text-white lg:sticky lg:top-0 lg:flex lg:h-screen lg:flex-col lg:border-b-0 lg:px-5 lg:py-8">
+          <div className="flex items-center gap-3">
+            <span
+              aria-hidden="true"
+              className="grid size-9 place-items-center rounded-lg bg-[#def3ad] text-sm font-bold text-emerald-950"
             >
-              {t(`common:workspace.sections.${id}`)}
-            </button>
-          ))}
-        </nav>
-        <p className="mt-auto hidden text-xs text-emerald-100/70 lg:block">
-          {t("common:v001YourDataStaysOnThisDevice")}
-        </p>
-      </aside>
-
-      <main className="min-w-0 px-4 pb-12 sm:px-8 lg:px-10">
-        <div className="mx-auto max-w-6xl">
+              {t("common:workspace.monogram")}
+            </span>
+            <p className="font-semibold tracking-tight">{t("common:languageLab")}</p>
+          </div>
           <nav
-            aria-label={t("common:workspace.sectionNavigation")}
-            className="mb-7 flex flex-wrap gap-x-5 gap-y-1 border-b border-stone-200 pt-3 sm:mb-9 sm:pt-5"
+            aria-label={t("common:mainNavigation")}
+            className="mt-5 grid grid-cols-4 gap-2 lg:mt-10 lg:grid-cols-1"
           >
-            {workspace.pages.map((item) => (
+            {workspaces.map(({ id, pages }) => (
               <button
-                key={item}
+                key={id}
                 type="button"
-                onClick={() => navigate(item)}
-                aria-current={page === item ? "page" : undefined}
-                className={`border-b-2 py-3 text-sm font-semibold ${page === item ? "border-emerald-700 text-emerald-900" : "border-transparent text-slate-600 hover:text-emerald-900"}`}
+                onClick={() => {
+                  if (workspace.id !== id) navigate(pages[0]);
+                }}
+                aria-current={workspace.id === id ? "true" : undefined}
+                className={`rounded-lg px-1 py-2.5 text-xs font-medium sm:px-3 sm:text-sm lg:px-4 lg:text-left ${workspace.id === id ? "bg-[#def3ad] text-emerald-950" : "text-emerald-50 hover:bg-white/10"}`}
               >
-                {t(`common:workspace.pages.${item}`)}
+                {t(`common:workspace.sections.${id}`)}
               </button>
             ))}
           </nav>
+          <p className="mt-auto hidden text-xs text-emerald-100/70 lg:block">
+            {t("common:v001YourDataStaysOnThisDevice")}
+          </p>
+        </aside>
+      )}
+
+      <main
+        className={focused ? "flex min-w-0 flex-1 flex-col" : "min-w-0 px-4 pb-12 sm:px-8 lg:px-10"}
+      >
+        <div className={focused ? "flex min-h-0 flex-1 flex-col" : "mx-auto max-w-6xl"}>
+          {!focused && (
+            <nav
+              aria-label={t("common:workspace.sectionNavigation")}
+              className="mb-7 flex flex-wrap gap-x-5 gap-y-1 border-b border-stone-200 pt-3 sm:mb-9 sm:pt-5"
+            >
+              {workspace.pages.map((item) => (
+                <button
+                  key={item}
+                  type="button"
+                  onClick={() => navigate(item)}
+                  aria-current={page === item ? "page" : undefined}
+                  className={`border-b-2 py-3 text-sm font-semibold ${page === item ? "border-emerald-700 text-emerald-900" : "border-transparent text-slate-600 hover:text-emerald-900"}`}
+                >
+                  {t(`common:workspace.pages.${item}`)}
+                </button>
+              ))}
+            </nav>
+          )}
           {locale.error && page !== "settings" && (
             <div
               role="status"

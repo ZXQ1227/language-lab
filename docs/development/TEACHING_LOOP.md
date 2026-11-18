@@ -2,10 +2,18 @@
 
 ## Try a lesson
 
-Open **Training**, choose a course and a practice mode, then **Start lesson**.
+Open **Conversation → Training**, review the course vocabulary and sample
+sentences, choose a practice mode, then select **Start lesson**.
 Alternatively, configure or import a course in **Scenarios**, then select
 **Practise this course**. The selected course, level and feedback policy are
 copied into the saved practice session.
+
+An active lesson fills the window. The header shows the current goal and offers
+playback and lesson details. Open **Lesson details** for criteria, course
+materials, vocabulary evidence and saved practice. The conversation scrolls
+independently of the bottom reply controls. Toggle **Keyboard** to show or hide
+the current text draft. **Exit lesson** returns to the practice modes. Reopen
+Training or choose **Continue lesson** on the plan to resume saved turns.
 
 - **Guided demo** is available for the unchanged teaching material in bundled
   courses (level and feedback settings may change). It checks the suggested

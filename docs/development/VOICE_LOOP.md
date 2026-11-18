@@ -20,14 +20,16 @@ uses MP3 (`response_format: mp3`) and the selected speed. A reachable model-list
 endpoint does not prove that its audio models are supported. Existing LLM setup
 does not automatically enable or authorize a speech service.
 
-During Training:
+During Training, the reply controls stay at the bottom of the conversation.
+With recognition enabled, the lesson opens with the recording control ready and
+the keyboard collapsed. Select **Keyboard** to type or return to a draft.
 
 1. Choose **Record reply**, then grant microphone permission. No recording starts
    on page load. Playback stops before capture, and video is never requested.
 2. Choose **Stop and recognize**. Recording also stops after 45 seconds or at the
    5 MB bound. Audio is sent to the configured ASR service and kept only in memory.
-3. Review/edit **Recognized speech**, then choose **Use transcript** or **Append
-   transcript to draft**. An existing draft is preserved. If the combined text
+3. Review or edit **Recognized speech**, then choose **Use transcript** or **Append
+   transcript to draft**. The keyboard opens with the resulting draft. If the combined text
    exceeds 4,000 characters, shorten it explicitly; words are never silently cut.
 4. Choose **Send reply**. Only the confirmed composer text enters teaching. A
    failed checkpoint save keeps the draft/provenance for retry without another

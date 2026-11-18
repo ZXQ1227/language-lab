@@ -102,5 +102,16 @@
     "article": "冠詞",
     "spelling": "拼字"
   },
-  "connectAIUsesTheEndpointConfiguredInSettings": "連線「設定」中配置的 AI 服務：{{endpoint}} · {{model}}。如需更換服務或金鑰，請前往設定。"
+  "connectAIUsesTheEndpointConfiguredInSettings": "連線「設定」中配置的 AI 服務：{{endpoint}} · {{model}}。如需更換服務或金鑰，請前往設定。",
+  "focus": {
+    "preview": "你將練習",
+    "backToPractice": "返回練習方式",
+    "exit": "離開課程",
+    "goalProgress": "已完成 {{completed}} / {{total}} 個目標",
+    "details": "課程詳情",
+    "replyControls": "回覆工具",
+    "keyboard": "鍵盤",
+    "microphoneSetup": "啟用語音辨識後即可錄音回覆。",
+    "hint": "提示"
+  }
 }

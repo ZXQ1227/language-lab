@@ -10,16 +10,19 @@ const sections: Record<string, readonly [string, string]> = {
 };
 
 export async function openWorkspacePage(page: Page, name: string) {
+  const main = page.getByRole("navigation", { name: "Main navigation" });
+  const exit = page.getByRole("button", { name: "Exit lesson", exact: true });
+  if ((await exit.isVisible()) && !(await main.isVisible())) {
+    if (name === "Training") return;
+    await exit.click();
+  }
   const route = sections[name];
   if (!route) {
     await page.getByRole("button", { name, exact: true }).click();
     return;
   }
   const [section, subpage] = route;
-  await page
-    .getByRole("navigation", { name: "Main navigation" })
-    .getByRole("button", { name: section, exact: true })
-    .click();
+  await main.getByRole("button", { name: section, exact: true }).click();
   await page
     .getByRole("navigation", { name: "Section navigation" })
     .getByRole("button", { name: subpage, exact: true })

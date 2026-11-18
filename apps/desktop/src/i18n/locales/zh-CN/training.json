@@ -102,5 +102,16 @@
     "article": "冠词",
     "spelling": "拼写"
   },
-  "connectAIUsesTheEndpointConfiguredInSettings": "连接「设置」中配置的 AI 服务：{{endpoint}} · {{model}}。如需更换服务或密钥，请前往设置。"
+  "connectAIUsesTheEndpointConfiguredInSettings": "连接「设置」中配置的 AI 服务：{{endpoint}} · {{model}}。如需更换服务或密钥，请前往设置。",
+  "focus": {
+    "preview": "你将练习",
+    "backToPractice": "返回练习方式",
+    "exit": "退出课程",
+    "goalProgress": "已完成 {{completed}} / {{total}} 个目标",
+    "details": "课程详情",
+    "replyControls": "回复工具",
+    "keyboard": "键盘",
+    "microphoneSetup": "启用语音识别后即可录音回复。",
+    "hint": "提示"
+  }
 }

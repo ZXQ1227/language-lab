@@ -18,6 +18,7 @@ test("moves from the plan into a lesson, resumes it and opens its completed hist
   await button("Set up lesson").click();
   await button("Start lesson").click();
   await expect(page.getByRole("heading", { name: /^Ordering at a cafe ·/ })).toBeVisible();
+  await button("Exit lesson").click();
   await button("Home").click();
   await expect(page.getByText("In progress", { exact: true })).toBeVisible();
   await button("Continue lesson").click();

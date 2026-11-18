@@ -8,6 +8,7 @@ async function startHotel(page: Page) {
   await openWorkspacePage(page, "Training");
   await page.getByRole("combobox", { name: "Course", exact: true }).selectOption("hotel-checkin");
   await page.getByRole("button", { name: "Start lesson", exact: true }).click();
+  await page.getByText("Lesson details", { exact: true }).click();
   await page.getByText("Vocabulary progress · 0/12 used", { exact: true }).click();
 }
 const checkpoint = (page: Page) =>
@@ -42,6 +43,7 @@ test("tracks authored forms with original evidence, separate turn counts and res
   expect(saved.vocabularyTrackingVersion).toBe(1);
   await page.reload();
   await openWorkspacePage(page, "Training");
+  await page.getByText("Lesson details", { exact: true }).click();
   await page.getByText("Vocabulary progress · 2/12 used", { exact: true }).click();
   await expect(
     page.getByText("key card · Used in 1 practice turn · 2 matches", { exact: true }),

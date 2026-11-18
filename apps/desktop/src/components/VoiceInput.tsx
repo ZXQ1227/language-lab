@@ -28,44 +28,40 @@ export function VoiceInput({
     setText(capture.text ?? "");
   }, [capture.text]);
   const button = "rounded border border-slate-300 bg-white px-3 py-2 text-sm disabled:opacity-40";
+  const showSettings = !voice.settings?.asr.enabled || !!voice.error;
+  const active = capture.phase !== "idle";
+  if (!active && !showSettings) return null;
   return (
     <section
       aria-label={t("speech:voiceInput")}
-      className="space-y-3 rounded border border-slate-200 bg-slate-50 p-4"
+      className="space-y-2 rounded-xl bg-stone-100 px-3 py-2 text-sm"
     >
-      <div className="flex flex-wrap items-center gap-2">
-        <button
-          type="button"
-          className={button}
-          disabled={busy || !voice.settings?.asr.enabled || voice.capturing}
-          onClick={voice.start}
-        >
-          {t("speech:recordReply")}
-        </button>
-        {capture.phase === "recording" && (
-          <button type="button" className={button} onClick={voice.stopRecording}>
-            {t("speech:stopAndRecognize")}
-          </button>
-        )}
-        {capture.phase !== "idle" && (
-          <button type="button" className={button} onClick={voice.cancel}>
-            {t("speech:cancelVoiceInput")}
-          </button>
-        )}
-        <button
-          type="button"
-          className="text-sm underline"
-          disabled={busy || voice.capturing}
-          onClick={() => navigate("settings")}
-        >
-          {t("speech:speechSettings")}
-        </button>
-      </div>
-      <p className="text-xs text-slate-500">
-        {voice.settings?.asr.enabled
-          ? t("speech:recordingGoesToYourConfiguredASREndpointMaximum45Seconds")
-          : t("speech:enableSpeechRecognitionInSettingsToRecordTextRepliesRemain")}
-      </p>
+      {(showSettings || active) && (
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          {showSettings && (
+            <>
+              <p className="text-xs text-slate-600">{t("training:focus.microphoneSetup")}</p>
+              <button
+                type="button"
+                className="text-xs font-semibold text-emerald-900 underline"
+                disabled={busy || voice.capturing}
+                onClick={() => navigate("settings")}
+              >
+                {t("speech:speechSettings")}
+              </button>
+            </>
+          )}
+          {active && (
+            <button
+              type="button"
+              className="text-xs font-semibold underline"
+              onClick={voice.cancel}
+            >
+              {t("speech:cancelVoiceInput")}
+            </button>
+          )}
+        </div>
+      )}
       {voice.error && (
         <p role="alert" className="text-sm text-red-700">
           <LocalizedError error={voice.error} />
@@ -112,7 +108,7 @@ export function VoiceInput({
               onChange={(event) => setText(event.target.value)}
             />
           </label>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-slate-600">
             {capture.confidence === undefined
               ? t("speech:recognitionConfidenceWasNotSupplied")
               : capture.confidence < 0.75

@@ -55,7 +55,8 @@ async function configure(page: Page, playback = true) {
 async function start(page: Page) {
   await openWorkspacePage(page, "Training");
   await nav(page, "Start lesson");
-  await expect(page.getByRole("textbox", { name: "Your reply", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Record reply", exact: true })).toBeEnabled();
+  await expect(page.getByRole("textbox", { name: "Your reply", exact: true })).toBeHidden();
 }
 async function record(page: Page) {
   await nav(page, "Record reply");
@@ -186,6 +187,7 @@ test("retries ASR explicitly, preserves an existing draft and cleans up recordin
   });
   await configure(page, false);
   await start(page);
+  await nav(page, "Keyboard");
   await page
     .getByRole("textbox", { name: "Your reply", exact: true })
     .fill("I would like a latte.");
@@ -245,6 +247,7 @@ test("denied microphone and failed TTS retain the text conversation and allow in
   });
   await nav(page, "Record reply");
   await expect(page.getByRole("alert")).toContainText("Microphone access was denied");
+  await nav(page, "Keyboard");
   await page
     .getByRole("textbox", { name: "Your reply", exact: true })
     .fill("A latte and a muffin, please.");
