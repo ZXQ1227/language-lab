@@ -1,0 +1,16 @@
+{
+  "scenarios": "情境課程",
+  "realLifeConversationScenariosWithClearObjectivesAndTargetVocabulary": "圍繞真實生活情境，練習明確的學習目標與重點詞彙。",
+  "importCourseTemplate": "匯入課程範本",
+  "importedTemplatesAreAvailableForThisVisitExportAJSON": "匯入的範本僅在本次造訪中可用。請匯出 JSON 副本以儲存或分享設定。",
+  "validatingCourseTemplate": "正在驗證課程範本…",
+  "couldNotImportTemplate": "無法匯入範本：",
+  "importedTemplates": "已匯入的範本",
+  "removeImportedTemplate": "移除匯入的範本",
+  "couldNotLoadScenarios": "無法載入情境課程：",
+  "retry": "重試",
+  "loadingScenarioLibrary": "正在載入情境課程庫…",
+  "noScenariosInTheLibraryYet": "課程庫中尚無情境。",
+  "objectives": "學習目標",
+  "targetVocabulary": "重點詞彙"
+}

@@ -71,6 +71,8 @@ test("degrades gracefully when the IPC bridge is unavailable", async ({ page }) 
   await bare.goto("/");
   await expect(bare.getByRole("heading", { name: "Dashboard" })).toBeVisible();
   await expect(bare.getByRole("alert")).toContainText("System check failed");
-  await expect(bare.getByRole("button", { name: "Retry" })).toBeVisible();
+  await expect(
+    bare.getByRole("alert").getByRole("button", { name: "Retry", exact: true }),
+  ).toBeVisible();
   await bare.close();
 });

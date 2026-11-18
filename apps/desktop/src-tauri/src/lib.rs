@@ -3,6 +3,7 @@
 
 pub mod db;
 pub mod secrets;
+pub mod locale;
 
 use std::path::PathBuf;
 use tauri::Manager;
@@ -28,6 +29,11 @@ fn health_check() -> HealthReport {
         os: std::env::consts::OS.to_string(),
         arch: std::env::consts::ARCH.to_string(),
     }
+}
+
+#[tauri::command]
+fn get_system_locale() -> locale::SystemLocaleInfo {
+    locale::read_system_locale()
 }
 
 /// Resolves the app-specific data directory, initializes the SQLite database
@@ -57,6 +63,7 @@ pub fn run() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
             health_check,
+            get_system_locale,
             db::db_execute,
             db::db_select,
             db::db_status,

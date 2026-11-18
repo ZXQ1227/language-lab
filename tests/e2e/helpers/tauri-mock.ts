@@ -17,6 +17,8 @@ export interface MockScenarioRow {
 }
 
 export interface MockState {
+  systemLocale?: string;
+  regionLocale?: string;
   profiles?: {
     id: string;
     user_id: string;
@@ -59,11 +61,27 @@ export async function installTauriMock(page: Page, state?: MockState): Promise<v
     let failNextReviewSave = false;
     let failNextReviewRead = false;
     let failNextSpeechSettings = false;
+    let failNextLocaleSettings = false;
     const secrets = new Map<string, string>();
 
     const invokeFn = async (cmd: string, args?: Record<string, unknown>) => {
       const s = read();
       switch (cmd) {
+        case "get_system_locale":
+          return {
+            systemLocale: s.systemLocale ?? "en-US",
+            regionLocale: s.regionLocale ?? "en-US",
+          };
+        case "test_set_system_locale":
+          write({
+            ...s,
+            systemLocale: String(args?.systemLocale),
+            regionLocale: String(args?.regionLocale ?? args?.systemLocale),
+          });
+          return null;
+        case "test_fail_next_locale_settings":
+          failNextLocaleSettings = true;
+          return null;
         case "test_fail_next_speech_settings":
           failNextSpeechSettings = true;
           return null;
@@ -129,6 +147,10 @@ export async function installTauriMock(page: Page, state?: MockState): Promise<v
             return { rowsAffected: 1, lastInsertId: profile.id };
           }
           if (sql.startsWith("INSERT INTO learning_events")) {
+            if (params[2] === "locale_settings" && failNextLocaleSettings) {
+              failNextLocaleSettings = false;
+              throw new Error("Injected locale preference write failure");
+            }
             if (params[2] === "voice_settings" && failNextSpeechSettings) {
               failNextSpeechSettings = false;
               throw new Error("Injected speech settings write failure");

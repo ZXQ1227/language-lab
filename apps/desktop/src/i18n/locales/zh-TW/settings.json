@@ -1,0 +1,10 @@
+{
+  "settings": "設定",
+  "systemStatusAndProviderConfiguration": "系統狀態與服務設定。",
+  "couldNotReadSystemStatus": "無法讀取系統狀態：",
+  "database": "資料庫",
+  "unavailable": "無法使用",
+  "location": "位置：",
+  "aIProviders": "AI 服務",
+  "aPIKeysAreStoredInTheOSKeyringThroughThe": "API 金鑰透過 Rust 核心儲存在系統安全憑證儲存區。對話模型在開始課程時設定；語音服務在下方設定。"
+}

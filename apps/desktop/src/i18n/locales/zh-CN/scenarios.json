@@ -1,0 +1,16 @@
+{
+  "scenarios": "场景课程",
+  "realLifeConversationScenariosWithClearObjectivesAndTargetVocabulary": "围绕真实生活场景，练习明确的学习目标与重点词汇。",
+  "importCourseTemplate": "导入课程模板",
+  "importedTemplatesAreAvailableForThisVisitExportAJSON": "导入的模板仅在本次访问中可用。请导出 JSON 副本以保存或分享配置。",
+  "validatingCourseTemplate": "正在校验课程模板…",
+  "couldNotImportTemplate": "无法导入模板：",
+  "importedTemplates": "已导入的模板",
+  "removeImportedTemplate": "移除导入的模板",
+  "couldNotLoadScenarios": "无法加载场景课程：",
+  "retry": "重试",
+  "loadingScenarioLibrary": "正在加载场景课程库…",
+  "noScenariosInTheLibraryYet": "课程库中暂无场景。",
+  "objectives": "学习目标",
+  "targetVocabulary": "重点词汇"
+}

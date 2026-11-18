@@ -1,3 +1,6 @@
+import { LocalizedError } from "../components/LocalizedError";
+import { formatDateTime, formatNumber } from "../i18n";
+import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { profileMemorySchema, type LearningProfile } from "@language-lab/memory";
 import { useTrainingStore } from "../stores/training";
@@ -7,6 +10,7 @@ const control = "mt-1 block w-full rounded border border-slate-300 bg-white p-2 
 const button = "rounded bg-slate-900 px-3 py-2 text-sm text-white disabled:opacity-40";
 
 function ProfileEditor({ profile, saved }: { profile: LearningProfile; saved: boolean }) {
+  const { t } = useTranslation();
   const { busy, saveProfile } = useTrainingStore();
   const [language, setLanguage] = useState(profile.targetLanguage);
   const [level, setLevel] = useState(profile.level);
@@ -30,9 +34,7 @@ function ProfileEditor({ profile, saved }: { profile: LearningProfile; saved: bo
             .filter(Boolean),
         });
         if (!parsed.success) {
-          setError(
-            "Use a language code such as en, a CEFR level, and at most 10 goals of 200 characters each.",
-          );
+          setError("common:errors.profileFields");
           return;
         }
         setError(null);
@@ -47,15 +49,15 @@ function ProfileEditor({ profile, saved }: { profile: LearningProfile; saved: bo
     >
       <p className="text-sm text-slate-500">
         {dirty
-          ? "Unsaved profile changes."
+          ? t("memory:unsavedProfileChanges")
           : saved
-            ? "Your stated profile is saved on this device."
-            : "No profile saved yet. Defaults are not an assessment."}{" "}
-        Practice never changes your stated level automatically.
+            ? t("memory:yourStatedProfileIsSavedOnThisDevice")
+            : t("memory:noProfileSavedYetDefaultsAreNotAnAssessment")}{" "}
+        {t("memory:practiceNeverChangesYourStatedLevelAutomatically")}
       </p>
       <div className="grid gap-3 sm:grid-cols-2">
         <label className="text-sm">
-          Target language code
+          {t("memory:targetLanguageCode")}
           <input
             className={control}
             maxLength={35}
@@ -66,7 +68,7 @@ function ProfileEditor({ profile, saved }: { profile: LearningProfile; saved: bo
           />
         </label>
         <label className="text-sm">
-          Your stated level
+          {t("memory:yourStatedLevel")}
           <select
             className={control}
             value={level}
@@ -82,7 +84,7 @@ function ProfileEditor({ profile, saved }: { profile: LearningProfile; saved: bo
         </label>
       </div>
       <label className="block text-sm">
-        Learning goals · one per line
+        {t("memory:learningGoalsOnePerLine")}
         <textarea
           className={control}
           rows={3}
@@ -94,17 +96,18 @@ function ProfileEditor({ profile, saved }: { profile: LearningProfile; saved: bo
       </label>
       {error && (
         <p role="alert" className="text-sm text-red-700">
-          {error}
+          <LocalizedError error={error} />
         </p>
       )}
       <button type="submit" className={button} disabled={busy}>
-        Save profile
+        {t("memory:saveProfile")}
       </button>
     </form>
   );
 }
 
 export function LearningMemoryPage() {
+  const { t } = useTranslation();
   const { learningMemory: memory, loaded, busy, error, load, openLesson } = useTrainingStore();
   const navigate = useNavStore((state) => state.navigate);
   const [language, setLanguage] = useState("");
@@ -123,7 +126,7 @@ export function LearningMemoryPage() {
         })
       }
     >
-      Open source lesson
+      {t("memory:openSourceLesson")}
     </button>
   );
   const matching = (item: { language: string }) =>
@@ -138,17 +141,16 @@ export function LearningMemoryPage() {
     ]),
   ].sort();
   return (
-    <section aria-label="Learning memory" className="mx-auto max-w-5xl space-y-5">
+    <section aria-label={t("memory:learningMemory")} className="mx-auto max-w-5xl space-y-5">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold">Learning memory</h1>
+          <h1 className="text-2xl font-semibold">{t("memory:learningMemory")}</h1>
           <p className="mt-1 text-sm text-slate-500">
-            Your profile, vocabulary observations, language issues and practice history across
-            lessons.
+            {t("memory:yourProfileVocabularyObservationsLanguageIssuesAndPracticeHistoryAcross")}
           </p>
         </div>
         <button type="button" className={button} disabled={busy} onClick={() => void load()}>
-          Refresh memory
+          {t("memory:refreshMemory")}
         </button>
       </div>
       {error && (
@@ -156,25 +158,25 @@ export function LearningMemoryPage() {
           role="alert"
           className="rounded border border-red-200 bg-red-50 p-4 text-sm text-red-700"
         >
-          {error}
+          <LocalizedError error={error} />
           <button
             type="button"
             className="ml-3 underline"
             disabled={busy}
             onClick={() => void load()}
           >
-            Retry memory load
+            {t("memory:retryMemoryLoad")}
           </button>
         </div>
       )}
-      {!memory && !error && <p role="status">Loading learning memory…</p>}
+      {!memory && !error && <p role="status">{t("memory:loadingLearningMemory")}</p>}
       {memory && (
         <>
           <section
-            aria-label="Profile memory"
+            aria-label={t("memory:profileMemory")}
             className="space-y-3 rounded border border-slate-200 bg-white p-5"
           >
-            <h2 className="font-semibold">Profile memory</h2>
+            <h2 className="font-semibold">{t("memory:profileMemory")}</h2>
             <ProfileEditor
               key={JSON.stringify(memory.profile)}
               profile={memory.profile}
@@ -182,7 +184,7 @@ export function LearningMemoryPage() {
             />
           </section>
           <label className="block max-w-xs text-sm">
-            Memory language
+            {t("memory:memoryLanguage")}
             <select
               className={control}
               value={language}
@@ -191,24 +193,26 @@ export function LearningMemoryPage() {
                 setLimit(20);
               }}
             >
-              <option value="">All languages</option>
+              <option value="">{t("memory:allLanguages")}</option>
               {languages.map((item) => (
                 <option key={item}>{item}</option>
               ))}
             </select>
           </label>
           <section
-            aria-label="Knowledge memory"
+            aria-label={t("memory:knowledgeMemory")}
             className="space-y-3 rounded border border-slate-200 bg-white p-5"
           >
-            <h2 className="font-semibold">Knowledge memory · {knowledge.length}</h2>
+            <h2 className="font-semibold">
+              {t("memory:knowledgeMemory2")}
+              {formatNumber(knowledge.length)}
+            </h2>
             <p className="text-sm text-slate-500">
-              Usage is evidence of practice, not correctness or mastery. Guided examples and free
-              conversation are counted separately.
+              {t("memory:usageIsEvidenceOfPracticeNotCorrectnessOrMasteryGuided")}
             </p>
             {!knowledge.length && (
               <p className="text-sm">
-                No vocabulary observations yet. Start a lesson to collect evidence.
+                {t("memory:noVocabularyObservationsYetStartALessonToCollectEvidence")}
               </p>
             )}
             <ul className="divide-y divide-slate-100">
@@ -217,12 +221,15 @@ export function LearningMemoryPage() {
                   <p className="font-medium">
                     {item.item} · {item.language} ·{" "}
                     {item.mastery === "new"
-                      ? "Not used yet"
-                      : "Learning · not a mastery assessment"}
+                      ? t("memory:notUsedYet")
+                      : t("memory:learningNotAMasteryAssessment")}
                   </p>
                   <p>
-                    Practice turns: {item.practiceTurns} · Matches: {item.occurrences} · Guided:{" "}
-                    {item.guidedTurns} · Free conversation: {item.freeTurns}
+                    {t("memory:practiceTurns")}
+                    {formatNumber(item.practiceTurns)} {t("memory:matches")}
+                    {formatNumber(item.occurrences)} {t("memory:guided")}{" "}
+                    {formatNumber(item.guidedTurns)} {t("memory:freeConversation")}
+                    {formatNumber(item.freeTurns)}
                   </p>
                   {item.latest && (
                     <>
@@ -237,25 +244,32 @@ export function LearningMemoryPage() {
             </ul>
           </section>
           <section
-            aria-label="Error memory"
+            aria-label={t("memory:errorMemory")}
             className="space-y-3 rounded border border-slate-200 bg-white p-5"
           >
-            <h2 className="font-semibold">Error memory · {errors.length}</h2>
+            <h2 className="font-semibold">
+              {t("memory:errorMemory2")}
+              {formatNumber(errors.length)}
+            </h2>
             <p className="text-sm text-slate-500">
-              Saved diagnosis observations, not proof of an ongoing mistake. Demo checks are
-              limited; model judgments can be wrong.
+              {t("memory:savedDiagnosisObservationsNotProofOfAnOngoingMistakeDemo")}
             </p>
-            {!errors.length && <p className="text-sm">No diagnosed language issues recorded.</p>}
+            {!errors.length && (
+              <p className="text-sm">{t("memory:noDiagnosedLanguageIssuesRecorded")}</p>
+            )}
             <ul className="divide-y divide-slate-100">
               {errors.slice(0, limit).map((item, index) => (
                 <li key={`${item.language}:${index}`} className="space-y-1 py-3 text-sm">
                   <p className="break-words font-medium">{item.pattern}</p>
                   <p>
-                    {item.language} · {item.category} · Practice replies: {item.count} · Model
-                    observations: {item.modelCount} · Demo observations: {item.guidedCount}
+                    {item.language} · {t(`training:categories.${item.category}`)}{" "}
+                    {t("memory:practiceReplies")}
+                    {formatNumber(item.count)} {t("memory:modelObservations")}
+                    {formatNumber(item.modelCount)} {t("memory:demoObservations")}
+                    {formatNumber(item.guidedCount)}
                   </p>
                   <details>
-                    <summary className="cursor-pointer">Explanation and source</summary>
+                    <summary className="cursor-pointer">{t("memory:explanationAndSource")}</summary>
                     <p className="my-2 break-words">{item.explanation}</p>
                     <blockquote className="break-words">
                       “{item.latest.quote}” · {item.latest.title}
@@ -267,20 +281,25 @@ export function LearningMemoryPage() {
             </ul>
           </section>
           <section
-            aria-label="Episodic memory"
+            aria-label={t("memory:episodicMemory")}
             className="space-y-3 rounded border border-slate-200 bg-white p-5"
           >
-            <h2 className="font-semibold">Episodic memory · {episodes.length}</h2>
-            {!episodes.length && <p className="text-sm">No practice history yet.</p>}
+            <h2 className="font-semibold">
+              {t("memory:episodicMemory2")}
+              {formatNumber(episodes.length)}
+            </h2>
+            {!episodes.length && <p className="text-sm">{t("memory:noPracticeHistoryYet")}</p>}
             <ul className="divide-y divide-slate-100">
               {episodes.slice(0, limit).map((item) => (
                 <li key={item.lessonId} className="space-y-1 py-3 text-sm">
                   <p className="font-medium">
-                    {item.title} · {item.language} · {item.completed ? "Completed" : "In progress"}
+                    {item.title} · {item.language} ·{" "}
+                    {item.completed ? t("memory:completed") : t("memory:inProgress")}
                   </p>
                   <p>{item.summary}</p>
                   <p className="text-xs text-slate-500">
-                    Last saved: {new Date(item.at).toLocaleString()}
+                    {t("memory:lastSaved")}
+                    {formatDateTime(item.at)}
                   </p>
                   {sourceButton(item.lessonId)}
                 </li>
@@ -289,7 +308,7 @@ export function LearningMemoryPage() {
           </section>
           {Math.max(knowledge.length, errors.length, episodes.length) > limit && (
             <button type="button" className={button} onClick={() => setLimit(limit + 20)}>
-              Show more memories
+              {t("memory:showMoreMemories")}
             </button>
           )}
         </>

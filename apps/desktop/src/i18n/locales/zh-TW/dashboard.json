@@ -1,0 +1,18 @@
+{
+  "dashboard": "首頁",
+  "localFirstAIEnglishLearningEverythingRunsOnThisMachine": "本機優先的 AI 英語學習，學習紀錄儲存在本機。",
+  "systemCheckFailed": "系統檢查失敗：",
+  "retry": "重試",
+  "checkingSystem": "正在檢查系統…",
+  "app": "應用程式",
+  "unavailable": "無法使用",
+  "status": "狀態",
+  "v": "v",
+  "platform": "平台",
+  "localDatabase": "本機資料庫",
+  "tables": " 個資料表 ·",
+  "migrations": "次遷移",
+  "nextSession": "下一次練習",
+  "arrivesWithTheFirstTeachingLoop": "將在教學流程接入後開放",
+  "startTrainingComingSoon": "開始練習（即將開放）"
+}

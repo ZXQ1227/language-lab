@@ -1,0 +1,10 @@
+{
+  "settings": "设置",
+  "systemStatusAndProviderConfiguration": "系统状态与服务配置。",
+  "couldNotReadSystemStatus": "无法读取系统状态：",
+  "database": "数据库",
+  "unavailable": "不可用",
+  "location": "位置：",
+  "aIProviders": "AI 服务",
+  "aPIKeysAreStoredInTheOSKeyringThroughThe": "API 密钥通过 Rust 核心保存在系统安全凭据存储中。对话模型在开始课程时配置；语音服务在下方配置。"
+}

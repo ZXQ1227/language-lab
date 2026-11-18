@@ -1,0 +1,93 @@
+{
+  "languageLab": "Language Lab",
+  "localFirstEnglishLearning": "Local-first English learning",
+  "mainNavigation": "Main navigation",
+  "v001YourDataStaysOnThisDevice": "v0.0.1 · your data stays on this device",
+  "plannedForThisPage": "Planned for this page",
+  "nav": {
+    "dashboard": "Dashboard",
+    "scenarios": "Scenarios",
+    "training": "Training",
+    "memory": "Learning memory",
+    "reports": "Reports",
+    "review": "Review",
+    "settings": "Settings"
+  },
+  "dateUnavailable": "Date unavailable",
+  "locale": {
+    "settings": "Language settings",
+    "heading": "Language",
+    "description": "The interface follows your system by default. This does not change the course language, role dialogue or teaching-explanation policy.",
+    "followSystem": "Follow system",
+    "interfaceLanguage": "Interface language",
+    "systemLanguage": "Current system language:",
+    "currentLanguage": "Current interface language:",
+    "region": "System region locale:",
+    "names": {
+      "zh-CN": "Simplified Chinese",
+      "zh-TW": "Traditional Chinese",
+      "en-US": "English"
+    },
+    "errors": {
+      "load": "Language preferences could not be loaded. Your saved choice has not been changed.",
+      "system": "The system language could not be read. The available locale is being used until you retry.",
+      "save": "The language change could not be saved. Your previous choice is still active."
+    },
+    "retry": "Retry language setup",
+    "saving": "Saving language preference…",
+    "systemActive": "Following system language. Changes are checked when the app regains focus.",
+    "manualActive": "Manual language override is saved on this device."
+  },
+  "categories": {
+    "travel": "travel",
+    "dining": "dining",
+    "accommodation": "accommodation",
+    "social": "social",
+    "daily": "daily",
+    "health": "health",
+    "work": "work"
+  },
+  "phases": {
+    "setup": "setup",
+    "briefing": "briefing",
+    "practice": "practice",
+    "debrief": "debrief",
+    "done": "done"
+  },
+  "errors": {
+    "courseFeedbackRange": "Enter whole-number feedback budgets between 0 and 20, and correction intervals between 0 and 10.",
+    "courseExport": "Could not export the template. Try again.",
+    "profileFields": "Use a language code such as en, a CEFR level, and at most 10 goals of 200 characters each.",
+    "templateSize": "Choose a template smaller than 1 MB.",
+    "templateStructure": "This file needs a courseTemplate with roles and practice stages.",
+    "speechLoad": "Could not load speech settings. Retry to preserve your saved configuration.",
+    "speechSave": "Speech settings could not be saved. Check the endpoint, keyring and fields, then retry.",
+    "recordingSize": "Recording reached the 5 MB limit. Record a shorter reply.",
+    "recordingFailed": "Recording failed. Check the microphone and try again, or type your reply.",
+    "recordingEmpty": "No audio was captured. Try recording again.",
+    "recognitionFailed": "Speech recognition failed. Retry recognition, record again, or type your reply.",
+    "playbackTimeout": "Playback took too long. You can retry reading the reply.",
+    "playbackFailed": "Could not play this reply. Try the read button again, or check speech settings.",
+    "enableRecognition": "Enable speech recognition in Settings first",
+    "chooseSpeechProvider": "Choose provider speech in Settings first",
+    "startLesson": "Start or resume a lesson first",
+    "aiKey": "Enter an API key for the current AI connection",
+    "completeBeforeReview": "Complete a course before saving review answers",
+    "sourceMissing": "The source lesson could not be found",
+    "reportMissing": "The saved report could not be found",
+    "reportIncomplete": "This lesson has no completed report",
+    "openReport": "Open a completed report first",
+    "authoredCourse": "Choose a course with authored teaching stages",
+    "customCourseAI": "Connect AI to practise this custom course",
+    "simplerAI": "Connect AI to request simpler English",
+    "turnLimit": "This lesson has reached its 100-turn limit. Start a new practice session.",
+    "generateReview": "Generate targeted review first",
+    "saveAIKey": "Save an API key for this AI connection before starting",
+    "microphoneDenied": "Microphone access was denied. Enable it in system/browser settings, or type your reply.",
+    "microphoneUnavailable": "Microphone recording is unavailable. Check the device and recording support, or type your reply.",
+    "unknown": "The operation could not be completed. Please retry.",
+    "details": "Technical details:",
+    "missingKey": "Save an API key for this {{kind}} endpoint in Settings first",
+    "missingVoice": "No installed device voice is available for {{language}}. Choose a TTS provider in Settings or use text."
+  }
+}

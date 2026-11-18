@@ -118,3 +118,13 @@ what still needs validation; do not silently skip it or describe it as passed.
 - `desktop-build.yml`: push to main / manual — unsigned macOS universal and
   Windows NSIS/MSI bundles as artifacts. Signing is a v0.1 release
   prerequisite (see ADR-0007).
+
+## UI language (Task 03)
+
+Use i18next/react-i18next resources for all new UI copy from the start. Maintain
+simplified Chinese, traditional Chinese and English together. Use the shared Intl
+formatters for UI dates/numbers, and leave learning content in its own language.
+See [Task 03](TASK_03_UI_FOUNDATION.md) for acceptance and native manual checks.
+The small native locale harness runs without Tauri/GTK:
+`cargo test --locked --manifest-path tests/native-locale/Cargo.toml`; CI runs it
+on Linux, macOS and Windows. Full native app validation remains separate.

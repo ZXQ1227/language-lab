@@ -1,0 +1,16 @@
+{
+  "scenarios": "Scenarios",
+  "realLifeConversationScenariosWithClearObjectivesAndTargetVocabulary": "Real-life conversation scenarios with clear objectives and target vocabulary.",
+  "importCourseTemplate": "Import course template",
+  "importedTemplatesAreAvailableForThisVisitExportAJSON": "Imported templates are available for this visit. Export a JSON copy to keep or share a configuration.",
+  "validatingCourseTemplate": "Validating course template…",
+  "couldNotImportTemplate": "Could not import template: ",
+  "importedTemplates": "Imported templates",
+  "removeImportedTemplate": "Remove imported template",
+  "couldNotLoadScenarios": "Could not load scenarios: ",
+  "retry": "Retry",
+  "loadingScenarioLibrary": "Loading scenario library…",
+  "noScenariosInTheLibraryYet": "No scenarios in the library yet.",
+  "objectives": "Objectives",
+  "targetVocabulary": "Target vocabulary"
+}

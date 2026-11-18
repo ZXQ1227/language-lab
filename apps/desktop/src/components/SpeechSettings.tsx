@@ -1,13 +1,16 @@
+import { LocalizedError } from "./LocalizedError";
+import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { useSpeechStore } from "../stores/speech";
 import type { SpeechSettings as Settings } from "../speech/settings";
 
 const control = "mt-1 block w-full rounded border border-slate-300 bg-white p-2 text-sm";
 function Editor({ saved }: { saved: Settings }) {
+  const { t } = useTranslation();
   const { save, busy } = useSpeechStore();
   const [draft, setDraft] = useState(saved);
   const [keys, setKeys] = useState({ asr: "", tts: "" });
-  const [message, setMessage] = useState("");
+  const [savedMessage, setSavedMessage] = useState(false);
   const dirty = JSON.stringify(draft) !== JSON.stringify(saved) || !!keys.asr || !!keys.tts;
   return (
     <form
@@ -18,15 +21,13 @@ function Editor({ saved }: { saved: Settings }) {
           if (success) {
             setDraft(useSpeechStore.getState().settings!);
             setKeys({ asr: "", tts: "" });
-            setMessage("Speech settings saved on this device.");
+            setSavedMessage(true);
           }
         });
       }}
     >
       <p className="text-sm text-slate-600">
-        Recognition sends your recording to the ASR endpoint you enable. Provider playback sends
-        reply text to your TTS endpoint. Device playback uses installed local voices. Audio stays in
-        memory and is not saved with lessons.
+        {t("speech:recognitionSendsYourRecordingToTheASREndpointYouEnable")}
       </p>
       <label className="flex gap-2 text-sm">
         <input
@@ -35,12 +36,12 @@ function Editor({ saved }: { saved: Settings }) {
           checked={draft.asr.enabled}
           onChange={(e) => setDraft({ ...draft, asr: { ...draft.asr, enabled: e.target.checked } })}
         />
-        Enable speech recognition
+        {t("speech:enableSpeechRecognition")}
       </label>
       {draft.asr.enabled && (
         <fieldset className="space-y-3" disabled={busy}>
           <label className="block text-sm">
-            ASR endpoint
+            {t("speech:aSREndpoint")}
             <input
               className={control}
               type="url"
@@ -52,7 +53,7 @@ function Editor({ saved }: { saved: Settings }) {
             />
           </label>
           <label className="block text-sm">
-            ASR model
+            {t("speech:aSRModel")}
             <input
               className={control}
               required
@@ -62,7 +63,7 @@ function Editor({ saved }: { saved: Settings }) {
             />
           </label>
           <label className="block text-sm">
-            ASR API key · leave blank to keep saved key
+            {t("speech:aSRAPIKeyLeaveBlankToKeepSavedKey")}
             <input
               className={control}
               type="password"
@@ -74,7 +75,7 @@ function Editor({ saved }: { saved: Settings }) {
         </fieldset>
       )}
       <label className="block text-sm">
-        Reply playback
+        {t("speech:replyPlayback")}
         <select
           className={control}
           disabled={busy}
@@ -86,15 +87,15 @@ function Editor({ saved }: { saved: Settings }) {
             })
           }
         >
-          <option value="off">Off</option>
-          <option value="system">Device voice · installed local voices</option>
-          <option value="provider">OpenAI-compatible TTS provider</option>
+          <option value="off">{t("speech:off")}</option>
+          <option value="system">{t("speech:deviceVoiceInstalledLocalVoices")}</option>
+          <option value="provider">{t("speech:openAICompatibleTTSProvider")}</option>
         </select>
       </label>
       {draft.tts.mode === "provider" && (
         <fieldset className="space-y-3" disabled={busy}>
           <label className="block text-sm">
-            TTS endpoint
+            {t("speech:tTSEndpoint")}
             <input
               className={control}
               type="url"
@@ -106,7 +107,7 @@ function Editor({ saved }: { saved: Settings }) {
             />
           </label>
           <label className="block text-sm">
-            TTS model
+            {t("speech:tTSModel")}
             <input
               className={control}
               required
@@ -116,7 +117,7 @@ function Editor({ saved }: { saved: Settings }) {
             />
           </label>
           <label className="block text-sm">
-            TTS voice
+            {t("speech:tTSVoice")}
             <input
               className={control}
               required
@@ -126,7 +127,7 @@ function Editor({ saved }: { saved: Settings }) {
             />
           </label>
           <label className="block text-sm">
-            TTS API key · leave blank to keep saved key
+            {t("speech:tTSAPIKeyLeaveBlankToKeepSavedKey")}
             <input
               className={control}
               type="password"
@@ -140,7 +141,7 @@ function Editor({ saved }: { saved: Settings }) {
       {draft.tts.mode !== "off" && (
         <>
           <label className="block max-w-xs text-sm">
-            Playback speed
+            {t("speech:playbackSpeed")}
             <select
               className={control}
               disabled={busy}
@@ -149,9 +150,9 @@ function Editor({ saved }: { saved: Settings }) {
                 setDraft({ ...draft, tts: { ...draft.tts, rate: Number(e.target.value) } })
               }
             >
-              <option value={0.8}>Slow · 0.8×</option>
-              <option value={1}>Normal · 1×</option>
-              <option value={1.2}>Fast · 1.2×</option>
+              <option value={0.8}>{t("speech:slow08")}</option>
+              <option value={1}>{t("speech:normal1")}</option>
+              <option value={1.2}>{t("speech:fast12")}</option>
             </select>
           </label>
           <label className="flex gap-2 text-sm">
@@ -163,50 +164,49 @@ function Editor({ saved }: { saved: Settings }) {
                 setDraft({ ...draft, tts: { ...draft.tts, autoRead: e.target.checked } })
               }
             />
-            Read new saved partner replies automatically
+            {t("speech:readNewSavedPartnerRepliesAutomatically")}
           </label>
         </>
       )}
       <p className="text-xs text-slate-500">
-        OpenAI-compatible /audio/transcriptions and /audio/speech endpoints. HTTP is allowed only
-        for localhost. API keys are kept in the OS keyring and are scoped separately to each
-        endpoint.
+        {t("speech:openAICompatibleAudioTranscriptionsAndAudioSpeechEndpointsHTTPIs")}
       </p>
       <p role="status" className="text-xs text-slate-500">
-        {dirty ? "Unsaved speech settings." : message}
+        {dirty ? t("speech:unsavedSpeechSettings") : savedMessage ? t("speech:savedOnDevice") : ""}
       </p>
       <button
         type="submit"
         className="rounded bg-slate-900 px-3 py-2 text-sm text-white disabled:opacity-40"
         disabled={busy}
       >
-        Save speech settings
+        {t("speech:saveSpeechSettings")}
       </button>
     </form>
   );
 }
 export function SpeechSettings() {
+  const { t } = useTranslation();
   const { settings, busy, error, load } = useSpeechStore();
   useEffect(() => {
     if (!settings) void load();
   }, [settings, load]);
   return (
     <section
-      aria-label="Speech settings"
+      aria-label={t("speech:speechSettings")}
       className="space-y-3 rounded border border-slate-200 bg-white p-5"
     >
-      <h2 className="font-semibold">Speech input and playback</h2>
+      <h2 className="font-semibold">{t("speech:speechInputAndPlayback")}</h2>
       {error && (
         <p role="alert" className="text-sm text-red-700">
-          {error}{" "}
+          <LocalizedError error={error} />{" "}
           {!settings && (
             <button className="ml-2 underline" disabled={busy} onClick={() => void load()}>
-              Retry speech settings
+              {t("speech:retrySpeechSettings")}
             </button>
           )}
         </p>
       )}
-      {!settings && !error && <p role="status">Loading speech settings…</p>}
+      {!settings && !error && <p role="status">{t("speech:loadingSpeechSettings")}</p>}
       {settings && <Editor saved={settings} />}
     </section>
   );
