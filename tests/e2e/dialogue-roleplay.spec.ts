@@ -1,11 +1,14 @@
 import { expect, test, type Page } from "@playwright/test";
 import hotel from "../../content/scenarios/hotel-checkin.json";
-import { installTauriMock } from "./helpers/tauri-mock";
+import { configureAiConnection, installTauriMock } from "./helpers/tauri-mock";
 
 async function openHotel(page: Page) {
   await installTauriMock(page);
   await page.goto("/");
   await page.getByRole("button", { name: "Training", exact: true }).click();
+  // Configure the AI connection before picking the course: navigating to
+  // Settings resets this page's local course selection state.
+  await configureAiConnection(page, { model: "test-character" });
   await page.getByRole("combobox", { name: "Course", exact: true }).selectOption("hotel-checkin");
 }
 
@@ -49,7 +52,6 @@ async function mockAi(
     });
   });
   await page.getByLabel("Practice mode").selectOption("ai");
-  await page.getByLabel("Model", { exact: true }).fill("test-character");
   await page.getByRole("button", { name: "Start lesson", exact: true }).click();
 }
 

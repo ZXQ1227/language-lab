@@ -6,5 +6,14 @@
   "unavailable": "unavailable",
   "location": "Location: ",
   "aIProviders": "AI providers",
-  "aPIKeysAreStoredInTheOSKeyringThroughThe": "API keys are stored in the OS keyring through the Rust core. Configure the conversation model when starting a lesson; speech providers are configured below."
+  "aPIKeysAreStoredInTheOSKeyringThroughThe": "API keys are stored in the OS keyring through the Rust core and never written to the database.",
+  "aIConnection": "AI connection",
+  "aIEndpoint": "AI endpoint",
+  "model": "Model",
+  "aPIKeyLeaveBlankToKeepSavedKey": "API key (leave blank to keep the saved key)",
+  "useAnOpenAICompatibleEndpointAPIKeysAreSavedIn": "Use an OpenAI-compatible endpoint. API keys are saved in the OS keyring; replies are sent to the selected model.",
+  "unsavedAIConnection": "The AI connection has unsaved changes.",
+  "savedOnDevice": "Saved on this device.",
+  "saveAIConnection": "Save AI connection",
+  "loadingAIConnection": "Loading AI connection settings…"
 }

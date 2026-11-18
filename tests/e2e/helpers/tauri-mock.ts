@@ -40,6 +40,17 @@ export interface MockState {
     created_at: number;
     updated_at: number;
   }[];
+  /** Non-checkpoint learning_events rows (locale/voice/model settings). */
+  settingsRows?: {
+    id: string;
+    user_id: string;
+    lesson_id: null;
+    type: string;
+    payload: string;
+    occurred_at: number;
+    created_at: number;
+    updated_at: number;
+  }[];
 }
 
 export async function installTauriMock(page: Page, state?: MockState): Promise<void> {
@@ -178,6 +189,20 @@ export async function installTauriMock(page: Page, state?: MockState): Promise<v
               updated_at: Number(params[4]),
             };
             const checkpoints = s.trainingCheckpoints ?? [];
+            // Settings-type rows live apart from checkpoints so tests that
+            // read trainingCheckpoints[0] are not polluted by UI settings.
+            const settings = s.settingsRows ?? [];
+            const settingsIndex = settings.findIndex((item) => item.id === row.id);
+            if (row.type !== "training_checkpoint" && params.length === 5) {
+              if (settingsIndex < 0) settings.push(row);
+              else
+                settings[settingsIndex] = {
+                  ...row,
+                  created_at: settings[settingsIndex]!.created_at,
+                };
+              write({ ...s, settingsRows: settings });
+              return { rowsAffected: 1, lastInsertId: row.id };
+            }
             const index = checkpoints.findIndex((item) => item.id === row.id);
             if (index < 0) checkpoints.push(row);
             else checkpoints[index] = { ...row, created_at: checkpoints[index]!.created_at };
@@ -278,7 +303,7 @@ export async function installTauriMock(page: Page, state?: MockState): Promise<v
               failNextMemoryRead = false;
               throw new Error("Injected memory read failure");
             }
-            const rows = [...(s.trainingCheckpoints ?? [])];
+            const rows = [...(s.trainingCheckpoints ?? []), ...(s.settingsRows ?? [])];
             if (sql.includes("WHERE id ="))
               return rows.filter(
                 (row) =>
@@ -334,4 +359,30 @@ export async function uninstallTauriMock(page: Page): Promise<void> {
       get: () => undefined,
     });
   });
+}
+
+/**
+ * Configures the AI connection (AI 基座) through the Settings page, exactly as
+ * a user would, then returns to the Training page. Replaces the old in-lesson
+ * endpoint/model/key form which now lives only in Settings.
+ */
+export async function configureAiConnection(
+  page: Page,
+  config: { endpoint?: string; model: string; apiKey?: string },
+): Promise<void> {
+  const { expect } = await import("@playwright/test");
+  await page.getByRole("button", { name: "Settings", exact: true }).click();
+  if (config.endpoint) {
+    await page.getByLabel("AI endpoint", { exact: true }).fill(config.endpoint);
+  }
+  await page.getByLabel("Model", { exact: true }).fill(config.model);
+  if (config.apiKey) {
+    await page
+      .getByLabel("API key (leave blank to keep the saved key)", { exact: true })
+      .fill(config.apiKey);
+  }
+  await page.getByRole("button", { name: "Save AI connection", exact: true }).click();
+  await expect(page.getByText("Saved on this device.", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Training", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Start lesson", exact: true })).toBeVisible();
 }

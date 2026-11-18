@@ -7,10 +7,6 @@
   "guidedDemo": "引導示範",
   "connectedAI": "連接 AI",
   "theGuidedDemoChecksSuggestedExampleRepliesOnlyConnectAI": "引導示範只檢查建議的範例回覆。連接 AI 可進行自由對話與評估。",
-  "aIEndpoint": "AI 服務位址",
-  "model": "模型",
-  "aPIKeyOptionalForLocalModels": "API 金鑰（本機模型可不填）",
-  "useAnOpenAICompatibleEndpointAPIKeysAreSavedIn": "請使用相容 OpenAI 的服務位址。API 金鑰儲存在系統安全憑證儲存區；回覆內容將傳送至所選模型。",
   "starting": "正在開始…",
   "startLesson": "開始課程",
   "training": "練習",
@@ -65,9 +61,6 @@
   "sendReply": "傳送回覆",
   "preparingReview": "正在準備回顧…",
   "finishAndReview": "完成並回顧",
-  "updateConnectionKey": "更新連接金鑰",
-  "aPIKey": "API 金鑰",
-  "saveAPIKey": "儲存 API 金鑰",
   "affectsMeaning": "影響意思",
   "form": "形式",
   "reply": "回覆",
@@ -108,5 +101,6 @@
     "tense": "時態",
     "article": "冠詞",
     "spelling": "拼字"
-  }
+  },
+  "connectAIUsesTheEndpointConfiguredInSettings": "連線「設定」中配置的 AI 服務：{{endpoint}} · {{model}}。如需更換服務或金鑰，請前往設定。"
 }

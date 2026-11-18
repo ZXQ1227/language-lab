@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { installTauriMock } from "./helpers/tauri-mock";
+import { configureAiConnection, installTauriMock } from "./helpers/tauri-mock";
 
 async function prepareHotel(page: Page) {
   await installTauriMock(page);
@@ -182,8 +182,8 @@ test("requires an actual recast from connected AI and bounds delivery repair bef
       body: JSON.stringify({ choices: [{ message: { content: JSON.stringify(output) } }] }),
     });
   });
+  await configureAiConnection(page, { model: "test-intervention" });
   await page.getByLabel("Practice mode").selectOption("ai");
-  await page.getByLabel("Model", { exact: true }).fill("test-intervention");
   await page.getByRole("button", { name: "Start lesson", exact: true }).click();
   const original = await checkpoint(page);
   await send(page, "I go yesterday. Is breakfast included?", false);

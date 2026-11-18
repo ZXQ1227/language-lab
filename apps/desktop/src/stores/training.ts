@@ -74,7 +74,6 @@ interface TrainingStore {
   send: (utterance: string, speech?: SpeechInput) => Promise<boolean>;
   requestSupport: (request: DialogueSupport) => Promise<boolean>;
   finish: () => Promise<void>;
-  updateKey: (key: string) => Promise<void>;
   saveReviewAnswers: (answers: Record<string, string>) => Promise<boolean>;
 }
 
@@ -254,14 +253,6 @@ export const useTrainingStore = create<TrainingStore>((set, get) => {
           ),
         );
       }),
-    updateKey: async (key) => {
-      await operation(async () => {
-        const current = get().session;
-        if (!current || current.provider.mode !== "ai" || !key.trim())
-          throw new Error("Enter an API key for the current AI connection");
-        await saveTrainingKey(current.provider, key.trim());
-      });
-    },
     saveReviewAnswers: async (answers) =>
       operation(async () => {
         const current = get().session;

@@ -21,7 +21,11 @@ const nav = (page: Page, name: string) => page.getByRole("button", { name, exact
 const rows = (page: Page) =>
   page.evaluate(
     () =>
-      JSON.parse(sessionStorage.getItem("language-lab-e2e-state")!).trainingCheckpoints as {
+      [
+        ...(JSON.parse(sessionStorage.getItem("language-lab-e2e-state")!).trainingCheckpoints ??
+          []),
+        ...(JSON.parse(sessionStorage.getItem("language-lab-e2e-state")!).settingsRows ?? []),
+      ] as {
         type: string;
         payload: string;
       }[],

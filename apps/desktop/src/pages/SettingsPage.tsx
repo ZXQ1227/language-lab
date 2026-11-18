@@ -2,11 +2,12 @@ import { LocalizedError } from "../components/LocalizedError";
 import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
 import { useSystemStore } from "../stores/system";
+import { AiProviderSettings } from "../components/AiProviderSettings";
 import { SpeechSettings } from "../components/SpeechSettings";
 import { LocaleSettings } from "../components/LocaleSettings";
 
-// System facts and speech configuration. Credentials use the OS keyring via
-// the Rust core; conversation-model configuration stays with lesson setup.
+// System facts and provider configuration. Credentials use the OS keyring via
+// the Rust core; the conversation model (AI 基座) is configured right here.
 
 export function SettingsPage() {
   const { t } = useTranslation();
@@ -49,12 +50,7 @@ export function SettingsPage() {
         </p>
       </div>
 
-      <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-        <h2 className="text-sm font-semibold text-slate-700">{t("settings:aIProviders")}</h2>
-        <p className="mt-2 text-sm text-slate-600">
-          {t("settings:aPIKeysAreStoredInTheOSKeyringThroughThe")}
-        </p>
-      </div>
+      <AiProviderSettings />
       <LocaleSettings />
       <SpeechSettings />
     </section>

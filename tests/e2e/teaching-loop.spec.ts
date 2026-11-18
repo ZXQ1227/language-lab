@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { installTauriMock } from "./helpers/tauri-mock";
+import { configureAiConnection, installTauriMock } from "./helpers/tauri-mock";
 
 test.beforeEach(async ({ page }) => {
   await installTauriMock(page);
@@ -157,11 +157,11 @@ test("connected AI rejects invented citations, then completes a free-form lesson
       body: JSON.stringify({ choices: [{ message: { content: JSON.stringify(output) } }] }),
     });
   });
+  await configureAiConnection(page, {
+    model: "test-model",
+    apiKey: "test-secret-should-stay-in-keyring",
+  });
   await page.getByLabel("Practice mode").selectOption("ai");
-  await page.getByLabel("Model", { exact: true }).fill("test-model");
-  await page
-    .getByLabel("API key (optional for local models)")
-    .fill("test-secret-should-stay-in-keyring");
   await page.getByRole("button", { name: "Start lesson", exact: true }).click();
   const replies = [
     "Could I have a latte and a muffin, please?",

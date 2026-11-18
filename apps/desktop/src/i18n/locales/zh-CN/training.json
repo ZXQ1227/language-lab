@@ -7,10 +7,6 @@
   "guidedDemo": "引导示范",
   "connectedAI": "连接 AI",
   "theGuidedDemoChecksSuggestedExampleRepliesOnlyConnectAI": "引导示范只检查建议的示例回复。连接 AI 可进行自由对话与评估。",
-  "aIEndpoint": "AI 服务地址",
-  "model": "模型",
-  "aPIKeyOptionalForLocalModels": "API 密钥（本地模型可不填）",
-  "useAnOpenAICompatibleEndpointAPIKeysAreSavedIn": "请使用兼容 OpenAI 的服务地址。API 密钥保存在系统安全凭据存储中；回复内容将发送到所选模型。",
   "starting": "正在开始…",
   "startLesson": "开始课程",
   "training": "训练",
@@ -65,9 +61,6 @@
   "sendReply": "发送回复",
   "preparingReview": "正在准备回顾…",
   "finishAndReview": "完成并回顾",
-  "updateConnectionKey": "更新连接密钥",
-  "aPIKey": "API 密钥",
-  "saveAPIKey": "保存 API 密钥",
   "affectsMeaning": "影响意思",
   "form": "形式",
   "reply": "回复",
@@ -108,5 +101,6 @@
     "tense": "时态",
     "article": "冠词",
     "spelling": "拼写"
-  }
+  },
+  "connectAIUsesTheEndpointConfiguredInSettings": "连接「设置」中配置的 AI 服务：{{endpoint}} · {{model}}。如需更换服务或密钥，请前往设置。"
 }

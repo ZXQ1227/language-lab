@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { installTauriMock } from "./helpers/tauri-mock";
+import { configureAiConnection, installTauriMock } from "./helpers/tauri-mock";
 
 const utterance = "I go yesterday and I have a reserve.";
 function diagnose(text: string, confidence = "high") {
@@ -105,8 +105,8 @@ async function startHotel(
       body: JSON.stringify({ choices: [{ message: { content: JSON.stringify(output) } }] }),
     });
   });
+  await configureAiConnection(page, { model: "test-diagnosis" });
   await page.getByLabel("Practice mode").selectOption("ai");
-  await page.getByLabel("Model", { exact: true }).fill("test-diagnosis");
   await page.getByRole("button", { name: "Start lesson", exact: true }).click();
   return { diagnosisCalls: () => diagnosisCalls };
 }

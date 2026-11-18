@@ -12,8 +12,8 @@ async function setSystem(page: Page, systemLocale: string, regionLocale = system
 async function preferences(page: Page) {
   return page.evaluate(() => {
     const state = JSON.parse(sessionStorage.getItem("language-lab-e2e-state")!);
-    return (state.trainingCheckpoints ?? []).filter(
-      (row: { type: string }) => row.type === "locale_settings",
+    return ((state.settingsRows ?? []) as { type: string; payload: string }[]).filter(
+      (row) => row.type === "locale_settings",
     );
   });
 }
@@ -61,7 +61,7 @@ test("persists manual override, ignores OS changes, and re-reads when following 
   await expect(page.getByRole("combobox", { name: "介面語言", exact: true })).toBeDisabled();
   const rows = await preferences(page);
   expect(rows).toHaveLength(1);
-  expect(JSON.parse(rows[0].payload)).toEqual({ version: 1, localeMode: "system" });
+  expect(JSON.parse(rows[0]!.payload)).toEqual({ version: 1, localeMode: "system" });
   await setSystem(page, "en-US");
   await page.evaluate(() => window.dispatchEvent(new Event("focus")));
   await expect(page.locator("html")).toHaveAttribute("lang", "en-US");

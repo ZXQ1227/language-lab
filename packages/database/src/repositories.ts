@@ -345,6 +345,29 @@ export class LearningEventsRepo extends BaseRepo {
       ],
     );
   }
+  async findModelSettings(): Promise<S.LearningEventRow | null> {
+    const rows = parse(
+      S.learningEventRow,
+      await this.db.select(
+        "SELECT * FROM learning_events WHERE id = ?1 AND user_id = ?2 AND type = ?3",
+        ["model-settings-local-training-user", "local-training-user", "model_settings"],
+      ),
+    );
+    return rows[0] ?? null;
+  }
+  async saveModelSettings(payload: Record<string, unknown>): Promise<void> {
+    const ts = nowMs();
+    await this.db.execute(
+      "INSERT INTO learning_events (id, user_id, lesson_id, type, payload, occurred_at, created_at, updated_at) VALUES (?1, ?2, NULL, ?3, ?4, ?5, ?5, ?5) ON CONFLICT(id) DO UPDATE SET payload = excluded.payload, updated_at = excluded.updated_at",
+      [
+        "model-settings-local-training-user",
+        "local-training-user",
+        "model_settings",
+        JSON.stringify(payload),
+        ts,
+      ],
+    );
+  }
   /** One atomic checkpoint contains the transcript, evidence, events and state. */
   async saveTrainingCheckpoint(input: {
     id: string;

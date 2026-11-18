@@ -18,6 +18,8 @@ import { VoiceInput } from "../components/VoiceInput";
 import { useSpeechLoop } from "../speech/useSpeechLoop";
 import { loadScenarioContent } from "../content/scenarioContent";
 import { useTrainingStore } from "../stores/training";
+import { useAiProviderStore } from "../stores/aiProvider";
+import { toTrainingProvider } from "../training/provider";
 import { getGuidedExample, supportsGuidedDemo, type TrainingProvider } from "../training/session";
 
 const courses = loadScenarioContent();
@@ -28,13 +30,15 @@ const control = "mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py
 function LessonSetup({ course }: { course: ScenarioContent }) {
   const { t } = useTranslation();
   const { start, busy } = useTrainingStore();
+  const providerSettings = useAiProviderStore((s) => s.settings);
+  const loadProvider = useAiProviderStore((s) => s.load);
   const [mode, setMode] = useState<"demo" | "ai">("demo");
-  const [baseUrl, setBaseUrl] = useState("http://localhost:11434/v1");
-  const [model, setModel] = useState("llama3.2");
-  const [key, setKey] = useState("");
   const [variationId, setVariationId] = useState(
     course.courseTemplate?.selectedVariationId ?? "standard",
   );
+  useEffect(() => {
+    void loadProvider();
+  }, [loadProvider]);
   const configured = course.courseTemplate?.learningPack
     ? configureScenarioContent(course, { variationId })
     : course;
@@ -46,8 +50,8 @@ function LessonSetup({ course }: { course: ScenarioContent }) {
       onSubmit={(event) => {
         event.preventDefault();
         const provider: TrainingProvider =
-          selectedMode === "demo" ? { mode: "demo" } : { mode: "ai", baseUrl, model };
-        void start(configured, provider, key).finally(() => setKey(""));
+          selectedMode === "demo" ? { mode: "demo" } : toTrainingProvider(providerSettings);
+        void start(configured, provider);
       }}
     >
       <h2 className="font-semibold">
@@ -101,43 +105,12 @@ function LessonSetup({ course }: { course: ScenarioContent }) {
           {t("training:theGuidedDemoChecksSuggestedExampleRepliesOnlyConnectAI")}
         </p>
       ) : (
-        <>
-          <label className="block text-sm">
-            {t("training:aIEndpoint")}
-            <input
-              className={control}
-              type="url"
-              required
-              value={baseUrl}
-              disabled={busy}
-              onChange={(event) => setBaseUrl(event.target.value)}
-            />
-          </label>
-          <label className="block text-sm">
-            {t("training:model")}
-            <input
-              className={control}
-              required
-              value={model}
-              disabled={busy}
-              onChange={(event) => setModel(event.target.value)}
-            />
-          </label>
-          <label className="block text-sm">
-            {t("training:aPIKeyOptionalForLocalModels")}
-            <input
-              className={control}
-              type="password"
-              autoComplete="off"
-              value={key}
-              disabled={busy}
-              onChange={(event) => setKey(event.target.value)}
-            />
-          </label>
-          <p className="text-xs text-slate-500">
-            {t("training:useAnOpenAICompatibleEndpointAPIKeysAreSavedIn")}
-          </p>
-        </>
+        <p className="text-sm text-slate-500">
+          {t("training:connectAIUsesTheEndpointConfiguredInSettings", {
+            endpoint: providerSettings.baseUrl,
+            model: providerSettings.model,
+          })}
+        </p>
       )}
       <button className={button} disabled={busy} type="submit">
         {busy ? t("training:starting") : t("training:startLesson")}
@@ -161,7 +134,6 @@ export function TrainingPage() {
     send,
     requestSupport,
     finish,
-    updateKey,
     saveReviewAnswers,
   } = useTrainingStore();
   const [courseSlug, setCourseSlug] = useState(courses[0]!.slug);
@@ -169,7 +141,6 @@ export function TrainingPage() {
   const [speechDraft, setSpeechDraft] = useState<{ input: SpeechInput; recognized: string } | null>(
     null,
   );
-  const [key, setKey] = useState("");
   const language = session?.state.courseTemplate?.targetLanguage ?? "en";
   const voice = useSpeechLoop(session?.id, language);
   const readSavedReply = (saved: boolean, lessonId: string) => {
@@ -185,7 +156,6 @@ export function TrainingPage() {
   useEffect(() => {
     setReply("");
     setSpeechDraft(null);
-    setKey("");
   }, [session?.id]);
   const course = pendingCourse ?? courses.find((item) => item.slug === courseSlug)!;
   const stage = session ? getCurrentCourseStage(session.state) : undefined;
@@ -620,32 +590,6 @@ export function TrainingPage() {
                 </button>
               )}
               {session.report && <LearningReport session={session} />}
-              {session.provider.mode === "ai" && (
-                <details className="text-sm">
-                  <summary className="cursor-pointer">{t("training:updateConnectionKey")}</summary>
-                  <form
-                    className="mt-3 space-y-2"
-                    onSubmit={(event) => {
-                      event.preventDefault();
-                      void updateKey(key).finally(() => setKey(""));
-                    }}
-                  >
-                    <label>
-                      {t("training:aPIKey")}
-                      <input
-                        className={control}
-                        type="password"
-                        autoComplete="off"
-                        value={key}
-                        onChange={(event) => setKey(event.target.value)}
-                      />
-                    </label>
-                    <button type="submit" className={button} disabled={busy || !key.trim()}>
-                      {t("training:saveAPIKey")}
-                    </button>
-                  </form>
-                </details>
-              )}
               {session.report && session.state.courseTemplate?.learningPack && (
                 <CourseReviewPractice
                   key={session.id}

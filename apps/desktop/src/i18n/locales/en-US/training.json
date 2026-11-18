@@ -7,10 +7,6 @@
   "guidedDemo": "Guided demo",
   "connectedAI": "Connected AI",
   "theGuidedDemoChecksSuggestedExampleRepliesOnlyConnectAI": "The guided demo checks suggested example replies only. Connect AI for free-form conversation and assessment.",
-  "aIEndpoint": "AI endpoint",
-  "model": "Model",
-  "aPIKeyOptionalForLocalModels": "API key (optional for local models)",
-  "useAnOpenAICompatibleEndpointAPIKeysAreSavedIn": "Use an OpenAI-compatible endpoint. API keys are saved in the OS keyring; your replies are sent to the selected model.",
   "starting": "Starting…",
   "startLesson": "Start lesson",
   "training": "Training",
@@ -65,9 +61,6 @@
   "sendReply": "Send reply",
   "preparingReview": "Preparing review…",
   "finishAndReview": "Finish and review",
-  "updateConnectionKey": "Update connection key",
-  "aPIKey": "API key",
-  "saveAPIKey": "Save API key",
   "affectsMeaning": "Affects meaning",
   "form": "Form",
   "reply": "Reply ",
@@ -108,5 +101,6 @@
     "tense": "Tense",
     "article": "Article",
     "spelling": "Spelling"
-  }
+  },
+  "connectAIUsesTheEndpointConfiguredInSettings": "Uses the AI connection configured in Settings: {{endpoint}} · {{model}}. Change it in Settings."
 }
