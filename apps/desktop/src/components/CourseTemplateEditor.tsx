@@ -1,3 +1,6 @@
+import { formatNumber } from "../i18n";
+import { LocalizedError } from "./LocalizedError";
+import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { useTrainingStore } from "../stores/training";
 import { useNavStore } from "../stores/nav";
@@ -10,6 +13,7 @@ import {
 } from "@language-lab/core";
 
 export function CourseTemplateEditor({ scenario }: { scenario: ScenarioContent }) {
+  const { t } = useTranslation();
   const trainingBusy = useTrainingStore((state) => state.busy);
   const template = scenario.courseTemplate;
   const [difficulty, setDifficulty] = useState(scenario.difficulty);
@@ -46,8 +50,7 @@ export function CourseTemplateEditor({ scenario }: { scenario: ScenarioContent }
       },
     });
   } catch {
-    validationError =
-      "Enter whole-number feedback budgets between 0 and 20, and correction intervals between 0 and 10.";
+    validationError = "common:errors.courseFeedbackRange";
   }
   const preview = configured
     ? createLessonStateFromScenario({ lessonId: "preview", scenario: configured, now: 0 })
@@ -69,9 +72,7 @@ export function CourseTemplateEditor({ scenario }: { scenario: ScenarioContent }
       // Let the webview begin the download before releasing its object URL.
       setTimeout(() => URL.revokeObjectURL(url), 1000);
     } catch (cause) {
-      setExportError(
-        cause instanceof Error ? cause.message : "Could not export the template. Try again.",
-      );
+      setExportError(cause instanceof Error ? cause.message : "common:errors.courseExport");
     }
   }
 
@@ -80,23 +81,22 @@ export function CourseTemplateEditor({ scenario }: { scenario: ScenarioContent }
   return (
     <details className="mt-4 border-t border-slate-200 pt-3">
       <summary className="cursor-pointer text-sm font-medium text-slate-800">
-        Configure course
+        {t("course:configureCourse")}
       </summary>
       <div className="mt-4 space-y-5">
         <p className="text-xs text-slate-500">
-          Configure a copy and export it to keep your changes. Import that file to use the template
-          again.
+          {t("course:configureACopyAndExportItToKeepYourChanges")}
         </p>
         <div className="grid gap-3 sm:grid-cols-2">
           {template.learningPack && (
             <label className="text-sm text-slate-600">
-              Course challenge
+              {t("course:courseChallenge")}
               <select
                 className={controlClass}
                 value={variationId}
                 onChange={(event) => setVariationId(event.target.value)}
               >
-                <option value="standard">Standard check-in</option>
+                <option value="standard">{t("course:standardCheckIn")}</option>
                 {template.learningPack.variations.map((variation) => (
                   <option key={variation.id} value={variation.id}>
                     {variation.title}
@@ -106,7 +106,7 @@ export function CourseTemplateEditor({ scenario }: { scenario: ScenarioContent }
             </label>
           )}
           <label className="text-sm text-slate-600">
-            Practice level
+            {t("course:practiceLevel")}
             <select
               className={controlClass}
               value={difficulty}
@@ -118,7 +118,7 @@ export function CourseTemplateEditor({ scenario }: { scenario: ScenarioContent }
             </select>
           </label>
           <label className="text-sm text-slate-600">
-            Correction style
+            {t("course:correctionStyle")}
             <select
               className={controlClass}
               value={correctionMode}
@@ -126,12 +126,12 @@ export function CourseTemplateEditor({ scenario }: { scenario: ScenarioContent }
                 setCorrectionMode(event.target.value === "off" ? "off" : "gentle")
               }
             >
-              <option value="gentle">Gentle corrections</option>
-              <option value="off">Corrections off</option>
+              <option value="gentle">{t("course:gentleCorrections")}</option>
+              <option value="off">{t("course:correctionsOff")}</option>
             </select>
           </label>
           <label className="text-sm text-slate-600">
-            Maximum corrections
+            {t("course:maximumCorrections")}
             <input
               className={controlClass}
               type="number"
@@ -143,7 +143,7 @@ export function CourseTemplateEditor({ scenario }: { scenario: ScenarioContent }
             />
           </label>
           <label className="text-sm text-slate-600">
-            Maximum hints
+            {t("course:maximumHints")}
             <input
               className={controlClass}
               type="number"
@@ -155,7 +155,7 @@ export function CourseTemplateEditor({ scenario }: { scenario: ScenarioContent }
             />
           </label>
           <label className="text-sm text-slate-600">
-            Practice turns between corrections
+            {t("course:practiceTurnsBetweenCorrections")}
             <input
               className={controlClass}
               type="number"
@@ -167,7 +167,7 @@ export function CourseTemplateEditor({ scenario }: { scenario: ScenarioContent }
             />
           </label>
           <label className="text-sm text-slate-600">
-            Practice turns before repeating a correction
+            {t("course:practiceTurnsBeforeRepeatingACorrection")}
             <input
               className={controlClass}
               type="number"
@@ -181,34 +181,36 @@ export function CourseTemplateEditor({ scenario }: { scenario: ScenarioContent }
         </div>
         {validationError && (
           <p role="alert" className="text-sm text-red-700">
-            {validationError}
+            <LocalizedError error={validationError} />
           </p>
         )}
         {preview && (
           <div
-            aria-label="Lesson preview"
+            aria-label={t("course:lessonPreview")}
             className="space-y-3 rounded-lg bg-slate-50 p-4 text-sm text-slate-600"
           >
             <h3 className="font-semibold text-slate-900">
-              Lesson preview · {preview.difficulty} · {displayTemplate.estimatedMinutes} minutes
+              {t("course:lessonPreview2")}
+              {preview.difficulty} · {formatNumber(displayTemplate.estimatedMinutes)}{" "}
+              {t("course:minutes2")}
             </h3>
             <p>{displayTemplate.setting}</p>
             <p>
-              <strong>Your role:</strong> {displayTemplate.roles.learner}
+              <strong>{t("course:yourRole")}</strong> {displayTemplate.roles.learner}
             </p>
             <p>
-              <strong>Practice partner:</strong> {displayTemplate.roles.partner}
+              <strong>{t("course:practicePartner2")}</strong> {displayTemplate.roles.partner}
             </p>
             {displayTemplate.character && (
               <p>
-                <strong>Character:</strong> {displayTemplate.character.name} ·{" "}
+                <strong>{t("course:character")}</strong> {displayTemplate.character.name} ·{" "}
                 {displayTemplate.character.traits.join(", ")}
               </p>
             )}
             <p>
-              <strong>Opening:</strong> {displayTemplate.openingLine}
+              <strong>{t("course:opening")}</strong> {displayTemplate.openingLine}
             </p>
-            <h4 className="font-medium text-slate-900">Useful expressions</h4>
+            <h4 className="font-medium text-slate-900">{t("course:usefulExpressions2")}</h4>
             <ul className="list-disc space-y-1 pl-5">
               {displayTemplate.targetPatterns.map((item) => (
                 <li key={item.pattern}>
@@ -216,13 +218,13 @@ export function CourseTemplateEditor({ scenario }: { scenario: ScenarioContent }
                 </li>
               ))}
             </ul>
-            <h4 className="font-medium text-slate-900">Practice steps</h4>
+            <h4 className="font-medium text-slate-900">{t("course:practiceSteps")}</h4>
             <ol className="list-decimal space-y-3 pl-5">
               {displayTemplate.stages.map((stage) => (
                 <li key={stage.id}>
                   <p className="font-medium text-slate-800">{stage.title}</p>
                   <p>{stage.instruction}</p>
-                  <p className="mt-1 text-xs font-medium">Success criteria</p>
+                  <p className="mt-1 text-xs font-medium">{t("course:successCriteria")}</p>
                   <ul className="list-disc pl-4">
                     {stage.successCriteria.map((criterion) => (
                       <li key={criterion}>{criterion}</li>
@@ -238,7 +240,7 @@ export function CourseTemplateEditor({ scenario }: { scenario: ScenarioContent }
         )}
         {exportError && (
           <p role="alert" className="text-sm text-red-700">
-            {exportError}
+            <LocalizedError error={exportError} />
           </p>
         )}
         <button
@@ -247,7 +249,7 @@ export function CourseTemplateEditor({ scenario }: { scenario: ScenarioContent }
           onClick={exportTemplate}
           className="rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white disabled:opacity-40"
         >
-          Export course JSON
+          {t("course:exportCourseJSON")}
         </button>
         <button
           type="button"
@@ -259,7 +261,7 @@ export function CourseTemplateEditor({ scenario }: { scenario: ScenarioContent }
             useNavStore.getState().navigate("training");
           }}
         >
-          Practise this course
+          {t("course:practiseThisCourse")}
         </button>
       </div>
     </details>

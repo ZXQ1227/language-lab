@@ -1,3 +1,6 @@
+import { LocalizedError } from "../components/LocalizedError";
+import { formatDateTime } from "../i18n";
+import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { LearningReport } from "../components/LearningReport";
 import { useTrainingStore } from "../stores/training";
@@ -8,6 +11,7 @@ const button = "rounded bg-slate-900 px-3 py-2 text-sm text-white disabled:opaci
 const control = "mt-1 block w-full rounded border border-slate-300 p-2 text-sm";
 
 function Reflection({ session }: { session: TrainingSession }) {
+  const { t } = useTranslation();
   const { busy, saveReflection } = useTrainingStore();
   const [note, setNote] = useState(session.reportReflection?.note ?? "");
   const [nextPractice, setNextPractice] = useState(session.reportReflection?.nextPractice ?? "");
@@ -16,19 +20,19 @@ function Reflection({ session }: { session: TrainingSession }) {
     nextPractice !== (session.reportReflection?.nextPractice ?? "");
   return (
     <form
-      aria-label="Lesson reflection"
+      aria-label={t("reports:lessonReflection")}
       className="space-y-3 rounded border border-slate-200 bg-white p-5"
       onSubmit={(e) => {
         e.preventDefault();
         void saveReflection({ note, nextPractice });
       }}
     >
-      <h2 className="font-semibold">Your reflection</h2>
+      <h2 className="font-semibold">{t("reports:yourReflection")}</h2>
       <p className="text-sm text-slate-500">
-        A personal self-check, separate from the lesson evidence and model commentary.
+        {t("reports:aPersonalSelfCheckSeparateFromTheLessonEvidenceAnd")}
       </p>
       <label className="block text-sm">
-        What felt easy or difficult?
+        {t("reports:whatFeltEasyOrDifficult")}
         <textarea
           className={control}
           rows={3}
@@ -39,7 +43,7 @@ function Reflection({ session }: { session: TrainingSession }) {
         />
       </label>
       <label className="block text-sm">
-        My next practice commitment
+        {t("reports:myNextPracticeCommitment")}
         <textarea
           className={control}
           rows={2}
@@ -51,19 +55,20 @@ function Reflection({ session }: { session: TrainingSession }) {
       </label>
       <p role="status" className="text-xs text-slate-500">
         {dirty
-          ? "Unsaved reflection."
+          ? t("reports:unsavedReflection")
           : session.reportReflection
-            ? "Reflection saved on this device."
-            : "No reflection saved yet."}
+            ? t("reports:reflectionSavedOnThisDevice")
+            : t("reports:noReflectionSavedYet")}
       </p>
       <button type="submit" className={button} disabled={busy || !dirty}>
-        Save reflection
+        {t("reports:saveReflection")}
       </button>
     </form>
   );
 }
 
 export function ReportsPage() {
+  const { t } = useTranslation();
   const {
     learningMemory,
     reportSession,
@@ -95,16 +100,16 @@ export function ReportsPage() {
     if (!useTrainingStore.getState().error && selected) await loadReport(selected);
   };
   return (
-    <section aria-label="Reports" className="mx-auto max-w-5xl space-y-5">
+    <section aria-label={t("reports:reports")} className="mx-auto max-w-5xl space-y-5">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold">Reports</h1>
+          <h1 className="text-2xl font-semibold">{t("reports:reports")}</h1>
           <p className="mt-1 text-sm text-slate-500">
-            Review completed lessons, inspect your evidence and choose the next practice.
+            {t("reports:reviewCompletedLessonsInspectYourEvidenceAndChooseTheNext")}
           </p>
         </div>
         <button className={button} disabled={busy} onClick={() => void reload()}>
-          Refresh reports
+          {t("reports:refreshReports")}
         </button>
       </div>
       {error && (
@@ -112,17 +117,17 @@ export function ReportsPage() {
           role="alert"
           className="rounded border border-red-200 bg-red-50 p-4 text-sm text-red-700"
         >
-          {error}
+          <LocalizedError error={error} />
           <button className="ml-3 underline" disabled={busy} onClick={() => void reload()}>
-            Retry report load
+            {t("reports:retryReportLoad")}
           </button>
         </div>
       )}
-      {!loaded && !error && <p role="status">Loading reports…</p>}
+      {!loaded && !error && <p role="status">{t("reports:loadingReports")}</p>}
       {loaded && (
         <>
           <label className="block max-w-xs text-sm">
-            Report mode
+            {t("reports:reportMode")}
             <select
               className={control}
               value={mode}
@@ -133,18 +138,17 @@ export function ReportsPage() {
                 setSelected("");
               }}
             >
-              <option value="">All modes</option>
-              <option value="ai">AI conversation</option>
-              <option value="demo">Guided demo</option>
+              <option value="">{t("reports:allModes")}</option>
+              <option value="ai">{t("reports:aIConversation")}</option>
+              <option value="demo">{t("reports:guidedDemo")}</option>
             </select>
           </label>
           {!reports.length && (
             <p className="rounded border border-slate-200 bg-white p-5 text-sm">
-              No completed reports in this view. Finish a lesson and choose “Finish and review” to
-              save a report.
+              {t("reports:noCompletedReportsInThisViewFinishALessonAnd")}
             </p>
           )}
-          <ul aria-label="Report history" className="grid gap-2 sm:grid-cols-2">
+          <ul aria-label={t("reports:reportHistory")} className="grid gap-2 sm:grid-cols-2">
             {reports.slice(0, limit).map((item) => (
               <li key={item.lessonId}>
                 <button
@@ -160,8 +164,9 @@ export function ReportsPage() {
                     {item.title} · {item.difficulty}
                   </span>
                   <span className="text-xs text-slate-500">
-                    {item.mode === "demo" ? "Guided demo" : "AI conversation"} · {item.language} ·
-                    Last saved: {new Date(item.at).toLocaleString()}
+                    {item.mode === "demo" ? t("reports:guidedDemo") : t("reports:aIConversation")} ·{" "}
+                    {item.language} {t("reports:lastSaved")}
+                    {formatDateTime(item.at)}
                   </span>
                 </button>
               </li>
@@ -169,10 +174,12 @@ export function ReportsPage() {
           </ul>
           {reports.length > limit && (
             <button className={button} onClick={() => setLimit(limit + 20)}>
-              Show more reports
+              {t("reports:showMoreReports")}
             </button>
           )}
-          {busy && selected && !reportSession && <p role="status">Loading lesson report…</p>}
+          {busy && selected && !reportSession && (
+            <p role="status">{t("reports:loadingLessonReport")}</p>
+          )}
           {reportSession && reportSession.id === selected && (
             <>
               <div className="flex gap-3">
@@ -185,7 +192,7 @@ export function ReportsPage() {
                     })
                   }
                 >
-                  Open source lesson
+                  {t("reports:openSourceLesson")}
                 </button>
                 <button
                   className={button}
@@ -195,7 +202,7 @@ export function ReportsPage() {
                     navigate("training");
                   }}
                 >
-                  Practise this course again
+                  {t("reports:practiseThisCourseAgain")}
                 </button>
               </div>
               <LearningReport session={reportSession} />

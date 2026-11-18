@@ -1,0 +1,10 @@
+{
+  "settings": "Settings",
+  "systemStatusAndProviderConfiguration": "System status and provider configuration.",
+  "couldNotReadSystemStatus": "Could not read system status: ",
+  "database": "Database",
+  "unavailable": "unavailable",
+  "location": "Location: ",
+  "aIProviders": "AI providers",
+  "aPIKeysAreStoredInTheOSKeyringThroughThe": "API keys are stored in the OS keyring through the Rust core. Configure the conversation model when starting a lesson; speech providers are configured below."
+}

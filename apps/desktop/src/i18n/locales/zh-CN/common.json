@@ -1,0 +1,93 @@
+{
+  "languageLab": "Language Lab",
+  "localFirstEnglishLearning": "本地优先的英语学习",
+  "mainNavigation": "主导航",
+  "v001YourDataStaysOnThisDevice": "v0.0.1 · 学习记录保存在本机",
+  "plannedForThisPage": "此页面的后续功能",
+  "nav": {
+    "dashboard": "首页",
+    "scenarios": "场景课程",
+    "training": "训练",
+    "memory": "学习记忆",
+    "reports": "课后报告",
+    "review": "针对性复习",
+    "settings": "设置"
+  },
+  "dateUnavailable": "日期不可用",
+  "locale": {
+    "settings": "语言设置",
+    "heading": "语言",
+    "description": "界面默认跟随系统语言。这不会更改课程语言、角色对话或教学解释的语言策略。",
+    "followSystem": "跟随系统",
+    "interfaceLanguage": "界面语言",
+    "systemLanguage": "当前系统语言：",
+    "currentLanguage": "当前界面语言：",
+    "region": "系统区域设置：",
+    "names": {
+      "zh-CN": "简体中文",
+      "zh-TW": "繁体中文",
+      "en-US": "英语"
+    },
+    "errors": {
+      "load": "无法读取语言偏好，已保存的选择未被更改。",
+      "system": "暂时无法读取系统语言，重试前将使用可用的语言设置。",
+      "save": "无法保存语言更改，仍使用之前的选择。"
+    },
+    "retry": "重试语言设置",
+    "saving": "正在保存语言偏好…",
+    "systemActive": "正在跟随系统语言。返回应用时会重新检测系统设置。",
+    "manualActive": "手动选择的语言已保存在本机。"
+  },
+  "categories": {
+    "travel": "出行",
+    "dining": "餐饮",
+    "accommodation": "住宿",
+    "social": "社交",
+    "daily": "日常",
+    "health": "健康",
+    "work": "职场"
+  },
+  "phases": {
+    "setup": "课程准备",
+    "briefing": "课前介绍",
+    "practice": "对话练习",
+    "debrief": "课后复盘",
+    "done": "已完成"
+  },
+  "errors": {
+    "courseFeedbackRange": "反馈次数请输入 0 到 20 的整数，纠错间隔请输入 0 到 10 的整数。",
+    "courseExport": "无法导出课程模板，请重试。",
+    "profileFields": "请填写语言代码（如 en）、CEFR 等级，以及最多 10 个学习目标，每个不超过 200 个字符。",
+    "templateSize": "请选择小于 1 MB 的课程模板。",
+    "templateStructure": "文件中的 courseTemplate 必须包含角色和练习阶段。",
+    "speechLoad": "无法加载语音设置，请重试以保留已保存的配置。",
+    "speechSave": "无法保存语音设置，请检查服务地址、系统钥匙串和填写内容后重试。",
+    "recordingSize": "录音已达到 5 MB 上限，请缩短录音。",
+    "recordingFailed": "录音失败，请检查麦克风并重试，或输入文字回复。",
+    "recordingEmpty": "未录到声音，请重新录音。",
+    "recognitionFailed": "语音识别失败，请重试识别、重新录音或输入文字回复。",
+    "playbackTimeout": "播放等待时间过长，可以重新播放回复。",
+    "playbackFailed": "无法播放这条回复，请重试朗读或检查语音设置。",
+    "enableRecognition": "请先在设置中启用语音识别",
+    "chooseSpeechProvider": "请先在设置中选择语音服务商",
+    "startLesson": "请先开始或恢复课程",
+    "aiKey": "请输入当前 AI 连接的 API 密钥",
+    "completeBeforeReview": "请先完成课程，再保存复习答案",
+    "sourceMissing": "找不到来源课程",
+    "reportMissing": "找不到已保存的报告",
+    "reportIncomplete": "这节课还没有完整报告",
+    "openReport": "请先打开一份完整报告",
+    "authoredCourse": "请选择包含教学阶段的课程",
+    "customCourseAI": "请连接 AI 后练习这门自定义课程",
+    "simplerAI": "请连接 AI 后请求更简单的英语",
+    "turnLimit": "本节课已达到 100 轮上限，请开始新的练习。",
+    "generateReview": "请先生成针对性复习",
+    "saveAIKey": "开始前请先保存此 AI 连接的 API 密钥",
+    "microphoneDenied": "麦克风权限被拒绝，请在系统或浏览器设置中允许访问，或输入文字回复。",
+    "microphoneUnavailable": "无法使用麦克风录音，请检查设备和录音支持，或输入文字回复。",
+    "unknown": "操作未完成，请重试。",
+    "details": "技术详情：",
+    "missingKey": "请先在设置中保存此 {{kind}} 服务的 API 密钥",
+    "missingVoice": "设备没有可用于 {{language}} 的已安装语音，请在设置中选择 TTS 服务商，或使用文字。"
+  }
+}

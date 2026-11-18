@@ -1,3 +1,5 @@
+import { LocalizedError } from "../components/LocalizedError";
+import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
 import { useSystemStore } from "../stores/system";
 
@@ -14,6 +16,7 @@ function StatCard({ label, children }: { label: string; children: React.ReactNod
 }
 
 export function DashboardPage() {
+  const { t } = useTranslation();
   const { health, dbStatus, error, loading, refresh } = useSystemStore();
 
   useEffect(() => {
@@ -21,11 +24,11 @@ export function DashboardPage() {
   }, [refresh]);
 
   return (
-    <section aria-label="Dashboard" className="space-y-6">
+    <section aria-label={t("dashboard:dashboard")} className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-slate-900">Dashboard</h1>
+        <h1 className="text-2xl font-semibold text-slate-900">{t("dashboard:dashboard")}</h1>
         <p className="mt-1 text-sm text-slate-500">
-          Local-first AI English learning. Everything runs on this machine.
+          {t("dashboard:localFirstAIEnglishLearningEverythingRunsOnThisMachine")}
         </p>
       </div>
 
@@ -34,60 +37,65 @@ export function DashboardPage() {
           role="alert"
           className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700"
         >
-          System check failed: {error}
+          {t("dashboard:systemCheckFailed")}
+          <LocalizedError error={error} />
           <button
             type="button"
             onClick={() => void refresh()}
             className="ml-3 rounded border border-red-300 px-2 py-1 text-xs font-medium text-red-700 hover:bg-red-100"
           >
-            Retry
+            {t("dashboard:retry")}
           </button>
         </div>
       )}
 
-      {loading && <p className="text-sm text-slate-500">Checking system…</p>}
+      {loading && <p className="text-sm text-slate-500">{t("dashboard:checkingSystem")}</p>}
 
       {!loading && !error && (
         <div className="grid gap-4 sm:grid-cols-2">
-          <StatCard label="App">
+          <StatCard label={t("dashboard:app")}>
             {health ? (
               <>
-                status <code className="rounded bg-slate-100 px-1">{health.status}</code>
-                {" · "}v<code className="rounded bg-slate-100 px-1">{health.appVersion}</code>
+                {t("dashboard:status")}
+                <code className="rounded bg-slate-100 px-1">{health.status}</code>
+                {" · "}
+                {t("dashboard:v")}
+                <code className="rounded bg-slate-100 px-1">{health.appVersion}</code>
               </>
             ) : (
-              "unavailable"
+              t("dashboard:unavailable")
             )}
           </StatCard>
-          <StatCard label="Platform">
+          <StatCard label={t("dashboard:platform")}>
             {health ? (
               <>
                 <code className="rounded bg-slate-100 px-1">{health.os}</code> /{" "}
                 <code className="rounded bg-slate-100 px-1">{health.arch}</code>
               </>
             ) : (
-              "unavailable"
+              t("dashboard:unavailable")
             )}
           </StatCard>
-          <StatCard label="Local database">
+          <StatCard label={t("dashboard:localDatabase")}>
             {dbStatus ? (
               <>
-                <code className="rounded bg-slate-100 px-1">{dbStatus.tables}</code> tables ·{" "}
+                <code className="rounded bg-slate-100 px-1">{dbStatus.tables}</code>{" "}
+                {t("dashboard:tables")}{" "}
                 <code className="rounded bg-slate-100 px-1">{dbStatus.migrationsApplied}</code>{" "}
-                migrations
+                {t("dashboard:migrations")}
               </>
             ) : (
-              "unavailable"
+              t("dashboard:unavailable")
             )}
           </StatCard>
-          <StatCard label="Next session">
+          <StatCard label={t("dashboard:nextSession")}>
             <button
               type="button"
               disabled
-              title="Arrives with the first teaching loop"
+              title={t("dashboard:arrivesWithTheFirstTeachingLoop")}
               className="rounded-md bg-slate-900 px-3 py-1.5 text-xs font-medium text-white disabled:opacity-40"
             >
-              Start training (coming soon)
+              {t("dashboard:startTrainingComingSoon")}
             </button>
           </StatCard>
         </div>

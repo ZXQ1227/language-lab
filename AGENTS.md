@@ -170,3 +170,26 @@ Architecture decisions are recorded in `docs/adr/` — read them before changing
 documented behavior. Use the current branch, README, development guides and ADRs
 to establish implemented capabilities and remaining work. Do not infer shipped
 features from unmerged branches or copy historical test counts as current status.
+
+## Interface localization (Task 03)
+
+- All product UI copy, accessibility labels, status and validation messages must
+  use `apps/desktop/src/i18n/locales/` resources via i18next/react-i18next. Do not
+  hardcode display prose in components. Keep all three catalogs complete, with
+  matching interpolation names; run the localization guard tests.
+- Support `zh-CN`, `zh-TW` and `en-US`. Default to the OS preferred UI language
+  read by Rust; unsupported languages fall back to English. Use BCP 47 tags.
+- Priority: persisted manual choice > OS language > English. Never show a required
+  first-launch language picker. Persist only the explicit mode/manual preference.
+- Manual mode survives OS changes and app restarts. Restoring Follow system must
+  re-read the OS. While following, check changes on focus/language/visibility
+  events and periodically while visible. Failed reads/writes must not overwrite
+  unknown saved preferences or publish an unsaved choice.
+- Format UI dates, times and numbers with the current interface language and OS
+  regional preference through the shared Intl helpers.
+- Interface language is independent from learning language, AI dialogue language
+  and teaching-explanation policy. Never translate/overwrite saved learner text,
+  authored exercises, model commentary or course snapshots as a UI side effect.
+- New UI work must include localization immediately. See
+  [Task 03](docs/development/TASK_03_UI_FOUNDATION.md) and
+  [ADR-0018](docs/adr/ADR-0018-system-locale-interface-language.md).

@@ -1,0 +1,93 @@
+{
+  "languageLab": "Language Lab",
+  "localFirstEnglishLearning": "本機優先的英語學習",
+  "mainNavigation": "主要導覽",
+  "v001YourDataStaysOnThisDevice": "v0.0.1 · 學習紀錄儲存在本機",
+  "plannedForThisPage": "此頁面的後續功能",
+  "nav": {
+    "dashboard": "首頁",
+    "scenarios": "情境課程",
+    "training": "練習",
+    "memory": "學習記憶",
+    "reports": "課後報告",
+    "review": "針對性複習",
+    "settings": "設定"
+  },
+  "dateUnavailable": "日期無法顯示",
+  "locale": {
+    "settings": "語言設定",
+    "heading": "語言",
+    "description": "介面預設跟隨系統語言。這不會變更課程語言、角色對話或教學說明的語言策略。",
+    "followSystem": "跟隨系統",
+    "interfaceLanguage": "介面語言",
+    "systemLanguage": "目前系統語言：",
+    "currentLanguage": "目前介面語言：",
+    "region": "系統地區設定：",
+    "names": {
+      "zh-CN": "簡體中文",
+      "zh-TW": "繁體中文",
+      "en-US": "英語"
+    },
+    "errors": {
+      "load": "無法讀取語言偏好，已儲存的選擇未被變更。",
+      "system": "暫時無法讀取系統語言，重試前將使用可用的語言設定。",
+      "save": "無法儲存語言變更，仍使用先前的選擇。"
+    },
+    "retry": "重試語言設定",
+    "saving": "正在儲存語言偏好…",
+    "systemActive": "正在跟隨系統語言。返回應用程式時會重新偵測系統設定。",
+    "manualActive": "手動選擇的語言已儲存在本機。"
+  },
+  "categories": {
+    "travel": "旅行",
+    "dining": "餐飲",
+    "accommodation": "住宿",
+    "social": "社交",
+    "daily": "日常",
+    "health": "健康",
+    "work": "職場"
+  },
+  "phases": {
+    "setup": "課程準備",
+    "briefing": "課前介紹",
+    "practice": "對話練習",
+    "debrief": "課後回顧",
+    "done": "已完成"
+  },
+  "errors": {
+    "courseFeedbackRange": "回饋次數請輸入 0 到 20 的整數，糾錯間隔請輸入 0 到 10 的整數。",
+    "courseExport": "無法匯出課程範本，請重試。",
+    "profileFields": "請填寫語言代碼（如 en）、CEFR 等級，以及最多 10 個學習目標，每個不超過 200 個字元。",
+    "templateSize": "請選擇小於 1 MB 的課程範本。",
+    "templateStructure": "檔案中的 courseTemplate 必須包含角色和練習階段。",
+    "speechLoad": "無法載入語音設定，請重試以保留已儲存的設定。",
+    "speechSave": "無法儲存語音設定，請檢查服務位址、系統鑰匙圈和填寫內容後重試。",
+    "recordingSize": "錄音已達到 5 MB 上限，請縮短錄音。",
+    "recordingFailed": "錄音失敗，請檢查麥克風並重試，或輸入文字回覆。",
+    "recordingEmpty": "未錄到聲音，請重新錄音。",
+    "recognitionFailed": "語音辨識失敗，請重試辨識、重新錄音或輸入文字回覆。",
+    "playbackTimeout": "播放等待時間過長，可以重新播放回覆。",
+    "playbackFailed": "無法播放這則回覆，請重試朗讀或檢查語音設定。",
+    "enableRecognition": "請先在設定中啟用語音辨識",
+    "chooseSpeechProvider": "請先在設定中選擇語音服務商",
+    "startLesson": "請先開始或繼續課程",
+    "aiKey": "請輸入目前 AI 連線的 API 金鑰",
+    "completeBeforeReview": "請先完成課程，再儲存複習答案",
+    "sourceMissing": "找不到來源課程",
+    "reportMissing": "找不到已儲存的報告",
+    "reportIncomplete": "這堂課還沒有完整報告",
+    "openReport": "請先開啟一份完整報告",
+    "authoredCourse": "請選擇包含教學階段的課程",
+    "customCourseAI": "請連接 AI 後練習這門自訂課程",
+    "simplerAI": "請連接 AI 後請求更簡單的英語",
+    "turnLimit": "本堂課已達到 100 輪上限，請開始新的練習。",
+    "generateReview": "請先產生針對性複習",
+    "saveAIKey": "開始前請先儲存此 AI 連線的 API 金鑰",
+    "microphoneDenied": "麥克風權限遭拒，請在系統或瀏覽器設定中允許存取，或輸入文字回覆。",
+    "microphoneUnavailable": "無法使用麥克風錄音，請檢查裝置和錄音支援，或輸入文字回覆。",
+    "unknown": "操作未完成，請重試。",
+    "details": "技術詳情：",
+    "missingKey": "請先在設定中儲存此 {{kind}} 服務的 API 金鑰",
+    "missingVoice": "裝置沒有可用於 {{language}} 的已安裝語音，請在設定中選擇 TTS 服務商，或使用文字。"
+  }
+}

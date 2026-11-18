@@ -1,0 +1,18 @@
+{
+  "dashboard": "首页",
+  "localFirstAIEnglishLearningEverythingRunsOnThisMachine": "本地优先的 AI 英语学习，学习记录保存在本机。",
+  "systemCheckFailed": "系统检查失败：",
+  "retry": "重试",
+  "checkingSystem": "正在检查系统…",
+  "app": "应用",
+  "unavailable": "不可用",
+  "status": "状态",
+  "v": "v",
+  "platform": "平台",
+  "localDatabase": "本地数据库",
+  "tables": " 张表 ·",
+  "migrations": "次迁移",
+  "nextSession": "下一次练习",
+  "arrivesWithTheFirstTeachingLoop": "将在教学流程接入后开放",
+  "startTrainingComingSoon": "开始练习（即将开放）"
+}

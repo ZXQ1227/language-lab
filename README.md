@@ -122,3 +122,12 @@ failure then blocks merges.
 ## License
 
 MIT
+
+## Interface language
+
+The desktop interface follows the OS language by default, with simplified Chinese,
+traditional Chinese and English resources. Unsupported languages use English.
+Settings → Language allows a persistent manual override or returning to Follow
+system. This controls UI copy and regional formatting independently from course,
+AI-dialogue and teaching-explanation language. See
+[Task 03](docs/development/TASK_03_UI_FOUNDATION.md).

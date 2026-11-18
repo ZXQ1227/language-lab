@@ -1,0 +1,18 @@
+{
+  "dashboard": "Dashboard",
+  "localFirstAIEnglishLearningEverythingRunsOnThisMachine": "Local-first AI English learning. Everything runs on this machine.",
+  "systemCheckFailed": "System check failed: ",
+  "retry": "Retry",
+  "checkingSystem": "Checking system…",
+  "app": "App",
+  "unavailable": "unavailable",
+  "status": "status ",
+  "v": "v",
+  "platform": "Platform",
+  "localDatabase": "Local database",
+  "tables": " tables ·",
+  "migrations": "migrations",
+  "nextSession": "Next session",
+  "arrivesWithTheFirstTeachingLoop": "Arrives with the first teaching loop",
+  "startTrainingComingSoon": "Start training (coming soon)"
+}

@@ -1,9 +1,13 @@
+import { formatDateTime, formatNumber } from "../i18n";
+import { useTranslation } from "react-i18next";
+import { uiValue } from "../i18n";
 import { buildLearningReport } from "@language-lab/core";
 import type { TrainingSession } from "../training/session";
 import { useTrainingStore } from "../stores/training";
 import { useNavStore } from "../stores/nav";
 
 function ReviewLaunch({ session }: { session: TrainingSession }) {
+  const { t } = useTranslation();
   const { busy, generateReview, loadReport } = useTrainingStore();
   const navigate = useNavStore((s) => s.navigate);
   return (
@@ -17,24 +21,26 @@ function ReviewLaunch({ session }: { session: TrainingSession }) {
         })()
       }
     >
-      {session.reviewPlan ? "Open targeted review" : "Generate targeted review"}
+      {session.reviewPlan ? t("reports:openTargetedReview") : t("reports:generateTargetedReview")}
     </button>
   );
 }
 
 export function LearningReport({ session }: { session: TrainingSession }) {
+  const { t } = useTranslation();
   if (!session.report) return null;
   const report = session.learningReport ?? buildLearningReport(session);
   const criteria = report.stages.flatMap((stage) => stage.criteria);
   const used = report.vocabulary.filter((v) => v.usedTurns > 0);
   return (
     <section
-      aria-label="Lesson review"
+      aria-label={t("reports:lessonReview")}
       className="space-y-5 rounded-lg border border-emerald-200 bg-white p-5"
     >
       <div>
         <h2 className="font-semibold">
-          Lesson review{session.provider.mode === "demo" ? " · guided demo" : ""}
+          {t("reports:lessonReview")}
+          {session.provider.mode === "demo" ? t("reports:guidedDemo2") : ""}
         </h2>
         <p className="mt-1 text-sm">
           {session.scenario.title} · {session.state.difficulty} ·{" "}
@@ -42,47 +48,55 @@ export function LearningReport({ session }: { session: TrainingSession }) {
         </p>
         <p className="mt-1 text-xs text-slate-500">
           {report.provenance === "reconstructed"
-            ? "Reconstructed from a legacy checkpoint; original report time is unavailable."
-            : `Completed: ${new Date(report.generatedAt).toLocaleString()}`}
+            ? t("reports:reconstructedFromALegacyCheckpointOriginalReportTimeIsUnavailable")
+            : t("reports:completedValue", {
+                v0: uiValue(formatDateTime(report.generatedAt)),
+              })}
         </p>
       </div>
       {session.provider.mode === "demo" && (
         <p className="text-sm">
-          You completed the guided examples. This is a demonstration, not an independent language
-          assessment.
+          {t("reports:youCompletedTheGuidedExamplesThisIsADemonstrationNot")}
         </p>
       )}
-      <div aria-label="Practice summary" className="rounded bg-slate-50 p-3 text-sm">
+      <div aria-label={t("reports:practiceSummary")} className="rounded bg-slate-50 p-3 text-sm">
         <p>
-          Goal criteria with evidence: {criteria.filter((c) => c.met).length}/{criteria.length} ·
-          Target words used: {used.length}/{report.vocabulary.length}
+          {t("reports:goalCriteriaWithEvidence")}
+          {formatNumber(criteria.filter((c) => c.met).length)}/{formatNumber(criteria.length)}{" "}
+          {t("reports:targetWordsUsed")}
+          {formatNumber(used.length)}/{formatNumber(report.vocabulary.length)}
         </p>
         <p>
-          Practice replies: {report.practiceTurns} · Help requests: {report.supportTurns} · Hints
-          given: {report.hintsGiven}
+          {t("reports:practiceReplies")}
+          {formatNumber(report.practiceTurns)} {t("reports:helpRequests")}
+          {formatNumber(report.supportTurns)} {t("reports:hintsGiven")}
+          {formatNumber(report.hintsGiven)}
         </p>
       </div>
-      <section aria-label="Goal evidence" className="space-y-3">
-        <h3 className="font-medium">What went well · goal evidence</h3>
+      <section aria-label={t("reports:goalEvidence")} className="space-y-3">
+        <h3 className="font-medium">{t("reports:whatWentWellGoalEvidence")}</h3>
         <p className="text-xs text-slate-500">
-          Stage judgments are backed by exact learner quotes. They describe this exercise, not
-          independent mastery.
+          {t("reports:stageJudgmentsAreBackedByExactLearnerQuotesTheyDescribe")}
         </p>
         {report.stages.map((stage) => (
           <details key={stage.id} className="rounded border border-slate-200 p-3 text-sm">
             <summary className="cursor-pointer font-medium">
-              {stage.objectives.join(" · ")} · {stage.criteria.filter((c) => c.met).length}/
-              {stage.criteria.length}
+              {stage.objectives.join(" · ")} ·{" "}
+              {formatNumber(stage.criteria.filter((c) => c.met).length)}/
+              {formatNumber(stage.criteria.length)}
             </summary>
             <ul className="mt-2 space-y-2">
               {stage.criteria.map((criterion, index) => (
                 <li key={index}>
                   <p>
-                    {criterion.met ? "Demonstrated" : "Not demonstrated"}: {criterion.description}
+                    {criterion.met ? t("reports:demonstrated") : t("reports:notDemonstrated")}:{" "}
+                    {criterion.description}
                   </p>
                   {criterion.evidence.map((cite, i) => (
                     <blockquote key={i} className="ml-3 break-words border-l-2 pl-3 text-slate-600">
-                      “{cite.quote}” · message #{cite.messageSeq}
+                      “{cite.quote}
+                      {t("reports:message")}
+                      {formatNumber(cite.messageSeq)}
                     </blockquote>
                   ))}
                 </li>
@@ -91,84 +105,96 @@ export function LearningReport({ session }: { session: TrainingSession }) {
           </details>
         ))}
       </section>
-      <section aria-label="Report vocabulary" className="space-y-2 text-sm">
-        <h3 className="font-medium">Vocabulary practice</h3>
+      <section aria-label={t("reports:reportVocabulary")} className="space-y-2 text-sm">
+        <h3 className="font-medium">{t("reports:vocabularyPractice")}</h3>
         <p className="text-xs text-slate-500">
-          Exact lexical matches in learner practice only. Use does not prove correctness or mastery.
+          {t("reports:exactLexicalMatchesInLearnerPracticeOnlyUseDoesNot")}
         </p>
         <ul className="space-y-2">
           {report.vocabulary.map((item) => (
             <li key={item.term}>
               <span className="font-medium">{item.term}</span> ·{" "}
               {item.usedTurns
-                ? `${item.usedTurns} practice replies · ${item.occurrences} matches`
-                : "Not used yet"}
+                ? t("reports:valuePracticeRepliesValueMatches", {
+                    v0: uiValue(item.usedTurns),
+                    v1: uiValue(item.occurrences),
+                  })
+                : t("reports:notUsedYet")}
               {item.latest && (
                 <blockquote className="ml-3 break-words text-slate-600">
-                  “{item.latest.content}” · message #{item.latest.messageSeq}
+                  “{item.latest.content}
+                  {t("reports:message")}
+                  {formatNumber(item.latest.messageSeq)}
                 </blockquote>
               )}
             </li>
           ))}
         </ul>
       </section>
-      <section aria-label="Report language issues" className="space-y-2 text-sm">
-        <h3 className="font-medium">Language issues and corrections</h3>
+      <section aria-label={t("reports:reportLanguageIssues")} className="space-y-2 text-sm">
+        <h3 className="font-medium">{t("reports:languageIssuesAndCorrections")}</h3>
         <p>
-          Diagnosis recorded for {report.diagnosedTurns}/{report.practiceTurns} practice replies ·
-          Uncertain checks: {report.uncertainTurns} · Withheld suggestions:{" "}
-          {report.withheldSuggestions}
+          {t("reports:diagnosisRecordedFor")}
+          {formatNumber(report.diagnosedTurns)}/{formatNumber(report.practiceTurns)}{" "}
+          {t("reports:practiceRepliesUncertainChecks")}
+          {formatNumber(report.uncertainTurns)} {t("reports:withheldSuggestions")}{" "}
+          {formatNumber(report.withheldSuggestions)}
         </p>
         <p>
-          Corrections recorded: {report.correctionsGiven} · With verified dialogue delivery:{" "}
-          {report.issues.filter((issue) => issue.deliveryVerified).length}
+          {t("reports:correctionsRecorded")}
+          {formatNumber(report.correctionsGiven)} {t("reports:withVerifiedDialogueDelivery")}{" "}
+          {formatNumber(report.issues.filter((issue) => issue.deliveryVerified).length)}
         </p>
         <p className="text-xs text-slate-500">
-          Model judgments can be wrong; demo checks cover limited examples. Missing checks are
-          unknown. A shown correction does not prove that an issue is resolved.
+          {t("reports:modelJudgmentsCanBeWrongDemoChecksCoverLimitedExamples")}
         </p>
         {!report.issues.length && (
-          <p>
-            No language issues recorded in the available checks. This does not mean the lesson was
-            error-free.
-          </p>
+          <p>{t("reports:noLanguageIssuesRecordedInTheAvailableChecksThisDoes")}</p>
         )}
         {report.issues.map((issue, index) => (
           <details key={index} className="rounded border border-slate-200 p-3">
             <summary className="cursor-pointer break-words">
               “{issue.error.original}” → “{issue.error.corrected}” ·{" "}
               {issue.deliveryVerified
-                ? "Shown in dialogue"
+                ? t("reports:shownInDialogue")
                 : issue.shown
-                  ? "Recorded as shown · legacy delivery unverified"
-                  : "For review"}
+                  ? t("reports:recordedAsShownLegacyDeliveryUnverified")
+                  : t("reports:forReview")}
             </summary>
             <p className="mt-2 break-words">{issue.error.explanation}</p>
             <blockquote className="mt-2 break-words text-slate-600">
               “{session.messages.find((message) => message.seq === issue.messageSeq)?.content}”
             </blockquote>
             <p className="text-xs text-slate-500">
-              {issue.error.category} ·{" "}
-              {issue.source === "demo" ? "Limited demo check" : "Model suggestion"} · message #
-              {issue.messageSeq}
+              {t(`training:categories.${issue.error.category}`)} ·{" "}
+              {issue.source === "demo"
+                ? t("reports:limitedDemoCheck")
+                : t("reports:modelSuggestion")}{" "}
+              {t("reports:message2")}
+              {formatNumber(issue.messageSeq)}
             </p>
           </details>
         ))}
       </section>
-      <section aria-label="Next practice" className="space-y-2 text-sm">
-        <h3 className="font-medium">Next practice</h3>
+      <section aria-label={t("reports:nextPractice")} className="space-y-2 text-sm">
+        <h3 className="font-medium">{t("reports:nextPractice")}</h3>
         <ol className="list-decimal space-y-3 pl-5">
           {report.nextPractice.map((task) => (
             <li key={task.id}>
               <p className="break-words">{task.prompt}</p>
               {task.source && (
                 <p className="text-xs text-slate-500">
-                  From “{task.source.quote}” · message #{task.source.messageSeq}
+                  {t("reports:from")}
+                  {task.source.quote}
+                  {t("reports:message")}
+                  {formatNumber(task.source.messageSeq)}
                 </p>
               )}
               {task.suggestedAnswer && (
                 <details>
-                  <summary className="cursor-pointer text-slate-600">Show example</summary>
+                  <summary className="cursor-pointer text-slate-600">
+                    {t("reports:showExample")}
+                  </summary>
                   <p className="break-words">{task.suggestedAnswer}</p>
                 </details>
               )}
@@ -178,17 +204,20 @@ export function LearningReport({ session }: { session: TrainingSession }) {
       </section>
       <ReviewLaunch session={session} />
       {session.provider.mode === "ai" && (
-        <details aria-label="Model commentary" className="rounded bg-slate-50 p-3 text-sm">
+        <details
+          aria-label={t("reports:modelCommentary")}
+          className="rounded bg-slate-50 p-3 text-sm"
+        >
           <summary className="cursor-pointer font-medium">
-            Model commentary · subjective estimate
+            {t("reports:modelCommentarySubjectiveEstimate")}
           </summary>
           <p className="mt-2 text-xs text-slate-500">
-            Model estimate: {session.report.score}/100. This is not a proficiency assessment or a
-            measure of improvement. Commentary is unverified interpretation; the evidence above
-            remains the source of lesson facts.
+            {t("reports:modelEstimate")}
+            {formatNumber(session.report.score)}
+            {t("reports:100ThisIsNotAProficiencyAssessmentOrAMeasure")}
           </p>
           <p className="mt-2 break-words">{session.report.summary}</p>
-          <h4 className="mt-2 font-medium">Suggested strengths</h4>
+          <h4 className="mt-2 font-medium">{t("reports:suggestedStrengths")}</h4>
           <ul className="list-disc pl-5">
             {session.report.strengths.map((s, i) => (
               <li className="break-words" key={i}>
@@ -196,7 +225,7 @@ export function LearningReport({ session }: { session: TrainingSession }) {
               </li>
             ))}
           </ul>
-          <h4 className="mt-2 font-medium">Suggested improvements</h4>
+          <h4 className="mt-2 font-medium">{t("reports:suggestedImprovements")}</h4>
           <ul className="list-disc pl-5">
             {session.report.improvements.map((s, i) => (
               <li className="break-words" key={i}>

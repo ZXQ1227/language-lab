@@ -1,3 +1,7 @@
+import { LocalizedError } from "../components/LocalizedError";
+import { formatNumber } from "../i18n";
+import { useTranslation } from "react-i18next";
+import { uiValue } from "../i18n";
 import { useEffect, useState } from "react";
 import {
   configureScenarioContent,
@@ -22,6 +26,7 @@ const button =
 const control = "mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm";
 
 function LessonSetup({ course }: { course: ScenarioContent }) {
+  const { t } = useTranslation();
   const { start, busy } = useTrainingStore();
   const [mode, setMode] = useState<"demo" | "ai">("demo");
   const [baseUrl, setBaseUrl] = useState("http://localhost:11434/v1");
@@ -48,23 +53,27 @@ function LessonSetup({ course }: { course: ScenarioContent }) {
       <h2 className="font-semibold">
         {course.title} · {course.difficulty}
       </h2>
-      <p className="text-sm text-slate-600">Your role: {course.courseTemplate?.roles.learner}</p>
+      <p className="text-sm text-slate-600">
+        {t("training:yourRole")}
+        {course.courseTemplate?.roles.learner}
+      </p>
       {template?.character && (
         <p className="text-sm text-slate-600">
-          Practice partner: {template.character.name} · {template.character.traits.join(", ")}
+          {t("training:practicePartner")}
+          {template.character.name} · {template.character.traits.join(", ")}
         </p>
       )}
       {course.courseTemplate?.learningPack && (
         <>
           <label className="block text-sm">
-            Course challenge
+            {t("training:courseChallenge")}
             <select
               className={control}
               disabled={busy}
               value={variationId}
               onChange={(event) => setVariationId(event.target.value)}
             >
-              <option value="standard">Standard check-in</option>
+              <option value="standard">{t("training:standardCheckIn")}</option>
               {course.courseTemplate.learningPack.variations.map((variation) => (
                 <option key={variation.id} value={variation.id}>
                   {variation.title}
@@ -76,26 +85,25 @@ function LessonSetup({ course }: { course: ScenarioContent }) {
         </>
       )}
       <label className="block text-sm">
-        Practice mode
+        {t("training:practiceMode")}
         <select
           className={control}
           value={selectedMode}
           disabled={busy}
           onChange={(event) => setMode(event.target.value === "ai" ? "ai" : "demo")}
         >
-          {supportsGuidedDemo(course) && <option value="demo">Guided demo</option>}
-          <option value="ai">Connected AI</option>
+          {supportsGuidedDemo(course) && <option value="demo">{t("training:guidedDemo")}</option>}
+          <option value="ai">{t("training:connectedAI")}</option>
         </select>
       </label>
       {selectedMode === "demo" ? (
         <p className="text-sm text-slate-500">
-          The guided demo checks suggested example replies only. Connect AI for free-form
-          conversation and assessment.
+          {t("training:theGuidedDemoChecksSuggestedExampleRepliesOnlyConnectAI")}
         </p>
       ) : (
         <>
           <label className="block text-sm">
-            AI endpoint
+            {t("training:aIEndpoint")}
             <input
               className={control}
               type="url"
@@ -106,7 +114,7 @@ function LessonSetup({ course }: { course: ScenarioContent }) {
             />
           </label>
           <label className="block text-sm">
-            Model
+            {t("training:model")}
             <input
               className={control}
               required
@@ -116,7 +124,7 @@ function LessonSetup({ course }: { course: ScenarioContent }) {
             />
           </label>
           <label className="block text-sm">
-            API key (optional for local models)
+            {t("training:aPIKeyOptionalForLocalModels")}
             <input
               className={control}
               type="password"
@@ -127,19 +135,19 @@ function LessonSetup({ course }: { course: ScenarioContent }) {
             />
           </label>
           <p className="text-xs text-slate-500">
-            Use an OpenAI-compatible endpoint. API keys are saved in the OS keyring; your replies
-            are sent to the selected model.
+            {t("training:useAnOpenAICompatibleEndpointAPIKeysAreSavedIn")}
           </p>
         </>
       )}
       <button className={button} disabled={busy} type="submit">
-        {busy ? "Starting…" : "Start lesson"}
+        {busy ? t("training:starting") : t("training:startLesson")}
       </button>
     </form>
   );
 }
 
 export function TrainingPage() {
+  const { t } = useTranslation();
   const {
     session,
     sessions,
@@ -191,17 +199,17 @@ export function TrainingPage() {
   );
 
   return (
-    <section aria-label="Training" className="mx-auto max-w-4xl space-y-5">
+    <section aria-label={t("training:training")} className="mx-auto max-w-4xl space-y-5">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold">Training</h1>
+          <h1 className="text-2xl font-semibold">{t("training:training")}</h1>
           <p className="mt-1 text-sm text-slate-500">
-            Practise a scene, demonstrate each goal, and review your progress.
+            {t("training:practiseASceneDemonstrateEachGoalAndReviewYourProgress")}
           </p>
         </div>
         {session && (
           <button type="button" className={button} disabled={busy} onClick={() => prepare()}>
-            New lesson
+            {t("training:newLesson")}
           </button>
         )}
       </div>
@@ -210,8 +218,8 @@ export function TrainingPage() {
           role="alert"
           className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700"
         >
-          {error}
-          <p>Your last saved progress is preserved. You can retry the operation.</p>
+          <LocalizedError error={error} />
+          <p>{t("training:yourLastSavedProgressIsPreservedYouCanRetryThe")}</p>
           {!loaded && (
             <button
               type="button"
@@ -219,30 +227,38 @@ export function TrainingPage() {
               onClick={() => void load()}
               className="mt-2 underline"
             >
-              Retry
+              {t("training:retry")}
             </button>
           )}
         </div>
       )}
-      {!loaded && !error && <p role="status">Loading saved practice…</p>}
+      {!loaded && !error && <p role="status">{t("training:loadingSavedPractice")}</p>}
       {loaded && (
         <>
           {sessions.length > 0 && (
             <label className="block text-sm">
-              Saved practice
+              {t("training:savedPractice")}
               <select
                 className={control}
                 disabled={busy}
                 value={session?.id ?? ""}
                 onChange={(event) => resume(event.target.value)}
               >
-                <option value="">Choose a saved lesson</option>
+                <option value="">{t("training:chooseASavedLesson")}</option>
                 {sessions.map((item) => (
                   <option value={item.id} key={item.id}>
-                    {item.scenario.title} · {item.state.phase} · {item.state.turnCount} replies ·{" "}
-                    {item.provider.mode === "demo" ? "demo" : "AI"}
+                    {item.scenario.title} · {t(`common:phases.${item.state.phase}`)} ·{" "}
+                    {formatNumber(item.state.turnCount)} {t("training:replies")}{" "}
+                    {item.provider.mode === "demo" ? t("training:demo") : t("training:aI")}
                     {item.state.courseTemplate?.learningPack
-                      ? ` · ${item.state.courseTemplate.learningPack.variations.find((variation) => variation.id === item.state.courseTemplate?.selectedVariationId)?.title ?? "Standard check-in"}`
+                      ? t("training:value", {
+                          v0: uiValue(
+                            item.state.courseTemplate.learningPack.variations.find(
+                              (variation) =>
+                                variation.id === item.state.courseTemplate?.selectedVariationId,
+                            )?.title ?? t("training:standardCheckIn"),
+                          ),
+                        })
                       : ""}
                   </option>
                 ))}
@@ -252,10 +268,12 @@ export function TrainingPage() {
           {!session ? (
             <>
               {pendingCourse ? (
-                <p className="text-sm text-slate-600">Using your configured course template.</p>
+                <p className="text-sm text-slate-600">
+                  {t("training:usingYourConfiguredCourseTemplate")}
+                </p>
               ) : (
                 <label className="block text-sm">
-                  Course
+                  {t("training:course")}
                   <select
                     className={control}
                     disabled={busy}
@@ -279,15 +297,20 @@ export function TrainingPage() {
                   {session.scenario.title} · {session.state.difficulty}
                 </h2>
                 {challenge && (
-                  <p className="text-sm text-slate-600">Practice challenge: {challenge.title}</p>
+                  <p className="text-sm text-slate-600">
+                    {t("training:practiceChallenge")}
+                    {challenge.title}
+                  </p>
                 )}
                 <p className="text-sm text-slate-500">
                   {session.provider.mode === "demo"
-                    ? "Guided demo · suggested replies only"
-                    : `Connected AI · ${session.provider.model}`}
+                    ? t("training:guidedDemoSuggestedRepliesOnly")
+                    : t("training:connectedAIValue", { v0: uiValue(session.provider.model) })}
                 </p>
                 <p className="text-sm font-medium">
-                  {stage ? `Current step: ${stage.title}` : "All lesson objectives demonstrated"}
+                  {stage
+                    ? t("training:currentStepValue", { v0: uiValue(stage.title) })
+                    : t("training:allLessonObjectivesDemonstrated")}
                 </p>
                 <ul className="space-y-1 text-sm">
                   {session.state.objectives.map((objective) => (
@@ -298,7 +321,7 @@ export function TrainingPage() {
                 </ul>
                 {stage && (
                   <ul
-                    aria-label="Current success criteria"
+                    aria-label={t("training:currentSuccessCriteria")}
                     className="list-disc pl-5 text-sm text-slate-600"
                   >
                     {stage.successCriteria.map((criterion) => (
@@ -310,7 +333,7 @@ export function TrainingPage() {
               {session.state.courseTemplate?.learningPack && (
                 <details className="text-sm">
                   <summary className="cursor-pointer font-medium text-slate-700">
-                    Lesson reference
+                    {t("training:lessonReference")}
                   </summary>
                   <div className="mt-3">
                     <CourseStudyPack template={session.state.courseTemplate} />
@@ -318,7 +341,7 @@ export function TrainingPage() {
                 </details>
               )}
               <VocabularyProgress session={session} />
-              <section aria-label="Speech playback" className="space-y-2 text-sm">
+              <section aria-label={t("training:speechPlayback")} className="space-y-2 text-sm">
                 <div className="flex flex-wrap gap-2">
                   <button
                     type="button"
@@ -337,7 +360,7 @@ export function TrainingPage() {
                       )
                     }
                   >
-                    Read latest partner reply
+                    {t("training:readLatestPartnerReply")}
                   </button>
                   <button
                     type="button"
@@ -345,31 +368,43 @@ export function TrainingPage() {
                     disabled={!["loading", "speaking"].includes(voice.playback.phase)}
                     onClick={voice.stopPlayback}
                   >
-                    Stop playback
+                    {t("training:stopPlayback")}
                   </button>
                 </div>
-                {voice.playback.phase === "loading" && <p role="status">Preparing speech…</p>}
-                {voice.playback.phase === "speaking" && <p role="status">Reading partner reply…</p>}
+                {voice.playback.phase === "loading" && (
+                  <p role="status">{t("training:preparingSpeech")}</p>
+                )}
+                {voice.playback.phase === "speaking" && (
+                  <p role="status">{t("training:readingPartnerReply")}</p>
+                )}
                 {voice.playback.error && (
                   <p role="alert" className="text-red-700">
-                    {voice.playback.error} Your saved lesson is unchanged; retry the read button.
+                    <LocalizedError error={voice.playback.error} />{" "}
+                    {t("training:yourSavedLessonIsUnchangedRetryTheReadButton")}
                   </p>
                 )}
               </section>
-              <ol aria-label="Conversation" className="space-y-3">
+              <ol aria-label={t("training:conversation")} className="space-y-3">
                 {session.messages.map((message) => (
                   <li
-                    key={message.seq}
+                    key={formatNumber(message.seq)}
                     className={`max-w-[90%] rounded-lg p-4 text-sm ${message.role === "user" ? "ml-auto bg-slate-900 text-white" : "border border-slate-200 bg-white"}`}
                   >
                     <p className="mb-1 text-xs font-medium">
                       {message.role === "user"
                         ? message.purpose === "support"
-                          ? "You · help request"
+                          ? t("training:youHelpRequest")
                           : message.speech
-                            ? `You · speech transcript${message.speech.edited ? " · edited" : " · reviewed"}`
-                            : "You"
-                        : (session.state.courseTemplate?.character?.name ?? "Practice partner")}
+                            ? t("training:youSpeechTranscriptValue", {
+                                v0: uiValue(
+                                  message.speech.edited
+                                    ? t("training:edited")
+                                    : t("training:reviewed"),
+                                ),
+                              })
+                            : t("training:you")
+                        : (session.state.courseTemplate?.character?.name ??
+                          t("training:practicePartner2"))}
                     </p>
                     <p className="whitespace-pre-wrap">{message.content}</p>
                     {message.role === "assistant" && (
@@ -384,7 +419,8 @@ export function TrainingPage() {
                         }
                         onClick={() => voice.speak(message.content)}
                       >
-                        Read message {message.seq}
+                        {t("training:readMessage")}
+                        {formatNumber(message.seq)}
                       </button>
                     )}
                   </li>
@@ -395,10 +431,10 @@ export function TrainingPage() {
                 session.lastTurn?.action === "light_correction" &&
                 session.lastTurn.errors[0] && (
                   <div
-                    aria-label="Correction"
+                    aria-label={t("training:correction")}
                     className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm"
                   >
-                    <p className="font-medium">A small correction</p>
+                    <p className="font-medium">{t("training:aSmallCorrection")}</p>
                     <p>
                       {session.lastTurn.errors[0].original} → {session.lastTurn.errors[0].corrected}
                     </p>
@@ -407,10 +443,13 @@ export function TrainingPage() {
                 )}
               {assessment && (
                 <div
-                  aria-label="Learning feedback"
+                  aria-label={t("training:learningFeedback")}
                   className="space-y-2 rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm"
                 >
-                  <h3 className="font-medium">Feedback · {assessmentStage?.title}</h3>
+                  <h3 className="font-medium">
+                    {t("training:feedback")}
+                    {assessmentStage?.title}
+                  </h3>
                   <p>{assessment.feedback}</p>
                   <ul>
                     {assessment.criteria.map((criterion) => (
@@ -457,7 +496,11 @@ export function TrainingPage() {
                     });
                   }}
                 >
-                  <div role="group" aria-label="Practice help" className="space-y-2 text-sm">
+                  <div
+                    role="group"
+                    aria-label={t("training:practiceHelp")}
+                    className="space-y-2 text-sm"
+                  >
                     <div className="flex flex-wrap gap-2">
                       <button
                         type="button"
@@ -470,7 +513,7 @@ export function TrainingPage() {
                           );
                         }}
                       >
-                        Repeat last reply
+                        {t("training:repeatLastReply")}
                       </button>
                       {session.provider.mode === "ai" && (
                         <button
@@ -484,7 +527,7 @@ export function TrainingPage() {
                             );
                           }}
                         >
-                          Use simpler English
+                          {t("training:useSimplerEnglish")}
                         </button>
                       )}
                       <button
@@ -503,18 +546,22 @@ export function TrainingPage() {
                           );
                         }}
                       >
-                        Give me a hint
+                        {t("training:giveMeAHint")}
                       </button>
                     </div>
                     <p className="text-xs text-slate-500">
-                      Hints used: {session.state.hintsGiven}/
-                      {session.state.courseTemplate?.teachingPolicy.maxHints ?? 3}. Help requests do
-                      not complete objectives.
+                      {t("training:hintsUsed")}
+                      {formatNumber(session.state.hintsGiven)}/
+                      {session.state.courseTemplate?.teachingPolicy.maxHints ?? 3}
+                      {t("training:helpRequestsDoNotCompleteObjectives")}
                     </p>
                   </div>
                   {example && (
                     <div className="rounded-lg bg-slate-50 p-3 text-sm">
-                      <p>Suggested reply: {example}</p>
+                      <p>
+                        {t("training:suggestedReply")}
+                        {example}
+                      </p>
                       <button
                         type="button"
                         disabled={busy || voice.capturing}
@@ -524,12 +571,12 @@ export function TrainingPage() {
                           setSpeechDraft(null);
                         }}
                       >
-                        Use suggested reply
+                        {t("training:useSuggestedReply")}
                       </button>
                     </div>
                   )}
                   <label className="block text-sm">
-                    Your reply
+                    {t("training:yourReply")}
                     <textarea
                       className={control}
                       rows={3}
@@ -558,7 +605,7 @@ export function TrainingPage() {
                     className={button}
                     disabled={busy || voice.capturing || !reply.trim()}
                   >
-                    {busy ? "Responding and saving…" : "Send reply"}
+                    {busy ? t("training:respondingAndSaving") : t("training:sendReply")}
                   </button>
                 </form>
               )}
@@ -569,13 +616,13 @@ export function TrainingPage() {
                   disabled={busy}
                   onClick={() => void finish()}
                 >
-                  {busy ? "Preparing review…" : "Finish and review"}
+                  {busy ? t("training:preparingReview") : t("training:finishAndReview")}
                 </button>
               )}
               {session.report && <LearningReport session={session} />}
               {session.provider.mode === "ai" && (
                 <details className="text-sm">
-                  <summary className="cursor-pointer">Update connection key</summary>
+                  <summary className="cursor-pointer">{t("training:updateConnectionKey")}</summary>
                   <form
                     className="mt-3 space-y-2"
                     onSubmit={(event) => {
@@ -584,7 +631,7 @@ export function TrainingPage() {
                     }}
                   >
                     <label>
-                      API key
+                      {t("training:aPIKey")}
                       <input
                         className={control}
                         type="password"
@@ -594,7 +641,7 @@ export function TrainingPage() {
                       />
                     </label>
                     <button type="submit" className={button} disabled={busy || !key.trim()}>
-                      Save API key
+                      {t("training:saveAPIKey")}
                     </button>
                   </form>
                 </details>

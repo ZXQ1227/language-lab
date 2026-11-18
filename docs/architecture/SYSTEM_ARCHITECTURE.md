@@ -212,3 +212,14 @@ TTS; opt-in automatic reading occurs only after successful saves. See
 [ADR-0017](../adr/ADR-0017-confirmed-speech-and-reply-playback.md) and
 [Voice loop](../development/VOICE_LOOP.md) for native permission configuration,
 transport limits and the required physical-device validation matrix.
+
+## Interface language and region
+
+Rust reads preferred OS UI language and independent regional settings through
+`get_system_locale`; the validated frontend locale store combines them with a
+versioned manual/system preference in the existing `learning_events` table.
+i18next resources rerender all current pages without changing learning state.
+The interface supports simplified Chinese, traditional Chinese and English, with
+English fallback for unsupported languages. UI locale never changes course,
+model, profile or speech-language inputs. See
+[ADR-0018](../adr/ADR-0018-system-locale-interface-language.md).
