@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { cefrLevelSchema, type ScenarioContent } from "@language-lab/core";
 import { defaultProfileMemory } from "@language-lab/memory";
 import { loadScenarioContent } from "../content/scenarioContent";
+import { matchesLibraryDifficulty } from "../content/courseDifficulty";
 import { CourseDesigner } from "../components/CourseDesigner";
 import { LocalizedError } from "../components/LocalizedError";
 import { formatDateTime, formatNumber } from "../i18n";
@@ -275,32 +276,63 @@ export function PlanPage() {
 export function GuidedPracticePage() {
   const { t } = useTranslation();
   const busy = useTrainingStore((state) => state.busy);
+  const difficulty = useNavStore((state) => state.libraryDifficulty);
   return (
     <section className="max-w-3xl space-y-5" aria-labelledby="guided-practice-heading">
       <h1 id="guided-practice-heading" className="text-3xl font-semibold tracking-tight">
         {t("common:workspace.libraryTabs.guided")}
       </h1>
-      <article className={`${panel} space-y-3`}>
-        <h2 className="text-lg font-semibold">{t("common:workspace.guidedLesson.title")}</h2>
-        <p className="text-sm text-ink-muted">{t("common:workspace.guidedLesson.description")}</p>
-        <button
-          type="button"
-          className={primary}
-          disabled={busy}
-          onClick={() => prepareCourse(guidedCourse)}
-        >
-          {t("common:workspace.beginCourse")}
-        </button>
-      </article>
+      {matchesLibraryDifficulty(guidedCourse.difficulty, difficulty) ? (
+        <article className={`${panel} space-y-3`}>
+          <h2 className="text-lg font-semibold">{t("common:workspace.guidedLesson.title")}</h2>
+          <p className="text-sm text-ink-muted">{t("common:workspace.guidedLesson.description")}</p>
+          <button
+            type="button"
+            className={primary}
+            disabled={busy}
+            onClick={() => prepareCourse(guidedCourse)}
+          >
+            {t("common:workspace.beginCourse")}
+          </button>
+        </article>
+      ) : (
+        <p role="status" className="text-sm text-ink-muted">
+          {t("scenarios:noMatchingLessons")}
+        </p>
+      )}
     </section>
   );
 }
 
 export function ListeningPage() {
   const { t } = useTranslation();
-  const [slug, setSlug] = useState(guidedCourse.slug);
+  const difficulty = useNavStore((state) => state.libraryDifficulty);
+  const options = courses.filter((course) =>
+    matchesLibraryDifficulty(course.difficulty, difficulty),
+  );
+  return (
+    <section className="max-w-3xl space-y-5" aria-labelledby="listening-heading">
+      <h1 id="listening-heading" className="text-3xl font-semibold tracking-tight">
+        {t("common:workspace.libraryTabs.listening")}
+      </h1>
+      {options.length ? (
+        <ListeningExercise key={difficulty} options={options} />
+      ) : (
+        <p role="status" className="text-sm text-ink-muted">
+          {t("scenarios:noMatchingLessons")}
+        </p>
+      )}
+    </section>
+  );
+}
+
+function ListeningExercise({ options }: { options: ScenarioContent[] }) {
+  const { t } = useTranslation();
+  const [slug, setSlug] = useState(
+    options.includes(guidedCourse) ? guidedCourse.slug : options[0]!.slug,
+  );
   const [revealed, setRevealed] = useState(false);
-  const course = courses.find((item) => item.slug === slug)!;
+  const course = options.find((item) => item.slug === slug)!;
   const template = course.courseTemplate!;
   const voice = useSpeechLoop(
     slug,
@@ -311,86 +343,81 @@ export function ListeningPage() {
   const busy = useTrainingStore((state) => state.busy);
   const playing = voice.playback.phase === "loading" || voice.playback.phase === "speaking";
   return (
-    <section className="max-w-3xl space-y-5" aria-labelledby="listening-heading">
-      <h1 id="listening-heading" className="text-3xl font-semibold tracking-tight">
-        {t("common:workspace.libraryTabs.listening")}
-      </h1>
-      <div className={`${panel} space-y-4`}>
-        <label className="block text-sm font-semibold">
-          {t("training:course")}
-          <select
-            className="form-control mt-2 block w-full rounded-lg border p-2.5"
-            value={slug}
-            onChange={(event) => {
-              voice.stopPlayback();
-              setRevealed(false);
-              setSlug(event.target.value);
-            }}
-          >
-            {courses.map((item) => (
-              <option key={item.slug} value={item.slug}>
-                {item.title}
-              </option>
-            ))}
-          </select>
-        </label>
-        <p className="text-sm text-ink-muted">{t("common:workspace.listeningInstructions")}</p>
-        <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            className={primary}
-            disabled={playing || !voice.settings || voice.settings.tts.mode === "off"}
-            onClick={() => voice.speak(template.openingLine)}
-          >
-            {t("common:workspace.playOpening")}
+    <div className={`${panel} space-y-4`}>
+      <label className="block text-sm font-semibold">
+        {t("training:course")}
+        <select
+          className="form-control mt-2 block w-full rounded-lg border p-2.5"
+          value={slug}
+          onChange={(event) => {
+            voice.stopPlayback();
+            setRevealed(false);
+            setSlug(event.target.value);
+          }}
+        >
+          {options.map((item) => (
+            <option key={item.slug} value={item.slug}>
+              {item.title}
+            </option>
+          ))}
+        </select>
+      </label>
+      <p className="text-sm text-ink-muted">{t("common:workspace.listeningInstructions")}</p>
+      <div className="flex flex-wrap gap-2">
+        <button
+          type="button"
+          className={primary}
+          disabled={playing || !voice.settings || voice.settings.tts.mode === "off"}
+          onClick={() => voice.speak(template.openingLine)}
+        >
+          {t("common:workspace.playOpening")}
+        </button>
+        {playing && (
+          <button type="button" className={secondary} onClick={voice.stopPlayback}>
+            {t("training:stopPlayback")}
           </button>
-          {playing && (
-            <button type="button" className={secondary} onClick={voice.stopPlayback}>
-              {t("training:stopPlayback")}
-            </button>
-          )}
-          <button
-            type="button"
-            className={secondary}
-            aria-expanded={revealed}
-            onClick={() => setRevealed((value) => !value)}
-          >
-            {revealed ? t("common:workspace.hideTranscript") : t("common:workspace.showTranscript")}
-          </button>
-        </div>
-        {voice.error && (
-          <p role="alert">
-            <LocalizedError error={voice.error} />
-          </p>
-        )}
-        {voice.playback.error && (
-          <p role="alert">
-            <LocalizedError error={voice.playback.error} />
-          </p>
-        )}
-        {(!voice.settings || voice.settings.tts.mode === "off" || voice.playback.error) && (
-          <button type="button" className="text-sm underline" onClick={() => navigate("settings")}>
-            {t("speech:speechSettings")}
-          </button>
-        )}
-        {revealed && (
-          <blockquote
-            lang={template.targetLanguage}
-            className="rounded-lg bg-chat-ai p-4 text-chat-ai-ink"
-          >
-            {template.openingLine}
-          </blockquote>
         )}
         <button
           type="button"
           className={secondary}
-          disabled={busy}
-          onClick={() => prepareCourse(course)}
+          aria-expanded={revealed}
+          onClick={() => setRevealed((value) => !value)}
         >
-          {t("common:workspace.replyInCourse")}
+          {revealed ? t("common:workspace.hideTranscript") : t("common:workspace.showTranscript")}
         </button>
       </div>
-    </section>
+      {voice.error && (
+        <p role="alert">
+          <LocalizedError error={voice.error} />
+        </p>
+      )}
+      {voice.playback.error && (
+        <p role="alert">
+          <LocalizedError error={voice.playback.error} />
+        </p>
+      )}
+      {(!voice.settings || voice.settings.tts.mode === "off" || voice.playback.error) && (
+        <button type="button" className="text-sm underline" onClick={() => navigate("settings")}>
+          {t("speech:speechSettings")}
+        </button>
+      )}
+      {revealed && (
+        <blockquote
+          lang={template.targetLanguage}
+          className="rounded-lg bg-chat-ai p-4 text-chat-ai-ink"
+        >
+          {template.openingLine}
+        </blockquote>
+      )}
+      <button
+        type="button"
+        className={secondary}
+        disabled={busy}
+        onClick={() => prepareCourse(course)}
+      >
+        {t("common:workspace.replyInCourse")}
+      </button>
+    </div>
   );
 }
 

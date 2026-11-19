@@ -2,67 +2,190 @@
   {
     "id": "travel",
     "courses": [
-      "airport-check-in",
-      "hotel-checkin",
-      "restaurant-order",
-      "cafe-order",
-      "city-transport",
-      "tourist-information",
-      "shopping-exchange",
-      "emergency-help",
-      "talking-to-locals"
+      {
+        "slug": "airport-check-in",
+        "topic": "airport-transit"
+      },
+      {
+        "slug": "hotel-checkin",
+        "topic": "hotel-tourism"
+      },
+      {
+        "slug": "restaurant-order",
+        "topic": "food-shopping"
+      },
+      {
+        "slug": "cafe-order",
+        "topic": "food-shopping"
+      },
+      {
+        "slug": "city-transport",
+        "topic": "airport-transit"
+      },
+      {
+        "slug": "tourist-information",
+        "topic": "hotel-tourism"
+      },
+      {
+        "slug": "shopping-exchange",
+        "topic": "food-shopping"
+      },
+      {
+        "slug": "emergency-help",
+        "topic": "hotel-tourism"
+      },
+      {
+        "slug": "talking-to-locals",
+        "topic": "hotel-tourism"
+      }
     ]
   },
   {
     "id": "career",
     "courses": [
-      "job-hunting",
-      "job-interview",
-      "work-onboarding",
-      "office-time-off",
-      "manager-update",
-      "colleague-collaboration",
-      "professional-networking",
-      "promotion-growth",
-      "meeting-negotiation"
+      {
+        "slug": "job-hunting",
+        "topic": "job-search"
+      },
+      {
+        "slug": "job-interview",
+        "topic": "job-interviews"
+      },
+      {
+        "slug": "work-onboarding",
+        "topic": "workplace"
+      },
+      {
+        "slug": "office-time-off",
+        "topic": "workplace"
+      },
+      {
+        "slug": "manager-update",
+        "topic": "workplace"
+      },
+      {
+        "slug": "colleague-collaboration",
+        "topic": "workplace"
+      },
+      {
+        "slug": "professional-networking",
+        "topic": "job-search"
+      },
+      {
+        "slug": "promotion-growth",
+        "topic": "job-interviews"
+      },
+      {
+        "slug": "meeting-negotiation",
+        "topic": "workplace"
+      }
     ]
   },
   {
     "id": "campus",
     "courses": [
-      "teacher-office-hours",
-      "classroom-discussion",
-      "classmate-teamup",
-      "campus-club",
-      "student-rental",
-      "part-time-job"
+      {
+        "slug": "teacher-office-hours",
+        "topic": "office-hours"
+      },
+      {
+        "slug": "classroom-discussion",
+        "topic": "classroom"
+      },
+      {
+        "slug": "classmate-teamup",
+        "topic": "campus-life"
+      },
+      {
+        "slug": "campus-club",
+        "topic": "campus-life"
+      },
+      {
+        "slug": "student-rental",
+        "topic": "campus-life"
+      },
+      {
+        "slug": "part-time-job",
+        "topic": "campus-life"
+      }
     ]
   },
   {
     "id": "overseas-life",
     "courses": [
-      "supermarket-service",
-      "doctor-visit",
-      "bank-account",
-      "home-repair",
-      "pet-vet",
-      "neighbour-community",
-      "holiday-visit",
-      "inclusive-invitation",
-      "pop-culture-chat",
-      "news-discussion"
+      {
+        "slug": "supermarket-service",
+        "topic": "daily-errands"
+      },
+      {
+        "slug": "doctor-visit",
+        "topic": "doctor-visits"
+      },
+      {
+        "slug": "bank-account",
+        "topic": "local-community"
+      },
+      {
+        "slug": "home-repair",
+        "topic": "daily-errands"
+      },
+      {
+        "slug": "pet-vet",
+        "topic": "doctor-visits"
+      },
+      {
+        "slug": "neighbour-community",
+        "topic": "local-community"
+      },
+      {
+        "slug": "holiday-visit",
+        "topic": "local-community"
+      },
+      {
+        "slug": "inclusive-invitation",
+        "topic": "local-community"
+      },
+      {
+        "slug": "pop-culture-chat",
+        "topic": "local-community"
+      },
+      {
+        "slug": "news-discussion",
+        "topic": "local-community"
+      }
     ]
   },
   {
     "id": "social",
     "courses": [
-      "small-talk",
-      "self-introduction",
-      "hobbies-talk",
-      "inviting-and-declining",
-      "party-conversation",
-      "online-socializing",
-      "keeping-in-touch"
+      {
+        "slug": "small-talk",
+        "topic": "introductions"
+      },
+      {
+        "slug": "self-introduction",
+        "topic": "introductions"
+      },
+      {
+        "slug": "hobbies-talk",
+        "topic": "social-interests"
+      },
+      {
+        "slug": "inviting-and-declining",
+        "topic": "social-interests"
+      },
+      {
+        "slug": "party-conversation",
+        "topic": "social-interests"
+      },
+      {
+        "slug": "online-socializing",
+        "topic": "keeping-in-touch"
+      },
+      {
+        "slug": "keeping-in-touch",
+        "topic": "keeping-in-touch"
+      }
     ]
   }
 ]

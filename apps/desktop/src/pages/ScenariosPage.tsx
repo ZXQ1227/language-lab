@@ -6,7 +6,9 @@ import { invoke } from "@tauri-apps/api/core";
 import type { ScenarioRow } from "@language-lab/database";
 import { scenarioContentSchema, type ScenarioContent } from "@language-lab/core";
 import { starterCoursePaths } from "../content/scenarioContent";
+import { matchesLibraryDifficulty } from "../content/courseDifficulty";
 import { CourseTemplateEditor } from "../components/CourseTemplateEditor";
+import { CourseTopicCard, CourseTopicDialog } from "../components/CourseTopic";
 import { useNavStore } from "../stores/nav";
 import { useTrainingStore } from "../stores/training";
 
@@ -31,7 +33,7 @@ function CourseCard({
   return (
     <article className="rounded-lg border border-line bg-surface p-5 shadow-sm">
       <div className="flex items-baseline justify-between gap-3">
-        <h2 className="text-base font-semibold text-ink">{item.title}</h2>
+        <h3 className="text-base font-semibold text-ink">{item.title}</h3>
         <span className="shrink-0 rounded-full bg-surface-secondary px-2.5 py-0.5 text-xs font-medium text-ink-muted">
           {!course && (
             <>{t(`common:categories.${item.category}`, { defaultValue: item.category })} · </>
@@ -39,17 +41,17 @@ function CourseCard({
           {item.difficulty}
         </span>
       </div>
-      <h3 className="mt-3 text-xs font-medium uppercase tracking-wide text-ink-muted">
+      <h4 className="mt-3 text-xs font-medium uppercase tracking-wide text-ink-muted">
         {t("scenarios:objectives")}
-      </h3>
+      </h4>
       <ul className="mt-1 list-disc space-y-0.5 pl-5 text-sm text-ink-muted">
         {item.objectives.map((objective) => (
           <li key={objective}>{objective}</li>
         ))}
       </ul>
-      <h3 className="mt-3 text-xs font-medium uppercase tracking-wide text-ink-muted">
+      <h4 className="mt-3 text-xs font-medium uppercase tracking-wide text-ink-muted">
         {t("scenarios:targetVocabulary")}
-      </h3>
+      </h4>
       <div className="mt-1 flex flex-wrap gap-1.5">
         {item.targetVocabulary.map((word) => (
           <span
@@ -78,15 +80,30 @@ function CourseCard({
 export function ScenariosPage() {
   const { t } = useTranslation();
   const navigate = useNavStore((state) => state.navigate);
+  const difficulty = useNavStore((state) => state.libraryDifficulty);
+  const setDifficulty = useNavStore((state) => state.setLibraryDifficulty);
   const prepare = useTrainingStore((state) => state.prepare);
   const busy = useTrainingStore((state) => state.busy);
   const [scenarios, setScenarios] = useState<ScenarioRow[] | null>(null);
-  const [selectedPath, setSelectedPath] = useState(starterCoursePaths[0]!);
+  const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
   const [imported, setImported] = useState<{ scenario: ScenarioContent; revision: number }[]>([]);
   const [importError, setImportError] = useState<string | null>(null);
   const [importing, setImporting] = useState(false);
+  const matches = (item: { difficulty: string }) =>
+    matchesLibraryDifficulty(item.difficulty, difficulty);
+  const paths = starterCoursePaths
+    .map(({ id, topics }) => ({
+      id,
+      topics: topics
+        .map((topic) => ({ ...topic, courses: topic.courses.filter(matches) }))
+        .filter(({ courses }) => courses.length > 0),
+    }))
+    .filter(({ topics }) => topics.length > 0);
+  const activeTopic = paths.flatMap(({ topics }) => topics).find(({ id }) => id === selectedTopic);
+  const visibleImports = imported.filter(({ scenario }) => matches(scenario));
+  const localScenarios = scenarios?.filter(matches) ?? [];
 
   useEffect(() => {
     let active = true;
@@ -137,38 +154,37 @@ export function ScenariosPage() {
 
   return (
     <section aria-label={t("scenarios:scenarios")} className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold text-ink">{t("scenarios:scenarios")}</h1>
-        <p className="mt-1 text-sm text-ink-muted">
-          {t("scenarios:realLifeConversationScenariosWithClearObjectivesAndTargetVocabulary")}
-        </p>
-      </div>
-
       <div className="space-y-2">
-        <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => navigate("training")}
-            className="button-primary rounded-lg px-3 py-2 text-sm font-semibold"
-          >
-            {t("common:workspace.roleplay")}
-          </button>
-          <label className="button-secondary inline-block cursor-pointer rounded-lg px-3 py-2 text-sm font-medium focus-within:ring-2 focus-within:ring-brand-primary hover:bg-line">
-            {t("scenarios:importCourseTemplate")}
-            <input
-              className="sr-only"
-              type="file"
-              accept=".json,application/json"
-              disabled={importing}
-              onChange={(event) => {
-                const file = event.target.files?.[0];
-                event.target.value = "";
-                if (file) void importCourse(file);
-              }}
-            />
-          </label>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h1 className="text-2xl font-semibold tracking-tight text-ink">
+            {t("scenarios:scenarios")}
+          </h1>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => navigate("training")}
+              className="button-primary rounded-lg px-3 py-2 text-sm font-semibold"
+            >
+              {t("common:workspace.roleplay")}
+            </button>
+            <label className="button-secondary inline-block cursor-pointer rounded-lg px-3 py-2 text-sm font-medium focus-within:ring-2 focus-within:ring-brand-primary hover:bg-line">
+              {t("scenarios:importCourseTemplate")}
+              <input
+                className="sr-only"
+                type="file"
+                accept=".json,application/json"
+                aria-describedby="course-import-note"
+                disabled={importing}
+                onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  event.target.value = "";
+                  if (file) void importCourse(file);
+                }}
+              />
+            </label>
+          </div>
         </div>
-        <p className="text-xs text-ink-muted">
+        <p id="course-import-note" className="sr-only">
           {t("scenarios:importedTemplatesAreAvailableForThisVisitExportAJSON")}
         </p>
         {importing && (
@@ -183,32 +199,6 @@ export function ScenariosPage() {
           </p>
         )}
       </div>
-
-      {imported.length > 0 && (
-        <section aria-label={t("scenarios:importedTemplates")} className="space-y-3">
-          <h2 className="font-semibold text-ink">{t("scenarios:importedTemplates")}</h2>
-          {imported.map(({ scenario, revision }) => (
-            <article
-              key={`${scenario.slug}:${revision}`}
-              className="rounded-lg border border-line-info bg-surface p-5"
-            >
-              <h3 className="font-semibold text-ink">{scenario.title}</h3>
-              <CourseTemplateEditor scenario={scenario} />
-              <button
-                type="button"
-                className="mt-3 text-sm text-ink-muted"
-                onClick={() =>
-                  setImported((current) =>
-                    current.filter((item) => item.scenario.slug !== scenario.slug),
-                  )
-                }
-              >
-                {t("scenarios:removeImportedTemplate")}
-              </button>
-            </article>
-          ))}
-        </section>
-      )}
 
       {error && (
         <div
@@ -231,44 +221,105 @@ export function ScenariosPage() {
         <p className="text-sm text-ink-muted">{t("scenarios:loadingScenarioLibrary")}</p>
       )}
 
-      <div role="group" aria-label={t("scenarios:learningPaths")} className="flex flex-wrap gap-2">
-        {starterCoursePaths.map((path) => (
-          <button
-            key={path.id}
-            type="button"
-            aria-pressed={path.id === selectedPath.id}
-            onClick={() => setSelectedPath(path)}
-            className="rounded-lg border border-line-strong bg-surface px-3 py-2 text-sm font-medium text-ink hover:bg-surface-hover aria-pressed:border-brand-primary aria-pressed:bg-brand-primary-soft aria-pressed:font-semibold aria-pressed:text-brand-ink aria-pressed:hover:bg-selected-hover"
+      {imported.length > 0 && (
+        <section aria-labelledby="imported-course-templates" className="space-y-3">
+          <h2 id="imported-course-templates" className="font-semibold text-ink">
+            {t("scenarios:importedTemplates")}
+          </h2>
+          <p className="text-xs text-ink-muted">
+            {t("scenarios:importedTemplatesAreAvailableForThisVisitExportAJSON")}
+          </p>
+          {visibleImports.length < imported.length && (
+            <button
+              type="button"
+              onClick={() => setDifficulty("all")}
+              className="text-sm font-semibold text-brand-ink underline underline-offset-4"
+            >
+              {t("scenarios:showImportedAtAllLevels")}
+            </button>
+          )}
+          {visibleImports.map(({ scenario, revision }) => (
+            <article
+              key={`${scenario.slug}:${revision}`}
+              className="rounded-lg border border-line-info bg-surface p-5"
+            >
+              <h3 className="font-semibold text-ink">{scenario.title}</h3>
+              <CourseTemplateEditor scenario={scenario} />
+              <button
+                type="button"
+                className="mt-3 text-sm text-ink-muted"
+                onClick={() =>
+                  setImported((current) =>
+                    current.filter((item) => item.scenario.slug !== scenario.slug),
+                  )
+                }
+              >
+                {t("scenarios:removeImportedTemplate")}
+              </button>
+            </article>
+          ))}
+        </section>
+      )}
+
+      {paths.length === 0 &&
+        visibleImports.length === 0 &&
+        localScenarios.length === 0 &&
+        (scenarios || error) && (
+          <p
+            role="status"
+            className="rounded-xl border border-line bg-surface p-4 text-sm text-ink-muted"
           >
-            {t(`common:categories.${path.id}`)}
-          </button>
+            {t("scenarios:noMatchingLessons")}
+          </p>
+        )}
+
+      <div
+        role="group"
+        aria-label={t("scenarios:learningPaths")}
+        className="@container space-y-7 empty:hidden"
+      >
+        {paths.map(({ id, topics }) => (
+          <section key={id} aria-labelledby={`course-path-${id}`} className="space-y-3">
+            <h2 id={`course-path-${id}`} className="text-lg font-semibold text-ink">
+              {t(`common:categories.${id}`)}
+            </h2>
+            <div className="grid gap-3 @min-[24rem]:grid-cols-2 @min-[32rem]:grid-cols-3">
+              {topics.map((topic) => (
+                <CourseTopicCard
+                  key={topic.id}
+                  topic={topic}
+                  onOpen={() => setSelectedTopic(topic.id)}
+                />
+              ))}
+            </div>
+          </section>
         ))}
       </div>
-      <section
-        aria-label={t(`common:categories.${selectedPath.id}`)}
-        className="grid items-start gap-4 sm:grid-cols-2"
-      >
-        {selectedPath.courses.map((course) => (
-          <CourseCard
-            key={course.slug}
-            item={course}
-            course={course}
-            busy={busy}
-            onPractise={(selected) => {
-              prepare(selected);
-              navigate("training");
-            }}
-          />
-        ))}
-      </section>
 
-      {!!scenarios?.length && (
+      {activeTopic && (
+        <CourseTopicDialog topic={activeTopic} onClose={() => setSelectedTopic(null)}>
+          {activeTopic.courses.map((course) => (
+            <CourseCard
+              key={course.slug}
+              item={course}
+              course={course}
+              busy={busy}
+              onPractise={(selected) => {
+                prepare(selected);
+                navigate("training");
+              }}
+            />
+          ))}
+        </CourseTopicDialog>
+      )}
+
+      {localScenarios.length > 0 && (
         <section className="space-y-3" aria-labelledby="other-local-scenarios">
           <h2 id="other-local-scenarios" className="font-semibold text-ink">
             {t("scenarios:otherLocalScenarios")}
           </h2>
           <div className="grid items-start gap-4 sm:grid-cols-2">
-            {scenarios.map((scenario) => (
+            {localScenarios.map((scenario) => (
               <CourseCard
                 key={scenario.id}
                 item={{

@@ -1,4 +1,4 @@
-import { openWorkspacePage } from "./helpers/navigation";
+import { openCourseTopic, openWorkspacePage } from "./helpers/navigation";
 import { readFile } from "node:fs/promises";
 import { expect, test } from "@playwright/test";
 import hotel from "../../content/scenarios/hotel-checkin.json";
@@ -141,7 +141,8 @@ test("exports and reimports a selected Hotel challenge as an editable source tem
   page,
 }) => {
   await openWorkspacePage(page, "Scenarios");
-  const card = page
+  const topic = await openCourseTopic(page, "Accommodation & visitor help");
+  const card = topic
     .getByRole("article")
     .filter({ has: page.getByRole("heading", { name: "Hotel Check-in", exact: true }) });
   await card.getByText("Configure course", { exact: true }).click();
@@ -156,6 +157,7 @@ test("exports and reimports a selected Hotel challenge as an editable source tem
   expect(source.courseTemplate.stages[0].instruction).toBe(
     hotel.courseTemplate.stages[0]!.instruction,
   );
+  await topic.getByRole("button", { name: "Close", exact: true }).click();
   await page
     .getByLabel("Import course template")
     .setInputFiles({ name: "my-hotel.json", mimeType: "application/json", buffer: data });

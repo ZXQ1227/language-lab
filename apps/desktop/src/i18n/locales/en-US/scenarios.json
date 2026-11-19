@@ -1,6 +1,5 @@
 {
   "scenarios": "Scenarios",
-  "realLifeConversationScenariosWithClearObjectivesAndTargetVocabulary": "Real-life conversation scenarios with clear objectives and target vocabulary.",
   "importCourseTemplate": "Import course template",
   "importedTemplatesAreAvailableForThisVisitExportAJSON": "Imported templates are available for this visit. Export a JSON copy to keep or share a configuration.",
   "validatingCourseTemplate": "Validating course template…",
@@ -13,5 +12,34 @@
   "objectives": "Objectives",
   "targetVocabulary": "Target vocabulary",
   "learningPaths": "Learning paths",
-  "otherLocalScenarios": "Other local scenarios"
+  "otherLocalScenarios": "Other local scenarios",
+  "difficulty": {
+    "label": "Difficulty",
+    "all": "All levels",
+    "beginner": "Beginner (A1–A2)",
+    "intermediate": "Intermediate (B1–B2)",
+    "advanced": "Advanced (C1–C2)"
+  },
+  "noMatchingLessons": "No lessons match this difficulty.",
+  "showImportedAtAllLevels": "Show imports at all levels",
+  "closeTopic": "Close",
+  "singleLesson": "{{total}} lesson",
+  "multipleLessons": "{{total}} lessons",
+  "topics": {
+    "airport-transit": "Airports & transport",
+    "hotel-tourism": "Accommodation & visitor help",
+    "food-shopping": "Dining & shopping",
+    "job-search": "Job search",
+    "job-interviews": "Interviews & career growth",
+    "workplace": "At work",
+    "office-hours": "Talking to teachers",
+    "classroom": "Classroom participation",
+    "campus-life": "Campus life",
+    "daily-errands": "Everyday errands",
+    "doctor-visits": "Health & care",
+    "local-community": "Local services & community",
+    "introductions": "Meeting people",
+    "social-interests": "Social plans & interests",
+    "keeping-in-touch": "Keeping in touch"
+  }
 }

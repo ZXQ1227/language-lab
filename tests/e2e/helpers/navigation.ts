@@ -31,3 +31,8 @@ export async function openWorkspacePage(page: Page, name: string) {
     await page.getByRole("button", { name: "Scenario roleplay", exact: true }).click();
   }
 }
+
+export async function openCourseTopic(page: Page, name: string) {
+  await page.getByRole("button", { name, exact: true }).click();
+  return page.getByRole("dialog", { name, exact: true });
+}

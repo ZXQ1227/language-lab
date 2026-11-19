@@ -1,4 +1,4 @@
-import { openWorkspacePage } from "./helpers/navigation";
+import { openCourseTopic, openWorkspacePage } from "./helpers/navigation";
 import { readFile } from "node:fs/promises";
 import { expect, test } from "@playwright/test";
 import cafeOrder from "../../content/scenarios/cafe-order.json";
@@ -8,13 +8,11 @@ test.beforeEach(async ({ page }) => {
   await installTauriMock(page);
   await page.goto("/");
   await openWorkspacePage(page, "Scenarios");
-  await expect(
-    page.getByRole("heading", { name: "Ordering at a cafe", exact: true }),
-  ).toBeVisible();
 });
 
 test("previews authored steps and validates configuration before export", async ({ page }) => {
-  const cafe = page
+  const topic = await openCourseTopic(page, "Dining & shopping");
+  const cafe = topic
     .getByRole("article")
     .filter({ has: page.getByRole("heading", { name: "Ordering at a cafe", exact: true }) });
   await cafe.getByText("Configure course", { exact: true }).click();
@@ -35,7 +33,8 @@ test("previews authored steps and validates configuration before export", async 
 test("exports configured content and reimports it without changing shipped templates or user data", async ({
   page,
 }) => {
-  const cafe = page
+  const topic = await openCourseTopic(page, "Dining & shopping");
+  const cafe = topic
     .getByRole("article")
     .filter({ has: page.getByRole("heading", { name: "Ordering at a cafe", exact: true }) });
   await cafe.getByText("Configure course", { exact: true }).click();
@@ -61,10 +60,16 @@ test("exports configured content and reimports it without changing shipped templ
     repeatCorrectionCooldownTurns: 6,
   });
   expect(template.courseTemplate.stages).toEqual(cafeOrder.courseTemplate.stages);
+  await topic.getByRole("button", { name: "Close", exact: true }).click();
+  const difficulty = page.getByRole("combobox", { name: "Difficulty", exact: true });
+  await difficulty.selectOption("beginner");
   await page
     .getByLabel("Import course template")
     .setInputFiles({ name: "my-course.json", mimeType: "application/json", buffer: exported });
   const imported = page.getByRole("region", { name: "Imported templates" });
+  await expect(imported.getByText("Configure course", { exact: true })).toHaveCount(0);
+  await imported.getByRole("button", { name: "Show imports at all levels" }).click();
+  await expect(difficulty).toHaveValue("all");
   await imported.getByText("Configure course", { exact: true }).click();
   await expect(imported.getByLabel("Practice level")).toHaveValue("B2");
   await expect(imported.getByLabel("Maximum hints")).toHaveValue("0");

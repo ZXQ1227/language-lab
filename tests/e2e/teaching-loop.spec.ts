@@ -1,4 +1,4 @@
-import { openWorkspacePage } from "./helpers/navigation";
+import { openCourseTopic, openWorkspacePage } from "./helpers/navigation";
 import { expect, test } from "@playwright/test";
 import { configureAiConnection, installTauriMock } from "./helpers/tauri-mock";
 
@@ -77,7 +77,8 @@ test("the configured course opens in Training with its level and feedback policy
   page,
 }) => {
   await openWorkspacePage(page, "Scenarios");
-  const cafe = page
+  const topic = await openCourseTopic(page, "Dining & shopping");
+  const cafe = topic
     .getByRole("article")
     .filter({ has: page.getByRole("heading", { name: "Ordering at a cafe", exact: true }) });
   await cafe.getByText("Configure course", { exact: true }).click();

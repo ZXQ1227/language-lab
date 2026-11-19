@@ -33,6 +33,15 @@ describe("content/scenarios", () => {
       ["social", 7, "small-talk"],
     ]);
     expect(files).toHaveLength(41);
+    for (const path of starterCoursePaths) {
+      expect(path.topics).toHaveLength(3);
+      expect(
+        path.topics
+          .flatMap((topic) => topic.courses)
+          .map((course) => course.slug)
+          .sort(),
+      ).toEqual(path.courses.map((course) => course.slug).sort());
+    }
   });
 
   it("every scenario file satisfies scenarioContentSchema", () => {

@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { homeTabs, libraryTabs, useNavStore, workspaces, type PageId } from "./stores/nav";
 import { syncScenarioContent } from "./content/syncScenarios";
+import { libraryDifficulties } from "./content/courseDifficulty";
 import {
   GuidedPracticePage,
   ListeningPage,
@@ -53,7 +54,7 @@ function SectionNavigation({
       aria-label={label}
       className={
         library
-          ? "mb-5 flex flex-wrap gap-2 border-b border-line pb-3"
+          ? "flex min-w-0 flex-wrap gap-1"
           : "mb-4 flex flex-wrap gap-x-5 gap-y-1 border-b border-line pt-1 sm:pt-4"
       }
     >
@@ -73,6 +74,31 @@ function SectionNavigation({
         </button>
       ))}
     </nav>
+  );
+}
+
+function LibraryDifficultySelect() {
+  const { t } = useTranslation();
+  const libraryDifficulty = useNavStore((state) => state.libraryDifficulty);
+  const setLibraryDifficulty = useNavStore((state) => state.setLibraryDifficulty);
+  return (
+    <label className="ml-auto flex items-center gap-2 text-sm font-medium text-ink-muted">
+      <span>{t("scenarios:difficulty.label")}</span>
+      <select
+        value={libraryDifficulty}
+        onChange={(event) => {
+          const selected = libraryDifficulties.find((value) => value === event.target.value);
+          if (selected) setLibraryDifficulty(selected);
+        }}
+        className="form-control rounded-xl border bg-surface px-2.5 py-2 font-semibold"
+      >
+        {libraryDifficulties.map((value) => (
+          <option key={value} value={value}>
+            {t(`scenarios:difficulty.${value}`)}
+          </option>
+        ))}
+      </select>
+    </label>
   );
 }
 
@@ -171,12 +197,15 @@ export function App() {
                 current={atLibrary ? "scenarios" : sectionPage}
               />
               {atLibrary && (
-                <SectionNavigation
-                  label={t("common:workspace.libraryNavigation")}
-                  pages={libraryTabs}
-                  current={sectionPage}
-                  library
-                />
+                <div className="mb-5 flex flex-wrap items-center justify-between gap-2 border-b border-line pb-3">
+                  <SectionNavigation
+                    label={t("common:workspace.libraryNavigation")}
+                    pages={libraryTabs}
+                    current={sectionPage}
+                    library
+                  />
+                  {page !== "training" && <LibraryDifficultySelect />}
+                </div>
               )}
             </>
           )}

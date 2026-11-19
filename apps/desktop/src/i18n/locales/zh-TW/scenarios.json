@@ -1,6 +1,5 @@
 {
   "scenarios": "情境課程",
-  "realLifeConversationScenariosWithClearObjectivesAndTargetVocabulary": "圍繞真實生活情境，練習明確的學習目標與重點詞彙。",
   "importCourseTemplate": "匯入課程範本",
   "importedTemplatesAreAvailableForThisVisitExportAJSON": "匯入的範本僅在本次造訪中可用。請匯出 JSON 副本以儲存或分享設定。",
   "validatingCourseTemplate": "正在驗證課程範本…",
@@ -13,5 +12,34 @@
   "objectives": "學習目標",
   "targetVocabulary": "重點詞彙",
   "learningPaths": "學習路徑",
-  "otherLocalScenarios": "其他本機情境"
+  "otherLocalScenarios": "其他本機情境",
+  "difficulty": {
+    "label": "難度",
+    "all": "所有難度",
+    "beginner": "初級（A1–A2）",
+    "intermediate": "中級（B1–B2）",
+    "advanced": "高級（C1–C2）"
+  },
+  "noMatchingLessons": "目前沒有符合此難度的課程。",
+  "showImportedAtAllLevels": "切換到所有難度以查看匯入課程",
+  "closeTopic": "關閉",
+  "singleLesson": "{{total}} 堂課",
+  "multipleLessons": "{{total}} 堂課",
+  "topics": {
+    "airport-transit": "機場與交通",
+    "hotel-tourism": "住宿與旅行求助",
+    "food-shopping": "餐飲與購物",
+    "job-search": "求職準備",
+    "job-interviews": "面試與職涯成長",
+    "workplace": "職場溝通",
+    "office-hours": "與老師交流",
+    "classroom": "課堂參與",
+    "campus-life": "校園日常",
+    "daily-errands": "日常購物與辦事",
+    "doctor-visits": "醫療與照護",
+    "local-community": "社區與公共服務",
+    "introductions": "初次見面",
+    "social-interests": "興趣與社交",
+    "keeping-in-touch": "保持聯絡"
+  }
 }

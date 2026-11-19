@@ -5,6 +5,7 @@ import { LessonConversation } from "../components/LessonConversation";
 import { SavedPracticePicker } from "../components/SavedPracticePicker";
 import { LocalizedError } from "../components/LocalizedError";
 import { loadScenarioContent } from "../content/scenarioContent";
+import { matchesLibraryDifficulty } from "../content/courseDifficulty";
 import { useNavStore } from "../stores/nav";
 import { useTrainingStore } from "../stores/training";
 
@@ -16,11 +17,15 @@ export function TrainingPage() {
   const { session, pendingCourse, loaded, busy, error, load } = useTrainingStore();
   const navigate = useNavStore((state) => state.navigate);
   const trainingReturnPage = useNavStore((state) => state.trainingReturnPage);
+  const difficulty = useNavStore((state) =>
+    state.trainingReturnPage === "scenarios" ? state.libraryDifficulty : "all",
+  );
   const [courseSlug, setCourseSlug] = useState("cafe-order");
   useEffect(() => {
     if (!loaded) void load();
   }, [loaded, load]);
-  const course = pendingCourse ?? courses.find((item) => item.slug === courseSlug)!;
+  const options = courses.filter((item) => matchesLibraryDifficulty(item.difficulty, difficulty));
+  const course = pendingCourse ?? options.find((item) => item.slug === courseSlug) ?? options[0];
   if (loaded && session) return <LessonConversation key={session.id} session={session} />;
   return (
     <section aria-label={t("training:training")} className="mx-auto max-w-2xl space-y-5">
@@ -63,24 +68,28 @@ export function TrainingPage() {
             <p className="text-sm text-ink-muted">
               {t("training:usingYourConfiguredCourseTemplate")}
             </p>
-          ) : (
+          ) : course ? (
             <label className="block text-sm">
               {t("training:course")}
               <select
                 className={control}
                 disabled={busy}
-                value={courseSlug}
+                value={course.slug}
                 onChange={(event) => setCourseSlug(event.target.value)}
               >
-                {courses.map((item) => (
+                {options.map((item) => (
                   <option value={item.slug} key={item.id}>
                     {item.title}
                   </option>
                 ))}
               </select>
             </label>
+          ) : (
+            <p role="status" className="text-sm text-ink-muted">
+              {t("scenarios:noMatchingLessons")}
+            </p>
           )}
-          <LessonSetup key={JSON.stringify(course)} course={course} />
+          {course && <LessonSetup key={JSON.stringify(course)} course={course} />}
         </>
       )}
     </section>

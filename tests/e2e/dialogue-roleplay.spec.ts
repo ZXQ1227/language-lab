@@ -1,4 +1,4 @@
-import { openWorkspacePage } from "./helpers/navigation";
+import { openCourseTopic, openWorkspacePage } from "./helpers/navigation";
 import { expect, test, type Page } from "@playwright/test";
 import hotel from "../../content/scenarios/hotel-checkin.json";
 import { configureAiConnection, installTauriMock } from "./helpers/tauri-mock";
@@ -68,7 +68,8 @@ test("guided repeat and hint preserve an unsent draft and never complete an obje
 }) => {
   await openHotel(page);
   await openWorkspacePage(page, "Scenarios");
-  const card = page
+  const topic = await openCourseTopic(page, "Accommodation & visitor help");
+  const card = topic
     .getByRole("article")
     .filter({ has: page.getByRole("heading", { name: "Hotel Check-in", exact: true }) });
   await card.getByText("Configure course", { exact: true }).click();

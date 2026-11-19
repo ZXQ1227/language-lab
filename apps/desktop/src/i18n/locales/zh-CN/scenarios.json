@@ -1,6 +1,5 @@
 {
   "scenarios": "场景课程",
-  "realLifeConversationScenariosWithClearObjectivesAndTargetVocabulary": "围绕真实生活场景，练习明确的学习目标与重点词汇。",
   "importCourseTemplate": "导入课程模板",
   "importedTemplatesAreAvailableForThisVisitExportAJSON": "导入的模板仅在本次访问中可用。请导出 JSON 副本以保存或分享配置。",
   "validatingCourseTemplate": "正在校验课程模板…",
@@ -13,5 +12,34 @@
   "objectives": "学习目标",
   "targetVocabulary": "重点词汇",
   "learningPaths": "学习路径",
-  "otherLocalScenarios": "其他本地场景"
+  "otherLocalScenarios": "其他本地场景",
+  "difficulty": {
+    "label": "难度",
+    "all": "全部难度",
+    "beginner": "初级（A1–A2）",
+    "intermediate": "中级（B1–B2）",
+    "advanced": "高级（C1–C2）"
+  },
+  "noMatchingLessons": "暂无符合该难度的课程。",
+  "showImportedAtAllLevels": "切换到全部难度以查看导入课程",
+  "closeTopic": "关闭",
+  "singleLesson": "{{total}} 节课",
+  "multipleLessons": "{{total}} 节课",
+  "topics": {
+    "airport-transit": "机场与交通",
+    "hotel-tourism": "住宿与旅行求助",
+    "food-shopping": "餐饮与购物",
+    "job-search": "求职准备",
+    "job-interviews": "面试与职业成长",
+    "workplace": "职场沟通",
+    "office-hours": "与老师交流",
+    "classroom": "课堂参与",
+    "campus-life": "校园日常",
+    "daily-errands": "日常购物与办事",
+    "doctor-visits": "医疗与照护",
+    "local-community": "社区与公共服务",
+    "introductions": "初次见面",
+    "social-interests": "兴趣与社交",
+    "keeping-in-touch": "保持联系"
+  }
 }

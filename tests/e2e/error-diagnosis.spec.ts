@@ -1,4 +1,4 @@
-import { openWorkspacePage } from "./helpers/navigation";
+import { openCourseTopic, openWorkspacePage } from "./helpers/navigation";
 import { expect, test, type Page } from "@playwright/test";
 import { configureAiConnection, installTauriMock } from "./helpers/tauri-mock";
 
@@ -48,7 +48,8 @@ async function startHotel(
   await installTauriMock(page);
   await page.goto("/");
   await openWorkspacePage(page, "Scenarios");
-  const card = page
+  const topic = await openCourseTopic(page, "Accommodation & visitor help");
+  const card = topic
     .getByRole("article")
     .filter({ has: page.getByRole("heading", { name: "Hotel Check-in", exact: true }) });
   await card.getByText("Configure course", { exact: true }).click();

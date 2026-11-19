@@ -9,9 +9,11 @@ stage ids, objective references and complete objective coverage.
 ## Author a course
 
 Copy an existing lesson from `content/scenarios/` and change its id, slug
-and title. The filename must be `<slug>.json`. List the slug once in the
-ordered path in `content/starter-catalog.json`. The desktop bundle reads
-the files and validates that the catalog contains exactly those lessons.
+and title. The filename must be `<slug>.json`. Add a `slug` and `topic` entry
+once in the ordered path in `content/starter-catalog.json`. The desktop bundle
+validates that the catalog contains exactly those lessons. New topics need
+localized names in the three `scenarios.json` resources and an original WebP
+cover named after the topic ID in `apps/desktop/src/assets/course-topics/`.
 
 | Field                                      | Meaning                                                                                                            |
 | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------ |
@@ -58,7 +60,7 @@ intervention behavior.
 
 ## Configure, preview, export and import
 
-In **Scenarios**, expand **Configure course** on a bundled scenario. Change
+In **Scenarios**, open a topic card and expand **Configure course** on a lesson. Change
 the practice level, correction style or feedback budgets. The preview uses the
 same `createLessonStateFromScenario` compiler as `TeachingOrchestrator.initLesson`.
 Invalid budgets disable export. **Export course JSON** downloads a complete,
@@ -77,9 +79,17 @@ activities when the level changes.
 
 ## Starter library
 
-Under **Home → Course library**, the five learning paths follow the supplied
-course outlines in order. Each topic has a practice lesson. Travel also includes
-the existing café lesson as a supplement.
+Under **Home → Course library**, scenario dialogues show 15 illustrated topics
+across the five ordered learning paths. Select a topic to see its lessons,
+objectives, vocabulary and setup options. The starter covers are original
+generated images bundled as WebP. Travel also includes the café lesson.
+
+The Difficulty menu applies across scenario dialogues, guided practice and
+listening. It defaults to all levels and groups CEFR into Beginner (A1–A2),
+Intermediate (B1–B2) and Advanced (C1–C2). Topic cards show the count and levels
+of matching lessons. Imported templates and local scenario listings use the
+same filter, as does the new-lesson picker when opened through Scenario
+roleplay. The starter catalog contains A2, B1 and B2 lessons.
 
 | Order | Learning path         | Lessons | First lesson                        |
 | ----- | --------------------- | ------- | ----------------------------------- |
