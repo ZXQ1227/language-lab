@@ -1,7 +1,7 @@
 <div align="center">
   <img src="docs/assets/sayden-icon.png" alt="Sayden icon" width="128" />
 
-# Sayden · 言港
+# Sayden
 
 **Practice here. Speak out there.**
 **真实对话，先练一遍。**

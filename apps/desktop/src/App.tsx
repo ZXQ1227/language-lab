@@ -15,6 +15,8 @@ import { LearningMemoryPage } from "./pages/LearningMemoryPage";
 import { useLocaleStore } from "./stores/locale";
 import { useTrainingStore } from "./stores/training";
 
+const saydenLogo = new URL("../src-tauri/icons/128x128.png", import.meta.url).href;
+
 const PAGES: Record<PageId, React.ReactNode> = {
   plan: <PlanPage />,
   scenarios: <ScenariosPage />,
@@ -76,12 +78,7 @@ export function App() {
       {!focused && (
         <aside className="border-b border-line bg-sidebar px-4 py-5 lg:sticky lg:top-0 lg:flex lg:h-screen lg:flex-col lg:border-r lg:border-b-0 lg:px-5 lg:py-8">
           <div className="flex items-center gap-3">
-            <span
-              aria-hidden="true"
-              className="brand-mark grid size-9 shrink-0 place-items-center rounded-lg text-sm font-bold text-ink"
-            >
-              {t("common:brand.monogram")}
-            </span>
+            <img src={saydenLogo} alt="" width={36} height={36} className="size-9 shrink-0" />
             <p className="font-semibold tracking-tight">{t("common:brand.name")}</p>
           </div>
           <nav

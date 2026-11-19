@@ -10,7 +10,7 @@ The desktop stylesheet defines the palette once in Tailwind's theme.
 Use role-based utilities such as `bg-surface`, `text-ink`,
 `border-line` and `bg-chat-ai`. Use `button-primary`, `button-secondary`,
 `button-ghost`, `button-record` and `form-control` to reuse interaction colors.
-The blue–lavender–pink gradient appears on the brand mark. The
+The startup screen and sidebar use the bundled Sayden logo and name. The
 blue–lavender–gold gradient appears behind the teacher portrait.
 [Desktop styles](../../apps/desktop/src/styles.css)
 

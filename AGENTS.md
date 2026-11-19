@@ -5,7 +5,7 @@ Code, and similar agents).
 
 ## What this project is
 
-Sayden · 言港 is a local-first AI language learning desktop app. Tauri 2 shell,
+Sayden is a local-first AI language learning desktop app. Tauri 2 shell,
 React + TypeScript frontend, Rust core, SQLite storage, pluggable LLM/ASR/TTS
 providers. Distributed via GitHub Releases; installable by AI assistants
 following `docs/installation/AI_INSTALL.md` (LLAIP protocol).

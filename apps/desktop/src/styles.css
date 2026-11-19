@@ -143,10 +143,6 @@
     @apply border-control bg-surface text-ink focus-visible:border-brand-primary;
   }
 
-  .brand-mark {
-    background-image: var(--gradient-brand);
-  }
-
   .teacher-avatar {
     background-image: var(--gradient-warm);
   }

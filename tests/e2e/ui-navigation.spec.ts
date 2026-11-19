@@ -8,7 +8,13 @@ test.beforeEach(async ({ page }) => {
 });
 
 test("shows the four learning workspaces and the plan at startup", async ({ page }) => {
-  await expect(page.getByText("Sayden · 言港", { exact: true })).toBeVisible();
+  const sidebar = page.getByRole("complementary");
+  await expect(sidebar.getByText("Sayden", { exact: true })).toBeVisible();
+  const logo = sidebar.locator("img");
+  await expect(logo).toBeVisible();
+  await expect
+    .poll(() => logo.evaluate((image: HTMLImageElement) => image.naturalWidth))
+    .toBeGreaterThan(0);
   const nav = page.getByRole("navigation", { name: "Main navigation" });
   await expect(nav.getByRole("button")).toHaveText([
     "Home",
