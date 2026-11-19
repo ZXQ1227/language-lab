@@ -14,7 +14,18 @@ const resultSchema = z.object({
   text: z.string().trim().min(1).max(4000),
   confidence: z.number().min(0).max(1).optional(),
 });
-const formats = ["audio/webm;codecs=opus", "audio/mp4", "audio/ogg;codecs=opus", "audio/webm"];
+/**
+ * Negotiation order matters: macOS WKWebView happily records webm/opus, but
+ * the Apple Speech recognizer used by device mode only decodes MP4/AAC
+ * containers. Prefer audio/mp4 so both device recognition and OpenAI-
+ * compatible endpoints receive audio they can decode.
+ */
+export const RECORDING_FORMATS = [
+  "audio/mp4",
+  "audio/webm;codecs=opus",
+  "audio/ogg;codecs=opus",
+  "audio/webm",
+] as const;
 
 /** One in-memory recording. All asynchronous callbacks are invalidated on cancel/dispose. */
 export class SpeechCapture {
@@ -80,7 +91,7 @@ export class SpeechCapture {
         return;
       }
       this.stream = stream;
-      const mimeType = formats.find((format) => MediaRecorder.isTypeSupported(format));
+      const mimeType = RECORDING_FORMATS.find((format) => MediaRecorder.isTypeSupported(format));
       const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
       this.recorder = recorder;
       const chunks: Blob[] = [];

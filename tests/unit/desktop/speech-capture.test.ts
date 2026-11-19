@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { AsrProvider } from "@language-lab/model-gateway";
 import {
   MAX_RECORDING_MS,
+  RECORDING_FORMATS,
   SpeechCapture,
   type CaptureState,
 } from "../../../apps/desktop/src/speech/capture";
@@ -53,6 +54,15 @@ beforeEach(() => {
 afterEach(() => {
   vi.unstubAllGlobals();
   vi.useRealTimers();
+});
+
+describe("recording format negotiation", () => {
+  it("prefers MP4 so Apple Speech (device mode) receives a decodable container", () => {
+    expect(RECORDING_FORMATS[0]).toBe("audio/mp4");
+    expect(RECORDING_FORMATS).not.toContain("audio/mpeg");
+    const webmIndex = RECORDING_FORMATS.findIndex((f) => f.startsWith("audio/webm"));
+    expect(webmIndex).toBeGreaterThan(0);
+  });
 });
 
 describe("microphone lifecycle", () => {
