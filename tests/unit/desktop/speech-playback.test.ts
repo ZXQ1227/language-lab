@@ -1,7 +1,15 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { TtsProvider } from "@language-lab/model-gateway";
 import { SpeechPlayback, type PlaybackState } from "../../../apps/desktop/src/speech/playback";
-import { defaultSpeechSettings } from "../../../apps/desktop/src/speech/settings";
+import {
+  defaultSpeechSettings,
+  speechSettingsSchema,
+} from "../../../apps/desktop/src/speech/settings";
+import {
+  characterVoiceStyle,
+  preferredVoiceStyle,
+  selectProviderVoice,
+} from "../../../apps/desktop/src/speech/voices";
 
 class Utterance {
   lang = "";
@@ -52,6 +60,33 @@ afterEach(() => {
   vi.useRealTimers();
 });
 describe("speech playback lifecycle", () => {
+  it("uses a local female voice for Zoi and respects an explicit male override", async () => {
+    const { player } = setup();
+    const settings = defaultSpeechSettings();
+    synthesis.getVoices.mockReturnValue([
+      { name: "Daniel", lang: "en-US", localService: true, default: true },
+      { name: "Samantha", lang: "en-US", localService: false },
+      { name: "Microsoft Zira", lang: "en-GB", localService: true },
+      { name: "Samantha (Enhanced)", lang: "en-US", localService: true },
+    ]);
+    await player.play("Welcome", "en-US", settings, vi.fn(), characterVoiceStyle());
+    expect(synthesis.speak.mock.calls[0]![0].voice.name).toBe("Samantha (Enhanced)");
+    settings.tts.voiceMode = "male";
+    await player.play("Welcome", "en-US", settings, vi.fn(), characterVoiceStyle());
+    expect(synthesis.speak.mock.calls[1]![0].voice.name).toBe("Daniel");
+    player.dispose();
+  });
+  it("falls back within the course language when the desired local voice is missing", async () => {
+    const { player } = setup();
+    synthesis.getVoices.mockReturnValue([
+      { name: "Samantha", lang: "en-US", localService: true },
+      { name: "Ting-Ting", lang: "zh-CN", localService: false },
+      { name: "Microsoft Yunxi", lang: "zh-CN", localService: true },
+    ]);
+    await player.play("你好", "zh-CN", defaultSpeechSettings(), vi.fn(), characterVoiceStyle());
+    expect(synthesis.speak.mock.calls[0]![0].voice.name).toBe("Microsoft Yunxi");
+    player.dispose();
+  });
   it("selects a local course-language voice and stops it on completion or disposal", async () => {
     const { player, states } = setup();
     const settings = defaultSpeechSettings();
@@ -89,10 +124,12 @@ describe("speech playback lifecycle", () => {
       synthesize,
       healthCheck: async () => ({ ok: true }),
     });
-    await player.play("First", "en", settings, provider);
+    await player.play("First", "en", settings, provider, characterVoiceStyle());
+    expect(synthesize).toHaveBeenLastCalledWith("First", "nova", expect.anything());
     const first = AudioStub.instances[0]!;
     expect(states.at(-1)?.phase).toBe("speaking");
-    await player.play("Second", "en", settings, provider);
+    await player.play("Second", "en", settings, provider, characterVoiceStyle({ name: "Daniel" }));
+    expect(synthesize).toHaveBeenLastCalledWith("Second", "onyx", expect.anything());
     expect(first.pause).toHaveBeenCalledOnce();
     expect(URL.revokeObjectURL).toHaveBeenCalledOnce();
     player.dispose();
@@ -122,5 +159,35 @@ describe("speech playback lifecycle", () => {
     expect(states.at(-1)?.phase).toBe("idle");
     expect(URL.createObjectURL).not.toHaveBeenCalled();
     expect(synthesize.mock.calls[0]![2]!.signal!.aborted).toBe(true);
+  });
+});
+
+describe("character voice choices", () => {
+  it("matches only known characters and lets authored preferences take precedence", () => {
+    expect(characterVoiceStyle()).toBe("female");
+    expect(characterVoiceStyle({ name: " MAYA " })).toBe("female");
+    expect(characterVoiceStyle({ name: "Daniel" })).toBe("male");
+    expect(characterVoiceStyle({ name: "Taylor" })).toBeUndefined();
+    expect(characterVoiceStyle({ name: "Maya", voiceStyle: "male" })).toBe("male");
+  });
+
+  it("keeps older provider IDs and uses configured IDs with custom endpoints", () => {
+    const defaults = defaultSpeechSettings();
+    const legacy = speechSettingsSchema.parse({
+      ...defaults,
+      tts: { ...defaults.tts, voiceMode: undefined, mode: "provider", voice: "custom" },
+    });
+    const zoi = characterVoiceStyle();
+    expect(preferredVoiceStyle(legacy.tts, zoi)).toBeUndefined();
+    expect(selectProviderVoice(legacy.tts)).toBe("custom");
+    const provider = {
+      ...legacy.tts,
+      voiceMode: "auto" as const,
+      baseUrl: "http://localhost:9191/v1",
+      femaleVoice: "af_heart",
+    };
+    expect(selectProviderVoice(provider, preferredVoiceStyle(provider, zoi))).toBe("af_heart");
+    expect(selectProviderVoice(provider, "male")).toBe("custom");
+    expect(preferredVoiceStyle({ ...legacy.tts, mode: "system" }, zoi)).toBe("female");
   });
 });

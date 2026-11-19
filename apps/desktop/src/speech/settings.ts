@@ -13,6 +13,7 @@ const connection = z.object({
   baseUrl: audioEndpointSchema,
   model: z.string().trim().min(1).max(120),
 });
+const voiceId = z.string().regex(/^[a-zA-Z0-9_-]{1,80}$/);
 export const speechSettingsSchema = z.object({
   version: z.literal(1),
   asr: connection.extend({
@@ -23,7 +24,10 @@ export const speechSettingsSchema = z.object({
   }),
   tts: connection.extend({
     mode: z.enum(["off", "system", "provider"]),
-    voice: z.string().regex(/^[a-zA-Z0-9_-]{1,80}$/),
+    voice: voiceId,
+    voiceMode: z.enum(["auto", "female", "male", "default"]).optional(),
+    femaleVoice: voiceId.optional(),
+    maleVoice: voiceId.optional(),
     rate: z.number().min(0.5).max(1.5),
     autoRead: z.boolean(),
   }),
@@ -42,6 +46,7 @@ export const defaultSpeechSettings = (): SpeechSettings => ({
     baseUrl: "https://api.openai.com/v1",
     model: "tts-1",
     voice: "alloy",
+    voiceMode: "auto",
     rate: 1,
     autoRead: false,
   },

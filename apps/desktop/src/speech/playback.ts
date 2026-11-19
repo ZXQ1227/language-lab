@@ -1,11 +1,17 @@
 import { GatewayError, type TtsProvider } from "@language-lab/model-gateway";
+import type { VoiceStyle } from "@language-lab/core";
 import type { SpeechSettings } from "./settings";
+import { preferredVoiceStyle, selectDeviceVoice, selectProviderVoice } from "./voices";
 
 export interface PlaybackState {
   phase: "idle" | "loading" | "speaking" | "error";
   error?: string;
 }
-function installedVoice(language: string, signal: AbortSignal): Promise<SpeechSynthesisVoice> {
+function installedVoice(
+  language: string,
+  signal: AbortSignal,
+  style?: VoiceStyle,
+): Promise<SpeechSynthesisVoice> {
   return new Promise((resolve, reject) => {
     const synthesis = window.speechSynthesis;
     const cleanup = () => {
@@ -18,11 +24,7 @@ function installedVoice(language: string, signal: AbortSignal): Promise<SpeechSy
       reject(new Error("cancelled"));
     };
     const check = () => {
-      const local = synthesis.getVoices().filter((voice) => voice.localService);
-      const normalized = language.toLowerCase();
-      const voice =
-        local.find((v) => v.lang.toLowerCase() === normalized) ??
-        local.find((v) => v.lang.split("-")[0]!.toLowerCase() === normalized.split("-")[0]);
+      const voice = selectDeviceVoice(synthesis.getVoices(), language, style);
       if (voice) {
         cleanup();
         resolve(voice);
@@ -86,6 +88,7 @@ export class SpeechPlayback {
     language: string,
     settings: SpeechSettings,
     provider: () => Promise<TtsProvider>,
+    characterStyle?: VoiceStyle,
   ) {
     if (this.disposed) return;
     this.stop();
@@ -115,10 +118,11 @@ export class SpeechPlayback {
     }, 120000);
     try {
       if (!text.trim() || text.length > 4000) throw new Error("text_limit");
+      const style = preferredVoiceStyle(settings.tts, characterStyle);
       if (settings.tts.mode === "system") {
         if (!window.speechSynthesis || typeof SpeechSynthesisUtterance === "undefined")
           throw new Error("voice_missing");
-        const voice = await installedVoice(language, abort.signal);
+        const voice = await installedVoice(language, abort.signal, style);
         if (!active()) return;
         const utterance = new SpeechSynthesisUtterance(text);
         this.utterance = utterance;
@@ -132,7 +136,9 @@ export class SpeechPlayback {
       } else {
         const tts = await provider();
         if (!active()) return;
-        const result = await tts.synthesize(text, settings.tts.voice, { signal: abort.signal });
+        const result = await tts.synthesize(text, selectProviderVoice(settings.tts, style), {
+          signal: abort.signal,
+        });
         if (!active()) return;
         this.url = URL.createObjectURL(
           new Blob([new Uint8Array(result.audio)], { type: result.mimeType }),

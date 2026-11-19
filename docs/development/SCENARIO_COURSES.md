@@ -101,6 +101,9 @@ See [ADR-0019](../adr/ADR-0019-validated-ai-course-design.md).
 port. `resolveCourseTemplate` compiles a chosen challenge from the original source
 without mutating its standard stages. Checkpoints contain the resolved snapshot;
 exported templates retain their editable source and selected challenge id.
+The optional `courseTemplate.character.voiceStyle` field accepts `female` or
+`male` for character-based reply playback. See
+[voice selection](VOICE_LOOP.md#setup-and-use).
 The desktop Training composition returns the selected bundled, imported or generated
 course from `findScenario`. The current SQLite `scenarios` row stays a metadata
 projection; no database migration is necessary for this step.

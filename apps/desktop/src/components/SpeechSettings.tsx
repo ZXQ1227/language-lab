@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { useSpeechStore } from "../stores/speech";
 import type { SpeechSettings as Settings } from "../speech/settings";
+import { openAiRoleVoice, voiceMode } from "../speech/voices";
 
 const control = "mt-1 block w-full rounded border border-slate-300 bg-white p-2 text-sm";
 function Editor({ saved }: { saved: Settings }) {
@@ -12,6 +13,7 @@ function Editor({ saved }: { saved: Settings }) {
   const [keys, setKeys] = useState({ asr: "", tts: "" });
   const [savedMessage, setSavedMessage] = useState(false);
   const dirty = JSON.stringify(draft) !== JSON.stringify(saved) || !!keys.asr || !!keys.tts;
+  const selectedVoiceMode = voiceMode(draft.tts);
   return (
     <form
       className="space-y-4"
@@ -120,6 +122,35 @@ function Editor({ saved }: { saved: Settings }) {
           <option value="provider">{t("speech:openAICompatibleTTSProvider")}</option>
         </select>
       </label>
+      {draft.tts.mode !== "off" && (
+        <>
+          <label className="block max-w-xs text-sm">
+            {t("speech:voiceSelection")}
+            <select
+              className={control}
+              disabled={busy}
+              value={selectedVoiceMode}
+              onChange={(e) =>
+                setDraft({
+                  ...draft,
+                  tts: {
+                    ...draft.tts,
+                    voiceMode: e.target.value as Settings["tts"]["voiceMode"],
+                  },
+                })
+              }
+            >
+              <option value="auto">{t("speech:voiceFollowCharacter")}</option>
+              <option value="female">{t("speech:voiceFemale")}</option>
+              <option value="male">{t("speech:voiceMale")}</option>
+              <option value="default">{t("speech:voiceDefault")}</option>
+            </select>
+          </label>
+          {draft.tts.mode === "system" && selectedVoiceMode !== "default" && (
+            <p className="text-xs text-slate-500">{t("speech:deviceVoiceSelectionHint")}</p>
+          )}
+        </>
+      )}
       {draft.tts.mode === "provider" && (
         <fieldset className="space-y-3" disabled={busy}>
           <label className="block text-sm">
@@ -154,6 +185,33 @@ function Editor({ saved }: { saved: Settings }) {
               onChange={(e) => setDraft({ ...draft, tts: { ...draft.tts, voice: e.target.value } })}
             />
           </label>
+          {selectedVoiceMode !== "default" && (
+            <>
+              {(["female", "male"] as const).map((style) => {
+                const field = style === "female" ? "femaleVoice" : "maleVoice";
+                return (
+                  <label key={style} className="block text-sm">
+                    {style === "female"
+                      ? t("speech:providerFemaleVoice")
+                      : t("speech:providerMaleVoice")}
+                    <input
+                      className={control}
+                      maxLength={80}
+                      placeholder={openAiRoleVoice(draft.tts, style) ?? draft.tts.voice}
+                      value={draft.tts[field] ?? ""}
+                      onChange={(e) =>
+                        setDraft({
+                          ...draft,
+                          tts: { ...draft.tts, [field]: e.target.value || undefined },
+                        })
+                      }
+                    />
+                  </label>
+                );
+              })}
+              <p className="text-xs text-slate-500">{t("speech:providerVoiceSelectionHint")}</p>
+            </>
+          )}
           <label className="block text-sm">
             {t("speech:tTSAPIKeyLeaveBlankToKeepSavedKey")}
             <input

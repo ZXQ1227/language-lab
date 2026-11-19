@@ -120,6 +120,7 @@ test("records, reviews, commits confirmed speech and plays the saved partner rep
         },
       });
     speechCalls++;
+    expect(route.request().postDataJSON().voice).toBe("role-female-test");
     await route.fulfill({
       contentType: "audio/mpeg",
       headers: { "access-control-allow-origin": "*" },
@@ -127,6 +128,10 @@ test("records, reviews, commits confirmed speech and plays the saved partner rep
     });
   });
   await configure(page);
+  await page
+    .getByRole("textbox", { name: "Female voice ID", exact: true })
+    .fill("role-female-test");
+  await nav(page, "Save speech settings");
   await start(page);
   await record(page);
   const recognized = page.getByRole("textbox", { name: "Recognized speech", exact: true });
@@ -171,6 +176,52 @@ test("records, reviews, commits confirmed speech and plays the saved partner rep
   await openWorkspacePage(page, "Training");
   await expect(page.getByLabel("Conversation")).toContainText("speech transcript · edited");
   expect(speechCalls).toBe(2);
+});
+
+test("reads Zoi with the installed female voice and restores a manual male override", async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(window, "SpeechSynthesisUtterance", {
+      value: class {
+        voice?: { name: string };
+        constructor(readonly text: string) {}
+      },
+    });
+    Object.defineProperty(window, "speechSynthesis", {
+      value: Object.assign(new EventTarget(), {
+        getVoices: () => [
+          { name: "Daniel", lang: "en-US", localService: true, default: true },
+          { name: "Samantha", lang: "en-US", localService: true },
+        ],
+        speak: (utterance: SpeechSynthesisUtterance) =>
+          sessionStorage.setItem("selected-device-voice", utterance.voice?.name ?? ""),
+        cancel() {},
+      }),
+    });
+  });
+  await page.reload();
+  await openWorkspacePage(page, "Training");
+  await nav(page, "Start lesson");
+  await expect(page.getByLabel("Conversation").getByText("Zoi", { exact: true })).toBeVisible();
+  const selected = () => page.evaluate(() => sessionStorage.getItem("selected-device-voice"));
+  await nav(page, "Read latest partner reply");
+  await expect.poll(selected).toBe("Samantha");
+
+  await openWorkspacePage(page, "Settings");
+  const mode = page.getByRole("combobox", { name: "Voice selection", exact: true });
+  await expect(mode).toHaveValue("auto");
+  await mode.selectOption("male");
+  await nav(page, "Save speech settings");
+  await expect(page.getByLabel("Speech settings").getByRole("status")).toContainText(
+    "saved on this device",
+  );
+  await page.reload();
+  await openWorkspacePage(page, "Settings");
+  await expect(mode).toHaveValue("male");
+  await openWorkspacePage(page, "Training");
+  await nav(page, "Read latest partner reply");
+  await expect.poll(selected).toBe("Daniel");
 });
 
 test("retries ASR explicitly, preserves an existing draft and cleans up recording on navigation", async ({

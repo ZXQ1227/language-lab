@@ -83,6 +83,10 @@
               "minLength": 1,
               "maxLength": 60
             },
+            "voiceStyle": {
+              "type": "string",
+              "enum": ["female", "male"]
+            },
             "traits": {
               "minItems": 1,
               "maxItems": 5,

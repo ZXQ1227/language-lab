@@ -5,6 +5,7 @@ import { formatNumber } from "../i18n";
 import { useNavStore } from "../stores/nav";
 import { useTrainingStore } from "../stores/training";
 import { useSpeechLoop } from "../speech/useSpeechLoop";
+import { characterVoiceStyle } from "../speech/voices";
 import type { TrainingSession } from "../training/session";
 import { CourseStudyPack, CourseReviewPractice } from "./CourseStudyPack";
 import { LanguageFeedback } from "./LanguageFeedback";
@@ -23,7 +24,8 @@ export function LessonConversation({ session }: { session: TrainingSession }) {
   const { busy, error, prepare, finish, saveReviewAnswers } = useTrainingStore();
   const navigate = useNavStore((state) => state.navigate);
   const language = session.state.courseTemplate?.targetLanguage ?? "en";
-  const voice = useSpeechLoop(session.id, language);
+  const character = session.state.courseTemplate?.character;
+  const voice = useSpeechLoop(session.id, language, characterVoiceStyle(character));
   const stage = getCurrentCourseStage(session.state);
   const assessment = session.lastTurn?.assessment;
   const assessmentStage = session.state.courseTemplate?.stages.find(
@@ -34,7 +36,6 @@ export function LessonConversation({ session }: { session: TrainingSession }) {
   );
   const phase = session.state.phase;
   const immersive = phase !== "done";
-  const character = session.state.courseTemplate?.character;
   const partner = character?.name ?? t("training:defaultPartnerName");
   const completed = session.state.objectives.filter((objective) => objective.completed).length;
   const total = session.state.objectives.length;

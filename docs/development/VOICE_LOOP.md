@@ -20,6 +20,20 @@ uses MP3 (`response_format: mp3`) and the selected speed. A reachable model-list
 endpoint does not prove that its audio models are supported. Existing LLM setup
 does not automatically enable or authorize a speech service.
 
+**Voice selection** offers Follow character, Female voice, Male voice and
+Default voice. Follow character prefers a female voice for Zoi and Maya and a
+male voice for Daniel. An authored character's `voiceStyle` takes priority
+over its name. Unknown names use the default voice for the course. The same
+choice applies to reply buttons, automatic reading and listening previews.
+
+Device voices come from the OS. Sayden looks for a recognized voice name in
+the course language and falls back to a local voice in that language when
+the requested style is unavailable. With a compatible TTS provider, fill in
+the female and male voice IDs in Settings. For supported OpenAI speech models
+on the official endpoint, blank fields use Nova and Onyx. With other providers
+they use the saved TTS voice. Existing provider preferences keep their selected
+voice until the learner switches to character or explicit voice selection.
+
 During Training, the reply controls stay at the bottom of the conversation.
 With recognition enabled, the lesson opens with the recording control ready and
 the keyboard collapsed. Select **Keyboard** to type or return to a draft.

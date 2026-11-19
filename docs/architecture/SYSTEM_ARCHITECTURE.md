@@ -220,6 +220,11 @@ TTS; opt-in automatic reading occurs only after successful saves. See
 [Voice loop](../development/VOICE_LOOP.md) for native permission configuration,
 transport limits and the required physical-device validation matrix.
 
+Playback resolves a character's optional voice style and known name against the
+learner's voice preference. It then selects an installed same-language device
+voice or a compatible provider voice ID. Older course and speech preference
+payloads stay readable. See [ADR-0020](../adr/ADR-0020-character-voice-selection.md).
+
 ## Interface language and region
 
 Rust reads preferred OS UI language and independent regional settings through

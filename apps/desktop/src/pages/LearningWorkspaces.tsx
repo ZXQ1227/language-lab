@@ -10,6 +10,7 @@ import { useNavStore } from "../stores/nav";
 import { useAiProviderStore } from "../stores/aiProvider";
 import { useTrainingStore } from "../stores/training";
 import { useSpeechLoop } from "../speech/useSpeechLoop";
+import { characterVoiceStyle } from "../speech/voices";
 
 const courses = loadScenarioContent().filter((course) => course.courseTemplate);
 const guidedCourse = courses.find((course) => course.slug === "hotel-checkin")!;
@@ -318,7 +319,11 @@ export function ListeningPage() {
   const [revealed, setRevealed] = useState(false);
   const course = courses.find((item) => item.slug === slug)!;
   const template = course.courseTemplate!;
-  const voice = useSpeechLoop(slug, template.targetLanguage);
+  const voice = useSpeechLoop(
+    slug,
+    template.targetLanguage,
+    characterVoiceStyle(template.character),
+  );
   const navigate = useNavStore((state) => state.navigate);
   const busy = useTrainingStore((state) => state.busy);
   const playing = voice.playback.phase === "loading" || voice.playback.phase === "speaking";

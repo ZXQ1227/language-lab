@@ -2,8 +2,12 @@ import { z } from "zod";
 import type { EvidenceMessage } from "./assessment";
 
 const text = z.string().trim().min(1);
+export const voiceStyleSchema = z.enum(["female", "male"]);
+export type VoiceStyle = z.infer<typeof voiceStyleSchema>;
+
 export const roleplayCharacterSchema = z.strictObject({
   name: text.max(60),
+  voiceStyle: voiceStyleSchema.optional(),
   traits: z.array(text.max(80)).min(1).max(5),
   speakingStyle: text.max(300),
   motivation: text.max(300),
