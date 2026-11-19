@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { installTauriMock } from "./helpers/tauri-mock";
-import { openCourseTopic, openWorkspacePage } from "./helpers/navigation";
+import { openLibraryLesson, openWorkspacePage } from "./helpers/navigation";
 
 test.beforeEach(async ({ page }) => {
   await installTauriMock(page);
@@ -108,6 +108,8 @@ test("settings shows system diagnostics, database location and keyring note", as
 test("course library lists the five ordered paths and opens a bundled lesson offline", async ({
   page,
 }) => {
+  await page.setViewportSize({ width: 600, height: 760 });
+  await page.emulateMedia({ reducedMotion: "reduce" });
   await openWorkspacePage(page, "Scenarios");
   const paths = page.getByRole("group", { name: "Learning paths", exact: true });
   const choices = [
@@ -118,33 +120,56 @@ test("course library lists the five ordered paths and opens a bundled lesson off
     "Everyday conversation",
   ];
   await expect(paths.getByRole("heading", { level: 2 })).toHaveText(choices);
-  await expect(paths.getByRole("article")).toHaveCount(15);
+  await expect(paths.getByRole("article")).toHaveCount(41);
+  for (const [index, count] of [9, 9, 6, 10, 7].entries()) {
+    const path = paths.getByRole("region", { name: choices[index], exact: true });
+    await expect(path.getByRole("article")).toHaveCount(count);
+    await expect(path.getByText(`${count} lessons`, { exact: true })).toBeVisible();
+  }
   const travel = page.getByRole("region", { name: choices[0], exact: true });
-  const airport = travel.getByRole("button", { name: "Airports & transport", exact: true });
+  const airport = travel.getByRole("button", { name: "Checking in for a flight", exact: true });
   await expect
     .poll(() => airport.locator("img").evaluate((img: HTMLImageElement) => img.naturalWidth))
     .toBeGreaterThan(0);
-  for (const [topicName, title, count] of [
-    ["Airports & transport", "Checking in for a flight", 2],
-    ["Accommodation & visitor help", "Hotel Check-in", 4],
-    ["Dining & shopping", "Ordering at a cafe", 3],
-    ["Talking to teachers", "Clarifying an essay at office hours", 1],
-    ["Health & care", "Seeing a doctor", 2],
-    ["Meeting people", "Small talk with a colleague", 2],
-  ] as const) {
-    const topic = await openCourseTopic(page, topicName);
-    await expect(topic.getByRole("article")).toHaveCount(count);
-    await expect(topic.getByRole("heading", { name: title, exact: true })).toBeVisible();
-    if (topicName === "Dining & shopping")
-      await expect(topic.getByText("latte", { exact: true })).toBeVisible();
+  const lastLesson = travel.getByRole("button", {
+    name: "Getting a local recommendation",
+    exact: true,
+  });
+  const previous = travel.getByRole("button", { name: "Previous lessons", exact: true });
+  const next = travel.getByRole("button", { name: "Next lessons", exact: true });
+  const travelRow = travel.locator("#course-path-travel-row");
+  await expect(lastLesson).not.toBeInViewport();
+  await expect(previous).toBeDisabled();
+  await next.click();
+  await expect(previous).toBeEnabled();
+  await previous.click();
+  await expect(previous).toBeDisabled();
+  await travelRow.hover();
+  await page.mouse.wheel(4000, 0);
+  await expect(lastLesson).toBeInViewport({ ratio: 1 });
+  await expect(next).toBeDisabled();
+  await expect
+    .poll(() => page.locator("#course-path-career-row").evaluate((row) => row.scrollLeft))
+    .toBe(0);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(600);
+
+  for (const title of [
+    "Getting a local recommendation",
+    "Hotel Check-in",
+    "Ordering at a cafe",
+    "Clarifying an essay at office hours",
+    "Seeing a doctor",
+    "Small talk with a colleague",
+  ]) {
+    const lesson = await openLibraryLesson(page, title);
+    await expect(lesson.getByRole("heading", { name: title, exact: true })).toBeVisible();
+    if (title === "Ordering at a cafe")
+      await expect(lesson.getByText("latte", { exact: true })).toBeVisible();
     await page.keyboard.press("Escape");
-    await expect(page.getByRole("button", { name: topicName, exact: true })).toBeFocused();
+    await expect(page.getByRole("button", { name: title, exact: true })).toBeFocused();
   }
 
-  const jobs = await openCourseTopic(page, "Job search");
-  const recruiter = jobs
-    .getByRole("article")
-    .filter({ hasText: "Taking a recruiter screening call" });
+  const recruiter = await openLibraryLesson(page, "Taking a recruiter screening call");
   await recruiter.getByRole("button", { name: "Set up lesson", exact: true }).click();
   await expect(page.getByLabel("Practice mode")).toHaveValue("demo");
   await page.getByText("Lesson reference", { exact: true }).click();
@@ -156,22 +181,25 @@ test("course library lists the five ordered paths and opens a bundled lesson off
   );
 });
 
-test("difficulty filters topics, lesson counts and all three library tabs", async ({ page }) => {
+test("difficulty filters lesson cards, row counts and all three library tabs", async ({ page }) => {
   await openWorkspacePage(page, "Scenarios");
   const filter = page.getByRole("combobox", { name: "Difficulty", exact: true });
   const categories = page.getByRole("navigation", { name: "Practice categories" });
-  const health = page.getByRole("button", { name: "Health & care", exact: true });
+  const health = page.getByRole("button", { name: "Seeing a doctor", exact: true });
+  const living = page.getByRole("region", { name: "Living abroad", exact: true });
   await expect(filter).toHaveValue("all");
-  await expect(health).toHaveAccessibleDescription("2 lessons A2 · B1");
+  await expect(health).toHaveAccessibleDescription("Health & care A2");
+  await expect(living.getByRole("article")).toHaveCount(10);
   await filter.selectOption("intermediate");
   await expect(page.getByRole("region", { name: "Travel & stays" })).toHaveCount(0);
-  await expect(health).toHaveAccessibleDescription("1 lesson B1");
-  const topic = await openCourseTopic(page, "Health & care");
-  await expect(topic.getByRole("article")).toHaveCount(1);
+  await expect(health).toHaveCount(0);
+  await expect(living.getByRole("article")).toHaveCount(5);
+  await expect(living.getByText("5 lessons", { exact: true })).toBeVisible();
+  const lesson = await openLibraryLesson(page, "Describing a pet's symptoms at the vet");
   await expect(
-    topic.getByRole("heading", { name: "Describing a pet's symptoms at the vet" }),
+    lesson.getByRole("heading", { name: "Describing a pet's symptoms at the vet" }),
   ).toBeVisible();
-  await topic.getByRole("button", { name: "Close", exact: true }).click();
+  await lesson.getByRole("button", { name: "Close", exact: true }).click();
   await page.getByRole("button", { name: "Scenario roleplay", exact: true }).click();
   const course = page.getByRole("combobox", { name: "Course", exact: true });
   await expect(course.getByRole("option")).toHaveCount(21);
@@ -193,7 +221,7 @@ test("difficulty filters topics, lesson counts and all three library tabs", asyn
   await filter.selectOption("all");
   await expect(
     page.getByRole("group", { name: "Learning paths" }).getByRole("article"),
-  ).toHaveCount(15);
+  ).toHaveCount(41);
 });
 
 test("degrades gracefully when the IPC bridge is unavailable", async ({ page }) => {

@@ -1,4 +1,4 @@
-import { openCourseTopic, openWorkspacePage } from "./helpers/navigation";
+import { openLibraryLesson, openWorkspacePage } from "./helpers/navigation";
 import { readFile } from "node:fs/promises";
 import { expect, test } from "@playwright/test";
 import cafeOrder from "../../content/scenarios/cafe-order.json";
@@ -11,10 +11,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test("previews authored steps and validates configuration before export", async ({ page }) => {
-  const topic = await openCourseTopic(page, "Dining & shopping");
-  const cafe = topic
-    .getByRole("article")
-    .filter({ has: page.getByRole("heading", { name: "Ordering at a cafe", exact: true }) });
+  const cafe = await openLibraryLesson(page, "Ordering at a cafe");
   await cafe.getByText("Configure course", { exact: true }).click();
   await expect(cafe.getByLabel("Lesson preview")).toContainText("Success criteria");
   await expect(cafe.getByLabel("Lesson preview")).toContainText("Order politely");
@@ -33,10 +30,7 @@ test("previews authored steps and validates configuration before export", async 
 test("exports configured content and reimports it without changing shipped templates or user data", async ({
   page,
 }) => {
-  const topic = await openCourseTopic(page, "Dining & shopping");
-  const cafe = topic
-    .getByRole("article")
-    .filter({ has: page.getByRole("heading", { name: "Ordering at a cafe", exact: true }) });
+  const cafe = await openLibraryLesson(page, "Ordering at a cafe");
   await cafe.getByText("Configure course", { exact: true }).click();
   const databaseBefore = await page.evaluate(() =>
     sessionStorage.getItem("language-lab-e2e-state"),
@@ -60,7 +54,7 @@ test("exports configured content and reimports it without changing shipped templ
     repeatCorrectionCooldownTurns: 6,
   });
   expect(template.courseTemplate.stages).toEqual(cafeOrder.courseTemplate.stages);
-  await topic.getByRole("button", { name: "Close", exact: true }).click();
+  await cafe.getByRole("button", { name: "Close", exact: true }).click();
   const difficulty = page.getByRole("combobox", { name: "Difficulty", exact: true });
   await difficulty.selectOption("beginner");
   await page

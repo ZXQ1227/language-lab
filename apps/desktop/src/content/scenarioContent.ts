@@ -36,8 +36,7 @@ if (new Set(catalog.map(({ id }) => id)).size !== catalog.length)
   throw new Error("Starter course path IDs must be distinct");
 const topicPaths = new Map<string, string>();
 export const starterCoursePaths = catalog.map(({ id, courses }) => {
-  const topics = new Map<string, ScenarioContent[]>();
-  const orderedCourses = courses.map(({ slug, topic }) => {
+  const entries = courses.map(({ slug, topic }) => {
     const raw = files[`../../../../content/scenarios/${slug}.json`];
     if (!raw || assigned.has(slug)) throw new Error(`Invalid starter catalog entry: ${slug}`);
     const course = parseScenarioContent(raw);
@@ -47,20 +46,13 @@ export const starterCoursePaths = catalog.map(({ id, courses }) => {
     if (topicPaths.has(topic) && topicPaths.get(topic) !== id)
       throw new Error(`Starter topic ${topic} belongs to multiple paths`);
     topicPaths.set(topic, id);
-    const grouped = topics.get(topic);
-    if (grouped) grouped.push(course);
-    else topics.set(topic, [course]);
-    return course;
+    return { course, topic };
   });
-  return {
-    id,
-    courses: orderedCourses,
-    topics: Array.from(topics, ([id, courses]) => ({ id, courses })),
-  };
+  return { id, entries };
 });
 if (assigned.size !== Object.keys(files).length)
   throw new Error("Every bundled scenario must be listed in the starter catalog");
 
 export function loadScenarioContent(): ScenarioContent[] {
-  return starterCoursePaths.flatMap(({ courses }) => courses);
+  return starterCoursePaths.flatMap(({ entries }) => entries.map(({ course }) => course));
 }

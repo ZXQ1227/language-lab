@@ -1,4 +1,4 @@
-import { openCourseTopic, openWorkspacePage } from "./helpers/navigation";
+import { openLibraryLesson, openWorkspacePage } from "./helpers/navigation";
 import { expect, test } from "@playwright/test";
 import { configureAiConnection, installTauriMock } from "./helpers/tauri-mock";
 
@@ -77,10 +77,7 @@ test("the configured course opens in Training with its level and feedback policy
   page,
 }) => {
   await openWorkspacePage(page, "Scenarios");
-  const topic = await openCourseTopic(page, "Dining & shopping");
-  const cafe = topic
-    .getByRole("article")
-    .filter({ has: page.getByRole("heading", { name: "Ordering at a cafe", exact: true }) });
+  const cafe = await openLibraryLesson(page, "Ordering at a cafe");
   await cafe.getByText("Configure course", { exact: true }).click();
   await cafe.getByLabel("Practice level").selectOption("B1");
   await cafe.getByLabel("Maximum hints").fill("0");

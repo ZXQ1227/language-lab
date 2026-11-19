@@ -22,7 +22,6 @@
   },
   "noMatchingLessons": "暂无符合该难度的课程。",
   "showImportedAtAllLevels": "切换到全部难度以查看导入课程",
-  "closeTopic": "关闭",
   "singleLesson": "{{total}} 节课",
   "multipleLessons": "{{total}} 节课",
   "topics": {
@@ -41,5 +40,8 @@
     "introductions": "初次见面",
     "social-interests": "兴趣与社交",
     "keeping-in-touch": "保持联系"
-  }
+  },
+  "closeCourse": "关闭",
+  "previousLessons": "向左浏览课程",
+  "nextLessons": "向右浏览课程"
 }

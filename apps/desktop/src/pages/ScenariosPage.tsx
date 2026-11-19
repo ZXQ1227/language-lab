@@ -5,16 +5,14 @@ import { createRepositories, createTauriTransport } from "@language-lab/database
 import { invoke } from "@tauri-apps/api/core";
 import type { ScenarioRow } from "@language-lab/database";
 import { scenarioContentSchema, type ScenarioContent } from "@language-lab/core";
-import { starterCoursePaths } from "../content/scenarioContent";
+import { loadScenarioContent, starterCoursePaths } from "../content/scenarioContent";
 import { matchesLibraryDifficulty } from "../content/courseDifficulty";
 import { CourseTemplateEditor } from "../components/CourseTemplateEditor";
-import { CourseTopicCard, CourseTopicDialog } from "../components/CourseTopic";
+import { CourseDialog, CoursePathRow } from "../components/StarterCourseLibrary";
 import { useNavStore } from "../stores/nav";
 import { useTrainingStore } from "../stores/training";
 
-const bundledSlugs = new Set(
-  starterCoursePaths.flatMap(({ courses }) => courses.map((course) => course.slug)),
-);
+const bundledSlugs = new Set(loadScenarioContent().map((course) => course.slug));
 
 function CourseCard({
   item,
@@ -31,27 +29,29 @@ function CourseCard({
 }) {
   const { t } = useTranslation();
   return (
-    <article className="rounded-lg border border-line bg-surface p-5 shadow-sm">
-      <div className="flex items-baseline justify-between gap-3">
-        <h3 className="text-base font-semibold text-ink">{item.title}</h3>
-        <span className="shrink-0 rounded-full bg-surface-secondary px-2.5 py-0.5 text-xs font-medium text-ink-muted">
-          {!course && (
-            <>{t(`common:categories.${item.category}`, { defaultValue: item.category })} · </>
-          )}
-          {item.difficulty}
-        </span>
-      </div>
-      <h4 className="mt-3 text-xs font-medium uppercase tracking-wide text-ink-muted">
+    <article
+      className={course ? undefined : "rounded-lg border border-line bg-surface p-5 shadow-sm"}
+    >
+      {!course && (
+        <div className="mb-3 flex items-baseline justify-between gap-3">
+          <h3 className="text-base font-semibold text-ink">{item.title}</h3>
+          <span className="shrink-0 rounded-full bg-surface-secondary px-2.5 py-0.5 text-xs font-medium text-ink-muted">
+            {t(`common:categories.${item.category}`, { defaultValue: item.category })} ·{" "}
+            {item.difficulty}
+          </span>
+        </div>
+      )}
+      <p className="text-xs font-medium uppercase tracking-wide text-ink-muted">
         {t("scenarios:objectives")}
-      </h4>
+      </p>
       <ul className="mt-1 list-disc space-y-0.5 pl-5 text-sm text-ink-muted">
         {item.objectives.map((objective) => (
           <li key={objective}>{objective}</li>
         ))}
       </ul>
-      <h4 className="mt-3 text-xs font-medium uppercase tracking-wide text-ink-muted">
+      <p className="mt-3 text-xs font-medium uppercase tracking-wide text-ink-muted">
         {t("scenarios:targetVocabulary")}
-      </h4>
+      </p>
       <div className="mt-1 flex flex-wrap gap-1.5">
         {item.targetVocabulary.map((word) => (
           <span
@@ -85,7 +85,7 @@ export function ScenariosPage() {
   const prepare = useTrainingStore((state) => state.prepare);
   const busy = useTrainingStore((state) => state.busy);
   const [scenarios, setScenarios] = useState<ScenarioRow[] | null>(null);
-  const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
+  const [selectedCourse, setSelectedCourse] = useState<ScenarioContent | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
   const [imported, setImported] = useState<{ scenario: ScenarioContent; revision: number }[]>([]);
@@ -94,14 +94,11 @@ export function ScenariosPage() {
   const matches = (item: { difficulty: string }) =>
     matchesLibraryDifficulty(item.difficulty, difficulty);
   const paths = starterCoursePaths
-    .map(({ id, topics }) => ({
+    .map(({ id, entries }) => ({
       id,
-      topics: topics
-        .map((topic) => ({ ...topic, courses: topic.courses.filter(matches) }))
-        .filter(({ courses }) => courses.length > 0),
+      entries: entries.filter(({ course }) => matches(course)),
     }))
-    .filter(({ topics }) => topics.length > 0);
-  const activeTopic = paths.flatMap(({ topics }) => topics).find(({ id }) => id === selectedTopic);
+    .filter(({ entries }) => entries.length > 0);
   const visibleImports = imported.filter(({ scenario }) => matches(scenario));
   const localScenarios = scenarios?.filter(matches) ?? [];
 
@@ -278,39 +275,23 @@ export function ScenariosPage() {
         aria-label={t("scenarios:learningPaths")}
         className="@container space-y-7 empty:hidden"
       >
-        {paths.map(({ id, topics }) => (
-          <section key={id} aria-labelledby={`course-path-${id}`} className="space-y-3">
-            <h2 id={`course-path-${id}`} className="text-lg font-semibold text-ink">
-              {t(`common:categories.${id}`)}
-            </h2>
-            <div className="grid gap-3 @min-[24rem]:grid-cols-2 @min-[32rem]:grid-cols-3">
-              {topics.map((topic) => (
-                <CourseTopicCard
-                  key={topic.id}
-                  topic={topic}
-                  onOpen={() => setSelectedTopic(topic.id)}
-                />
-              ))}
-            </div>
-          </section>
+        {paths.map((path) => (
+          <CoursePathRow key={`${path.id}:${difficulty}`} path={path} onOpen={setSelectedCourse} />
         ))}
       </div>
 
-      {activeTopic && (
-        <CourseTopicDialog topic={activeTopic} onClose={() => setSelectedTopic(null)}>
-          {activeTopic.courses.map((course) => (
-            <CourseCard
-              key={course.slug}
-              item={course}
-              course={course}
-              busy={busy}
-              onPractise={(selected) => {
-                prepare(selected);
-                navigate("training");
-              }}
-            />
-          ))}
-        </CourseTopicDialog>
+      {selectedCourse && (
+        <CourseDialog course={selectedCourse} onClose={() => setSelectedCourse(null)}>
+          <CourseCard
+            item={selectedCourse}
+            course={selectedCourse}
+            busy={busy}
+            onPractise={(selected) => {
+              prepare(selected);
+              navigate("training");
+            }}
+          />
+        </CourseDialog>
       )}
 
       {localScenarios.length > 0 && (

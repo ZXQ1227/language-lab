@@ -24,7 +24,7 @@ describe("content/scenarios", () => {
 
   it("orders the five starter paths and contains every topic plus the cafe supplement", () => {
     expect(
-      starterCoursePaths.map(({ id, courses }) => [id, courses.length, courses[0]?.slug]),
+      starterCoursePaths.map(({ id, entries }) => [id, entries.length, entries[0]?.course.slug]),
     ).toEqual([
       ["travel", 9, "airport-check-in"],
       ["career", 9, "job-hunting"],
@@ -33,14 +33,11 @@ describe("content/scenarios", () => {
       ["social", 7, "small-talk"],
     ]);
     expect(files).toHaveLength(41);
-    for (const path of starterCoursePaths) {
-      expect(path.topics).toHaveLength(3);
-      expect(
-        path.topics
-          .flatMap((topic) => topic.courses)
-          .map((course) => course.slug)
-          .sort(),
-      ).toEqual(path.courses.map((course) => course.slug).sort());
+    const covers = new Set(
+      readdirSync(join(__dirname, "../../../apps/desktop/src/assets/course-topics")),
+    );
+    for (const { entries } of starterCoursePaths) {
+      for (const { topic } of entries) expect(covers.has(`${topic}.webp`)).toBe(true);
     }
   });
 

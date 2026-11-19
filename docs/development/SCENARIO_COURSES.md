@@ -60,7 +60,7 @@ intervention behavior.
 
 ## Configure, preview, export and import
 
-In **Scenarios**, open a topic card and expand **Configure course** on a lesson. Change
+In **Scenarios**, open a lesson card and expand **Configure course**. Change
 the practice level, correction style or feedback budgets. The preview uses the
 same `createLessonStateFromScenario` compiler as `TeachingOrchestrator.initLesson`.
 Invalid budgets disable export. **Export course JSON** downloads a complete,
@@ -79,15 +79,17 @@ activities when the level changes.
 
 ## Starter library
 
-Under **Home → Course library**, scenario dialogues show 15 illustrated topics
-across the five ordered learning paths. Select a topic to see its lessons,
-objectives, vocabulary and setup options. The starter covers are original
-generated images bundled as WebP. Travel also includes the café lesson.
+Under **Home → Course library**, scenario dialogues show a card for each of the
+41 bundled lessons across five ordered learning paths. Scroll each row sideways
+or use its arrow buttons to reach later lessons. Select any card to see that
+lesson's objectives, vocabulary and setup options. Covers are original generated
+WebP images shared by lessons with the same topic. Travel also includes the café
+lesson.
 
 The Difficulty menu applies across scenario dialogues, guided practice and
 listening. It defaults to all levels and groups CEFR into Beginner (A1–A2),
-Intermediate (B1–B2) and Advanced (C1–C2). Topic cards show the count and levels
-of matching lessons. Imported templates and local scenario listings use the
+Intermediate (B1–B2) and Advanced (C1–C2). Each path shows the count of matching
+lessons, and each card shows the lesson's level. Imported templates and local scenario listings use the
 same filter, as does the new-lesson picker when opened through Scenario
 roleplay. The starter catalog contains A2, B1 and B2 lessons.
 

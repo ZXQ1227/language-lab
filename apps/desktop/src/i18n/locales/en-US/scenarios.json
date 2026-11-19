@@ -22,7 +22,6 @@
   },
   "noMatchingLessons": "No lessons match this difficulty.",
   "showImportedAtAllLevels": "Show imports at all levels",
-  "closeTopic": "Close",
   "singleLesson": "{{total}} lesson",
   "multipleLessons": "{{total}} lessons",
   "topics": {
@@ -41,5 +40,8 @@
     "introductions": "Meeting people",
     "social-interests": "Social plans & interests",
     "keeping-in-touch": "Keeping in touch"
-  }
+  },
+  "closeCourse": "Close",
+  "previousLessons": "Previous lessons",
+  "nextLessons": "Next lessons"
 }

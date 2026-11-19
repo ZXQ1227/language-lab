@@ -22,7 +22,6 @@
   },
   "noMatchingLessons": "目前沒有符合此難度的課程。",
   "showImportedAtAllLevels": "切換到所有難度以查看匯入課程",
-  "closeTopic": "關閉",
   "singleLesson": "{{total}} 堂課",
   "multipleLessons": "{{total}} 堂課",
   "topics": {
@@ -41,5 +40,8 @@
     "introductions": "初次見面",
     "social-interests": "興趣與社交",
     "keeping-in-touch": "保持聯絡"
-  }
+  },
+  "closeCourse": "關閉",
+  "previousLessons": "向左瀏覽課程",
+  "nextLessons": "向右瀏覽課程"
 }

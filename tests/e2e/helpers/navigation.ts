@@ -32,7 +32,7 @@ export async function openWorkspacePage(page: Page, name: string) {
   }
 }
 
-export async function openCourseTopic(page: Page, name: string) {
+export async function openLibraryLesson(page: Page, name: string) {
   await page.getByRole("button", { name, exact: true }).click();
   return page.getByRole("dialog", { name, exact: true });
 }

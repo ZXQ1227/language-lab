@@ -7,8 +7,9 @@
 
 - Define the bundled catalog's five learning paths and lesson order in
   `content/starter-catalog.json`. Each shipped lesson must appear once and
-  specify a topic within its path. Topic grouping preserves the ordered list
-  used for recommendations and synchronization.
+  specify a topic for its cover and label. Each path shows all matching lessons
+  in catalog order in a horizontally scrollable row. The same order is used for
+  recommendations and synchronization.
 - Read the bundled library from validated static content so the first
   library visit can show courses while SQLite seed synchronization runs.
   Keep the existing metadata projection and retain visibility of additional
@@ -21,5 +22,5 @@
   the learner's target language and level and prioritize unfinished options
   at the same level. The default A2 recommendation begins with airport check-in.
 - Use the authored CEFR level for a single library filter across scenario
-  dialogues, guided practice and listening. Derive each topic's count and
-  displayed levels from its matching lessons.
+  dialogues, guided practice and listening. Derive each path's count from its
+  matching lessons and show each lesson's level on its card.
