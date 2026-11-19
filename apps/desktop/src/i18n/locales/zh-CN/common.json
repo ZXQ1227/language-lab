@@ -110,17 +110,14 @@
   "workspace": {
     "sections": {
       "home": "首页",
-      "conversation": "对话",
       "review": "复习",
       "profile": "我的"
     },
     "sectionNavigation": "栏目导航",
+    "libraryNavigation": "课程练习分类",
     "pages": {
       "plan": "计划",
       "scenarios": "课程库",
-      "conversation": "练习方式",
-      "training": "角色对话",
-      "listening": "听力讨论",
       "review": "复习队列",
       "vocabulary": "词汇",
       "sentences": "句子练习",
@@ -129,6 +126,16 @@
       "profile": "学习概览",
       "memory": "学习记忆",
       "settings": "设置"
+    },
+    "libraryTabs": {
+      "scenarios": "场景对话",
+      "guided": "引导练习",
+      "listening": "听力讨论"
+    },
+    "roleplay": "角色扮演",
+    "guidedLesson": {
+      "title": "酒店入住引导课",
+      "description": "先看示范对话，再借助建议回复逐步练习。"
     },
     "diagnostics": "系统诊断",
     "learningPlan": "学习计划",
@@ -144,20 +151,6 @@
     "recent": "最近完成",
     "allHistory": "全部学习历史",
     "noHistory": "完成课程后，可以在这里查看记录。",
-    "modes": {
-      "roleplay": {
-        "title": "角色扮演",
-        "description": "和对话伙伴一起完成真实场景中的交际目标。"
-      },
-      "guided": {
-        "title": "酒店入住引导课",
-        "description": "先看示范对话，再借助建议回复逐步练习。"
-      },
-      "listen": {
-        "title": "听后回应",
-        "description": "先听课程开场白，再进入同一场景练习回应。"
-      }
-    },
     "listeningInstructions": "听开场白并想一想怎样回应。准备好后，可以查看原文。",
     "playOpening": "播放开场白",
     "hideTranscript": "隐藏原文",

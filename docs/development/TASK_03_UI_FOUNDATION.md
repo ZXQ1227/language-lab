@@ -72,9 +72,12 @@ tests/native-locale/Cargo.toml --target x86_64-pc-windows-gnu` and the equivalen
 
 ## Learning navigation
 
-The sidebar groups pages into Home, Conversation, Review and My learning. At
-narrow widths it becomes a horizontal workspace switcher. The active workspace
-shows its subpages below the switcher or beside the sidebar. Existing in-lesson
-links still open their source, report or review in the corresponding workspace.
-Interface and speech preferences are under My learning → Settings. See the
-[desktop learning workspaces](../product/PRD.md#desktop-learning-workspaces).
+Home, Review and My learning use a sidebar in wide windows and a fixed bottom
+bar below 1024 CSS pixels. The desktop window can shrink to 600 × 600 logical
+pixels. Scrollable pages leave room below the last item for the bottom bar.
+
+Home switches between Plan and Course library. The library has a second row for
+Scenario dialogues, Guided practice and Listening & discussion. A lesson opens
+from its source page and returns there on Back or Exit lesson. Active practice
+uses the full window. Interface and speech preferences are under My learning →
+Settings. See the [desktop learning workspaces](../product/PRD.md#desktop-learning-workspaces).

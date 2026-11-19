@@ -7,7 +7,7 @@ test.beforeEach(async ({ page }) => {
   await page.goto("/");
 });
 
-test("shows the four learning workspaces and the plan at startup", async ({ page }) => {
+test("shows the three learning workspaces in a sidebar on a wide window", async ({ page }) => {
   const sidebar = page.getByRole("complementary");
   await expect(sidebar.getByText("Sayden", { exact: true })).toBeVisible();
   const logo = sidebar.locator("img");
@@ -16,15 +16,65 @@ test("shows the four learning workspaces and the plan at startup", async ({ page
     .poll(() => logo.evaluate((image: HTMLImageElement) => image.naturalWidth))
     .toBeGreaterThan(0);
   const nav = page.getByRole("navigation", { name: "Main navigation" });
-  await expect(nav.getByRole("button")).toHaveText([
-    "Home",
-    "Conversation",
-    "Review",
-    "My learning",
-  ]);
+  await expect(nav).toHaveCSS("position", "static");
+  await expect(nav.getByRole("button")).toHaveText(["Home", "Review", "My learning"]);
   await expect(nav.getByRole("button", { name: "Home" })).toHaveAttribute("aria-current", "true");
   await expect(page.getByRole("heading", { name: "Learning plan", level: 1 })).toBeVisible();
   await expect(page.getByText("Completed lessons will appear here.")).toBeVisible();
+});
+
+test("keeps the compact dock visible and groups practice under the Home library", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 600, height: 600 });
+  const dock = page.getByRole("navigation", { name: "Main navigation" });
+  const homeTabs = page.getByRole("navigation", { name: "Section navigation" });
+  const library = page.getByRole("navigation", { name: "Practice categories" });
+  await expect(dock).toHaveCSS("position", "fixed");
+  await expect(dock.getByRole("button")).toHaveText(["Home", "Review", "My learning"]);
+  await expect(dock).toBeInViewport({ ratio: 1 });
+  await expect(homeTabs.getByRole("button")).toHaveText(["Plan", "Course library"]);
+  await homeTabs.getByRole("button", { name: "Course library" }).click();
+  await expect(library.getByRole("button")).toHaveText([
+    "Scenario dialogues",
+    "Guided practice",
+    "Listening & discussion",
+  ]);
+  await expect(library.getByRole("button", { name: "Scenario dialogues" })).toHaveAttribute(
+    "aria-current",
+    "page",
+  );
+  const lastCourse = page
+    .getByRole("region", { name: "Travel & stays" })
+    .getByRole("article")
+    .last();
+  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+  await expect
+    .poll(async () => {
+      const [courseBounds, dockBounds] = await Promise.all([
+        lastCourse.boundingBox(),
+        dock.boundingBox(),
+      ]);
+      return dockBounds!.y - (courseBounds!.y + courseBounds!.height);
+    })
+    .toBeGreaterThan(0);
+  await expect(dock).toBeInViewport({ ratio: 1 });
+  await library.getByRole("button", { name: "Guided practice" }).click();
+  await expect(page.getByRole("heading", { name: "Guided Hotel Check-in" })).toBeVisible();
+  await page.getByRole("button", { name: "Set up lesson", exact: true }).click();
+  await expect(page.getByRole("heading", { name: /^Hotel Check-in ·/ })).toBeVisible();
+  await page.getByRole("button", { name: "Back", exact: true }).click();
+  await expect(library.getByRole("button", { name: "Guided practice" })).toHaveAttribute(
+    "aria-current",
+    "page",
+  );
+  await page.setViewportSize({ width: 1120, height: 760 });
+  await expect(dock).toHaveCSS("position", "static");
+  await expect(page.getByRole("heading", { name: "Guided Hotel Check-in" })).toBeVisible();
+  await dock.getByRole("button", { name: "Review", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Review", exact: true })).toBeVisible();
+  await dock.getByRole("button", { name: "My learning", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "My learning", exact: true })).toBeVisible();
 });
 
 test("keeps each original page reachable through its workspace", async ({ page }) => {

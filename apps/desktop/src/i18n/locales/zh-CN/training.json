@@ -105,7 +105,7 @@
   "connectAIUsesTheEndpointConfiguredInSettings": "连接「设置」中配置的 AI 服务：{{endpoint}} · {{model}}。如需更换服务或密钥，请前往设置。",
   "focus": {
     "preview": "你将练习",
-    "backToPractice": "返回练习方式",
+    "back": "返回",
     "exit": "退出课程",
     "goalProgress": "已完成 {{completed}} / {{total}} 个目标",
     "details": "课程详情",

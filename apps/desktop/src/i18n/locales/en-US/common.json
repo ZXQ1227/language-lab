@@ -110,17 +110,14 @@
   "workspace": {
     "sections": {
       "home": "Home",
-      "conversation": "Conversation",
       "review": "Review",
       "profile": "My learning"
     },
     "sectionNavigation": "Section navigation",
+    "libraryNavigation": "Practice categories",
     "pages": {
       "plan": "Plan",
       "scenarios": "Course library",
-      "conversation": "Practice modes",
-      "training": "Training",
-      "listening": "Listening & discussion",
       "review": "Practice queue",
       "vocabulary": "Vocabulary",
       "sentences": "Sentence practice",
@@ -129,6 +126,16 @@
       "profile": "Overview",
       "memory": "Learning memory",
       "settings": "Settings"
+    },
+    "libraryTabs": {
+      "scenarios": "Scenario dialogues",
+      "guided": "Guided practice",
+      "listening": "Listening & discussion"
+    },
+    "roleplay": "Scenario roleplay",
+    "guidedLesson": {
+      "title": "Guided Hotel Check-in",
+      "description": "Review a model dialogue and practise each step with suggested replies."
     },
     "diagnostics": "System diagnostics",
     "learningPlan": "Learning plan",
@@ -144,20 +151,6 @@
     "recent": "Recently completed",
     "allHistory": "All lesson history",
     "noHistory": "Completed lessons will appear here.",
-    "modes": {
-      "roleplay": {
-        "title": "Scenario roleplay",
-        "description": "Practise a scene with a conversation partner and clear goals."
-      },
-      "guided": {
-        "title": "Guided Hotel Check-in",
-        "description": "Review a model dialogue and practise each step with suggested replies."
-      },
-      "listen": {
-        "title": "Listen and respond",
-        "description": "Listen to a course opening, then respond in the same scenario."
-      }
-    },
     "listeningInstructions": "Listen to the opening and think of a reply. Reveal the transcript when you are ready.",
     "playOpening": "Play opening",
     "hideTranscript": "Hide transcript",

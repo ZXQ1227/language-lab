@@ -110,17 +110,14 @@
   "workspace": {
     "sections": {
       "home": "首頁",
-      "conversation": "對話",
       "review": "複習",
       "profile": "我的"
     },
     "sectionNavigation": "區段導覽",
+    "libraryNavigation": "課程練習分類",
     "pages": {
       "plan": "計畫",
       "scenarios": "課程庫",
-      "conversation": "練習方式",
-      "training": "角色對話",
-      "listening": "聽力討論",
       "review": "複習佇列",
       "vocabulary": "詞彙",
       "sentences": "句子練習",
@@ -129,6 +126,16 @@
       "profile": "學習總覽",
       "memory": "學習記憶",
       "settings": "設定"
+    },
+    "libraryTabs": {
+      "scenarios": "情境對話",
+      "guided": "引導練習",
+      "listening": "聽力討論"
+    },
+    "roleplay": "角色扮演",
+    "guidedLesson": {
+      "title": "飯店入住引導課",
+      "description": "先看示範對話，再借助建議回覆逐步練習。"
     },
     "diagnostics": "系統診斷",
     "learningPlan": "學習計畫",
@@ -144,20 +151,6 @@
     "recent": "最近完成",
     "allHistory": "完整學習紀錄",
     "noHistory": "完成課程後，可以在這裡查看紀錄。",
-    "modes": {
-      "roleplay": {
-        "title": "角色扮演",
-        "description": "與對話夥伴一起完成真實情境中的溝通目標。"
-      },
-      "guided": {
-        "title": "飯店入住引導課",
-        "description": "先看示範對話，再借助建議回覆逐步練習。"
-      },
-      "listen": {
-        "title": "聽後回應",
-        "description": "先聽課程開場白，再進入同一情境練習回應。"
-      }
-    },
     "listeningInstructions": "聽開場白並想一想怎麼回應。準備好後，可以查看原文。",
     "playOpening": "播放開場白",
     "hideTranscript": "隱藏原文",

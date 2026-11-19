@@ -23,6 +23,7 @@ export function LessonConversation({ session }: { session: TrainingSession }) {
   const { t } = useTranslation();
   const { busy, error, prepare, finish, saveReviewAnswers } = useTrainingStore();
   const navigate = useNavStore((state) => state.navigate);
+  const trainingReturnPage = useNavStore((state) => state.trainingReturnPage);
   const language = session.state.courseTemplate?.targetLanguage ?? "en";
   const character = session.state.courseTemplate?.character;
   const voice = useSpeechLoop(session.id, language, characterVoiceStyle(character));
@@ -135,7 +136,7 @@ export function LessonConversation({ session }: { session: TrainingSession }) {
               type="button"
               className={action}
               disabled={busy}
-              onClick={() => navigate("conversation")}
+              onClick={() => navigate(trainingReturnPage)}
             >
               {t("training:focus.exit")}
             </button>

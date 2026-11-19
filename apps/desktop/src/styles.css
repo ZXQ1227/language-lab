@@ -69,6 +69,12 @@
 }
 
 @layer base {
+  @media (width < 64rem) {
+    html {
+      scroll-padding-bottom: calc(6rem + env(safe-area-inset-bottom));
+    }
+  }
+
   body {
     margin: 0;
     background: var(--color-app);
@@ -145,6 +151,63 @@
 
   .teacher-avatar {
     background-image: var(--gradient-warm);
+  }
+
+  .workspace-icon {
+    position: relative;
+    width: 1.25rem;
+    height: 1.25rem;
+    flex: none;
+  }
+
+  .workspace-icon::before,
+  .workspace-icon::after {
+    position: absolute;
+    content: "";
+  }
+
+  .workspace-icon[data-workspace="home"]::before {
+    inset: 0.0625rem;
+    border-radius: 0.25rem;
+    background: currentColor;
+    clip-path: polygon(
+      50% 0,
+      100% 41%,
+      100% 100%,
+      62% 100%,
+      62% 65%,
+      38% 65%,
+      38% 100%,
+      0 100%,
+      0 41%
+    );
+  }
+
+  .workspace-icon[data-workspace="review"]::before {
+    inset: 0.0625rem 0.1875rem;
+    border: 2px solid currentColor;
+    border-radius: 0.25rem;
+  }
+
+  .workspace-icon[data-workspace="review"]::after {
+    inset: 0.375rem 0.4375rem auto;
+    height: 0.125rem;
+    border-radius: 1rem;
+    background: currentColor;
+    box-shadow: 0 0.25rem currentColor;
+  }
+
+  .workspace-icon[data-workspace="profile"]::before {
+    inset: 0.0625rem 0.375rem auto;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  .workspace-icon[data-workspace="profile"]::after {
+    inset: 0.625rem 0.125rem 0.0625rem;
+    border-radius: 1rem 1rem 0.25rem 0.25rem;
+    background: currentColor;
   }
 
   .lesson-icon {

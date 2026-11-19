@@ -82,7 +82,7 @@ test("previews the course, keeps reply controls within the window and resumes sa
   await expectReadableColorPair(page.getByLabel("Learning feedback"), "rgb(234, 247, 240)");
   await expect(dock).toBeInViewport({ ratio: 1 });
   await button("Exit lesson").click();
-  await expect(page.getByRole("heading", { name: "Conversation", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Scenarios", exact: true })).toBeVisible();
   await openWorkspacePage(page, "Training");
   await expect(transcript).toContainText("What size would you like?");
   await expect(transcript.getByText("Zoi", { exact: true })).toHaveCount(2);

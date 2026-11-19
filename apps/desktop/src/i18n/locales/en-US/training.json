@@ -105,7 +105,7 @@
   "connectAIUsesTheEndpointConfiguredInSettings": "Uses the AI connection configured in Settings: {{endpoint}} · {{model}}. Change it in Settings.",
   "focus": {
     "preview": "What you’ll practise",
-    "backToPractice": "Back to practice modes",
+    "back": "Back",
     "exit": "Exit lesson",
     "goalProgress": "{{completed}} of {{total}} goals",
     "details": "Lesson details",

@@ -105,7 +105,7 @@
   "connectAIUsesTheEndpointConfiguredInSettings": "連線「設定」中配置的 AI 服務：{{endpoint}} · {{model}}。如需更換服務或金鑰，請前往設定。",
   "focus": {
     "preview": "你將練習",
-    "backToPractice": "返回練習方式",
+    "back": "返回",
     "exit": "離開課程",
     "goalProgress": "已完成 {{completed}} / {{total}} 個目標",
     "details": "課程詳情",

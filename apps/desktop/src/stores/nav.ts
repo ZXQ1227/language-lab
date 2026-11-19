@@ -1,8 +1,10 @@
 import { create } from "zustand";
 
+export const homeTabs = ["plan", "scenarios"] as const;
+export const libraryTabs = ["scenarios", "guided", "listening"] as const;
+
 export const workspaces = [
-  { id: "home", pages: ["plan", "scenarios"] },
-  { id: "conversation", pages: ["conversation", "training", "listening"] },
+  { id: "home", pages: ["plan", ...libraryTabs, "training"] },
   { id: "review", pages: ["review", "vocabulary", "sentences", "corrections", "reports"] },
   { id: "profile", pages: ["profile", "memory", "settings"] },
 ] as const;
@@ -12,10 +14,18 @@ export type WorkspaceId = (typeof workspaces)[number]["id"];
 
 interface NavState {
   page: PageId;
+  trainingReturnPage: Exclude<PageId, "training">;
   navigate: (page: PageId) => void;
 }
 
 export const useNavStore = create<NavState>((set) => ({
   page: "plan",
-  navigate: (page) => set({ page }),
+  trainingReturnPage: "plan",
+  navigate: (page) =>
+    set((state) => {
+      if (page === "training" && state.page !== "training") {
+        return { page, trainingReturnPage: state.page };
+      }
+      return { page };
+    }),
 }));

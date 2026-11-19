@@ -2,7 +2,7 @@
 
 ## Try a lesson
 
-Open **Conversation → Training**, review the course vocabulary and sample
+Open **Home → Course library → Scenario roleplay**, review the course vocabulary and sample
 sentences, choose a practice mode, then select **Start lesson**.
 Alternatively, configure or import a course in **Scenarios**, then select
 **Practise this course**. The selected course, level and feedback policy are
@@ -17,9 +17,9 @@ of the dock at the bottom.
 The dock groups course details and practice shortcuts above the keyboard,
 microphone and hint controls. **Lesson details** opens criteria, course
 materials, vocabulary evidence and saved practice. Toggle **Keyboard** to
-show or hide the current text draft. **Exit lesson** returns to the practice
-modes. Reopen Training or choose **Continue lesson** on the plan to resume
-saved turns.
+show or hide the current text draft. **Exit lesson** returns to the page that
+opened practice. Reopen Scenario roleplay or choose **Continue lesson** on the
+plan to resume saved turns.
 
 - **Guided demo** is available for the unchanged teaching material in bundled
   courses (level and feedback settings may change). It checks the suggested

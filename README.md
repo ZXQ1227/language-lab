@@ -141,9 +141,11 @@ system. This controls UI copy and regional formatting independently from course,
 AI-dialogue and teaching-explanation language. See
 [Task 03](docs/development/TASK_03_UI_FOUNDATION.md).
 
-The app opens to the learning plan and course library. Conversation contains
-roleplay, guided practice and listening. Review contains follow-up tasks and
-lesson history. My learning contains the local profile, progress and settings.
+Home contains the learning plan and the course library, with scenario dialogues,
+guided practice and listening inside the library. Review contains follow-up
+tasks and lesson history. My learning contains the local profile, progress and
+settings. The three workspaces use a floating bottom bar in narrow windows and
+a sidebar in wide windows.
 See [desktop learning workspaces](docs/product/PRD.md#desktop-learning-workspaces).
 
 The starter course library includes 41 English practice lessons in five ordered

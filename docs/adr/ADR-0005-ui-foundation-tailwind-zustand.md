@@ -14,8 +14,9 @@ surface area a desktop shell does not need yet (no deep links, no web URLs).
 - **Tailwind CSS v4** via the `@tailwindcss/vite` plugin (no PostCSS config,
   no tailwind.config.js in the default path). Verified against Vite 6 and the
   Tauri `es2022` build target.
-- **Zustand** for app state: `nav` (active page) and `system` (IPC health +
-  db status). Navigation is a sidebar store switch, not a router.
+- **Zustand** for app state: `nav` (active page and training return page) and
+  `system` (IPC health + db status). The sidebar and compact bottom bar share
+  the navigation store.
 - All IPC goes through `src/lib/ipc.ts`, which normalizes failures into a
   single `IpcError` shape for consistent loading/error states.
 

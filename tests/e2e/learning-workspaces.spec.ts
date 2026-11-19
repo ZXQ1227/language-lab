@@ -98,7 +98,7 @@ test("listens to the selected course before revealing the transcript or starting
   });
   await page.goto("/");
   const button = (name: string) => page.getByRole("button", { name, exact: true });
-  await button("Conversation").click();
+  await button("Course library").click();
   await button("Listening & discussion").click();
   await page.getByRole("combobox", { name: "Course", exact: true }).selectOption("cafe-order");
   const opening = page.getByText(cafe.courseTemplate.openingLine, { exact: true });
@@ -113,4 +113,6 @@ test("listens to the selected course before revealing the transcript or starting
   await button("Respond in this course").click();
   await expect(page.getByRole("heading", { name: /^Ordering at a cafe ·/ })).toBeVisible();
   expect(await page.evaluate(() => sessionStorage.getItem("listening-cancelled"))).toBe("true");
+  await button("Back").click();
+  await expect(page.getByRole("heading", { name: "Listening & discussion" })).toBeVisible();
 });

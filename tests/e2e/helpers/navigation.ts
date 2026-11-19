@@ -2,7 +2,7 @@ import type { Page } from "@playwright/test";
 
 const sections: Record<string, readonly [string, string]> = {
   Scenarios: ["Home", "Course library"],
-  Training: ["Conversation", "Training"],
+  Training: ["Home", "Course library"],
   Review: ["Review", "Practice queue"],
   Reports: ["Review", "Reports"],
   "Learning memory": ["My learning", "Learning memory"],
@@ -27,4 +27,7 @@ export async function openWorkspacePage(page: Page, name: string) {
     .getByRole("navigation", { name: "Section navigation" })
     .getByRole("button", { name: subpage, exact: true })
     .click();
+  if (name === "Training") {
+    await page.getByRole("button", { name: "Scenario roleplay", exact: true }).click();
+  }
 }

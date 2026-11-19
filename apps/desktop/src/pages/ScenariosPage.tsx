@@ -145,20 +145,29 @@ export function ScenariosPage() {
       </div>
 
       <div className="space-y-2">
-        <label className="button-secondary inline-block cursor-pointer rounded px-3 py-2 text-sm font-medium focus-within:ring-2 focus-within:ring-brand-primary hover:bg-line">
-          {t("scenarios:importCourseTemplate")}
-          <input
-            className="sr-only"
-            type="file"
-            accept=".json,application/json"
-            disabled={importing}
-            onChange={(event) => {
-              const file = event.target.files?.[0];
-              event.target.value = "";
-              if (file) void importCourse(file);
-            }}
-          />
-        </label>
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() => navigate("training")}
+            className="button-primary rounded-lg px-3 py-2 text-sm font-semibold"
+          >
+            {t("common:workspace.roleplay")}
+          </button>
+          <label className="button-secondary inline-block cursor-pointer rounded-lg px-3 py-2 text-sm font-medium focus-within:ring-2 focus-within:ring-brand-primary hover:bg-line">
+            {t("scenarios:importCourseTemplate")}
+            <input
+              className="sr-only"
+              type="file"
+              accept=".json,application/json"
+              disabled={importing}
+              onChange={(event) => {
+                const file = event.target.files?.[0];
+                event.target.value = "";
+                if (file) void importCourse(file);
+              }}
+            />
+          </label>
+        </div>
         <p className="text-xs text-ink-muted">
           {t("scenarios:importedTemplatesAreAvailableForThisVisitExportAJSON")}
         </p>
@@ -237,7 +246,7 @@ export function ScenariosPage() {
       </div>
       <section
         aria-label={t(`common:categories.${selectedPath.id}`)}
-        className="grid items-start gap-4 lg:grid-cols-2"
+        className="grid items-start gap-4 sm:grid-cols-2"
       >
         {selectedPath.courses.map((course) => (
           <CourseCard
@@ -258,7 +267,7 @@ export function ScenariosPage() {
           <h2 id="other-local-scenarios" className="font-semibold text-ink">
             {t("scenarios:otherLocalScenarios")}
           </h2>
-          <div className="grid items-start gap-4 lg:grid-cols-2">
+          <div className="grid items-start gap-4 sm:grid-cols-2">
             {scenarios.map((scenario) => (
               <CourseCard
                 key={scenario.id}

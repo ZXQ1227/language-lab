@@ -272,38 +272,26 @@ export function PlanPage() {
   );
 }
 
-export function ConversationPage() {
+export function GuidedPracticePage() {
   const { t } = useTranslation();
-  const navigate = useNavStore((state) => state.navigate);
   const busy = useTrainingStore((state) => state.busy);
-  const modes = [
-    { id: "roleplay", open: () => navigate("training") },
-    { id: "guided", open: () => prepareCourse(guidedCourse) },
-    { id: "listen", open: () => navigate("listening") },
-  ] as const;
   return (
-    <section className="space-y-6" aria-labelledby="conversation-heading">
-      <h1 id="conversation-heading" className="text-3xl font-semibold tracking-tight sm:text-4xl">
-        {t("common:workspace.sections.conversation")}
+    <section className="max-w-3xl space-y-5" aria-labelledby="guided-practice-heading">
+      <h1 id="guided-practice-heading" className="text-3xl font-semibold tracking-tight">
+        {t("common:workspace.libraryTabs.guided")}
       </h1>
-      <div className="grid gap-4 md:grid-cols-3">
-        {modes.map(({ id, open }) => (
-          <button
-            key={id}
-            type="button"
-            className={`${panel} flex flex-col gap-3 text-left hover:border-brand-primary hover:bg-brand-primary-soft disabled:opacity-50`}
-            disabled={id === "guided" && busy}
-            onClick={open}
-          >
-            <span className="text-lg font-semibold text-ink">
-              {t(`common:workspace.modes.${id}.title`)}
-            </span>
-            <span className="text-sm leading-relaxed text-ink-muted">
-              {t(`common:workspace.modes.${id}.description`)}
-            </span>
-          </button>
-        ))}
-      </div>
+      <article className={`${panel} space-y-3`}>
+        <h2 className="text-lg font-semibold">{t("common:workspace.guidedLesson.title")}</h2>
+        <p className="text-sm text-ink-muted">{t("common:workspace.guidedLesson.description")}</p>
+        <button
+          type="button"
+          className={primary}
+          disabled={busy}
+          onClick={() => prepareCourse(guidedCourse)}
+        >
+          {t("common:workspace.beginCourse")}
+        </button>
+      </article>
     </section>
   );
 }
@@ -325,7 +313,7 @@ export function ListeningPage() {
   return (
     <section className="max-w-3xl space-y-5" aria-labelledby="listening-heading">
       <h1 id="listening-heading" className="text-3xl font-semibold tracking-tight">
-        {t("common:workspace.pages.listening")}
+        {t("common:workspace.libraryTabs.listening")}
       </h1>
       <div className={`${panel} space-y-4`}>
         <label className="block text-sm font-semibold">
