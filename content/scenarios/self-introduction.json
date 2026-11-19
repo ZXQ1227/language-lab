@@ -1,0 +1,224 @@
+{
+  "schemaVersion": 1,
+  "id": "sc-self-introduction",
+  "slug": "self-introduction",
+  "title": "Introducing yourself at a party",
+  "category": "social",
+  "difficulty": "A2",
+  "objectives": [
+    "Introduce yourself and respond to the greeting",
+    "Explain how you know the host",
+    "Build on the connection with a follow-up question"
+  ],
+  "targetVocabulary": [
+    "originally from",
+    "language exchange",
+    "nice to meet you",
+    "work together",
+    "moved here"
+  ],
+  "courseTemplate": {
+    "targetLanguage": "en",
+    "estimatedMinutes": 8,
+    "setting": "Laura is the host. The learner works with Laura and recently moved from Shanghai.",
+    "roles": {
+      "learner": "A guest meeting a friend of Laura's",
+      "partner": "A guest named Sam"
+    },
+    "openingLine": "Hi, I don't think we've met. I'm Sam.",
+    "targetPatterns": [
+      {
+        "pattern": "I'm Chen. Nice to meet you.",
+        "example": "I'm Chen. Nice to meet you."
+      },
+      {
+        "pattern": "We work together. I recently moved here from Shanghai.",
+        "example": "We work together. I recently moved here from Shanghai."
+      },
+      {
+        "pattern": "I'm glad you liked it! What was your favourite thing to eat there?",
+        "example": "I'm glad you liked it! What was your favourite thing to eat there?"
+      },
+      {
+        "pattern": "I'm Chen — nice to meet you.",
+        "example": "I'm Chen — nice to meet you.",
+        "translation": "我是小陈，很高兴认识你。"
+      },
+      {
+        "pattern": "I work as a UX designer for a startup.",
+        "example": "I work as a UX designer for a startup.",
+        "translation": "我在一家创业公司做用户体验设计。"
+      },
+      {
+        "pattern": "I'm originally from Chengdu, but I live here now.",
+        "example": "I'm originally from Chengdu, but I live here now.",
+        "translation": "我来自成都，现在住这儿。"
+      },
+      {
+        "pattern": "I'm here for a language exchange.",
+        "example": "I'm here for a language exchange.",
+        "translation": "我是来参加语言交换的。"
+      },
+      {
+        "pattern": "What about you — what do you do?",
+        "example": "What about you — what do you do?",
+        "translation": "你呢，你是做什么的？"
+      },
+      {
+        "pattern": "That's a cool job — how did you get into it?",
+        "example": "That's a cool job — how did you get into it?",
+        "translation": "这工作挺酷的，你怎么入行的？"
+      },
+      {
+        "pattern": "I've been learning English for two years.",
+        "example": "I've been learning English for two years.",
+        "translation": "我学英语两年了。"
+      },
+      {
+        "pattern": "Add me on Instagram — same as my name.",
+        "example": "Add me on Instagram — same as my name.",
+        "translation": "Instagram 加我，名字一样。"
+      }
+    ],
+    "stages": [
+      {
+        "id": "step-1",
+        "title": "Introduce yourself and respond to the greeting",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “Hi, I don't think we've met. I'm Sam.”",
+        "objectiveIds": ["obj-1"],
+        "successCriteria": [
+          "The learner can introduce yourself and respond to the greeting in their own words."
+        ],
+        "hints": ["You can start with “I'm Chen. Nice to …”"]
+      },
+      {
+        "id": "step-2",
+        "title": "Explain how you know the host",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “Nice to meet you too. How do you know Laura?”",
+        "objectiveIds": ["obj-2"],
+        "successCriteria": ["The learner can explain how you know the host in their own words."],
+        "hints": ["You can start with “We work together. I …”"]
+      },
+      {
+        "id": "step-3",
+        "title": "Build on the connection with a follow-up question",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “I visited Shanghai last spring. The food was amazing.”",
+        "objectiveIds": ["obj-3"],
+        "successCriteria": [
+          "The learner can build on the connection with a follow-up question in their own words."
+        ],
+        "hints": ["You can start with “I'm glad you liked …”"]
+      }
+    ],
+    "teachingPolicy": {
+      "correctionMode": "gentle",
+      "maxCorrections": 2,
+      "maxHints": 3
+    },
+    "learningPack": {
+      "schemaVersion": 1,
+      "overview": "自我介绍 · Laura is the host. The learner works with Laura and recently moved from Shanghai.",
+      "prerequisites": [],
+      "scenarioFacts": [
+        {
+          "label": "Roleplay facts",
+          "value": "Laura is the host. The learner works with Laura and recently moved from Shanghai."
+        }
+      ],
+      "vocabulary": [
+        {
+          "term": "originally from",
+          "meaning": "老家是",
+          "example": "I'm originally from Chengdu, but I live here now."
+        },
+        {
+          "term": "language exchange",
+          "meaning": "语言交换",
+          "example": "I'm here for a language exchange."
+        },
+        {
+          "term": "nice to meet you",
+          "meaning": "很高兴认识你",
+          "example": "I'm Chen. Nice to meet you."
+        },
+        {
+          "term": "work together",
+          "meaning": "一起工作",
+          "example": "We work together. I recently moved here from Shanghai."
+        },
+        {
+          "term": "moved here",
+          "meaning": "搬到这里",
+          "example": "We work together. I recently moved here from Shanghai."
+        }
+      ],
+      "languageNotes": [
+        "中国姓氏中文顺序直译（如 \"I'm Wang Li\"）易被误解，介绍时说 I'm Li — call me Li 更简单；「我是做……的」I work as a...，不说 \"My job is a...\"。"
+      ],
+      "warmup": [
+        {
+          "id": "warmup-language",
+          "prompt": "Say this in English. 我是小陈，很高兴认识你。",
+          "suggestedAnswer": "I'm Chen — nice to meet you."
+        }
+      ],
+      "modelDialogue": [
+        {
+          "stageId": "step-1",
+          "role": "partner",
+          "text": "Hi, I don't think we've met. I'm Sam."
+        },
+        {
+          "stageId": "step-1",
+          "role": "learner",
+          "text": "I'm Chen. Nice to meet you."
+        },
+        {
+          "stageId": "step-2",
+          "role": "partner",
+          "text": "Nice to meet you too. How do you know Laura?"
+        },
+        {
+          "stageId": "step-2",
+          "role": "learner",
+          "text": "We work together. I recently moved here from Shanghai."
+        },
+        {
+          "stageId": "step-3",
+          "role": "partner",
+          "text": "I visited Shanghai last spring. The food was amazing."
+        },
+        {
+          "stageId": "step-3",
+          "role": "learner",
+          "text": "I'm glad you liked it! What was your favourite thing to eat there?"
+        }
+      ],
+      "guidedPractice": [
+        {
+          "stageId": "step-1",
+          "suggestedReply": "I'm Chen. Nice to meet you.",
+          "partnerPrompt": "Hi, I don't think we've met. I'm Sam."
+        },
+        {
+          "stageId": "step-2",
+          "suggestedReply": "We work together. I recently moved here from Shanghai.",
+          "partnerPrompt": "Nice to meet you too. How do you know Laura?"
+        },
+        {
+          "stageId": "step-3",
+          "suggestedReply": "I'm glad you liked it! What was your favourite thing to eat there?",
+          "partnerPrompt": "I visited Shanghai last spring. The food was amazing."
+        }
+      ],
+      "reviewPractice": [
+        {
+          "id": "review-language",
+          "prompt": "Say this in English. Instagram 加我，名字一样。",
+          "suggestedAnswer": "Add me on Instagram — same as my name."
+        }
+      ],
+      "variations": []
+    }
+  }
+}

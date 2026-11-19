@@ -137,6 +137,10 @@
               "example": {
                 "type": "string",
                 "minLength": 1
+              },
+              "translation": {
+                "type": "string",
+                "minLength": 1
               }
             },
             "required": ["pattern", "example"],
@@ -496,6 +500,14 @@
                   "stageOverrides"
                 ],
                 "additionalProperties": false
+              }
+            },
+            "languageNotes": {
+              "minItems": 1,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
               }
             }
           },

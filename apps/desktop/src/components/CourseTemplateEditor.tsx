@@ -88,7 +88,7 @@ export function CourseTemplateEditor({ scenario }: { scenario: ScenarioContent }
           {t("course:configureACopyAndExportItToKeepYourChanges")}
         </p>
         <div className="grid gap-3 sm:grid-cols-2">
-          {template.learningPack && (
+          {!!template.learningPack?.variations.length && (
             <label className="text-sm text-slate-600">
               {t("course:courseChallenge")}
               <select

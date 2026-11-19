@@ -1,0 +1,215 @@
+{
+  "schemaVersion": 1,
+  "id": "sc-promotion-growth",
+  "slug": "promotion-growth",
+  "title": "Discussing the next step in your career",
+  "category": "career",
+  "difficulty": "B2",
+  "objectives": [
+    "Give specific evidence of increased responsibility",
+    "Respond to feedback and propose a growth opportunity",
+    "Agree to a development action and a check-in"
+  ],
+  "targetVocabulary": ["visibility", "mentored", "quarterly review", "development plan"],
+  "courseTemplate": {
+    "targetLanguage": "en",
+    "estimatedMinutes": 10,
+    "setting": "The employee led a migration project and mentored two people. The manager wants more cross-team visibility.",
+    "roles": {
+      "learner": "An employee interested in a promotion",
+      "partner": "A manager giving career feedback"
+    },
+    "openingLine": "You said you're interested in stepping up. What have you taken on this year?",
+    "targetPatterns": [
+      {
+        "pattern": "I led the migration project and mentored two newer team members.",
+        "example": "I led the migration project and mentored two newer team members."
+      },
+      {
+        "pattern": "Could I lead the next quarterly review presentation so other teams can see the project?",
+        "example": "Could I lead the next quarterly review presentation so other teams can see the project?"
+      },
+      {
+        "pattern": "Let's add it to my development plan and review my progress next month.",
+        "example": "Let's add it to my development plan and review my progress next month."
+      },
+      {
+        "pattern": "I'd like to discuss my career path here.",
+        "example": "I'd like to discuss my career path here.",
+        "translation": "我想聊聊我在这里的职业发展路径。"
+      },
+      {
+        "pattern": "What would it take to get to the senior level?",
+        "example": "What would it take to get to the senior level?",
+        "translation": "升到高级岗位需要什么条件？"
+      },
+      {
+        "pattern": "I've taken on more responsibility this year.",
+        "example": "I've taken on more responsibility this year.",
+        "translation": "今年我承担了更多职责。"
+      },
+      {
+        "pattern": "Could you be my mentor for the next six months?",
+        "example": "Could you be my mentor for the next six months?",
+        "translation": "未来半年您能做我的导师吗？"
+      },
+      {
+        "pattern": "I'm interested in rotating to the growth team.",
+        "example": "I'm interested in rotating to the growth team.",
+        "translation": "我有意轮岗到增长团队。"
+      },
+      {
+        "pattern": "Where do you see gaps in my skill set?",
+        "example": "Where do you see gaps in my skill set?",
+        "translation": "您觉得我的技能有哪些短板？"
+      },
+      {
+        "pattern": "I'd like to lead the next project end to end.",
+        "example": "I'd like to lead the next project end to end.",
+        "translation": "我想端到端负责下一个项目。"
+      },
+      {
+        "pattern": "Can we set concrete goals for this review cycle?",
+        "example": "Can we set concrete goals for this review cycle?",
+        "translation": "这个考核周期能定些具体目标吗？"
+      }
+    ],
+    "stages": [
+      {
+        "id": "step-1",
+        "title": "Give specific evidence of increased responsibility",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “You said you're interested in stepping up. What have you taken on this year?”",
+        "objectiveIds": ["obj-1"],
+        "successCriteria": [
+          "The learner can give specific evidence of increased responsibility in their own words."
+        ],
+        "hints": ["You can start with “I led the migration …”"]
+      },
+      {
+        "id": "step-2",
+        "title": "Respond to feedback and propose a growth opportunity",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “That's good progress. I'd like other teams to see more of your work.”",
+        "objectiveIds": ["obj-2"],
+        "successCriteria": [
+          "The learner can respond to feedback and propose a growth opportunity in their own words."
+        ],
+        "hints": ["You can start with “Could I lead the …”"]
+      },
+      {
+        "id": "step-3",
+        "title": "Agree to a development action and a check-in",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “That's a good opportunity. How should we follow up?”",
+        "objectiveIds": ["obj-3"],
+        "successCriteria": [
+          "The learner can agree to a development action and a check-in in their own words."
+        ],
+        "hints": ["You can start with “Let's add it to …”"]
+      }
+    ],
+    "teachingPolicy": {
+      "correctionMode": "gentle",
+      "maxCorrections": 2,
+      "maxHints": 3
+    },
+    "learningPack": {
+      "schemaVersion": 1,
+      "overview": "升职与发展 · The employee led a migration project and mentored two people. The manager wants more cross-team visibility.",
+      "prerequisites": [],
+      "scenarioFacts": [
+        {
+          "label": "Roleplay facts",
+          "value": "The employee led a migration project and mentored two people. The manager wants more cross-team visibility."
+        }
+      ],
+      "vocabulary": [
+        {
+          "term": "visibility",
+          "meaning": "曝光度",
+          "example": "The employee led a migration project and mentored two people. The manager wants more cross-team visibility."
+        },
+        {
+          "term": "mentored",
+          "meaning": "指导过",
+          "example": "I led the migration project and mentored two newer team members."
+        },
+        {
+          "term": "quarterly review",
+          "meaning": "季度回顾",
+          "example": "Could I lead the next quarterly review presentation so other teams can see the project?"
+        },
+        {
+          "term": "development plan",
+          "meaning": "发展计划",
+          "example": "Let's add it to my development plan and review my progress next month."
+        }
+      ],
+      "languageNotes": [
+        "谈晋升要讲「证据」（项目、数据、影响），不是讲苦劳；「带团队」lead a team，别用 \"manage people\" 表达还没做到的事。"
+      ],
+      "warmup": [
+        {
+          "id": "warmup-language",
+          "prompt": "Say this in English. 我想聊聊我在这里的职业发展路径。",
+          "suggestedAnswer": "I'd like to discuss my career path here."
+        }
+      ],
+      "modelDialogue": [
+        {
+          "stageId": "step-1",
+          "role": "partner",
+          "text": "You said you're interested in stepping up. What have you taken on this year?"
+        },
+        {
+          "stageId": "step-1",
+          "role": "learner",
+          "text": "I led the migration project and mentored two newer team members."
+        },
+        {
+          "stageId": "step-2",
+          "role": "partner",
+          "text": "That's good progress. I'd like other teams to see more of your work."
+        },
+        {
+          "stageId": "step-2",
+          "role": "learner",
+          "text": "Could I lead the next quarterly review presentation so other teams can see the project?"
+        },
+        {
+          "stageId": "step-3",
+          "role": "partner",
+          "text": "That's a good opportunity. How should we follow up?"
+        },
+        {
+          "stageId": "step-3",
+          "role": "learner",
+          "text": "Let's add it to my development plan and review my progress next month."
+        }
+      ],
+      "guidedPractice": [
+        {
+          "stageId": "step-1",
+          "suggestedReply": "I led the migration project and mentored two newer team members.",
+          "partnerPrompt": "You said you're interested in stepping up. What have you taken on this year?"
+        },
+        {
+          "stageId": "step-2",
+          "suggestedReply": "Could I lead the next quarterly review presentation so other teams can see the project?",
+          "partnerPrompt": "That's good progress. I'd like other teams to see more of your work."
+        },
+        {
+          "stageId": "step-3",
+          "suggestedReply": "Let's add it to my development plan and review my progress next month.",
+          "partnerPrompt": "That's a good opportunity. How should we follow up?"
+        }
+      ],
+      "reviewPractice": [
+        {
+          "id": "review-language",
+          "prompt": "Say this in English. 这个考核周期能定些具体目标吗？",
+          "suggestedAnswer": "Can we set concrete goals for this review cycle?"
+        }
+      ],
+      "variations": []
+    }
+  }
+}

@@ -1,0 +1,217 @@
+{
+  "schemaVersion": 1,
+  "id": "sc-restaurant-order",
+  "slug": "restaurant-order",
+  "title": "Ordering at a restaurant",
+  "category": "travel",
+  "difficulty": "A2",
+  "objectives": [
+    "Ask about the daily special",
+    "State a nut allergy and ask about ingredients",
+    "Request a side substitution"
+  ],
+  "targetVocabulary": ["bill", "allergy", "allergic to", "side salad", "special"],
+  "courseTemplate": {
+    "targetLanguage": "en",
+    "estimatedMinutes": 8,
+    "setting": "The special is grilled salmon. The customer has a nut allergy. Staff can check with the kitchen and offer a side salad.",
+    "roles": {
+      "learner": "A customer choosing dinner",
+      "partner": "A restaurant server"
+    },
+    "openingLine": "Are you ready to order, or is there anything you would like to ask about the menu?",
+    "targetPatterns": [
+      {
+        "pattern": "What is today's special?",
+        "example": "What is today's special?"
+      },
+      {
+        "pattern": "I'm allergic to nuts. Could you check whether it contains any?",
+        "example": "I'm allergic to nuts. Could you check whether it contains any?"
+      },
+      {
+        "pattern": "Could I have a side salad instead of fries, please?",
+        "example": "Could I have a side salad instead of fries, please?"
+      },
+      {
+        "pattern": "Could I see the menu, please?",
+        "example": "Could I see the menu, please?",
+        "translation": "请给我看下菜单。"
+      },
+      {
+        "pattern": "What do you recommend here?",
+        "example": "What do you recommend here?",
+        "translation": "这里有什么推荐？"
+      },
+      {
+        "pattern": "I'm allergic to peanuts.",
+        "example": "I'm allergic to peanuts.",
+        "translation": "我对花生过敏。"
+      },
+      {
+        "pattern": "Could I get this without onions?",
+        "example": "Could I get this without onions?",
+        "translation": "这道可以不要洋葱吗？"
+      },
+      {
+        "pattern": "Is this dish spicy?",
+        "example": "Is this dish spicy?",
+        "translation": "这道菜辣吗？"
+      },
+      {
+        "pattern": "Could we get the bill, please?",
+        "example": "Could we get the bill, please?",
+        "translation": "请帮我们结账。"
+      },
+      {
+        "pattern": "Do you take credit cards?",
+        "example": "Do you take credit cards?",
+        "translation": "收信用卡吗？"
+      },
+      {
+        "pattern": "Could I get this to go?",
+        "example": "Could I get this to go?",
+        "translation": "这个可以打包吗？"
+      }
+    ],
+    "stages": [
+      {
+        "id": "step-1",
+        "title": "Ask about the daily special",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “Are you ready to order, or is there anything you would like to ask about the menu?”",
+        "objectiveIds": ["obj-1"],
+        "successCriteria": ["The learner can ask about the daily special in their own words."],
+        "hints": ["You can start with “What is today's special? …”"]
+      },
+      {
+        "id": "step-2",
+        "title": "State a nut allergy and ask about ingredients",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “Today's special is grilled salmon. Is there anything the kitchen should know?”",
+        "objectiveIds": ["obj-2"],
+        "successCriteria": [
+          "The learner can state a nut allergy and ask about ingredients in their own words."
+        ],
+        "hints": ["You can start with “I'm allergic to nuts. …”"]
+      },
+      {
+        "id": "step-3",
+        "title": "Request a side substitution",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “I'll check with the kitchen before you order. What side would you prefer?”",
+        "objectiveIds": ["obj-3"],
+        "successCriteria": ["The learner can request a side substitution in their own words."],
+        "hints": ["You can start with “Could I have a …”"]
+      }
+    ],
+    "teachingPolicy": {
+      "correctionMode": "gentle",
+      "maxCorrections": 2,
+      "maxHints": 3
+    },
+    "learningPack": {
+      "schemaVersion": 1,
+      "overview": "餐馆和饮食 · The special is grilled salmon. The customer has a nut allergy. Staff can check with the kitchen and offer a side salad.",
+      "prerequisites": [],
+      "scenarioFacts": [
+        {
+          "label": "Roleplay facts",
+          "value": "The special is grilled salmon. The customer has a nut allergy. Staff can check with the kitchen and offer a side salad."
+        }
+      ],
+      "vocabulary": [
+        {
+          "term": "bill",
+          "meaning": "账单",
+          "example": "I'm allergic to nuts. Could you check whether it contains any?",
+          "forms": ["check"]
+        },
+        {
+          "term": "allergy",
+          "meaning": "过敏",
+          "example": "The special is grilled salmon. The customer has a nut allergy. Staff can check with the kitchen and offer a side salad."
+        },
+        {
+          "term": "allergic to",
+          "meaning": "对……过敏",
+          "example": "I'm allergic to nuts. Could you check whether it contains any?"
+        },
+        {
+          "term": "side salad",
+          "meaning": "配菜沙拉",
+          "example": "Could I have a side salad instead of fries, please?"
+        },
+        {
+          "term": "special",
+          "meaning": "今日特色菜",
+          "example": "What is today's special?"
+        }
+      ],
+      "languageNotes": [
+        "不要说 \"Give me the menu\"（太生硬），用 Could I see...；「买单」说 Could we get the bill 或 Check, please，不说 \"pay money\"。"
+      ],
+      "warmup": [
+        {
+          "id": "warmup-language",
+          "prompt": "Say this in English. 请给我看下菜单。",
+          "suggestedAnswer": "Could I see the menu, please?"
+        }
+      ],
+      "modelDialogue": [
+        {
+          "stageId": "step-1",
+          "role": "partner",
+          "text": "Are you ready to order, or is there anything you would like to ask about the menu?"
+        },
+        {
+          "stageId": "step-1",
+          "role": "learner",
+          "text": "What is today's special?"
+        },
+        {
+          "stageId": "step-2",
+          "role": "partner",
+          "text": "Today's special is grilled salmon. Is there anything the kitchen should know?"
+        },
+        {
+          "stageId": "step-2",
+          "role": "learner",
+          "text": "I'm allergic to nuts. Could you check whether it contains any?"
+        },
+        {
+          "stageId": "step-3",
+          "role": "partner",
+          "text": "I'll check with the kitchen before you order. What side would you prefer?"
+        },
+        {
+          "stageId": "step-3",
+          "role": "learner",
+          "text": "Could I have a side salad instead of fries, please?"
+        }
+      ],
+      "guidedPractice": [
+        {
+          "stageId": "step-1",
+          "suggestedReply": "What is today's special?",
+          "partnerPrompt": "Are you ready to order, or is there anything you would like to ask about the menu?"
+        },
+        {
+          "stageId": "step-2",
+          "suggestedReply": "I'm allergic to nuts. Could you check whether it contains any?",
+          "partnerPrompt": "Today's special is grilled salmon. Is there anything the kitchen should know?"
+        },
+        {
+          "stageId": "step-3",
+          "suggestedReply": "Could I have a side salad instead of fries, please?",
+          "partnerPrompt": "I'll check with the kitchen before you order. What side would you prefer?"
+        }
+      ],
+      "reviewPractice": [
+        {
+          "id": "review-language",
+          "prompt": "Say this in English. 这个可以打包吗？",
+          "suggestedAnswer": "Could I get this to go?"
+        }
+      ],
+      "variations": []
+    }
+  }
+}

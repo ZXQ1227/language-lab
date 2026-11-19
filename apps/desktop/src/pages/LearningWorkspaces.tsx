@@ -88,8 +88,7 @@ export function PlanPage() {
       (a, b) =>
         Math.abs(cefrLevelSchema.options.indexOf(a.difficulty) - level) -
           Math.abs(cefrLevelSchema.options.indexOf(b.difficulty) - level) ||
-        Number(completed.has(a.slug)) - Number(completed.has(b.slug)) ||
-        Number(b === guidedCourse) - Number(a === guidedCourse),
+        Number(completed.has(a.slug)) - Number(completed.has(b.slug)),
     );
   const recommended = choices[alternate % choices.length];
   const ongoing =

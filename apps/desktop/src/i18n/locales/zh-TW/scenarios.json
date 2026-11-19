@@ -10,7 +10,8 @@
   "couldNotLoadScenarios": "無法載入情境課程：",
   "retry": "重試",
   "loadingScenarioLibrary": "正在載入情境課程庫…",
-  "noScenariosInTheLibraryYet": "課程庫中尚無情境。",
   "objectives": "學習目標",
-  "targetVocabulary": "重點詞彙"
+  "targetVocabulary": "重點詞彙",
+  "learningPaths": "學習路徑",
+  "otherLocalScenarios": "其他本機情境"
 }

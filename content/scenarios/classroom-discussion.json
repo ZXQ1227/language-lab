@@ -1,0 +1,211 @@
+{
+  "schemaVersion": 1,
+  "id": "sc-classroom-discussion",
+  "slug": "classroom-discussion",
+  "title": "Taking part in a project discussion",
+  "category": "campus",
+  "difficulty": "B1",
+  "objectives": [
+    "Share a view and give a reason",
+    "Suggest a concrete plan",
+    "Volunteer for a clear task and invite input"
+  ],
+  "targetVocabulary": ["slide", "follow-up questions", "interviews", "scheduling"],
+  "courseTemplate": {
+    "targetLanguage": "en",
+    "estimatedMinutes": 10,
+    "setting": "The project is due in two weeks. The team can manage twenty short interviews but wants to avoid doing both interviews and surveys.",
+    "roles": {
+      "learner": "A student choosing a research method",
+      "partner": "A group project teammate"
+    },
+    "openingLine": "For the group project, should we use interviews or a survey?",
+    "targetPatterns": [
+      {
+        "pattern": "I'd choose interviews because they let us ask follow-up questions.",
+        "example": "I'd choose interviews because they let us ask follow-up questions."
+      },
+      {
+        "pattern": "Let's do twenty interviews, fifteen minutes each.",
+        "example": "Let's do twenty interviews, fifteen minutes each."
+      },
+      {
+        "pattern": "I can handle the scheduling. Does that work for everyone?",
+        "example": "I can handle the scheduling. Does that work for everyone?"
+      },
+      {
+        "pattern": "Could you repeat the question, please?",
+        "example": "Could you repeat the question, please?",
+        "translation": "能重复一下问题吗？"
+      },
+      {
+        "pattern": "I'd like to add one more point.",
+        "example": "I'd like to add one more point.",
+        "translation": "我想补充一点。"
+      },
+      {
+        "pattern": "Building on what Maria said...",
+        "example": "Building on what Maria said...",
+        "translation": "在 Maria 说的基础上……"
+      },
+      {
+        "pattern": "Sorry to jump in — quick clarification.",
+        "example": "Sorry to jump in — quick clarification.",
+        "translation": "插一句，快速确认一下。"
+      },
+      {
+        "pattern": "Let's move to the next slide.",
+        "example": "Let's move to the next slide.",
+        "translation": "我们看下一页。"
+      },
+      {
+        "pattern": "To sum up my argument...",
+        "example": "To sum up my argument...",
+        "translation": "总结我的观点……"
+      },
+      {
+        "pattern": "Does anyone see it differently?",
+        "example": "Does anyone see it differently?",
+        "translation": "有人有不同看法吗？"
+      },
+      {
+        "pattern": "Could you go back one slide?",
+        "example": "Could you go back one slide?",
+        "translation": "能退回上一页吗？"
+      }
+    ],
+    "stages": [
+      {
+        "id": "step-1",
+        "title": "Share a view and give a reason",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “For the group project, should we use interviews or a survey?”",
+        "objectiveIds": ["obj-1"],
+        "successCriteria": ["The learner can share a view and give a reason in their own words."],
+        "hints": ["You can start with “I'd choose interviews because …”"]
+      },
+      {
+        "id": "step-2",
+        "title": "Suggest a concrete plan",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “We only have two weeks. What could we realistically manage?”",
+        "objectiveIds": ["obj-2"],
+        "successCriteria": ["The learner can suggest a concrete plan in their own words."],
+        "hints": ["You can start with “Let's do twenty interviews, …”"]
+      },
+      {
+        "id": "step-3",
+        "title": "Volunteer for a clear task and invite input",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “That sounds manageable. Who can take charge of the arrangements?”",
+        "objectiveIds": ["obj-3"],
+        "successCriteria": [
+          "The learner can volunteer for a clear task and invite input in their own words."
+        ],
+        "hints": ["You can start with “I can handle the …”"]
+      }
+    ],
+    "teachingPolicy": {
+      "correctionMode": "gentle",
+      "maxCorrections": 2,
+      "maxHints": 3
+    },
+    "learningPack": {
+      "schemaVersion": 1,
+      "overview": "课堂表达 · The project is due in two weeks. The team can manage twenty short interviews but wants to avoid doing both interviews and surveys.",
+      "prerequisites": [],
+      "scenarioFacts": [
+        {
+          "label": "Roleplay facts",
+          "value": "The project is due in two weeks. The team can manage twenty short interviews but wants to avoid doing both interviews and surveys."
+        }
+      ],
+      "vocabulary": [
+        {
+          "term": "slide",
+          "meaning": "幻灯片",
+          "example": "Let's move to the next slide."
+        },
+        {
+          "term": "follow-up questions",
+          "meaning": "后续追问",
+          "example": "I'd choose interviews because they let us ask follow-up questions."
+        },
+        {
+          "term": "interviews",
+          "meaning": "访谈",
+          "example": "I'd choose interviews because they let us ask follow-up questions."
+        },
+        {
+          "term": "scheduling",
+          "meaning": "日程安排",
+          "example": "I can handle the scheduling. Does that work for everyone?"
+        }
+      ],
+      "languageNotes": [
+        "插话用 Sorry to jump in 或 Can I add something?，直接开口容易被视为 rude；presentation 结尾别说 \"That's all\"（显得敷衍），用 That concludes my presentation — happy to take questions."
+      ],
+      "warmup": [
+        {
+          "id": "warmup-language",
+          "prompt": "Say this in English. 能重复一下问题吗？",
+          "suggestedAnswer": "Could you repeat the question, please?"
+        }
+      ],
+      "modelDialogue": [
+        {
+          "stageId": "step-1",
+          "role": "partner",
+          "text": "For the group project, should we use interviews or a survey?"
+        },
+        {
+          "stageId": "step-1",
+          "role": "learner",
+          "text": "I'd choose interviews because they let us ask follow-up questions."
+        },
+        {
+          "stageId": "step-2",
+          "role": "partner",
+          "text": "We only have two weeks. What could we realistically manage?"
+        },
+        {
+          "stageId": "step-2",
+          "role": "learner",
+          "text": "Let's do twenty interviews, fifteen minutes each."
+        },
+        {
+          "stageId": "step-3",
+          "role": "partner",
+          "text": "That sounds manageable. Who can take charge of the arrangements?"
+        },
+        {
+          "stageId": "step-3",
+          "role": "learner",
+          "text": "I can handle the scheduling. Does that work for everyone?"
+        }
+      ],
+      "guidedPractice": [
+        {
+          "stageId": "step-1",
+          "suggestedReply": "I'd choose interviews because they let us ask follow-up questions.",
+          "partnerPrompt": "For the group project, should we use interviews or a survey?"
+        },
+        {
+          "stageId": "step-2",
+          "suggestedReply": "Let's do twenty interviews, fifteen minutes each.",
+          "partnerPrompt": "We only have two weeks. What could we realistically manage?"
+        },
+        {
+          "stageId": "step-3",
+          "suggestedReply": "I can handle the scheduling. Does that work for everyone?",
+          "partnerPrompt": "That sounds manageable. Who can take charge of the arrangements?"
+        }
+      ],
+      "reviewPractice": [
+        {
+          "id": "review-language",
+          "prompt": "Say this in English. 能退回上一页吗？",
+          "suggestedAnswer": "Could you go back one slide?"
+        }
+      ],
+      "variations": []
+    }
+  }
+}

@@ -1,0 +1,232 @@
+{
+  "schemaVersion": 1,
+  "id": "sc-office-time-off",
+  "slug": "office-time-off",
+  "title": "Requesting a day off",
+  "category": "career",
+  "difficulty": "B1",
+  "objectives": [
+    "Request a specific day off and give a brief reason",
+    "Explain how you will cover the urgent work",
+    "Confirm any handover before you leave"
+  ],
+  "targetVocabulary": [
+    "time-sensitive",
+    "expense report",
+    "approve",
+    "sync",
+    "take friday off",
+    "visa appointment"
+  ],
+  "courseTemplate": {
+    "targetLanguage": "en",
+    "estimatedMinutes": 10,
+    "setting": "The learner needs Friday off and can finish the research slide deck by Thursday.",
+    "roles": {
+      "learner": "An employee with a visa appointment",
+      "partner": "A manager coordinating coverage"
+    },
+    "openingLine": "Sure, I've got a minute. What's up?",
+    "targetPatterns": [
+      {
+        "pattern": "Could I take Friday off? I have a visa appointment that morning.",
+        "example": "Could I take Friday off? I have a visa appointment that morning."
+      },
+      {
+        "pattern": "I'll finish the user research deck by Thursday afternoon.",
+        "example": "I'll finish the user research deck by Thursday afternoon."
+      },
+      {
+        "pattern": "I'll send Sam the latest version and ask them to cover any questions.",
+        "example": "I'll send Sam the latest version and ask them to cover any questions."
+      },
+      {
+        "pattern": "Do you have a minute?",
+        "example": "Do you have a minute?",
+        "translation": "你有空吗？"
+      },
+      {
+        "pattern": "I'll be out of office tomorrow for a medical appointment.",
+        "example": "I'll be out of office tomorrow for a medical appointment.",
+        "translation": "我明天请假去看医生。"
+      },
+      {
+        "pattern": "Could you cover for me on Thursday?",
+        "example": "Could you cover for me on Thursday?",
+        "translation": "周四能帮我顶一下吗？"
+      },
+      {
+        "pattern": "I submitted the expense report — could you approve it?",
+        "example": "I submitted the expense report — could you approve it?",
+        "translation": "我提交了报销单，能帮我批一下吗？"
+      },
+      {
+        "pattern": "Sorry to bug you, but this is time-sensitive.",
+        "example": "Sorry to bug you, but this is time-sensitive.",
+        "translation": "不好意思打扰，这事比较急。"
+      },
+      {
+        "pattern": "Let's sync after lunch.",
+        "example": "Let's sync after lunch.",
+        "translation": "午饭后我们对一下。"
+      },
+      {
+        "pattern": "I'm running a bit behind — I'll send it by 3.",
+        "example": "I'm running a bit behind — I'll send it by 3.",
+        "translation": "我进度有点落后，3 点前发你。"
+      },
+      {
+        "pattern": "Feel free to ping me anytime.",
+        "example": "Feel free to ping me anytime.",
+        "translation": "随时找我。"
+      }
+    ],
+    "stages": [
+      {
+        "id": "step-1",
+        "title": "Request a specific day off and give a brief reason",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “Sure, I've got a minute. What's up?”",
+        "objectiveIds": ["obj-1"],
+        "successCriteria": [
+          "The learner can request a specific day off and give a brief reason in their own words."
+        ],
+        "hints": ["You can start with “Could I take Friday …”"]
+      },
+      {
+        "id": "step-2",
+        "title": "Explain how you will cover the urgent work",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “That should be fine. Is there anything urgent on your plate?”",
+        "objectiveIds": ["obj-2"],
+        "successCriteria": [
+          "The learner can explain how you will cover the urgent work in their own words."
+        ],
+        "hints": ["You can start with “I'll finish the user …”"]
+      },
+      {
+        "id": "step-3",
+        "title": "Confirm any handover before you leave",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “Great. Can anyone answer questions about the deck on Friday?”",
+        "objectiveIds": ["obj-3"],
+        "successCriteria": [
+          "The learner can confirm any handover before you leave in their own words."
+        ],
+        "hints": ["You can start with “I'll send Sam the …”"]
+      }
+    ],
+    "teachingPolicy": {
+      "correctionMode": "gentle",
+      "maxCorrections": 2,
+      "maxHints": 3
+    },
+    "learningPack": {
+      "schemaVersion": 1,
+      "overview": "办公日常 · The learner needs Friday off and can finish the research slide deck by Thursday.",
+      "prerequisites": [],
+      "scenarioFacts": [
+        {
+          "label": "Roleplay facts",
+          "value": "The learner needs Friday off and can finish the research slide deck by Thursday."
+        }
+      ],
+      "vocabulary": [
+        {
+          "term": "time-sensitive",
+          "meaning": "时间敏感",
+          "example": "Sorry to bug you, but this is time-sensitive."
+        },
+        {
+          "term": "expense report",
+          "meaning": "报销单",
+          "example": "I submitted the expense report — could you approve it?"
+        },
+        {
+          "term": "approve",
+          "meaning": "审批",
+          "example": "I submitted the expense report — could you approve it?"
+        },
+        {
+          "term": "sync",
+          "meaning": "对齐进度",
+          "example": "Let's sync after lunch."
+        },
+        {
+          "term": "take friday off",
+          "meaning": "周五请假",
+          "example": "Could I take Friday off? I have a visa appointment that morning."
+        },
+        {
+          "term": "visa appointment",
+          "meaning": "签证预约",
+          "example": "Could I take Friday off? I have a visa appointment that morning."
+        }
+      ],
+      "languageNotes": [
+        "请假说 take a day off，不是 \"have a rest\"；「有点忙」说 I'm swamped / tied up，不说 \"my job is very busy\"。"
+      ],
+      "warmup": [
+        {
+          "id": "warmup-language",
+          "prompt": "Say this in English. 你有空吗？",
+          "suggestedAnswer": "Do you have a minute?"
+        }
+      ],
+      "modelDialogue": [
+        {
+          "stageId": "step-1",
+          "role": "partner",
+          "text": "Sure, I've got a minute. What's up?"
+        },
+        {
+          "stageId": "step-1",
+          "role": "learner",
+          "text": "Could I take Friday off? I have a visa appointment that morning."
+        },
+        {
+          "stageId": "step-2",
+          "role": "partner",
+          "text": "That should be fine. Is there anything urgent on your plate?"
+        },
+        {
+          "stageId": "step-2",
+          "role": "learner",
+          "text": "I'll finish the user research deck by Thursday afternoon."
+        },
+        {
+          "stageId": "step-3",
+          "role": "partner",
+          "text": "Great. Can anyone answer questions about the deck on Friday?"
+        },
+        {
+          "stageId": "step-3",
+          "role": "learner",
+          "text": "I'll send Sam the latest version and ask them to cover any questions."
+        }
+      ],
+      "guidedPractice": [
+        {
+          "stageId": "step-1",
+          "suggestedReply": "Could I take Friday off? I have a visa appointment that morning.",
+          "partnerPrompt": "Sure, I've got a minute. What's up?"
+        },
+        {
+          "stageId": "step-2",
+          "suggestedReply": "I'll finish the user research deck by Thursday afternoon.",
+          "partnerPrompt": "That should be fine. Is there anything urgent on your plate?"
+        },
+        {
+          "stageId": "step-3",
+          "suggestedReply": "I'll send Sam the latest version and ask them to cover any questions.",
+          "partnerPrompt": "Great. Can anyone answer questions about the deck on Friday?"
+        }
+      ],
+      "reviewPractice": [
+        {
+          "id": "review-language",
+          "prompt": "Say this in English. 随时找我。",
+          "suggestedAnswer": "Feel free to ping me anytime."
+        }
+      ],
+      "variations": []
+    }
+  }
+}

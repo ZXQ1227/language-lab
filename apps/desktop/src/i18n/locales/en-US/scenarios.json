@@ -10,7 +10,8 @@
   "couldNotLoadScenarios": "Could not load scenarios: ",
   "retry": "Retry",
   "loadingScenarioLibrary": "Loading scenario library…",
-  "noScenariosInTheLibraryYet": "No scenarios in the library yet.",
   "objectives": "Objectives",
-  "targetVocabulary": "Target vocabulary"
+  "targetVocabulary": "Target vocabulary",
+  "learningPaths": "Learning paths",
+  "otherLocalScenarios": "Other local scenarios"
 }

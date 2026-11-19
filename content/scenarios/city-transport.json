@@ -1,0 +1,215 @@
+{
+  "schemaVersion": 1,
+  "id": "sc-city-transport",
+  "slug": "city-transport",
+  "title": "Taking a taxi to a museum",
+  "category": "travel",
+  "difficulty": "A2",
+  "objectives": [
+    "Name the destination and ask how far it is",
+    "Request a different route politely",
+    "Ask the driver to slow down and give a reason"
+  ],
+  "targetVocabulary": ["transfer", "museum", "bridge", "carsick"],
+  "courseTemplate": {
+    "targetLanguage": "en",
+    "estimatedMinutes": 8,
+    "setting": "The Grand Museum is about twenty minutes away. The bridge is open and the tunnel is congested.",
+    "roles": {
+      "learner": "A visitor taking a taxi",
+      "partner": "A taxi driver"
+    },
+    "openingLine": "Hello! Where are you heading?",
+    "targetPatterns": [
+      {
+        "pattern": "The Grand Museum, please. Is it far from here?",
+        "example": "The Grand Museum, please. Is it far from here?"
+      },
+      {
+        "pattern": "Could we go via the bridge, please?",
+        "example": "Could we go via the bridge, please?"
+      },
+      {
+        "pattern": "Could you slow down a bit? I'm feeling carsick.",
+        "example": "Could you slow down a bit? I'm feeling carsick."
+      },
+      {
+        "pattern": "Could you take me to this address, please?",
+        "example": "Could you take me to this address, please?",
+        "translation": "请送我去这个地址。"
+      },
+      {
+        "pattern": "About how much will it cost?",
+        "example": "About how much will it cost?",
+        "translation": "大概多少钱？"
+      },
+      {
+        "pattern": "Which line goes to Central Station?",
+        "example": "Which line goes to Central Station?",
+        "translation": "哪条线到中央车站？"
+      },
+      {
+        "pattern": "Where's the nearest subway station?",
+        "example": "Where's the nearest subway station?",
+        "translation": "最近的地铁站在哪？"
+      },
+      {
+        "pattern": "Do I need to transfer?",
+        "example": "Do I need to transfer?",
+        "translation": "需要换乘吗？"
+      },
+      {
+        "pattern": "Keep the change, please.",
+        "example": "Keep the change, please.",
+        "translation": "不用找钱了。"
+      },
+      {
+        "pattern": "Could you drop me off at the corner?",
+        "example": "Could you drop me off at the corner?",
+        "translation": "请在路口放下我。"
+      },
+      {
+        "pattern": "How long does it take to get downtown?",
+        "example": "How long does it take to get downtown?",
+        "translation": "到市中心要多久？"
+      }
+    ],
+    "stages": [
+      {
+        "id": "step-1",
+        "title": "Name the destination and ask how far it is",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “Hello! Where are you heading?”",
+        "objectiveIds": ["obj-1"],
+        "successCriteria": [
+          "The learner can name the destination and ask how far it is in their own words."
+        ],
+        "hints": ["You can start with “The Grand Museum, please. …”"]
+      },
+      {
+        "id": "step-2",
+        "title": "Request a different route politely",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “It usually takes twenty minutes. We can take the tunnel or the bridge.”",
+        "objectiveIds": ["obj-2"],
+        "successCriteria": [
+          "The learner can request a different route politely in their own words."
+        ],
+        "hints": ["You can start with “Could we go via …”"]
+      },
+      {
+        "id": "step-3",
+        "title": "Ask the driver to slow down and give a reason",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “Sure, the bridge is clear. Is everything okay in the back?”",
+        "objectiveIds": ["obj-3"],
+        "successCriteria": [
+          "The learner can ask the driver to slow down and give a reason in their own words."
+        ],
+        "hints": ["You can start with “Could you slow down …”"]
+      }
+    ],
+    "teachingPolicy": {
+      "correctionMode": "gentle",
+      "maxCorrections": 2,
+      "maxHints": 3
+    },
+    "learningPack": {
+      "schemaVersion": 1,
+      "overview": "城市交通 · The Grand Museum is about twenty minutes away. The bridge is open and the tunnel is congested.",
+      "prerequisites": [],
+      "scenarioFacts": [
+        {
+          "label": "Roleplay facts",
+          "value": "The Grand Museum is about twenty minutes away. The bridge is open and the tunnel is congested."
+        }
+      ],
+      "vocabulary": [
+        {
+          "term": "transfer",
+          "meaning": "换乘",
+          "example": "Do I need to transfer?"
+        },
+        {
+          "term": "museum",
+          "meaning": "博物馆",
+          "example": "The Grand Museum, please. Is it far from here?"
+        },
+        {
+          "term": "bridge",
+          "meaning": "桥",
+          "example": "Could we go via the bridge, please?"
+        },
+        {
+          "term": "carsick",
+          "meaning": "晕车",
+          "example": "Could you slow down a bit? I'm feeling carsick."
+        }
+      ],
+      "languageNotes": [
+        "「我在车上」不要说 \"I'm on the car\"（那是趴在车顶），轿车里用 in the car；公交/火车/地铁才用 on。"
+      ],
+      "warmup": [
+        {
+          "id": "warmup-language",
+          "prompt": "Say this in English. 请送我去这个地址。",
+          "suggestedAnswer": "Could you take me to this address, please?"
+        }
+      ],
+      "modelDialogue": [
+        {
+          "stageId": "step-1",
+          "role": "partner",
+          "text": "Hello! Where are you heading?"
+        },
+        {
+          "stageId": "step-1",
+          "role": "learner",
+          "text": "The Grand Museum, please. Is it far from here?"
+        },
+        {
+          "stageId": "step-2",
+          "role": "partner",
+          "text": "It usually takes twenty minutes. We can take the tunnel or the bridge."
+        },
+        {
+          "stageId": "step-2",
+          "role": "learner",
+          "text": "Could we go via the bridge, please?"
+        },
+        {
+          "stageId": "step-3",
+          "role": "partner",
+          "text": "Sure, the bridge is clear. Is everything okay in the back?"
+        },
+        {
+          "stageId": "step-3",
+          "role": "learner",
+          "text": "Could you slow down a bit? I'm feeling carsick."
+        }
+      ],
+      "guidedPractice": [
+        {
+          "stageId": "step-1",
+          "suggestedReply": "The Grand Museum, please. Is it far from here?",
+          "partnerPrompt": "Hello! Where are you heading?"
+        },
+        {
+          "stageId": "step-2",
+          "suggestedReply": "Could we go via the bridge, please?",
+          "partnerPrompt": "It usually takes twenty minutes. We can take the tunnel or the bridge."
+        },
+        {
+          "stageId": "step-3",
+          "suggestedReply": "Could you slow down a bit? I'm feeling carsick.",
+          "partnerPrompt": "Sure, the bridge is clear. Is everything okay in the back?"
+        }
+      ],
+      "reviewPractice": [
+        {
+          "id": "review-language",
+          "prompt": "Say this in English. 到市中心要多久？",
+          "suggestedAnswer": "How long does it take to get downtown?"
+        }
+      ],
+      "variations": []
+    }
+  }
+}

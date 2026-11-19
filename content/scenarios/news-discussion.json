@@ -1,0 +1,220 @@
+{
+  "schemaVersion": 1,
+  "id": "sc-news-discussion",
+  "slug": "news-discussion",
+  "title": "Discussing housing news politely",
+  "category": "overseas-life",
+  "difficulty": "B1",
+  "objectives": [
+    "Describe how the issue affects you",
+    "Acknowledge another view and offer your own concern",
+    "Ask an open question that keeps the discussion constructive"
+  ],
+  "targetVocabulary": ["statistics", "agree to disagree", "rent", "renters", "long-term"],
+  "courseTemplate": {
+    "targetLanguage": "en",
+    "estimatedMinutes": 10,
+    "setting": "The conversation is about fictional local housing reports. One speaker's rent rose eight percent. Use tentative language about opinions.",
+    "roles": {
+      "learner": "A colleague discussing a housing story",
+      "partner": "A coworker with a different view on housing"
+    },
+    "openingLine": "Did you see the news about housing prices going up again?",
+    "targetPatterns": [
+      {
+        "pattern": "Yes. My rent just went up eight percent, so it's been on my mind.",
+        "example": "Yes. My rent just went up eight percent, so it's been on my mind."
+      },
+      {
+        "pattern": "I see your point. I'm also worried about what renters can afford right now.",
+        "example": "I see your point. I'm also worried about what renters can afford right now."
+      },
+      {
+        "pattern": "What short-term changes do you think might help?",
+        "example": "What short-term changes do you think might help?"
+      },
+      {
+        "pattern": "Did you follow the news about the election?",
+        "example": "Did you follow the news about the election?",
+        "translation": "你关注选举的新闻了吗？"
+      },
+      {
+        "pattern": "What's your take on this?",
+        "example": "What's your take on this?",
+        "translation": "你怎么看这件事？"
+      },
+      {
+        "pattern": "I read a different angle on that story.",
+        "example": "I read a different angle on that story.",
+        "translation": "我看到这个故事的不同角度报道。"
+      },
+      {
+        "pattern": "I'd rather not get into politics, if that's OK.",
+        "example": "I'd rather not get into politics, if that's OK.",
+        "translation": "没关系的话，我不想聊政治。"
+      },
+      {
+        "pattern": "That's a fair point, but have you considered...?",
+        "example": "That's a fair point, but have you considered...?",
+        "translation": "有道理，但你有没有想过……"
+      },
+      {
+        "pattern": "Where did you hear that?",
+        "example": "Where did you hear that?",
+        "translation": "你从哪看到的？"
+      },
+      {
+        "pattern": "The article cites official statistics.",
+        "example": "The article cites official statistics.",
+        "translation": "这篇文章引用了官方数据。"
+      },
+      {
+        "pattern": "Let's agree to disagree on this one.",
+        "example": "Let's agree to disagree on this one.",
+        "translation": "这一点我们保留各自意见吧。"
+      }
+    ],
+    "stages": [
+      {
+        "id": "step-1",
+        "title": "Describe how the issue affects you",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “Did you see the news about housing prices going up again?”",
+        "objectiveIds": ["obj-1"],
+        "successCriteria": [
+          "The learner can describe how the issue affects you in their own words."
+        ],
+        "hints": ["You can start with “Yes. My rent just …”"]
+      },
+      {
+        "id": "step-2",
+        "title": "Acknowledge another view and offer your own concern",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “I think building more homes is the main long-term answer.”",
+        "objectiveIds": ["obj-2"],
+        "successCriteria": [
+          "The learner can acknowledge another view and offer your own concern in their own words."
+        ],
+        "hints": ["You can start with “I see your point. …”"]
+      },
+      {
+        "id": "step-3",
+        "title": "Ask an open question that keeps the discussion constructive",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “That's a fair concern. I don't think there's a quick fix.”",
+        "objectiveIds": ["obj-3"],
+        "successCriteria": [
+          "The learner can ask an open question that keeps the discussion constructive in their own words."
+        ],
+        "hints": ["You can start with “What short-term changes do …”"]
+      }
+    ],
+    "teachingPolicy": {
+      "correctionMode": "gentle",
+      "maxCorrections": 2,
+      "maxHints": 3
+    },
+    "learningPack": {
+      "schemaVersion": 1,
+      "overview": "新闻与社会议题 · The conversation is about fictional local housing reports. One speaker's rent rose eight percent. Use tentative language about opinions.",
+      "prerequisites": [],
+      "scenarioFacts": [
+        {
+          "label": "Roleplay facts",
+          "value": "The conversation is about fictional local housing reports. One speaker's rent rose eight percent. Use tentative language about opinions."
+        }
+      ],
+      "vocabulary": [
+        {
+          "term": "statistics",
+          "meaning": "数据统计",
+          "example": "The article cites official statistics."
+        },
+        {
+          "term": "agree to disagree",
+          "meaning": "保留分歧",
+          "example": "Let's agree to disagree on this one."
+        },
+        {
+          "term": "rent",
+          "meaning": "房租",
+          "example": "Yes. My rent just went up eight percent, so it's been on my mind."
+        },
+        {
+          "term": "renters",
+          "meaning": "租房者",
+          "example": "I see your point. I'm also worried about what renters can afford right now."
+        },
+        {
+          "term": "long-term",
+          "meaning": "长期的",
+          "example": "I think building more homes is the main long-term answer."
+        }
+      ],
+      "languageNotes": [
+        "聊敏感议题先试探（What's your take...?），对方回避就换话题；「我不想聊这个」的地道说法是 I'd rather not get into that."
+      ],
+      "warmup": [
+        {
+          "id": "warmup-language",
+          "prompt": "Say this in English. 你关注选举的新闻了吗？",
+          "suggestedAnswer": "Did you follow the news about the election?"
+        }
+      ],
+      "modelDialogue": [
+        {
+          "stageId": "step-1",
+          "role": "partner",
+          "text": "Did you see the news about housing prices going up again?"
+        },
+        {
+          "stageId": "step-1",
+          "role": "learner",
+          "text": "Yes. My rent just went up eight percent, so it's been on my mind."
+        },
+        {
+          "stageId": "step-2",
+          "role": "partner",
+          "text": "I think building more homes is the main long-term answer."
+        },
+        {
+          "stageId": "step-2",
+          "role": "learner",
+          "text": "I see your point. I'm also worried about what renters can afford right now."
+        },
+        {
+          "stageId": "step-3",
+          "role": "partner",
+          "text": "That's a fair concern. I don't think there's a quick fix."
+        },
+        {
+          "stageId": "step-3",
+          "role": "learner",
+          "text": "What short-term changes do you think might help?"
+        }
+      ],
+      "guidedPractice": [
+        {
+          "stageId": "step-1",
+          "suggestedReply": "Yes. My rent just went up eight percent, so it's been on my mind.",
+          "partnerPrompt": "Did you see the news about housing prices going up again?"
+        },
+        {
+          "stageId": "step-2",
+          "suggestedReply": "I see your point. I'm also worried about what renters can afford right now.",
+          "partnerPrompt": "I think building more homes is the main long-term answer."
+        },
+        {
+          "stageId": "step-3",
+          "suggestedReply": "What short-term changes do you think might help?",
+          "partnerPrompt": "That's a fair concern. I don't think there's a quick fix."
+        }
+      ],
+      "reviewPractice": [
+        {
+          "id": "review-language",
+          "prompt": "Say this in English. 这一点我们保留各自意见吧。",
+          "suggestedAnswer": "Let's agree to disagree on this one."
+        }
+      ],
+      "variations": []
+    }
+  }
+}

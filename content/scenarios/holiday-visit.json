@@ -1,0 +1,228 @@
+{
+  "schemaVersion": 1,
+  "id": "sc-holiday-visit",
+  "slug": "holiday-visit",
+  "title": "Bringing a gift to a holiday dinner",
+  "category": "overseas-life",
+  "difficulty": "A2",
+  "objectives": [
+    "Thank the host and offer the gift",
+    "Offer to help with the meal",
+    "Ask where to sit politely"
+  ],
+  "targetVocabulary": [
+    "tradition",
+    "celebrate",
+    "host",
+    "guest",
+    "thanks for having me",
+    "thoughtful"
+  ],
+  "courseTemplate": {
+    "targetLanguage": "en",
+    "estimatedMinutes": 8,
+    "setting": "The guest brought Chinese tea. Dinner starts in ten minutes. The host will show guests where to sit.",
+    "roles": {
+      "learner": "A guest invited to a holiday dinner",
+      "partner": "A host welcoming the guest"
+    },
+    "openingLine": "Come in! It's so nice to see you.",
+    "targetPatterns": [
+      {
+        "pattern": "Thanks for having me. I brought you some Chinese tea.",
+        "example": "Thanks for having me. I brought you some Chinese tea."
+      },
+      {
+        "pattern": "It's a small gift. Can I help with anything?",
+        "example": "It's a small gift. Can I help with anything?"
+      },
+      {
+        "pattern": "Thank you. Where should I sit?",
+        "example": "Thank you. Where should I sit?"
+      },
+      {
+        "pattern": "How do you usually celebrate Christmas?",
+        "example": "How do you usually celebrate Christmas?",
+        "translation": "你们通常怎么过圣诞节？"
+      },
+      {
+        "pattern": "Do I need to bring anything to the dinner?",
+        "example": "Do I need to bring anything to the dinner?",
+        "translation": "参加晚餐需要带东西吗？"
+      },
+      {
+        "pattern": "What's an appropriate gift for the host?",
+        "example": "What's an appropriate gift for the host?",
+        "translation": "给主人带什么礼物合适？"
+      },
+      {
+        "pattern": "Happy Thanksgiving to you and your family!",
+        "example": "Happy Thanksgiving to you and your family!",
+        "translation": "祝你和家人感恩节快乐！"
+      },
+      {
+        "pattern": "Is it okay if I don't drink?",
+        "example": "Is it okay if I don't drink?",
+        "translation": "我不喝酒没关系吧？"
+      },
+      {
+        "pattern": "What time should I arrive?",
+        "example": "What time should I arrive?",
+        "translation": "我该几点到？"
+      },
+      {
+        "pattern": "Could you tell me more about this tradition?",
+        "example": "Could you tell me more about this tradition?",
+        "translation": "能多讲讲这个传统吗？"
+      },
+      {
+        "pattern": "In China, we celebrate it a bit differently.",
+        "example": "In China, we celebrate it a bit differently.",
+        "translation": "在中国我们的过法有点不一样。"
+      }
+    ],
+    "stages": [
+      {
+        "id": "step-1",
+        "title": "Thank the host and offer the gift",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “Come in! It's so nice to see you.”",
+        "objectiveIds": ["obj-1"],
+        "successCriteria": [
+          "The learner can thank the host and offer the gift in their own words."
+        ],
+        "hints": ["You can start with “Thanks for having me. …”"]
+      },
+      {
+        "id": "step-2",
+        "title": "Offer to help with the meal",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “How thoughtful! You really didn't have to.”",
+        "objectiveIds": ["obj-2"],
+        "successCriteria": ["The learner can offer to help with the meal in their own words."],
+        "hints": ["You can start with “It's a small gift. …”"]
+      },
+      {
+        "id": "step-3",
+        "title": "Ask where to sit politely",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “Just make yourself at home. Dinner will be ready in ten minutes.”",
+        "objectiveIds": ["obj-3"],
+        "successCriteria": ["The learner can ask where to sit politely in their own words."],
+        "hints": ["You can start with “Thank you. Where should …”"]
+      }
+    ],
+    "teachingPolicy": {
+      "correctionMode": "gentle",
+      "maxCorrections": 2,
+      "maxHints": 3
+    },
+    "learningPack": {
+      "schemaVersion": 1,
+      "overview": "节假日与文化习俗 · The guest brought Chinese tea. Dinner starts in ten minutes. The host will show guests where to sit.",
+      "prerequisites": [],
+      "scenarioFacts": [
+        {
+          "label": "Roleplay facts",
+          "value": "The guest brought Chinese tea. Dinner starts in ten minutes. The host will show guests where to sit."
+        }
+      ],
+      "vocabulary": [
+        {
+          "term": "tradition",
+          "meaning": "传统",
+          "example": "Could you tell me more about this tradition?"
+        },
+        {
+          "term": "celebrate",
+          "meaning": "庆祝",
+          "example": "How do you usually celebrate Christmas?"
+        },
+        {
+          "term": "host",
+          "meaning": "主人",
+          "example": "What's an appropriate gift for the host?"
+        },
+        {
+          "term": "guest",
+          "meaning": "客人",
+          "example": "The guest brought Chinese tea. Dinner starts in ten minutes. The host will show guests where to sit."
+        },
+        {
+          "term": "thanks for having me",
+          "meaning": "谢谢邀请我",
+          "example": "Thanks for having me. I brought you some Chinese tea."
+        },
+        {
+          "term": "thoughtful",
+          "meaning": "体贴的",
+          "example": "How thoughtful! You really didn't have to."
+        }
+      ],
+      "languageNotes": [
+        "受邀做客别空手，小礼（酒、点心、茶）即可；「干杯」敬酒说 Cheers! / To your health!，碰杯时目光看对方。"
+      ],
+      "warmup": [
+        {
+          "id": "warmup-language",
+          "prompt": "Say this in English. 你们通常怎么过圣诞节？",
+          "suggestedAnswer": "How do you usually celebrate Christmas?"
+        }
+      ],
+      "modelDialogue": [
+        {
+          "stageId": "step-1",
+          "role": "partner",
+          "text": "Come in! It's so nice to see you."
+        },
+        {
+          "stageId": "step-1",
+          "role": "learner",
+          "text": "Thanks for having me. I brought you some Chinese tea."
+        },
+        {
+          "stageId": "step-2",
+          "role": "partner",
+          "text": "How thoughtful! You really didn't have to."
+        },
+        {
+          "stageId": "step-2",
+          "role": "learner",
+          "text": "It's a small gift. Can I help with anything?"
+        },
+        {
+          "stageId": "step-3",
+          "role": "partner",
+          "text": "Just make yourself at home. Dinner will be ready in ten minutes."
+        },
+        {
+          "stageId": "step-3",
+          "role": "learner",
+          "text": "Thank you. Where should I sit?"
+        }
+      ],
+      "guidedPractice": [
+        {
+          "stageId": "step-1",
+          "suggestedReply": "Thanks for having me. I brought you some Chinese tea.",
+          "partnerPrompt": "Come in! It's so nice to see you."
+        },
+        {
+          "stageId": "step-2",
+          "suggestedReply": "It's a small gift. Can I help with anything?",
+          "partnerPrompt": "How thoughtful! You really didn't have to."
+        },
+        {
+          "stageId": "step-3",
+          "suggestedReply": "Thank you. Where should I sit?",
+          "partnerPrompt": "Just make yourself at home. Dinner will be ready in ten minutes."
+        }
+      ],
+      "reviewPractice": [
+        {
+          "id": "review-language",
+          "prompt": "Say this in English. 在中国我们的过法有点不一样。",
+          "suggestedAnswer": "In China, we celebrate it a bit differently."
+        }
+      ],
+      "variations": []
+    }
+  }
+}

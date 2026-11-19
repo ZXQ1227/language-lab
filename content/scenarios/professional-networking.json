@@ -1,0 +1,225 @@
+{
+  "schemaVersion": 1,
+  "id": "sc-professional-networking",
+  "slug": "professional-networking",
+  "title": "Making a connection at a conference",
+  "category": "career",
+  "difficulty": "B1",
+  "objectives": [
+    "Start with specific feedback on the talk",
+    "Share a relevant connection and ask a question",
+    "Ask to exchange contacts for a follow-up"
+  ],
+  "targetVocabulary": ["keynote", "connect", "follow up", "demo", "latency", "exchange contacts"],
+  "courseTemplate": {
+    "targetLanguage": "en",
+    "estimatedMinutes": 10,
+    "setting": "The attendee works in education. The speaker's team reduced latency using caching.",
+    "roles": {
+      "learner": "A conference attendee working in education",
+      "partner": "A speaker who has just demoed a product"
+    },
+    "openingLine": "Hi! Did you get a chance to see the keynote?",
+    "targetPatterns": [
+      {
+        "pattern": "Yes, the demo was impressive. I liked how quickly the first answer appeared.",
+        "example": "Yes, the demo was impressive. I liked how quickly the first answer appeared."
+      },
+      {
+        "pattern": "I'm working on something similar in education. How did you reduce latency?",
+        "example": "I'm working on something similar in education. How did you reduce latency?"
+      },
+      {
+        "pattern": "Could we exchange contacts? I'd love to follow up next week.",
+        "example": "Could we exchange contacts? I'd love to follow up next week."
+      },
+      {
+        "pattern": "What brings you to this conference?",
+        "example": "What brings you to this conference?",
+        "translation": "什么风把您吹到这个大会？"
+      },
+      {
+        "pattern": "What does your company do, in a nutshell?",
+        "example": "What does your company do, in a nutshell?",
+        "translation": "简单说，贵公司是做什么的？"
+      },
+      {
+        "pattern": "I loved your talk on AI agents.",
+        "example": "I loved your talk on AI agents.",
+        "translation": "很喜欢您关于 AI Agent 的分享。"
+      },
+      {
+        "pattern": "Could I connect with you on LinkedIn?",
+        "example": "Could I connect with you on LinkedIn?",
+        "translation": "可以在 LinkedIn 上互关吗？"
+      },
+      {
+        "pattern": "Let me introduce you to our tech lead.",
+        "example": "Let me introduce you to our tech lead.",
+        "translation": "我介绍您认识我们的技术负责人。"
+      },
+      {
+        "pattern": "Are you working on anything exciting right now?",
+        "example": "Are you working on anything exciting right now?",
+        "translation": "最近在做什么有意思的项目吗？"
+      },
+      {
+        "pattern": "Would you be open to a quick coffee chat sometime?",
+        "example": "Would you be open to a quick coffee chat sometime?",
+        "translation": "方便找时间喝杯咖啡聊聊吗？"
+      },
+      {
+        "pattern": "I'll follow up with an email this week.",
+        "example": "I'll follow up with an email this week.",
+        "translation": "这周我会发邮件跟进。"
+      }
+    ],
+    "stages": [
+      {
+        "id": "step-1",
+        "title": "Start with specific feedback on the talk",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “Hi! Did you get a chance to see the keynote?”",
+        "objectiveIds": ["obj-1"],
+        "successCriteria": [
+          "The learner can start with specific feedback on the talk in their own words."
+        ],
+        "hints": ["You can start with “Yes, the demo was …”"]
+      },
+      {
+        "id": "step-2",
+        "title": "Share a relevant connection and ask a question",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “Thanks! Improving response time took a lot of work.”",
+        "objectiveIds": ["obj-2"],
+        "successCriteria": [
+          "The learner can share a relevant connection and ask a question in their own words."
+        ],
+        "hints": ["You can start with “I'm working on something …”"]
+      },
+      {
+        "id": "step-3",
+        "title": "Ask to exchange contacts for a follow-up",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “Caching made the biggest difference. I'd be happy to tell you more sometime.”",
+        "objectiveIds": ["obj-3"],
+        "successCriteria": [
+          "The learner can ask to exchange contacts for a follow-up in their own words."
+        ],
+        "hints": ["You can start with “Could we exchange contacts? …”"]
+      }
+    ],
+    "teachingPolicy": {
+      "correctionMode": "gentle",
+      "maxCorrections": 2,
+      "maxHints": 3
+    },
+    "learningPack": {
+      "schemaVersion": 1,
+      "overview": "职业社交 · The attendee works in education. The speaker's team reduced latency using caching.",
+      "prerequisites": [],
+      "scenarioFacts": [
+        {
+          "label": "Roleplay facts",
+          "value": "The attendee works in education. The speaker's team reduced latency using caching."
+        }
+      ],
+      "vocabulary": [
+        {
+          "term": "keynote",
+          "meaning": "主题演讲",
+          "example": "Hi! Did you get a chance to see the keynote?"
+        },
+        {
+          "term": "connect",
+          "meaning": "互加联系人",
+          "example": "Could I connect with you on LinkedIn?"
+        },
+        {
+          "term": "follow up",
+          "meaning": "跟进",
+          "example": "Could we exchange contacts? I'd love to follow up next week."
+        },
+        {
+          "term": "demo",
+          "meaning": "演示",
+          "example": "Yes, the demo was impressive. I liked how quickly the first answer appeared."
+        },
+        {
+          "term": "latency",
+          "meaning": "延迟",
+          "example": "I'm working on something similar in education. How did you reduce latency?"
+        },
+        {
+          "term": "exchange contacts",
+          "meaning": "交换联系方式",
+          "example": "Could we exchange contacts? I'd love to follow up next week."
+        }
+      ],
+      "languageNotes": [
+        "要联系方式别说 \"Give me your WeChat\"，用 Could I connect with you...；活动上的寒暄从「对方」切入（他们的演讲、公司）比讲自己更受欢迎。"
+      ],
+      "warmup": [
+        {
+          "id": "warmup-language",
+          "prompt": "Say this in English. 什么风把您吹到这个大会？",
+          "suggestedAnswer": "What brings you to this conference?"
+        }
+      ],
+      "modelDialogue": [
+        {
+          "stageId": "step-1",
+          "role": "partner",
+          "text": "Hi! Did you get a chance to see the keynote?"
+        },
+        {
+          "stageId": "step-1",
+          "role": "learner",
+          "text": "Yes, the demo was impressive. I liked how quickly the first answer appeared."
+        },
+        {
+          "stageId": "step-2",
+          "role": "partner",
+          "text": "Thanks! Improving response time took a lot of work."
+        },
+        {
+          "stageId": "step-2",
+          "role": "learner",
+          "text": "I'm working on something similar in education. How did you reduce latency?"
+        },
+        {
+          "stageId": "step-3",
+          "role": "partner",
+          "text": "Caching made the biggest difference. I'd be happy to tell you more sometime."
+        },
+        {
+          "stageId": "step-3",
+          "role": "learner",
+          "text": "Could we exchange contacts? I'd love to follow up next week."
+        }
+      ],
+      "guidedPractice": [
+        {
+          "stageId": "step-1",
+          "suggestedReply": "Yes, the demo was impressive. I liked how quickly the first answer appeared.",
+          "partnerPrompt": "Hi! Did you get a chance to see the keynote?"
+        },
+        {
+          "stageId": "step-2",
+          "suggestedReply": "I'm working on something similar in education. How did you reduce latency?",
+          "partnerPrompt": "Thanks! Improving response time took a lot of work."
+        },
+        {
+          "stageId": "step-3",
+          "suggestedReply": "Could we exchange contacts? I'd love to follow up next week.",
+          "partnerPrompt": "Caching made the biggest difference. I'd be happy to tell you more sometime."
+        }
+      ],
+      "reviewPractice": [
+        {
+          "id": "review-language",
+          "prompt": "Say this in English. 这周我会发邮件跟进。",
+          "suggestedAnswer": "I'll follow up with an email this week."
+        }
+      ],
+      "variations": []
+    }
+  }
+}

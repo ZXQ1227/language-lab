@@ -26,7 +26,7 @@ test("cold start keeps a guided course available without calling a model", async
   await button(page, "Set up lesson").click();
   await expect(page.getByLabel("Practice mode")).toHaveValue("demo");
   await button(page, "Start lesson").click();
-  await expect(page.getByRole("heading", { name: /^Hotel Check-in ·/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /^Checking in for a flight ·/ })).toBeVisible();
   expect(requests).toBe(0);
 });
 
@@ -102,7 +102,7 @@ test("retries an invalid generation, previews without writing, and teaches the s
   await expect(
     page
       .getByRole("region", { name: "Built-in lessons" })
-      .getByRole("heading", { name: "Hotel Check-in" }),
+      .getByRole("heading", { name: "Checking in for a flight" }),
   ).toBeVisible();
   await expect(goal).toHaveValue(practiceGoal);
   expect(await checkpoints(page)).toEqual([]);

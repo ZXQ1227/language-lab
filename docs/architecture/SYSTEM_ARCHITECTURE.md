@@ -32,6 +32,11 @@ validated JSON import/export. Edits and imported previews are temporary until
 exported to a file. Configured courses can now open directly in Training.
 See [Scenario courses](../development/SCENARIO_COURSES.md).
 
+The starter catalog orders static, validated course assets by learning goal.
+The library renders those assets independently of startup seed synchronization.
+SQLite continues to hold the metadata projection and additional local scenario
+rows. See [ADR-0021](../adr/ADR-0021-ordered-starter-course-library.md).
+
 Before a session exists, the Course Designer skill uses the configured model
 gateway to turn a learner's goal into a version 1 scenario. It validates the
 model payload and assigns objective references and policy in code. The result

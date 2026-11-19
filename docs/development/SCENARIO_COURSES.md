@@ -8,10 +8,10 @@ stage ids, objective references and complete objective coverage.
 
 ## Author a course
 
-Copy `content/scenarios/cafe-order.json` and change its id, slug and title.
-The filename must be `<slug>.json`. Add it to the explicit imports in
-`apps/desktop/src/content/scenarioContent.ts`; the content tests check that the
-bundle matches the directory.
+Copy an existing lesson from `content/scenarios/` and change its id, slug
+and title. The filename must be `<slug>.json`. List the slug once in the
+ordered path in `content/starter-catalog.json`. The desktop bundle reads
+the files and validates that the catalog contains exactly those lessons.
 
 | Field                                      | Meaning                                                                                                            |
 | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------ |
@@ -34,6 +34,10 @@ meanings, warm-up, model dialogue, guided practice, review tasks and variations)
 and an optional `selectedVariationId`. [Hotel Check-in](HOTEL_CHECKIN.md) is the
 first complete example. Stage references and all required study material are
 validated before use.
+
+For bilingual study material, an expression can include `translation`, and a
+study pack can include `languageNotes`. Both fields are optional in version 1.
+Keep the English expression in `pattern` and `example`.
 
 Each stage has a unique kebab-case `id`, `title`, partner `instruction`, nonempty
 `objectiveIds`, nonempty `successCriteria`, and `hints` (may be empty). Every
@@ -70,6 +74,29 @@ The import/export file is also the authoring format: change roles, vocabulary,
 patterns, stages and success criteria in JSON, then import to validate and preview.
 The form exposes level and feedback options; it does not generate new authored
 activities when the level changes.
+
+## Starter library
+
+Under **Home → Course library**, the five learning paths follow the supplied
+course outlines in order. Each topic has a practice lesson. Travel also includes
+the existing café lesson as a supplement.
+
+| Order | Learning path         | Lessons | First lesson                        |
+| ----- | --------------------- | ------- | ----------------------------------- |
+| 01    | Travel & stays        | 9       | Checking in for a flight            |
+| 02    | Career development    | 9       | Taking a recruiter screening call   |
+| 03    | Study & campus life   | 6       | Clarifying an essay at office hours |
+| 04    | Living abroad         | 10      | Replacing an item at a supermarket  |
+| 05    | Everyday conversation | 7       | Small talk with a colleague         |
+
+The 37 new lessons adapt the outlines into specific three-step roleplays.
+They include English examples with Chinese translations, contextual vocabulary,
+a common mistake note, a warm-up, model turns and a review task. Hotel Check-in,
+Seeing a doctor and Small talk with a colleague cover the corresponding
+topics with their existing material. All 41 lessons offer guided offline
+practice and can use connected AI for open-ended answers. New A2 learners
+see airport check-in first on the plan. Follow-up recommendations account
+for target language, stated level and completed lessons.
 
 ## AI-designed lessons
 

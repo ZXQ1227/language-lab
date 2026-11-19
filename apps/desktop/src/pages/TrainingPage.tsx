@@ -15,7 +15,7 @@ export function TrainingPage() {
   const { t } = useTranslation();
   const { session, pendingCourse, loaded, busy, error, load } = useTrainingStore();
   const navigate = useNavStore((state) => state.navigate);
-  const [courseSlug, setCourseSlug] = useState(courses[0]!.slug);
+  const [courseSlug, setCourseSlug] = useState("cafe-order");
   useEffect(() => {
     if (!loaded) void load();
   }, [loaded, load]);

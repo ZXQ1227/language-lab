@@ -1,0 +1,225 @@
+{
+  "schemaVersion": 1,
+  "id": "sc-pet-vet",
+  "slug": "pet-vet",
+  "title": "Describing a pet's symptoms at the vet",
+  "category": "overseas-life",
+  "difficulty": "B1",
+  "objectives": [
+    "Describe what your pet has been doing",
+    "Describe an additional observation",
+    "Ask the vet if the other pet needs an examination"
+  ],
+  "targetVocabulary": ["adoption", "vaccination", "vet", "grooming", "pet-sit", "breed"],
+  "courseTemplate": {
+    "targetLanguage": "en",
+    "estimatedMinutes": 10,
+    "setting": "Mila has been scratching her left ear. The owner noticed dark wax. There is another cat at home. Practise communication, with any care decisions left to the vet.",
+    "roles": {
+      "learner": "A pet owner accompanying a cat",
+      "partner": "A vet asking for information and explaining follow-up"
+    },
+    "openingLine": "What seems to be the problem with Mila today?",
+    "targetPatterns": [
+      {
+        "pattern": "She's been scratching her left ear constantly.",
+        "example": "She's been scratching her left ear constantly."
+      },
+      {
+        "pattern": "I've noticed a little dark wax.",
+        "example": "I've noticed a little dark wax."
+      },
+      {
+        "pattern": "We have another cat at home. Should I bring that cat in for a check too?",
+        "example": "We have another cat at home. Should I bring that cat in for a check too?"
+      },
+      {
+        "pattern": "Do you have kittens available for adoption?",
+        "example": "Do you have kittens available for adoption?",
+        "translation": "有可以领养的小猫吗？"
+      },
+      {
+        "pattern": "Is the vaccination up to date?",
+        "example": "Is the vaccination up to date?",
+        "translation": "疫苗打齐了吗？"
+      },
+      {
+        "pattern": "My dog hasn't eaten since yesterday.",
+        "example": "My dog hasn't eaten since yesterday.",
+        "translation": "我的狗从昨天开始不吃东西。"
+      },
+      {
+        "pattern": "How often does he need grooming?",
+        "example": "How often does he need grooming?",
+        "translation": "多久需要美容一次？"
+      },
+      {
+        "pattern": "Could you pet-sit for me this weekend?",
+        "example": "Could you pet-sit for me this weekend?",
+        "translation": "周末能帮我照看一下宠物吗？"
+      },
+      {
+        "pattern": "What's the adoption process like?",
+        "example": "What's the adoption process like?",
+        "translation": "领养流程是怎样的？"
+      },
+      {
+        "pattern": "Is this breed good with children?",
+        "example": "Is this breed good with children?",
+        "translation": "这个品种适合有孩子的家庭吗？"
+      },
+      {
+        "pattern": "My cat is due for a rabies shot.",
+        "example": "My cat is due for a rabies shot.",
+        "translation": "我的猫该打狂犬疫苗了。"
+      }
+    ],
+    "stages": [
+      {
+        "id": "step-1",
+        "title": "Describe what your pet has been doing",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “What seems to be the problem with Mila today?”",
+        "objectiveIds": ["obj-1"],
+        "successCriteria": [
+          "The learner can describe what your pet has been doing in their own words."
+        ],
+        "hints": ["You can start with “She's been scratching her …”"]
+      },
+      {
+        "id": "step-2",
+        "title": "Describe an additional observation",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “Have you noticed any discharge, smell or wax?”",
+        "objectiveIds": ["obj-2"],
+        "successCriteria": [
+          "The learner can describe an additional observation in their own words."
+        ],
+        "hints": ["You can start with “I've noticed a little …”"]
+      },
+      {
+        "id": "step-3",
+        "title": "Ask the vet if the other pet needs an examination",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “Thanks. I'll examine Mila's ear and explain the next steps.”",
+        "objectiveIds": ["obj-3"],
+        "successCriteria": [
+          "The learner can ask the vet if the other pet needs an examination in their own words."
+        ],
+        "hints": ["You can start with “We have another cat …”"]
+      }
+    ],
+    "teachingPolicy": {
+      "correctionMode": "gentle",
+      "maxCorrections": 2,
+      "maxHints": 3
+    },
+    "learningPack": {
+      "schemaVersion": 1,
+      "overview": "宠物与养护 · Mila has been scratching her left ear. The owner noticed dark wax. There is another cat at home. Practise communication, with any care decisions left to the vet.",
+      "prerequisites": [],
+      "scenarioFacts": [
+        {
+          "label": "Roleplay facts",
+          "value": "Mila has been scratching her left ear. The owner noticed dark wax. There is another cat at home. Practise communication, with any care decisions left to the vet."
+        }
+      ],
+      "vocabulary": [
+        {
+          "term": "adoption",
+          "meaning": "领养",
+          "example": "Do you have kittens available for adoption?"
+        },
+        {
+          "term": "vaccination",
+          "meaning": "疫苗",
+          "example": "Is the vaccination up to date?"
+        },
+        {
+          "term": "vet",
+          "meaning": "兽医",
+          "example": "Mila has been scratching her left ear. The owner noticed dark wax. There is another cat at home. Practise communication, with any care decisions left to the vet."
+        },
+        {
+          "term": "grooming",
+          "meaning": "美容",
+          "example": "How often does he need grooming?"
+        },
+        {
+          "term": "pet-sit",
+          "meaning": "代看宠物",
+          "example": "Could you pet-sit for me this weekend?"
+        },
+        {
+          "term": "breed",
+          "meaning": "品种",
+          "example": "Is this breed good with children?"
+        }
+      ],
+      "languageNotes": [
+        "宠物用 it/he/she 都可以，英语母语者倾向拟人化；「遛狗」是 walk the dog，不是 \"play the dog\"。"
+      ],
+      "warmup": [
+        {
+          "id": "warmup-language",
+          "prompt": "Say this in English. 有可以领养的小猫吗？",
+          "suggestedAnswer": "Do you have kittens available for adoption?"
+        }
+      ],
+      "modelDialogue": [
+        {
+          "stageId": "step-1",
+          "role": "partner",
+          "text": "What seems to be the problem with Mila today?"
+        },
+        {
+          "stageId": "step-1",
+          "role": "learner",
+          "text": "She's been scratching her left ear constantly."
+        },
+        {
+          "stageId": "step-2",
+          "role": "partner",
+          "text": "Have you noticed any discharge, smell or wax?"
+        },
+        {
+          "stageId": "step-2",
+          "role": "learner",
+          "text": "I've noticed a little dark wax."
+        },
+        {
+          "stageId": "step-3",
+          "role": "partner",
+          "text": "Thanks. I'll examine Mila's ear and explain the next steps."
+        },
+        {
+          "stageId": "step-3",
+          "role": "learner",
+          "text": "We have another cat at home. Should I bring that cat in for a check too?"
+        }
+      ],
+      "guidedPractice": [
+        {
+          "stageId": "step-1",
+          "suggestedReply": "She's been scratching her left ear constantly.",
+          "partnerPrompt": "What seems to be the problem with Mila today?"
+        },
+        {
+          "stageId": "step-2",
+          "suggestedReply": "I've noticed a little dark wax.",
+          "partnerPrompt": "Have you noticed any discharge, smell or wax?"
+        },
+        {
+          "stageId": "step-3",
+          "suggestedReply": "We have another cat at home. Should I bring that cat in for a check too?",
+          "partnerPrompt": "Thanks. I'll examine Mila's ear and explain the next steps."
+        }
+      ],
+      "reviewPractice": [
+        {
+          "id": "review-language",
+          "prompt": "Say this in English. 我的猫该打狂犬疫苗了。",
+          "suggestedAnswer": "My cat is due for a rabies shot."
+        }
+      ],
+      "variations": []
+    }
+  }
+}

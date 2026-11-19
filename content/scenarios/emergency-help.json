@@ -1,0 +1,225 @@
+{
+  "schemaVersion": 1,
+  "id": "sc-emergency-help",
+  "slug": "emergency-help",
+  "title": "Asking for help at a pharmacy",
+  "category": "travel",
+  "difficulty": "A2",
+  "objectives": [
+    "Describe the main symptom and when it began",
+    "Answer a follow-up and mention dizziness",
+    "Ask where to find appropriate help"
+  ],
+  "targetVocabulary": ["emergency", "ambulance", "embassy", "stomach pain", "dizzy", "clinic"],
+  "courseTemplate": {
+    "targetLanguage": "en",
+    "estimatedMinutes": 8,
+    "setting": "The traveller has had stomach pain since last night and feels dizzy. Riverside Clinic is nearby. Practise describing symptoms and locating care.",
+    "roles": {
+      "learner": "A traveller feeling unwell",
+      "partner": "A pharmacy staff member helping the traveller contact a clinic"
+    },
+    "openingLine": "Good morning. What brings you in?",
+    "targetPatterns": [
+      {
+        "pattern": "I've had stomach pain since last night.",
+        "example": "I've had stomach pain since last night."
+      },
+      {
+        "pattern": "I don't have a fever, but I feel dizzy.",
+        "example": "I don't have a fever, but I feel dizzy."
+      },
+      {
+        "pattern": "Where is the nearest clinic?",
+        "example": "Where is the nearest clinic?"
+      },
+      {
+        "pattern": "I need help — it's an emergency!",
+        "example": "I need help — it's an emergency!",
+        "translation": "我需要帮助，紧急情况！"
+      },
+      {
+        "pattern": "Please call an ambulance.",
+        "example": "Please call an ambulance.",
+        "translation": "请叫救护车。"
+      },
+      {
+        "pattern": "My passport was stolen.",
+        "example": "My passport was stolen.",
+        "translation": "我的护照被偷了。"
+      },
+      {
+        "pattern": "Where's the nearest hospital?",
+        "example": "Where's the nearest hospital?",
+        "translation": "最近的医院在哪里？"
+      },
+      {
+        "pattern": "I lost my wallet — it had all my cards.",
+        "example": "I lost my wallet — it had all my cards.",
+        "translation": "我钱包丢了，卡都在里面。"
+      },
+      {
+        "pattern": "I need to contact my embassy.",
+        "example": "I need to contact my embassy.",
+        "translation": "我需要联系我的大使馆。"
+      },
+      {
+        "pattern": "Could you write that down for me?",
+        "example": "Could you write that down for me?",
+        "translation": "能帮我写下来吗？"
+      },
+      {
+        "pattern": "Is there someone who speaks Chinese?",
+        "example": "Is there someone who speaks Chinese?",
+        "translation": "有会说中文的人吗？"
+      }
+    ],
+    "stages": [
+      {
+        "id": "step-1",
+        "title": "Describe the main symptom and when it began",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “Good morning. What brings you in?”",
+        "objectiveIds": ["obj-1"],
+        "successCriteria": [
+          "The learner can describe the main symptom and when it began in their own words."
+        ],
+        "hints": ["You can start with “I've had stomach pain …”"]
+      },
+      {
+        "id": "step-2",
+        "title": "Answer a follow-up and mention dizziness",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “Do you have a fever or any other symptoms?”",
+        "objectiveIds": ["obj-2"],
+        "successCriteria": [
+          "The learner can answer a follow-up and mention dizziness in their own words."
+        ],
+        "hints": ["You can start with “I don't have a …”"]
+      },
+      {
+        "id": "step-3",
+        "title": "Ask where to find appropriate help",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “I can help you contact a clinic nearby. What would you like to know?”",
+        "objectiveIds": ["obj-3"],
+        "successCriteria": [
+          "The learner can ask where to find appropriate help in their own words."
+        ],
+        "hints": ["You can start with “Where is the nearest …”"]
+      }
+    ],
+    "teachingPolicy": {
+      "correctionMode": "gentle",
+      "maxCorrections": 2,
+      "maxHints": 3
+    },
+    "learningPack": {
+      "schemaVersion": 1,
+      "overview": "紧急求助 · The traveller has had stomach pain since last night and feels dizzy. Riverside Clinic is nearby. Practise describing symptoms and locating care.",
+      "prerequisites": [],
+      "scenarioFacts": [
+        {
+          "label": "Roleplay facts",
+          "value": "The traveller has had stomach pain since last night and feels dizzy. Riverside Clinic is nearby. Practise describing symptoms and locating care."
+        }
+      ],
+      "vocabulary": [
+        {
+          "term": "emergency",
+          "meaning": "紧急情况",
+          "example": "I need help — it's an emergency!"
+        },
+        {
+          "term": "ambulance",
+          "meaning": "救护车",
+          "example": "Please call an ambulance."
+        },
+        {
+          "term": "embassy",
+          "meaning": "大使馆",
+          "example": "I need to contact my embassy."
+        },
+        {
+          "term": "stomach pain",
+          "meaning": "胃痛",
+          "example": "I've had stomach pain since last night."
+        },
+        {
+          "term": "dizzy",
+          "meaning": "头晕",
+          "example": "I don't have a fever, but I feel dizzy."
+        },
+        {
+          "term": "clinic",
+          "meaning": "诊所",
+          "example": "Where is the nearest clinic?"
+        }
+      ],
+      "languageNotes": [
+        "紧急号码因国家或地区而异。描述疼痛时，ache 常指持续的酸痛，pain 泛指疼痛。也可以直接说 stomachache 或 headache。"
+      ],
+      "warmup": [
+        {
+          "id": "warmup-language",
+          "prompt": "Say this in English. 我需要帮助，紧急情况！",
+          "suggestedAnswer": "I need help — it's an emergency!"
+        }
+      ],
+      "modelDialogue": [
+        {
+          "stageId": "step-1",
+          "role": "partner",
+          "text": "Good morning. What brings you in?"
+        },
+        {
+          "stageId": "step-1",
+          "role": "learner",
+          "text": "I've had stomach pain since last night."
+        },
+        {
+          "stageId": "step-2",
+          "role": "partner",
+          "text": "Do you have a fever or any other symptoms?"
+        },
+        {
+          "stageId": "step-2",
+          "role": "learner",
+          "text": "I don't have a fever, but I feel dizzy."
+        },
+        {
+          "stageId": "step-3",
+          "role": "partner",
+          "text": "I can help you contact a clinic nearby. What would you like to know?"
+        },
+        {
+          "stageId": "step-3",
+          "role": "learner",
+          "text": "Where is the nearest clinic?"
+        }
+      ],
+      "guidedPractice": [
+        {
+          "stageId": "step-1",
+          "suggestedReply": "I've had stomach pain since last night.",
+          "partnerPrompt": "Good morning. What brings you in?"
+        },
+        {
+          "stageId": "step-2",
+          "suggestedReply": "I don't have a fever, but I feel dizzy.",
+          "partnerPrompt": "Do you have a fever or any other symptoms?"
+        },
+        {
+          "stageId": "step-3",
+          "suggestedReply": "Where is the nearest clinic?",
+          "partnerPrompt": "I can help you contact a clinic nearby. What would you like to know?"
+        }
+      ],
+      "reviewPractice": [
+        {
+          "id": "review-language",
+          "prompt": "Say this in English. 有会说中文的人吗？",
+          "suggestedAnswer": "Is there someone who speaks Chinese?"
+        }
+      ],
+      "variations": []
+    }
+  }
+}

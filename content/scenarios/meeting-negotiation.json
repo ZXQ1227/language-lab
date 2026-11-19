@@ -1,0 +1,222 @@
+{
+  "schemaVersion": 1,
+  "id": "sc-meeting-negotiation",
+  "slug": "meeting-negotiation",
+  "title": "Negotiating a project quote",
+  "category": "career",
+  "difficulty": "B2",
+  "objectives": [
+    "State the budget gap clearly",
+    "Suggest a specific scope change",
+    "Make acceptance conditional on the delivery date"
+  ],
+  "targetVocabulary": [
+    "agenda",
+    "meet halfway",
+    "above our budget",
+    "custom dashboard",
+    "delivery date"
+  ],
+  "courseTemplate": {
+    "targetLanguage": "en",
+    "estimatedMinutes": 10,
+    "setting": "The quote is twenty percent over budget. Replacing a custom dashboard with standard templates saves fifteen percent. The delivery date matters to the buyer.",
+    "roles": {
+      "learner": "A buyer negotiating with a supplier",
+      "partner": "A supplier representative"
+    },
+    "openingLine": "Thanks for reviewing our proposal. What concerns do you have about the quote?",
+    "targetPatterns": [
+      {
+        "pattern": "The quote is twenty percent above our budget.",
+        "example": "The quote is twenty percent above our budget."
+      },
+      {
+        "pattern": "Could we replace the custom dashboard with standard reports?",
+        "example": "Could we replace the custom dashboard with standard reports?"
+      },
+      {
+        "pattern": "That could work if we confirm the delivery date in the contract.",
+        "example": "That could work if we confirm the delivery date in the contract."
+      },
+      {
+        "pattern": "Let's kick off with the agenda.",
+        "example": "Let's kick off with the agenda.",
+        "translation": "我们从议程开始。"
+      },
+      {
+        "pattern": "Could we park this topic for now?",
+        "example": "Could we park this topic for now?",
+        "translation": "这个话题先放一放好吗？"
+      },
+      {
+        "pattern": "Just to summarize what we've agreed on...",
+        "example": "Just to summarize what we've agreed on...",
+        "translation": "总结一下我们达成的共识……"
+      },
+      {
+        "pattern": "I'm afraid that's outside our budget range.",
+        "example": "I'm afraid that's outside our budget range.",
+        "translation": "恐怕这超出了我们的预算范围。"
+      },
+      {
+        "pattern": "What if we meet halfway?",
+        "example": "What if we meet halfway?",
+        "translation": "我们各退一步怎么样？"
+      },
+      {
+        "pattern": "Let's take this offline.",
+        "example": "Let's take this offline.",
+        "translation": "这个我们线下再谈。"
+      },
+      {
+        "pattern": "Could the folks who haven't spoken share their view?",
+        "example": "Could the folks who haven't spoken share their view?",
+        "translation": "还没发言的同事能谈谈看法吗？"
+      },
+      {
+        "pattern": "To wrap up, here are the action items.",
+        "example": "To wrap up, here are the action items.",
+        "translation": "最后总结一下行动项。"
+      }
+    ],
+    "stages": [
+      {
+        "id": "step-1",
+        "title": "State the budget gap clearly",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “Thanks for reviewing our proposal. What concerns do you have about the quote?”",
+        "objectiveIds": ["obj-1"],
+        "successCriteria": ["The learner can state the budget gap clearly in their own words."],
+        "hints": ["You can start with “The quote is twenty …”"]
+      },
+      {
+        "id": "step-2",
+        "title": "Suggest a specific scope change",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “I understand. Are there parts of the scope you could adjust?”",
+        "objectiveIds": ["obj-2"],
+        "successCriteria": ["The learner can suggest a specific scope change in their own words."],
+        "hints": ["You can start with “Could we replace the …”"]
+      },
+      {
+        "id": "step-3",
+        "title": "Make acceptance conditional on the delivery date",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “Standard templates would save fifteen percent. Would that work?”",
+        "objectiveIds": ["obj-3"],
+        "successCriteria": [
+          "The learner can make acceptance conditional on the delivery date in their own words."
+        ],
+        "hints": ["You can start with “That could work if …”"]
+      }
+    ],
+    "teachingPolicy": {
+      "correctionMode": "gentle",
+      "maxCorrections": 2,
+      "maxHints": 3
+    },
+    "learningPack": {
+      "schemaVersion": 1,
+      "overview": "会议和谈判 · The quote is twenty percent over budget. Replacing a custom dashboard with standard templates saves fifteen percent. The delivery date matters to the buyer.",
+      "prerequisites": [],
+      "scenarioFacts": [
+        {
+          "label": "Roleplay facts",
+          "value": "The quote is twenty percent over budget. Replacing a custom dashboard with standard templates saves fifteen percent. The delivery date matters to the buyer."
+        }
+      ],
+      "vocabulary": [
+        {
+          "term": "agenda",
+          "meaning": "议程",
+          "example": "Let's kick off with the agenda."
+        },
+        {
+          "term": "meet halfway",
+          "meaning": "各退一步",
+          "example": "What if we meet halfway?"
+        },
+        {
+          "term": "above our budget",
+          "meaning": "超出预算",
+          "example": "The quote is twenty percent above our budget."
+        },
+        {
+          "term": "custom dashboard",
+          "meaning": "定制仪表盘",
+          "example": "Could we replace the custom dashboard with standard reports?"
+        },
+        {
+          "term": "delivery date",
+          "meaning": "交付日期",
+          "example": "That could work if we confirm the delivery date in the contract."
+        }
+      ],
+      "languageNotes": [
+        "谈判中的「让步」是 concession/move，别说 \"I lose\"；主持会议打断跑题者用礼貌框架 Sorry to interrupt — let's park that for now."
+      ],
+      "warmup": [
+        {
+          "id": "warmup-language",
+          "prompt": "Say this in English. 我们从议程开始。",
+          "suggestedAnswer": "Let's kick off with the agenda."
+        }
+      ],
+      "modelDialogue": [
+        {
+          "stageId": "step-1",
+          "role": "partner",
+          "text": "Thanks for reviewing our proposal. What concerns do you have about the quote?"
+        },
+        {
+          "stageId": "step-1",
+          "role": "learner",
+          "text": "The quote is twenty percent above our budget."
+        },
+        {
+          "stageId": "step-2",
+          "role": "partner",
+          "text": "I understand. Are there parts of the scope you could adjust?"
+        },
+        {
+          "stageId": "step-2",
+          "role": "learner",
+          "text": "Could we replace the custom dashboard with standard reports?"
+        },
+        {
+          "stageId": "step-3",
+          "role": "partner",
+          "text": "Standard templates would save fifteen percent. Would that work?"
+        },
+        {
+          "stageId": "step-3",
+          "role": "learner",
+          "text": "That could work if we confirm the delivery date in the contract."
+        }
+      ],
+      "guidedPractice": [
+        {
+          "stageId": "step-1",
+          "suggestedReply": "The quote is twenty percent above our budget.",
+          "partnerPrompt": "Thanks for reviewing our proposal. What concerns do you have about the quote?"
+        },
+        {
+          "stageId": "step-2",
+          "suggestedReply": "Could we replace the custom dashboard with standard reports?",
+          "partnerPrompt": "I understand. Are there parts of the scope you could adjust?"
+        },
+        {
+          "stageId": "step-3",
+          "suggestedReply": "That could work if we confirm the delivery date in the contract.",
+          "partnerPrompt": "Standard templates would save fifteen percent. Would that work?"
+        }
+      ],
+      "reviewPractice": [
+        {
+          "id": "review-language",
+          "prompt": "Say this in English. 最后总结一下行动项。",
+          "suggestedAnswer": "To wrap up, here are the action items."
+        }
+      ],
+      "variations": []
+    }
+  }
+}

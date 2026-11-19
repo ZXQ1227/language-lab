@@ -1,0 +1,222 @@
+{
+  "schemaVersion": 1,
+  "id": "sc-campus-club",
+  "slug": "campus-club",
+  "title": "Joining a campus photography club",
+  "category": "campus",
+  "difficulty": "A2",
+  "objectives": [
+    "Explain your experience and ask if beginners can join",
+    "Ask what happens at a meeting",
+    "Ask how to sign up"
+  ],
+  "targetVocabulary": ["society", "sign up", "orientation", "volunteer", "beginners", "meetups"],
+  "courseTemplate": {
+    "targetLanguage": "en",
+    "estimatedMinutes": 8,
+    "setting": "Phone photography is welcome. The club offers photo walks and editing workshops. A sign-up form is at the desk.",
+    "roles": {
+      "learner": "A student interested in joining a club",
+      "partner": "A photography club volunteer at a fair"
+    },
+    "openingLine": "Hi! Are you interested in joining the photography club?",
+    "targetPatterns": [
+      {
+        "pattern": "Yes, but I only use my phone. Can beginners join?",
+        "example": "Yes, but I only use my phone. Can beginners join?"
+      },
+      {
+        "pattern": "What do you usually do at your meetups?",
+        "example": "What do you usually do at your meetups?"
+      },
+      {
+        "pattern": "That sounds fun. Where can I sign up?",
+        "example": "That sounds fun. Where can I sign up?"
+      },
+      {
+        "pattern": "How do I sign up for the debate club?",
+        "example": "How do I sign up for the debate club?",
+        "translation": "辩论社怎么报名？"
+      },
+      {
+        "pattern": "Is there a membership fee?",
+        "example": "Is there a membership fee?",
+        "translation": "有会费吗？"
+      },
+      {
+        "pattern": "Are beginners welcome?",
+        "example": "Are beginners welcome?",
+        "translation": "新手可以参加吗？"
+      },
+      {
+        "pattern": "What's the time commitment like?",
+        "example": "What's the time commitment like?",
+        "translation": "每周要投入多少时间？"
+      },
+      {
+        "pattern": "I'd like to volunteer for orientation week.",
+        "example": "I'd like to volunteer for orientation week.",
+        "translation": "我想在迎新周做志愿者。"
+      },
+      {
+        "pattern": "When are the tryouts for the basketball team?",
+        "example": "When are the tryouts for the basketball team?",
+        "translation": "篮球队什么时候选拔？"
+      },
+      {
+        "pattern": "Could I bring a friend to the event?",
+        "example": "Could I bring a friend to the event?",
+        "translation": "活动能带朋友吗？"
+      },
+      {
+        "pattern": "How can I get involved in the student union?",
+        "example": "How can I get involved in the student union?",
+        "translation": "怎样参与学生会？"
+      }
+    ],
+    "stages": [
+      {
+        "id": "step-1",
+        "title": "Explain your experience and ask if beginners can join",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “Hi! Are you interested in joining the photography club?”",
+        "objectiveIds": ["obj-1"],
+        "successCriteria": [
+          "The learner can explain your experience and ask if beginners can join in their own words."
+        ],
+        "hints": ["You can start with “Yes, but I only …”"]
+      },
+      {
+        "id": "step-2",
+        "title": "Ask what happens at a meeting",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “Absolutely. A phone is all you need. What else would you like to know?”",
+        "objectiveIds": ["obj-2"],
+        "successCriteria": ["The learner can ask what happens at a meeting in their own words."],
+        "hints": ["You can start with “What do you usually …”"]
+      },
+      {
+        "id": "step-3",
+        "title": "Ask how to sign up",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “We do photo walks and editing workshops. The next one is on Tuesday.”",
+        "objectiveIds": ["obj-3"],
+        "successCriteria": ["The learner can ask how to sign up in their own words."],
+        "hints": ["You can start with “That sounds fun. Where …”"]
+      }
+    ],
+    "teachingPolicy": {
+      "correctionMode": "gentle",
+      "maxCorrections": 2,
+      "maxHints": 3
+    },
+    "learningPack": {
+      "schemaVersion": 1,
+      "overview": "校园活动 · Phone photography is welcome. The club offers photo walks and editing workshops. A sign-up form is at the desk.",
+      "prerequisites": [],
+      "scenarioFacts": [
+        {
+          "label": "Roleplay facts",
+          "value": "Phone photography is welcome. The club offers photo walks and editing workshops. A sign-up form is at the desk."
+        }
+      ],
+      "vocabulary": [
+        {
+          "term": "society",
+          "meaning": "社团",
+          "example": "Hi! Are you interested in joining the photography club?",
+          "forms": ["club"]
+        },
+        {
+          "term": "sign up",
+          "meaning": "报名",
+          "example": "That sounds fun. Where can I sign up?"
+        },
+        {
+          "term": "orientation",
+          "meaning": "迎新",
+          "example": "I'd like to volunteer for orientation week."
+        },
+        {
+          "term": "volunteer",
+          "meaning": "志愿者",
+          "example": "I'd like to volunteer for orientation week."
+        },
+        {
+          "term": "beginners",
+          "meaning": "初学者",
+          "example": "Yes, but I only use my phone. Can beginners join?"
+        },
+        {
+          "term": "meetups",
+          "meaning": "聚会",
+          "example": "What do you usually do at your meetups?"
+        }
+      ],
+      "languageNotes": [
+        "「参加社团」用 join a club，attend 用于参加活动/课程；报名常用短语 sign up for，注意介词。"
+      ],
+      "warmup": [
+        {
+          "id": "warmup-language",
+          "prompt": "Say this in English. 辩论社怎么报名？",
+          "suggestedAnswer": "How do I sign up for the debate club?"
+        }
+      ],
+      "modelDialogue": [
+        {
+          "stageId": "step-1",
+          "role": "partner",
+          "text": "Hi! Are you interested in joining the photography club?"
+        },
+        {
+          "stageId": "step-1",
+          "role": "learner",
+          "text": "Yes, but I only use my phone. Can beginners join?"
+        },
+        {
+          "stageId": "step-2",
+          "role": "partner",
+          "text": "Absolutely. A phone is all you need. What else would you like to know?"
+        },
+        {
+          "stageId": "step-2",
+          "role": "learner",
+          "text": "What do you usually do at your meetups?"
+        },
+        {
+          "stageId": "step-3",
+          "role": "partner",
+          "text": "We do photo walks and editing workshops. The next one is on Tuesday."
+        },
+        {
+          "stageId": "step-3",
+          "role": "learner",
+          "text": "That sounds fun. Where can I sign up?"
+        }
+      ],
+      "guidedPractice": [
+        {
+          "stageId": "step-1",
+          "suggestedReply": "Yes, but I only use my phone. Can beginners join?",
+          "partnerPrompt": "Hi! Are you interested in joining the photography club?"
+        },
+        {
+          "stageId": "step-2",
+          "suggestedReply": "What do you usually do at your meetups?",
+          "partnerPrompt": "Absolutely. A phone is all you need. What else would you like to know?"
+        },
+        {
+          "stageId": "step-3",
+          "suggestedReply": "That sounds fun. Where can I sign up?",
+          "partnerPrompt": "We do photo walks and editing workshops. The next one is on Tuesday."
+        }
+      ],
+      "reviewPractice": [
+        {
+          "id": "review-language",
+          "prompt": "Say this in English. 怎样参与学生会？",
+          "suggestedAnswer": "How can I get involved in the student union?"
+        }
+      ],
+      "variations": []
+    }
+  }
+}

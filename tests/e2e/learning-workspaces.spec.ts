@@ -9,11 +9,16 @@ test("moves from the plan into a lesson, resumes it and opens its completed hist
   await page.goto("/");
   const button = (name: string) => page.getByRole("button", { name, exact: true });
   const suggested = page.getByRole("region", { name: "Recommended for you" });
-  await expect(suggested.getByRole("heading", { name: "Hotel Check-in" })).toBeVisible();
+  await expect(suggested.getByRole("heading", { name: "Checking in for a flight" })).toBeVisible();
   await suggested.getByText("View course path", { exact: true }).click();
-  await expect(suggested.getByText("Find your reservation", { exact: true })).toBeVisible();
+  await expect(
+    suggested.getByRole("listitem").filter({ hasText: "Ask for an aisle seat" }),
+  ).toBeVisible();
   await button("Try another suggestion").click();
-  await expect(suggested.getByRole("heading", { name: "Hotel Check-in" })).toHaveCount(0);
+  await expect(suggested.getByRole("heading", { name: "Hotel Check-in" })).toBeVisible();
+  await button("Try another suggestion").click();
+  await expect(suggested.getByRole("heading", { name: "Ordering at a restaurant" })).toBeVisible();
+  await button("Try another suggestion").click();
   await expect(suggested.getByRole("heading", { name: "Ordering at a cafe" })).toBeVisible();
   await button("Set up lesson").click();
   await button("Start lesson").click();

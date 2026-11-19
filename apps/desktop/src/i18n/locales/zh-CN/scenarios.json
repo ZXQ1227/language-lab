@@ -10,7 +10,8 @@
   "couldNotLoadScenarios": "无法加载场景课程：",
   "retry": "重试",
   "loadingScenarioLibrary": "正在加载场景课程库…",
-  "noScenariosInTheLibraryYet": "课程库中暂无场景。",
   "objectives": "学习目标",
-  "targetVocabulary": "重点词汇"
+  "targetVocabulary": "重点词汇",
+  "learningPaths": "学习路径",
+  "otherLocalScenarios": "其他本地场景"
 }

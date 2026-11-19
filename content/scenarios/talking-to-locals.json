@@ -1,0 +1,220 @@
+{
+  "schemaVersion": 1,
+  "id": "sc-talking-to-locals",
+  "slug": "talking-to-locals",
+  "title": "Getting a local recommendation",
+  "category": "travel",
+  "difficulty": "A2",
+  "objectives": [
+    "Ask if a seat is free and start a conversation",
+    "Say when you arrived and share a first impression",
+    "Ask a follow-up about a recommended place"
+  ],
+  "targetVocabulary": ["local", "recommend", "seat taken", "riverside market", "worth visiting"],
+  "courseTemplate": {
+    "targetLanguage": "en",
+    "estimatedMinutes": 8,
+    "setting": "The local recommends the riverside market early in the morning, before the crowds.",
+    "roles": {
+      "learner": "A visitor who arrived yesterday",
+      "partner": "A local at a café"
+    },
+    "openingLine": "Hi there! Are you looking for a seat?",
+    "targetPatterns": [
+      {
+        "pattern": "Yes, is this seat taken?",
+        "example": "Yes, is this seat taken?"
+      },
+      {
+        "pattern": "Yes, I arrived yesterday. I love the city so far.",
+        "example": "Yes, I arrived yesterday. I love the city so far."
+      },
+      {
+        "pattern": "Not yet. Is it worth visiting, and when should I go?",
+        "example": "Not yet. Is it worth visiting, and when should I go?"
+      },
+      {
+        "pattern": "Is this seat taken?",
+        "example": "Is this seat taken?",
+        "translation": "这个位子有人吗？"
+      },
+      {
+        "pattern": "What food is this area famous for?",
+        "example": "What food is this area famous for?",
+        "translation": "这一带以什么食物出名？"
+      },
+      {
+        "pattern": "Do you come here often?",
+        "example": "Do you come here often?",
+        "translation": "你常来这儿吗？"
+      },
+      {
+        "pattern": "Any hidden gems around here?",
+        "example": "Any hidden gems around here?",
+        "translation": "这附近有什么宝藏去处？"
+      },
+      {
+        "pattern": "How do you say this in English?",
+        "example": "How do you say this in English?",
+        "translation": "这个用英语怎么说？"
+      },
+      {
+        "pattern": "What's the one thing I shouldn't miss here?",
+        "example": "What's the one thing I shouldn't miss here?",
+        "translation": "这里最不能错过的是什么？"
+      },
+      {
+        "pattern": "Could you recommend a place locals actually go?",
+        "example": "Could you recommend a place locals actually go?",
+        "translation": "有什么本地人真会去的地方推荐吗？"
+      },
+      {
+        "pattern": "It was really nice talking to you.",
+        "example": "It was really nice talking to you.",
+        "translation": "跟你聊得很开心。"
+      }
+    ],
+    "stages": [
+      {
+        "id": "step-1",
+        "title": "Ask if a seat is free and start a conversation",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “Hi there! Are you looking for a seat?”",
+        "objectiveIds": ["obj-1"],
+        "successCriteria": [
+          "The learner can ask if a seat is free and start a conversation in their own words."
+        ],
+        "hints": ["You can start with “Yes, is this seat …”"]
+      },
+      {
+        "id": "step-2",
+        "title": "Say when you arrived and share a first impression",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “Go ahead! Is it your first time here?”",
+        "objectiveIds": ["obj-2"],
+        "successCriteria": [
+          "The learner can say when you arrived and share a first impression in their own words."
+        ],
+        "hints": ["You can start with “Yes, I arrived yesterday. …”"]
+      },
+      {
+        "id": "step-3",
+        "title": "Ask a follow-up about a recommended place",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “Have you been to the riverside market yet?”",
+        "objectiveIds": ["obj-3"],
+        "successCriteria": [
+          "The learner can ask a follow-up about a recommended place in their own words."
+        ],
+        "hints": ["You can start with “Not yet. Is it …”"]
+      }
+    ],
+    "teachingPolicy": {
+      "correctionMode": "gentle",
+      "maxCorrections": 2,
+      "maxHints": 3
+    },
+    "learningPack": {
+      "schemaVersion": 1,
+      "overview": "与当地人交流 · The local recommends the riverside market early in the morning, before the crowds.",
+      "prerequisites": [],
+      "scenarioFacts": [
+        {
+          "label": "Roleplay facts",
+          "value": "The local recommends the riverside market early in the morning, before the crowds."
+        }
+      ],
+      "vocabulary": [
+        {
+          "term": "local",
+          "meaning": "本地人",
+          "example": "The local recommends the riverside market early in the morning, before the crowds."
+        },
+        {
+          "term": "recommend",
+          "meaning": "推荐",
+          "example": "Could you recommend a place locals actually go?"
+        },
+        {
+          "term": "seat taken",
+          "meaning": "座位有人坐",
+          "example": "Yes, is this seat taken?"
+        },
+        {
+          "term": "riverside market",
+          "meaning": "河边市场",
+          "example": "Have you been to the riverside market yet?"
+        },
+        {
+          "term": "worth visiting",
+          "meaning": "值得去看看",
+          "example": "Not yet. Is it worth visiting, and when should I go?"
+        }
+      ],
+      "languageNotes": [
+        "破冰别用 \"What's your name?\" 开场（对成年人显得突兀），从环境切入（天气、食物、景色）更自然；「改天见」See you around 比 \"bye bye\" 地道。"
+      ],
+      "warmup": [
+        {
+          "id": "warmup-language",
+          "prompt": "Say this in English. 这个位子有人吗？",
+          "suggestedAnswer": "Is this seat taken?"
+        }
+      ],
+      "modelDialogue": [
+        {
+          "stageId": "step-1",
+          "role": "partner",
+          "text": "Hi there! Are you looking for a seat?"
+        },
+        {
+          "stageId": "step-1",
+          "role": "learner",
+          "text": "Yes, is this seat taken?"
+        },
+        {
+          "stageId": "step-2",
+          "role": "partner",
+          "text": "Go ahead! Is it your first time here?"
+        },
+        {
+          "stageId": "step-2",
+          "role": "learner",
+          "text": "Yes, I arrived yesterday. I love the city so far."
+        },
+        {
+          "stageId": "step-3",
+          "role": "partner",
+          "text": "Have you been to the riverside market yet?"
+        },
+        {
+          "stageId": "step-3",
+          "role": "learner",
+          "text": "Not yet. Is it worth visiting, and when should I go?"
+        }
+      ],
+      "guidedPractice": [
+        {
+          "stageId": "step-1",
+          "suggestedReply": "Yes, is this seat taken?",
+          "partnerPrompt": "Hi there! Are you looking for a seat?"
+        },
+        {
+          "stageId": "step-2",
+          "suggestedReply": "Yes, I arrived yesterday. I love the city so far.",
+          "partnerPrompt": "Go ahead! Is it your first time here?"
+        },
+        {
+          "stageId": "step-3",
+          "suggestedReply": "Not yet. Is it worth visiting, and when should I go?",
+          "partnerPrompt": "Have you been to the riverside market yet?"
+        }
+      ],
+      "reviewPractice": [
+        {
+          "id": "review-language",
+          "prompt": "Say this in English. 跟你聊得很开心。",
+          "suggestedAnswer": "It was really nice talking to you."
+        }
+      ],
+      "variations": []
+    }
+  }
+}

@@ -1,0 +1,221 @@
+{
+  "schemaVersion": 1,
+  "id": "sc-pop-culture-chat",
+  "slug": "pop-culture-chat",
+  "title": "Chatting about sports without spoilers",
+  "category": "overseas-life",
+  "difficulty": "A2",
+  "objectives": [
+    "Say that you missed the final and ask whether it was good",
+    "Ask politely to avoid spoilers",
+    "Suggest a later conversation"
+  ],
+  "targetVocabulary": ["streaming", "hype", "season", "replay", "final", "score"],
+  "courseTemplate": {
+    "targetLanguage": "en",
+    "estimatedMinutes": 8,
+    "setting": "The learner missed the match and will watch the replay at lunch. The partner can describe the excitement without revealing the score.",
+    "roles": {
+      "learner": "A coworker who plans to watch a replay",
+      "partner": "A coworker excited about a football final"
+    },
+    "openingLine": "Did you catch the final last night?",
+    "targetPatterns": [
+      {
+        "pattern": "I missed it. Was it a good match?",
+        "example": "I missed it. Was it a good match?"
+      },
+      {
+        "pattern": "Please don't tell me the score. I'm watching the replay at lunch.",
+        "example": "Please don't tell me the score. I'm watching the replay at lunch."
+      },
+      {
+        "pattern": "Thanks! Let's talk about it after I've watched it.",
+        "example": "Thanks! Let's talk about it after I've watched it."
+      },
+      {
+        "pattern": "Have you seen the new season yet?",
+        "example": "Have you seen the new season yet?",
+        "translation": "你看新一季了吗？"
+      },
+      {
+        "pattern": "No spoilers, please!",
+        "example": "No spoilers, please!",
+        "translation": "别剧透！"
+      },
+      {
+        "pattern": "What are you streaming these days?",
+        "example": "What are you streaming these days?",
+        "translation": "最近在追什么？"
+      },
+      {
+        "pattern": "Are you into any sports?",
+        "example": "Are you into any sports?",
+        "translation": "你喜欢什么运动？"
+      },
+      {
+        "pattern": "What kind of music do you listen to?",
+        "example": "What kind of music do you listen to?",
+        "translation": "你听什么类型的音乐？"
+      },
+      {
+        "pattern": "I binge-watched the whole season in two days.",
+        "example": "I binge-watched the whole season in two days.",
+        "translation": "我两天刷完了整季。"
+      },
+      {
+        "pattern": "Is that show worth the hype?",
+        "example": "Is that show worth the hype?",
+        "translation": "那部剧配得上这么多吹捧吗？"
+      },
+      {
+        "pattern": "Let's watch the game together this weekend.",
+        "example": "Let's watch the game together this weekend.",
+        "translation": "周末一起看比赛吧。"
+      }
+    ],
+    "stages": [
+      {
+        "id": "step-1",
+        "title": "Say that you missed the final and ask whether it was good",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “Did you catch the final last night?”",
+        "objectiveIds": ["obj-1"],
+        "successCriteria": [
+          "The learner can say that you missed the final and ask whether it was good in their own words."
+        ],
+        "hints": ["You can start with “I missed it. Was …”"]
+      },
+      {
+        "id": "step-2",
+        "title": "Ask politely to avoid spoilers",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “It was really close. Do you want to know the score?”",
+        "objectiveIds": ["obj-2"],
+        "successCriteria": ["The learner can ask politely to avoid spoilers in their own words."],
+        "hints": ["You can start with “Please don't tell me …”"]
+      },
+      {
+        "id": "step-3",
+        "title": "Suggest a later conversation",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “No problem. I won't say a word.”",
+        "objectiveIds": ["obj-3"],
+        "successCriteria": ["The learner can suggest a later conversation in their own words."],
+        "hints": ["You can start with “Thanks! Let's talk about …”"]
+      }
+    ],
+    "teachingPolicy": {
+      "correctionMode": "gentle",
+      "maxCorrections": 2,
+      "maxHints": 3
+    },
+    "learningPack": {
+      "schemaVersion": 1,
+      "overview": "娱乐与流行文化 · The learner missed the match and will watch the replay at lunch. The partner can describe the excitement without revealing the score.",
+      "prerequisites": [],
+      "scenarioFacts": [
+        {
+          "label": "Roleplay facts",
+          "value": "The learner missed the match and will watch the replay at lunch. The partner can describe the excitement without revealing the score."
+        }
+      ],
+      "vocabulary": [
+        {
+          "term": "streaming",
+          "meaning": "流媒体",
+          "example": "What are you streaming these days?"
+        },
+        {
+          "term": "hype",
+          "meaning": "炒作/热度",
+          "example": "Is that show worth the hype?"
+        },
+        {
+          "term": "season",
+          "meaning": "季",
+          "example": "Have you seen the new season yet?"
+        },
+        {
+          "term": "replay",
+          "meaning": "重播",
+          "example": "Please don't tell me the score. I'm watching the replay at lunch."
+        },
+        {
+          "term": "final",
+          "meaning": "决赛",
+          "example": "Did you catch the final last night?"
+        },
+        {
+          "term": "score",
+          "meaning": "比分",
+          "example": "Please don't tell me the score. I'm watching the replay at lunch."
+        }
+      ],
+      "languageNotes": [
+        "「追剧」是 follow a show / binge-watch，不说 \"chase the drama\"；聊体育先问对方支持哪队（Who do you root for?）再站队。"
+      ],
+      "warmup": [
+        {
+          "id": "warmup-language",
+          "prompt": "Say this in English. 你看新一季了吗？",
+          "suggestedAnswer": "Have you seen the new season yet?"
+        }
+      ],
+      "modelDialogue": [
+        {
+          "stageId": "step-1",
+          "role": "partner",
+          "text": "Did you catch the final last night?"
+        },
+        {
+          "stageId": "step-1",
+          "role": "learner",
+          "text": "I missed it. Was it a good match?"
+        },
+        {
+          "stageId": "step-2",
+          "role": "partner",
+          "text": "It was really close. Do you want to know the score?"
+        },
+        {
+          "stageId": "step-2",
+          "role": "learner",
+          "text": "Please don't tell me the score. I'm watching the replay at lunch."
+        },
+        {
+          "stageId": "step-3",
+          "role": "partner",
+          "text": "No problem. I won't say a word."
+        },
+        {
+          "stageId": "step-3",
+          "role": "learner",
+          "text": "Thanks! Let's talk about it after I've watched it."
+        }
+      ],
+      "guidedPractice": [
+        {
+          "stageId": "step-1",
+          "suggestedReply": "I missed it. Was it a good match?",
+          "partnerPrompt": "Did you catch the final last night?"
+        },
+        {
+          "stageId": "step-2",
+          "suggestedReply": "Please don't tell me the score. I'm watching the replay at lunch.",
+          "partnerPrompt": "It was really close. Do you want to know the score?"
+        },
+        {
+          "stageId": "step-3",
+          "suggestedReply": "Thanks! Let's talk about it after I've watched it.",
+          "partnerPrompt": "No problem. I won't say a word."
+        }
+      ],
+      "reviewPractice": [
+        {
+          "id": "review-language",
+          "prompt": "Say this in English. 周末一起看比赛吧。",
+          "suggestedAnswer": "Let's watch the game together this weekend."
+        }
+      ],
+      "variations": []
+    }
+  }
+}

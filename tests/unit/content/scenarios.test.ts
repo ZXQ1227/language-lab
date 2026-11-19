@@ -6,7 +6,10 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { scenarioContentSchema } from "@language-lab/core";
-import { loadScenarioContent } from "../../../apps/desktop/src/content/scenarioContent";
+import {
+  loadScenarioContent,
+  starterCoursePaths,
+} from "../../../apps/desktop/src/content/scenarioContent";
 
 const SCENARIOS_DIR = join(__dirname, "../../../content/scenarios");
 
@@ -19,8 +22,17 @@ function listContentFiles(): string[] {
 describe("content/scenarios", () => {
   const files = listContentFiles();
 
-  it("ships at least three scenarios", () => {
-    expect(files.length).toBeGreaterThanOrEqual(3);
+  it("orders the five starter paths and contains every topic plus the cafe supplement", () => {
+    expect(
+      starterCoursePaths.map(({ id, courses }) => [id, courses.length, courses[0]?.slug]),
+    ).toEqual([
+      ["travel", 9, "airport-check-in"],
+      ["career", 9, "job-hunting"],
+      ["campus", 6, "teacher-office-hours"],
+      ["overseas-life", 10, "supermarket-service"],
+      ["social", 7, "small-talk"],
+    ]);
+    expect(files).toHaveLength(41);
   });
 
   it("every scenario file satisfies scenarioContentSchema", () => {
@@ -62,6 +74,19 @@ describe("content/scenarios", () => {
         JSON.parse(readFileSync(join(SCENARIOS_DIR, `${scenario.slug}.json`), "utf-8")),
       );
       expect(scenario).toEqual(onDisk);
+    }
+  });
+
+  it("includes translated expressions and guided replies in each new starter lesson", () => {
+    const existing = ["cafe-order", "doctor-visit", "hotel-checkin", "small-talk"];
+    for (const { slug, courseTemplate } of loadScenarioContent()) {
+      if (existing.includes(slug)) continue;
+      expect(courseTemplate?.learningPack?.languageNotes, slug).toHaveLength(1);
+      expect(
+        courseTemplate?.targetPatterns.filter((pattern) => pattern.translation),
+        slug,
+      ).toHaveLength(8);
+      expect(courseTemplate?.learningPack?.guidedPractice, slug).toHaveLength(3);
     }
   });
 });

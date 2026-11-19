@@ -1,0 +1,224 @@
+{
+  "schemaVersion": 1,
+  "id": "sc-inclusive-invitation",
+  "slug": "inclusive-invitation",
+  "title": "Making a meal invitation inclusive",
+  "category": "overseas-life",
+  "difficulty": "B1",
+  "objectives": [
+    "Ask about dietary or scheduling needs without assuming",
+    "Offer a flexible alternative",
+    "Confirm a workable option without putting anyone on the spot"
+  ],
+  "targetVocabulary": ["fasting", "halal", "vegetarian", "ceremony", "dress code", "dietary"],
+  "courseTemplate": {
+    "targetLanguage": "en",
+    "estimatedMinutes": 10,
+    "setting": "The meal can move to the evening. The colleague is fasting until sunset and is open to discussing a convenient time.",
+    "roles": {
+      "learner": "A coworker coordinating a team meal",
+      "partner": "A colleague who is fasting until sunset"
+    },
+    "openingLine": "I'm glad we're arranging a team meal. What's the plan?",
+    "targetPatterns": [
+      {
+        "pattern": "We're thinking about Friday. Are there any dietary or timing needs we should know about?",
+        "example": "We're thinking about Friday. Are there any dietary or timing needs we should know about?"
+      },
+      {
+        "pattern": "Would you prefer to meet after sunset instead?",
+        "example": "Would you prefer to meet after sunset instead?"
+      },
+      {
+        "pattern": "Great. I'll check if an evening time works for the whole team.",
+        "example": "Great. I'll check if an evening time works for the whole team."
+      },
+      {
+        "pattern": "I'm not familiar with that custom — could you explain?",
+        "example": "I'm not familiar with that custom — could you explain?",
+        "translation": "我不了解那个习俗，能解释一下吗？"
+      },
+      {
+        "pattern": "Do you celebrate any religious holidays?",
+        "example": "Do you celebrate any religious holidays?",
+        "translation": "你有庆祝什么宗教节日吗？"
+      },
+      {
+        "pattern": "Is there anything I should avoid saying?",
+        "example": "Is there anything I should avoid saying?",
+        "translation": "有什么我该避免说的吗？"
+      },
+      {
+        "pattern": "Is this restaurant halal-friendly?",
+        "example": "Is this restaurant halal-friendly?",
+        "translation": "这家餐厅清真友好吗？"
+      },
+      {
+        "pattern": "Could you recommend a vegetarian option?",
+        "example": "Could you recommend a vegetarian option?",
+        "translation": "有素食推荐吗？"
+      },
+      {
+        "pattern": "I don't practice any religion, but I respect the tradition.",
+        "example": "I don't practice any religion, but I respect the tradition.",
+        "translation": "我没有宗教信仰，但我尊重这个传统。"
+      },
+      {
+        "pattern": "What's the dress code for the ceremony?",
+        "example": "What's the dress code for the ceremony?",
+        "translation": "仪式有着装要求吗？"
+      },
+      {
+        "pattern": "Thank you for including me in the celebration.",
+        "example": "Thank you for including me in the celebration.",
+        "translation": "谢谢你们带我一起庆祝。"
+      }
+    ],
+    "stages": [
+      {
+        "id": "step-1",
+        "title": "Ask about dietary or scheduling needs without assuming",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “I'm glad we're arranging a team meal. What's the plan?”",
+        "objectiveIds": ["obj-1"],
+        "successCriteria": [
+          "The learner can ask about dietary or scheduling needs without assuming in their own words."
+        ],
+        "hints": ["You can start with “We're thinking about Friday. …”"]
+      },
+      {
+        "id": "step-2",
+        "title": "Offer a flexible alternative",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “I'm fasting until sunset this month, so lunch won't work for me.”",
+        "objectiveIds": ["obj-2"],
+        "successCriteria": ["The learner can offer a flexible alternative in their own words."],
+        "hints": ["You can start with “Would you prefer to …”"]
+      },
+      {
+        "id": "step-3",
+        "title": "Confirm a workable option without putting anyone on the spot",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “That would work for me. Thanks for checking.”",
+        "objectiveIds": ["obj-3"],
+        "successCriteria": [
+          "The learner can confirm a workable option without putting anyone on the spot in their own words."
+        ],
+        "hints": ["You can start with “Great. I'll check if …”"]
+      }
+    ],
+    "teachingPolicy": {
+      "correctionMode": "gentle",
+      "maxCorrections": 2,
+      "maxHints": 3
+    },
+    "learningPack": {
+      "schemaVersion": 1,
+      "overview": "宗教与多元文化 · The meal can move to the evening. The colleague is fasting until sunset and is open to discussing a convenient time.",
+      "prerequisites": [],
+      "scenarioFacts": [
+        {
+          "label": "Roleplay facts",
+          "value": "The meal can move to the evening. The colleague is fasting until sunset and is open to discussing a convenient time."
+        }
+      ],
+      "vocabulary": [
+        {
+          "term": "fasting",
+          "meaning": "斋戒",
+          "example": "I'm fasting until sunset this month, so lunch won't work for me."
+        },
+        {
+          "term": "halal",
+          "meaning": "清真",
+          "example": "Is this restaurant halal-friendly?"
+        },
+        {
+          "term": "vegetarian",
+          "meaning": "素食/纯素",
+          "example": "Could you recommend a vegetarian option?",
+          "forms": ["vegan"]
+        },
+        {
+          "term": "ceremony",
+          "meaning": "仪式",
+          "example": "What's the dress code for the ceremony?"
+        },
+        {
+          "term": "dress code",
+          "meaning": "着装规范",
+          "example": "What's the dress code for the ceremony?"
+        },
+        {
+          "term": "dietary",
+          "meaning": "饮食的",
+          "example": "We're thinking about Friday. Are there any dietary or timing needs we should know about?"
+        }
+      ],
+      "languageNotes": [
+        "不确定时直接礼貌问（Is there anything I should know?）好过假装懂；不评价他人信仰，用 I respect that 表态即可。"
+      ],
+      "warmup": [
+        {
+          "id": "warmup-language",
+          "prompt": "Say this in English. 我不了解那个习俗，能解释一下吗？",
+          "suggestedAnswer": "I'm not familiar with that custom — could you explain?"
+        }
+      ],
+      "modelDialogue": [
+        {
+          "stageId": "step-1",
+          "role": "partner",
+          "text": "I'm glad we're arranging a team meal. What's the plan?"
+        },
+        {
+          "stageId": "step-1",
+          "role": "learner",
+          "text": "We're thinking about Friday. Are there any dietary or timing needs we should know about?"
+        },
+        {
+          "stageId": "step-2",
+          "role": "partner",
+          "text": "I'm fasting until sunset this month, so lunch won't work for me."
+        },
+        {
+          "stageId": "step-2",
+          "role": "learner",
+          "text": "Would you prefer to meet after sunset instead?"
+        },
+        {
+          "stageId": "step-3",
+          "role": "partner",
+          "text": "That would work for me. Thanks for checking."
+        },
+        {
+          "stageId": "step-3",
+          "role": "learner",
+          "text": "Great. I'll check if an evening time works for the whole team."
+        }
+      ],
+      "guidedPractice": [
+        {
+          "stageId": "step-1",
+          "suggestedReply": "We're thinking about Friday. Are there any dietary or timing needs we should know about?",
+          "partnerPrompt": "I'm glad we're arranging a team meal. What's the plan?"
+        },
+        {
+          "stageId": "step-2",
+          "suggestedReply": "Would you prefer to meet after sunset instead?",
+          "partnerPrompt": "I'm fasting until sunset this month, so lunch won't work for me."
+        },
+        {
+          "stageId": "step-3",
+          "suggestedReply": "Great. I'll check if an evening time works for the whole team.",
+          "partnerPrompt": "That would work for me. Thanks for checking."
+        }
+      ],
+      "reviewPractice": [
+        {
+          "id": "review-language",
+          "prompt": "Say this in English. 谢谢你们带我一起庆祝。",
+          "suggestedAnswer": "Thank you for including me in the celebration."
+        }
+      ],
+      "variations": []
+    }
+  }
+}

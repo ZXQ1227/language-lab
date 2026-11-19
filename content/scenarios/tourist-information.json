@@ -1,0 +1,206 @@
+{
+  "schemaVersion": 1,
+  "id": "sc-tourist-information",
+  "slug": "tourist-information",
+  "title": "Planning a day at the visitor centre",
+  "category": "travel",
+  "difficulty": "A2",
+  "objectives": [
+    "Ask for a one-day itinerary",
+    "Say how much time you have and what interests you",
+    "Ask how to get between the stops"
+  ],
+  "targetVocabulary": ["itinerary", "viewpoint", "local culture"],
+  "courseTemplate": {
+    "targetLanguage": "en",
+    "estimatedMinutes": 8,
+    "setting": "The old market opens at nine. The history museum and viewpoint are within a fifteen-minute walk of the market.",
+    "roles": {
+      "learner": "A traveller with one free day",
+      "partner": "A visitor-centre adviser"
+    },
+    "openingLine": "Hello! How can I help you plan your visit?",
+    "targetPatterns": [
+      {
+        "pattern": "I'd like some suggestions for a one-day itinerary.",
+        "example": "I'd like some suggestions for a one-day itinerary."
+      },
+      {
+        "pattern": "Just today. I'd like to see something that shows the local culture.",
+        "example": "Just today. I'd like to see something that shows the local culture."
+      },
+      {
+        "pattern": "Can I walk between them?",
+        "example": "Can I walk between them?"
+      },
+      {
+        "pattern": "What's the best way to see the city?",
+        "example": "What's the best way to see the city?",
+        "translation": "游览这座城市最好的方式是什么？"
+      },
+      {
+        "pattern": "Is there a discount for students?",
+        "example": "Is there a discount for students?",
+        "translation": "学生有折扣吗？"
+      },
+      {
+        "pattern": "What time does the museum close?",
+        "example": "What time does the museum close?",
+        "translation": "博物馆几点关门？"
+      },
+      {
+        "pattern": "Do you offer tours in Chinese?",
+        "example": "Do you offer tours in Chinese?",
+        "translation": "有中文导览吗？"
+      },
+      {
+        "pattern": "Is it worth visiting in winter?",
+        "example": "Is it worth visiting in winter?",
+        "translation": "冬天值得去吗？"
+      },
+      {
+        "pattern": "How do I get to the old town?",
+        "example": "How do I get to the old town?",
+        "translation": "老城区怎么去？"
+      },
+      {
+        "pattern": "Can I buy tickets online?",
+        "example": "Can I buy tickets online?",
+        "translation": "可以网上购票吗？"
+      },
+      {
+        "pattern": "Are there any free walking tours?",
+        "example": "Are there any free walking tours?",
+        "translation": "有免费的徒步导览吗？"
+      }
+    ],
+    "stages": [
+      {
+        "id": "step-1",
+        "title": "Ask for a one-day itinerary",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “Hello! How can I help you plan your visit?”",
+        "objectiveIds": ["obj-1"],
+        "successCriteria": ["The learner can ask for a one-day itinerary in their own words."],
+        "hints": ["You can start with “I'd like some suggestions …”"]
+      },
+      {
+        "id": "step-2",
+        "title": "Say how much time you have and what interests you",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “How much time do you have, and what are you interested in?”",
+        "objectiveIds": ["obj-2"],
+        "successCriteria": [
+          "The learner can say how much time you have and what interests you in their own words."
+        ],
+        "hints": ["You can start with “Just today. I'd like …”"]
+      },
+      {
+        "id": "step-3",
+        "title": "Ask how to get between the stops",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “Try the old market, the history museum and the sunset viewpoint. Any questions?”",
+        "objectiveIds": ["obj-3"],
+        "successCriteria": ["The learner can ask how to get between the stops in their own words."],
+        "hints": ["You can start with “Can I walk between …”"]
+      }
+    ],
+    "teachingPolicy": {
+      "correctionMode": "gentle",
+      "maxCorrections": 2,
+      "maxHints": 3
+    },
+    "learningPack": {
+      "schemaVersion": 1,
+      "overview": "旅游咨询 · The old market opens at nine. The history museum and viewpoint are within a fifteen-minute walk of the market.",
+      "prerequisites": [],
+      "scenarioFacts": [
+        {
+          "label": "Roleplay facts",
+          "value": "The old market opens at nine. The history museum and viewpoint are within a fifteen-minute walk of the market."
+        }
+      ],
+      "vocabulary": [
+        {
+          "term": "itinerary",
+          "meaning": "行程",
+          "example": "I'd like some suggestions for a one-day itinerary."
+        },
+        {
+          "term": "viewpoint",
+          "meaning": "观景点",
+          "example": "Try the old market, the history museum and the sunset viewpoint. Any questions?"
+        },
+        {
+          "term": "local culture",
+          "meaning": "当地文化",
+          "example": "Just today. I'd like to see something that shows the local culture."
+        }
+      ],
+      "languageNotes": [
+        "「值得」句式是 It's worth visiting，不是 \"worth to visit\"；问路回答里 straight ahead（直走）常被听成 \"strange ahead\"，注意连读。"
+      ],
+      "warmup": [
+        {
+          "id": "warmup-language",
+          "prompt": "Say this in English. 游览这座城市最好的方式是什么？",
+          "suggestedAnswer": "What's the best way to see the city?"
+        }
+      ],
+      "modelDialogue": [
+        {
+          "stageId": "step-1",
+          "role": "partner",
+          "text": "Hello! How can I help you plan your visit?"
+        },
+        {
+          "stageId": "step-1",
+          "role": "learner",
+          "text": "I'd like some suggestions for a one-day itinerary."
+        },
+        {
+          "stageId": "step-2",
+          "role": "partner",
+          "text": "How much time do you have, and what are you interested in?"
+        },
+        {
+          "stageId": "step-2",
+          "role": "learner",
+          "text": "Just today. I'd like to see something that shows the local culture."
+        },
+        {
+          "stageId": "step-3",
+          "role": "partner",
+          "text": "Try the old market, the history museum and the sunset viewpoint. Any questions?"
+        },
+        {
+          "stageId": "step-3",
+          "role": "learner",
+          "text": "Can I walk between them?"
+        }
+      ],
+      "guidedPractice": [
+        {
+          "stageId": "step-1",
+          "suggestedReply": "I'd like some suggestions for a one-day itinerary.",
+          "partnerPrompt": "Hello! How can I help you plan your visit?"
+        },
+        {
+          "stageId": "step-2",
+          "suggestedReply": "Just today. I'd like to see something that shows the local culture.",
+          "partnerPrompt": "How much time do you have, and what are you interested in?"
+        },
+        {
+          "stageId": "step-3",
+          "suggestedReply": "Can I walk between them?",
+          "partnerPrompt": "Try the old market, the history museum and the sunset viewpoint. Any questions?"
+        }
+      ],
+      "reviewPractice": [
+        {
+          "id": "review-language",
+          "prompt": "Say this in English. 有免费的徒步导览吗？",
+          "suggestedAnswer": "Are there any free walking tours?"
+        }
+      ],
+      "variations": []
+    }
+  }
+}

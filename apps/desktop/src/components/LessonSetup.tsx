@@ -106,35 +106,33 @@ export function LessonSetup({ course }: { course: ScenarioContent }) {
           )}
         </section>
       )}
-      {course.courseTemplate?.learningPack && (
-        <>
-          <label className="block text-sm">
-            {t("training:courseChallenge")}
-            <select
-              className={control}
-              disabled={busy}
-              value={variationId}
-              onChange={(event) => setVariationId(event.target.value)}
-            >
-              <option value="standard">{t("training:standardCheckIn")}</option>
-              {course.courseTemplate.learningPack.variations.map((variation) => (
-                <option key={variation.id} value={variation.id}>
-                  {variation.title}
-                </option>
-              ))}
-            </select>
-          </label>
-          {template && (
-            <details className="rounded-lg border border-stone-200 px-3 py-2">
-              <summary className="cursor-pointer text-sm font-semibold text-emerald-950">
-                {t("training:lessonReference")}
-              </summary>
-              <div className="mt-3">
-                <CourseStudyPack template={template} />
-              </div>
-            </details>
-          )}
-        </>
+      {!!course.courseTemplate?.learningPack?.variations.length && (
+        <label className="block text-sm">
+          {t("training:courseChallenge")}
+          <select
+            className={control}
+            disabled={busy}
+            value={variationId}
+            onChange={(event) => setVariationId(event.target.value)}
+          >
+            <option value="standard">{t("training:standardCheckIn")}</option>
+            {course.courseTemplate.learningPack.variations.map((variation) => (
+              <option key={variation.id} value={variation.id}>
+                {variation.title}
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
+      {template?.learningPack && (
+        <details className="rounded-lg border border-stone-200 px-3 py-2">
+          <summary className="cursor-pointer text-sm font-semibold text-emerald-950">
+            {t("training:lessonReference")}
+          </summary>
+          <div className="mt-3">
+            <CourseStudyPack template={template} />
+          </div>
+        </details>
       )}
       <label className="block text-sm">
         {t("training:practiceMode")}

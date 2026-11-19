@@ -1,0 +1,230 @@
+{
+  "schemaVersion": 1,
+  "id": "sc-inviting-and-declining",
+  "slug": "inviting-and-declining",
+  "title": "Declining an invitation and suggesting another time",
+  "category": "social",
+  "difficulty": "A2",
+  "objectives": [
+    "Decline politely and give a reason",
+    "Suggest a specific alternative",
+    "Confirm the plan in a friendly way"
+  ],
+  "targetVocabulary": [
+    "rain check",
+    "count me in",
+    "plans",
+    "early start",
+    "get up early",
+    "brunch"
+  ],
+  "courseTemplate": {
+    "targetLanguage": "en",
+    "estimatedMinutes": 8,
+    "setting": "The learner has an early start tomorrow. Saturday afternoon is free.",
+    "roles": {
+      "learner": "A friend who cannot go out tonight",
+      "partner": "A friend inviting the learner to karaoke"
+    },
+    "openingLine": "We're doing karaoke tonight. Are you in?",
+    "targetPatterns": [
+      {
+        "pattern": "Thanks for asking, but I have to get up early tomorrow.",
+        "example": "Thanks for asking, but I have to get up early tomorrow."
+      },
+      {
+        "pattern": "How about brunch on Saturday afternoon instead?",
+        "example": "How about brunch on Saturday afternoon instead?"
+      },
+      {
+        "pattern": "Count me in. Let me know what time works for everyone.",
+        "example": "Count me in. Let me know what time works for everyone."
+      },
+      {
+        "pattern": "Are you free this Friday? A few of us are getting dinner.",
+        "example": "Are you free this Friday? A few of us are getting dinner.",
+        "translation": "周五有空吗？我们几个约了饭。"
+      },
+      {
+        "pattern": "Would you like to join us?",
+        "example": "Would you like to join us?",
+        "translation": "要一起吗？"
+      },
+      {
+        "pattern": "I'd love to, but I already have plans.",
+        "example": "I'd love to, but I already have plans.",
+        "translation": "很想去，但已经有安排了。"
+      },
+      {
+        "pattern": "Can I take a rain check?",
+        "example": "Can I take a rain check?",
+        "translation": "能改天吗？"
+      },
+      {
+        "pattern": "Next weekend works better for me.",
+        "example": "Next weekend works better for me.",
+        "translation": "下周末更合适。"
+      },
+      {
+        "pattern": "What time and where should we meet?",
+        "example": "What time and where should we meet?",
+        "translation": "几点在哪见？"
+      },
+      {
+        "pattern": "Feel free to bring someone along.",
+        "example": "Feel free to bring someone along.",
+        "translation": "可以带朋友来。"
+      },
+      {
+        "pattern": "Thanks for the invite!",
+        "example": "Thanks for the invite!",
+        "translation": "谢谢邀请！"
+      }
+    ],
+    "stages": [
+      {
+        "id": "step-1",
+        "title": "Decline politely and give a reason",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “We're doing karaoke tonight. Are you in?”",
+        "objectiveIds": ["obj-1"],
+        "successCriteria": [
+          "The learner can decline politely and give a reason in their own words."
+        ],
+        "hints": ["You can start with “Thanks for asking, but …”"]
+      },
+      {
+        "id": "step-2",
+        "title": "Suggest a specific alternative",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “No worries. Could we get together another day?”",
+        "objectiveIds": ["obj-2"],
+        "successCriteria": ["The learner can suggest a specific alternative in their own words."],
+        "hints": ["You can start with “How about brunch on …”"]
+      },
+      {
+        "id": "step-3",
+        "title": "Confirm the plan in a friendly way",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “Saturday sounds great. I'll start a group chat.”",
+        "objectiveIds": ["obj-3"],
+        "successCriteria": [
+          "The learner can confirm the plan in a friendly way in their own words."
+        ],
+        "hints": ["You can start with “Count me in. Let …”"]
+      }
+    ],
+    "teachingPolicy": {
+      "correctionMode": "gentle",
+      "maxCorrections": 2,
+      "maxHints": 3
+    },
+    "learningPack": {
+      "schemaVersion": 1,
+      "overview": "邀请与拒绝 · The learner has an early start tomorrow. Saturday afternoon is free.",
+      "prerequisites": [],
+      "scenarioFacts": [
+        {
+          "label": "Roleplay facts",
+          "value": "The learner has an early start tomorrow. Saturday afternoon is free."
+        }
+      ],
+      "vocabulary": [
+        {
+          "term": "rain check",
+          "meaning": "改天再约",
+          "example": "Can I take a rain check?"
+        },
+        {
+          "term": "count me in",
+          "meaning": "算我一个",
+          "example": "Count me in. Let me know what time works for everyone."
+        },
+        {
+          "term": "plans",
+          "meaning": "安排",
+          "example": "I'd love to, but I already have plans."
+        },
+        {
+          "term": "early start",
+          "meaning": "早起安排",
+          "example": "The learner has an early start tomorrow. Saturday afternoon is free."
+        },
+        {
+          "term": "get up early",
+          "meaning": "早起",
+          "example": "Thanks for asking, but I have to get up early tomorrow."
+        },
+        {
+          "term": "brunch",
+          "meaning": "早午餐",
+          "example": "How about brunch on Saturday afternoon instead?"
+        }
+      ],
+      "languageNotes": [
+        "拒绝时先给情绪价值（I'd love to, but... / Tempting, but...）再给原因，别只说 \"No\"；「改天吧」take a rain check 是固定习语。"
+      ],
+      "warmup": [
+        {
+          "id": "warmup-language",
+          "prompt": "Say this in English. 周五有空吗？我们几个约了饭。",
+          "suggestedAnswer": "Are you free this Friday? A few of us are getting dinner."
+        }
+      ],
+      "modelDialogue": [
+        {
+          "stageId": "step-1",
+          "role": "partner",
+          "text": "We're doing karaoke tonight. Are you in?"
+        },
+        {
+          "stageId": "step-1",
+          "role": "learner",
+          "text": "Thanks for asking, but I have to get up early tomorrow."
+        },
+        {
+          "stageId": "step-2",
+          "role": "partner",
+          "text": "No worries. Could we get together another day?"
+        },
+        {
+          "stageId": "step-2",
+          "role": "learner",
+          "text": "How about brunch on Saturday afternoon instead?"
+        },
+        {
+          "stageId": "step-3",
+          "role": "partner",
+          "text": "Saturday sounds great. I'll start a group chat."
+        },
+        {
+          "stageId": "step-3",
+          "role": "learner",
+          "text": "Count me in. Let me know what time works for everyone."
+        }
+      ],
+      "guidedPractice": [
+        {
+          "stageId": "step-1",
+          "suggestedReply": "Thanks for asking, but I have to get up early tomorrow.",
+          "partnerPrompt": "We're doing karaoke tonight. Are you in?"
+        },
+        {
+          "stageId": "step-2",
+          "suggestedReply": "How about brunch on Saturday afternoon instead?",
+          "partnerPrompt": "No worries. Could we get together another day?"
+        },
+        {
+          "stageId": "step-3",
+          "suggestedReply": "Count me in. Let me know what time works for everyone.",
+          "partnerPrompt": "Saturday sounds great. I'll start a group chat."
+        }
+      ],
+      "reviewPractice": [
+        {
+          "id": "review-language",
+          "prompt": "Say this in English. 谢谢邀请！",
+          "suggestedAnswer": "Thanks for the invite!"
+        }
+      ],
+      "variations": []
+    }
+  }
+}

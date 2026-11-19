@@ -1,0 +1,223 @@
+{
+  "schemaVersion": 1,
+  "id": "sc-colleague-collaboration",
+  "slug": "colleague-collaboration",
+  "title": "Resolving a disagreement at work",
+  "category": "career",
+  "difficulty": "B1",
+  "objectives": [
+    "Acknowledge the idea and explain a concern",
+    "Propose a phased compromise",
+    "Agree on who will take the next action"
+  ],
+  "targetVocabulary": ["own", "loop in", "align", "redesign", "past the deadline", "estimate"],
+  "courseTemplate": {
+    "targetLanguage": "en",
+    "estimatedMinutes": 10,
+    "setting": "There is time to improve checkout before launch, but a full redesign would push back the deadline.",
+    "roles": {
+      "learner": "A colleague protecting a release deadline",
+      "partner": "A teammate proposing a redesign"
+    },
+    "openingLine": "I think we should redesign the whole flow before shipping.",
+    "targetPatterns": [
+      {
+        "pattern": "I see why, but a full redesign would push us past the deadline.",
+        "example": "I see why, but a full redesign would push us past the deadline."
+      },
+      {
+        "pattern": "Let's fix checkout now and redesign the rest after launch.",
+        "example": "Let's fix checkout now and redesign the rest after launch."
+      },
+      {
+        "pattern": "I'll check with engineering and bring an estimate to tomorrow's stand-up.",
+        "example": "I'll check with engineering and bring an estimate to tomorrow's stand-up."
+      },
+      {
+        "pattern": "Could you take a look at my draft when you get a chance?",
+        "example": "Could you take a look at my draft when you get a chance?",
+        "translation": "有空帮我看下草稿吗？"
+      },
+      {
+        "pattern": "I'll own the report, and you handle the data part.",
+        "example": "I'll own the report, and you handle the data part.",
+        "translation": "我负责报告，你负责数据部分。"
+      },
+      {
+        "pattern": "Sorry, I dropped the ball on this one.",
+        "example": "Sorry, I dropped the ball on this one.",
+        "translation": "抱歉，这件事我疏忽了。"
+      },
+      {
+        "pattern": "Let's divide and conquer.",
+        "example": "Let's divide and conquer.",
+        "translation": "我们分头搞定。"
+      },
+      {
+        "pattern": "I don't want to step on your toes.",
+        "example": "I don't want to step on your toes.",
+        "translation": "我不想越界干涉你的工作。"
+      },
+      {
+        "pattern": "Can we align on the deadline first?",
+        "example": "Can we align on the deadline first?",
+        "translation": "先对齐一下截止时间？"
+      },
+      {
+        "pattern": "Thanks for flagging this early.",
+        "example": "Thanks for flagging this early.",
+        "translation": "谢谢你提前提出这个问题。"
+      },
+      {
+        "pattern": "I'll loop in the design team.",
+        "example": "I'll loop in the design team.",
+        "translation": "我会把设计团队拉进来。"
+      }
+    ],
+    "stages": [
+      {
+        "id": "step-1",
+        "title": "Acknowledge the idea and explain a concern",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “I think we should redesign the whole flow before shipping.”",
+        "objectiveIds": ["obj-1"],
+        "successCriteria": [
+          "The learner can acknowledge the idea and explain a concern in their own words."
+        ],
+        "hints": ["You can start with “I see why, but …”"]
+      },
+      {
+        "id": "step-2",
+        "title": "Propose a phased compromise",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “I don't want to launch with the checkout problem. What would you suggest?”",
+        "objectiveIds": ["obj-2"],
+        "successCriteria": ["The learner can propose a phased compromise in their own words."],
+        "hints": ["You can start with “Let's fix checkout now …”"]
+      },
+      {
+        "id": "step-3",
+        "title": "Agree on who will take the next action",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “That works. I'll draft a proposal today. What can you take on?”",
+        "objectiveIds": ["obj-3"],
+        "successCriteria": [
+          "The learner can agree on who will take the next action in their own words."
+        ],
+        "hints": ["You can start with “I'll check with engineering …”"]
+      }
+    ],
+    "teachingPolicy": {
+      "correctionMode": "gentle",
+      "maxCorrections": 2,
+      "maxHints": 3
+    },
+    "learningPack": {
+      "schemaVersion": 1,
+      "overview": "同事协作 · There is time to improve checkout before launch, but a full redesign would push back the deadline.",
+      "prerequisites": [],
+      "scenarioFacts": [
+        {
+          "label": "Roleplay facts",
+          "value": "There is time to improve checkout before launch, but a full redesign would push back the deadline."
+        }
+      ],
+      "vocabulary": [
+        {
+          "term": "own",
+          "meaning": "负责",
+          "example": "I'll own the report, and you handle the data part."
+        },
+        {
+          "term": "loop in",
+          "meaning": "拉入沟通",
+          "example": "I'll loop in the design team."
+        },
+        {
+          "term": "align",
+          "meaning": "对齐",
+          "example": "Can we align on the deadline first?"
+        },
+        {
+          "term": "redesign",
+          "meaning": "重新设计",
+          "example": "I see why, but a full redesign would push us past the deadline."
+        },
+        {
+          "term": "past the deadline",
+          "meaning": "超过截止日期",
+          "example": "I see why, but a full redesign would push us past the deadline."
+        },
+        {
+          "term": "estimate",
+          "meaning": "估算",
+          "example": "I'll check with engineering and bring an estimate to tomorrow's stand-up."
+        }
+      ],
+      "languageNotes": [
+        "承认错误 I dropped the ball 或 that's on me，不说 \"It's my fault\" 过度自责显得不专业；「拉群/拉人」说 loop in 或 add to the thread。"
+      ],
+      "warmup": [
+        {
+          "id": "warmup-language",
+          "prompt": "Say this in English. 有空帮我看下草稿吗？",
+          "suggestedAnswer": "Could you take a look at my draft when you get a chance?"
+        }
+      ],
+      "modelDialogue": [
+        {
+          "stageId": "step-1",
+          "role": "partner",
+          "text": "I think we should redesign the whole flow before shipping."
+        },
+        {
+          "stageId": "step-1",
+          "role": "learner",
+          "text": "I see why, but a full redesign would push us past the deadline."
+        },
+        {
+          "stageId": "step-2",
+          "role": "partner",
+          "text": "I don't want to launch with the checkout problem. What would you suggest?"
+        },
+        {
+          "stageId": "step-2",
+          "role": "learner",
+          "text": "Let's fix checkout now and redesign the rest after launch."
+        },
+        {
+          "stageId": "step-3",
+          "role": "partner",
+          "text": "That works. I'll draft a proposal today. What can you take on?"
+        },
+        {
+          "stageId": "step-3",
+          "role": "learner",
+          "text": "I'll check with engineering and bring an estimate to tomorrow's stand-up."
+        }
+      ],
+      "guidedPractice": [
+        {
+          "stageId": "step-1",
+          "suggestedReply": "I see why, but a full redesign would push us past the deadline.",
+          "partnerPrompt": "I think we should redesign the whole flow before shipping."
+        },
+        {
+          "stageId": "step-2",
+          "suggestedReply": "Let's fix checkout now and redesign the rest after launch.",
+          "partnerPrompt": "I don't want to launch with the checkout problem. What would you suggest?"
+        },
+        {
+          "stageId": "step-3",
+          "suggestedReply": "I'll check with engineering and bring an estimate to tomorrow's stand-up.",
+          "partnerPrompt": "That works. I'll draft a proposal today. What can you take on?"
+        }
+      ],
+      "reviewPractice": [
+        {
+          "id": "review-language",
+          "prompt": "Say this in English. 我会把设计团队拉进来。",
+          "suggestedAnswer": "I'll loop in the design team."
+        }
+      ],
+      "variations": []
+    }
+  }
+}

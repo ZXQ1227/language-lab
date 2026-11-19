@@ -1,0 +1,232 @@
+{
+  "schemaVersion": 1,
+  "id": "sc-home-repair",
+  "slug": "home-repair",
+  "title": "Reporting a repair to property management",
+  "category": "overseas-life",
+  "difficulty": "B1",
+  "objectives": [
+    "Identify the unit and describe the fault",
+    "Confirm the appointment and ask about cost",
+    "Ask whether you need to be present"
+  ],
+  "targetVocabulary": [
+    "property management",
+    "maintenance",
+    "leak",
+    "boiler",
+    "flickering",
+    "electrician"
+  ],
+  "courseTemplate": {
+    "targetLanguage": "en",
+    "estimatedMinutes": 10,
+    "setting": "The tenant is in unit 402. An electrician is available tomorrow at ten. No charge applies to the building fixture in this roleplay.",
+    "roles": {
+      "learner": "A tenant reporting a flickering light",
+      "partner": "A property manager"
+    },
+    "openingLine": "Property management, good morning. How can I help?",
+    "targetPatterns": [
+      {
+        "pattern": "I'm in unit 402. The bathroom light keeps flickering.",
+        "example": "I'm in unit 402. The bathroom light keeps flickering."
+      },
+      {
+        "pattern": "Yes, ten works. Will there be a charge?",
+        "example": "Yes, ten works. Will there be a charge?"
+      },
+      {
+        "pattern": "Do I need to be home for the appointment?",
+        "example": "Do I need to be home for the appointment?"
+      },
+      {
+        "pattern": "There's a leak under the kitchen sink.",
+        "example": "There's a leak under the kitchen sink.",
+        "translation": "厨房水槽下面漏水了。"
+      },
+      {
+        "pattern": "When can someone come to fix it?",
+        "example": "When can someone come to fix it?",
+        "translation": "什么时候能派人来修？"
+      },
+      {
+        "pattern": "Is the boiler covered by maintenance?",
+        "example": "Is the boiler covered by maintenance?",
+        "translation": "锅炉维修包含在物业里吗？"
+      },
+      {
+        "pattern": "Could we discuss the rent increase?",
+        "example": "Could we discuss the rent increase?",
+        "translation": "能谈谈涨租的事吗？"
+      },
+      {
+        "pattern": "My neighbor's music is loud after midnight.",
+        "example": "My neighbor's music is loud after midnight.",
+        "translation": "邻居半夜音乐声很大。"
+      },
+      {
+        "pattern": "I'd like to renew the lease for another year.",
+        "example": "I'd like to renew the lease for another year.",
+        "translation": "我想续租一年。"
+      },
+      {
+        "pattern": "What day is recycling collected?",
+        "example": "What day is recycling collected?",
+        "translation": "垃圾回收是哪天？"
+      },
+      {
+        "pattern": "Could I get a receipt for the rent payment?",
+        "example": "Could I get a receipt for the rent payment?",
+        "translation": "能给我一张租金收据吗？"
+      }
+    ],
+    "stages": [
+      {
+        "id": "step-1",
+        "title": "Identify the unit and describe the fault",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “Property management, good morning. How can I help?”",
+        "objectiveIds": ["obj-1"],
+        "successCriteria": [
+          "The learner can identify the unit and describe the fault in their own words."
+        ],
+        "hints": ["You can start with “I'm in unit 402. …”"]
+      },
+      {
+        "id": "step-2",
+        "title": "Confirm the appointment and ask about cost",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “We can send an electrician tomorrow at ten. Does that work?”",
+        "objectiveIds": ["obj-2"],
+        "successCriteria": [
+          "The learner can confirm the appointment and ask about cost in their own words."
+        ],
+        "hints": ["You can start with “Yes, ten works. Will …”"]
+      },
+      {
+        "id": "step-3",
+        "title": "Ask whether you need to be present",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “There's no charge for that fixture in your unit. Is there anything else?”",
+        "objectiveIds": ["obj-3"],
+        "successCriteria": [
+          "The learner can ask whether you need to be present in their own words."
+        ],
+        "hints": ["You can start with “Do I need to …”"]
+      }
+    ],
+    "teachingPolicy": {
+      "correctionMode": "gentle",
+      "maxCorrections": 2,
+      "maxHints": 3
+    },
+    "learningPack": {
+      "schemaVersion": 1,
+      "overview": "租房与家居沟通 · The tenant is in unit 402. An electrician is available tomorrow at ten. No charge applies to the building fixture in this roleplay.",
+      "prerequisites": [],
+      "scenarioFacts": [
+        {
+          "label": "Roleplay facts",
+          "value": "The tenant is in unit 402. An electrician is available tomorrow at ten. No charge applies to the building fixture in this roleplay."
+        }
+      ],
+      "vocabulary": [
+        {
+          "term": "property management",
+          "meaning": "物业",
+          "example": "Property management, good morning. How can I help?"
+        },
+        {
+          "term": "maintenance",
+          "meaning": "维修",
+          "example": "Is the boiler covered by maintenance?"
+        },
+        {
+          "term": "leak",
+          "meaning": "漏水",
+          "example": "There's a leak under the kitchen sink."
+        },
+        {
+          "term": "boiler",
+          "meaning": "热水锅炉",
+          "example": "Is the boiler covered by maintenance?"
+        },
+        {
+          "term": "flickering",
+          "meaning": "闪烁",
+          "example": "I'm in unit 402. The bathroom light keeps flickering."
+        },
+        {
+          "term": "electrician",
+          "meaning": "电工",
+          "example": "We can send an electrician tomorrow at ten. Does that work?"
+        }
+      ],
+      "languageNotes": [
+        "「物业」是 property management，不是 \"wuye\"；报修描述尽量具体（位置+现象+持续时间），英美人不擅长猜。"
+      ],
+      "warmup": [
+        {
+          "id": "warmup-language",
+          "prompt": "Say this in English. 厨房水槽下面漏水了。",
+          "suggestedAnswer": "There's a leak under the kitchen sink."
+        }
+      ],
+      "modelDialogue": [
+        {
+          "stageId": "step-1",
+          "role": "partner",
+          "text": "Property management, good morning. How can I help?"
+        },
+        {
+          "stageId": "step-1",
+          "role": "learner",
+          "text": "I'm in unit 402. The bathroom light keeps flickering."
+        },
+        {
+          "stageId": "step-2",
+          "role": "partner",
+          "text": "We can send an electrician tomorrow at ten. Does that work?"
+        },
+        {
+          "stageId": "step-2",
+          "role": "learner",
+          "text": "Yes, ten works. Will there be a charge?"
+        },
+        {
+          "stageId": "step-3",
+          "role": "partner",
+          "text": "There's no charge for that fixture in your unit. Is there anything else?"
+        },
+        {
+          "stageId": "step-3",
+          "role": "learner",
+          "text": "Do I need to be home for the appointment?"
+        }
+      ],
+      "guidedPractice": [
+        {
+          "stageId": "step-1",
+          "suggestedReply": "I'm in unit 402. The bathroom light keeps flickering.",
+          "partnerPrompt": "Property management, good morning. How can I help?"
+        },
+        {
+          "stageId": "step-2",
+          "suggestedReply": "Yes, ten works. Will there be a charge?",
+          "partnerPrompt": "We can send an electrician tomorrow at ten. Does that work?"
+        },
+        {
+          "stageId": "step-3",
+          "suggestedReply": "Do I need to be home for the appointment?",
+          "partnerPrompt": "There's no charge for that fixture in your unit. Is there anything else?"
+        }
+      ],
+      "reviewPractice": [
+        {
+          "id": "review-language",
+          "prompt": "Say this in English. 能给我一张租金收据吗？",
+          "suggestedAnswer": "Could I get a receipt for the rent payment?"
+        }
+      ],
+      "variations": []
+    }
+  }
+}

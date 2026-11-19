@@ -1,0 +1,225 @@
+{
+  "schemaVersion": 1,
+  "id": "sc-supermarket-service",
+  "slug": "supermarket-service",
+  "title": "Replacing an item at a supermarket",
+  "category": "overseas-life",
+  "difficulty": "A2",
+  "objectives": [
+    "Explain the problem and when you bought the item",
+    "Show the receipt and ask for a fresh replacement",
+    "Ask which item has the latest date"
+  ],
+  "targetVocabulary": ["barcode", "expiry date", "receipt", "self-checkout", "refund", "mouldy"],
+  "courseTemplate": {
+    "targetLanguage": "en",
+    "estimatedMinutes": 8,
+    "setting": "The shopper bought the bread yesterday and has the receipt. A refund or fresh replacement is available.",
+    "roles": {
+      "learner": "A shopper with a spoiled loaf of bread",
+      "partner": "A supermarket customer service assistant"
+    },
+    "openingLine": "Hello. What can I do for you today?",
+    "targetPatterns": [
+      {
+        "pattern": "I bought this bread yesterday, but it's already mouldy.",
+        "example": "I bought this bread yesterday, but it's already mouldy."
+      },
+      {
+        "pattern": "Here it is. Could I get a fresh loaf instead?",
+        "example": "Here it is. Could I get a fresh loaf instead?"
+      },
+      {
+        "pattern": "Which loaf has the latest expiry date?",
+        "example": "Which loaf has the latest expiry date?"
+      },
+      {
+        "pattern": "Excuse me, where can I find oat milk?",
+        "example": "Excuse me, where can I find oat milk?",
+        "translation": "请问燕麦奶在哪个货架？"
+      },
+      {
+        "pattern": "Is this on sale this week?",
+        "example": "Is this on sale this week?",
+        "translation": "这周这个打折吗？"
+      },
+      {
+        "pattern": "Do I need a membership card for this price?",
+        "example": "Do I need a membership card for this price?",
+        "translation": "这个价格需要会员卡吗？"
+      },
+      {
+        "pattern": "Could I have these in a paper bag?",
+        "example": "Could I have these in a paper bag?",
+        "translation": "能给我用纸袋装吗？"
+      },
+      {
+        "pattern": "What's the difference between these two brands?",
+        "example": "What's the difference between these two brands?",
+        "translation": "这两个牌子有什么区别？"
+      },
+      {
+        "pattern": "Is there a self-checkout I can use?",
+        "example": "Is there a self-checkout I can use?",
+        "translation": "有自助结账机吗？"
+      },
+      {
+        "pattern": "This item has no barcode.",
+        "example": "This item has no barcode.",
+        "translation": "这件商品没有条码。"
+      },
+      {
+        "pattern": "Can I get a refund for the expired yogurt?",
+        "example": "Can I get a refund for the expired yogurt?",
+        "translation": "过期的酸奶能退款吗？"
+      }
+    ],
+    "stages": [
+      {
+        "id": "step-1",
+        "title": "Explain the problem and when you bought the item",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “Hello. What can I do for you today?”",
+        "objectiveIds": ["obj-1"],
+        "successCriteria": [
+          "The learner can explain the problem and when you bought the item in their own words."
+        ],
+        "hints": ["You can start with “I bought this bread …”"]
+      },
+      {
+        "id": "step-2",
+        "title": "Show the receipt and ask for a fresh replacement",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “I'm sorry to hear that. Do you have your receipt?”",
+        "objectiveIds": ["obj-2"],
+        "successCriteria": [
+          "The learner can show the receipt and ask for a fresh replacement in their own words."
+        ],
+        "hints": ["You can start with “Here it is. Could …”"]
+      },
+      {
+        "id": "step-3",
+        "title": "Ask which item has the latest date",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “Of course. You can choose another loaf from the shelf.”",
+        "objectiveIds": ["obj-3"],
+        "successCriteria": [
+          "The learner can ask which item has the latest date in their own words."
+        ],
+        "hints": ["You can start with “Which loaf has the …”"]
+      }
+    ],
+    "teachingPolicy": {
+      "correctionMode": "gentle",
+      "maxCorrections": 2,
+      "maxHints": 3
+    },
+    "learningPack": {
+      "schemaVersion": 1,
+      "overview": "超市与日常购物 · The shopper bought the bread yesterday and has the receipt. A refund or fresh replacement is available.",
+      "prerequisites": [],
+      "scenarioFacts": [
+        {
+          "label": "Roleplay facts",
+          "value": "The shopper bought the bread yesterday and has the receipt. A refund or fresh replacement is available."
+        }
+      ],
+      "vocabulary": [
+        {
+          "term": "barcode",
+          "meaning": "条码",
+          "example": "This item has no barcode."
+        },
+        {
+          "term": "expiry date",
+          "meaning": "保质期",
+          "example": "Which loaf has the latest expiry date?"
+        },
+        {
+          "term": "receipt",
+          "meaning": "小票",
+          "example": "I'm sorry to hear that. Do you have your receipt?"
+        },
+        {
+          "term": "self-checkout",
+          "meaning": "自助结账",
+          "example": "Is there a self-checkout I can use?"
+        },
+        {
+          "term": "refund",
+          "meaning": "退款",
+          "example": "Can I get a refund for the expired yogurt?"
+        },
+        {
+          "term": "mouldy",
+          "meaning": "发霉的",
+          "example": "I bought this bread yesterday, but it's already mouldy."
+        }
+      ],
+      "languageNotes": [
+        "超市通道问路用 aisle，不是 \"shelf line\"；「保质期」英式常说 use-by date，美式 expiration date。"
+      ],
+      "warmup": [
+        {
+          "id": "warmup-language",
+          "prompt": "Say this in English. 请问燕麦奶在哪个货架？",
+          "suggestedAnswer": "Excuse me, where can I find oat milk?"
+        }
+      ],
+      "modelDialogue": [
+        {
+          "stageId": "step-1",
+          "role": "partner",
+          "text": "Hello. What can I do for you today?"
+        },
+        {
+          "stageId": "step-1",
+          "role": "learner",
+          "text": "I bought this bread yesterday, but it's already mouldy."
+        },
+        {
+          "stageId": "step-2",
+          "role": "partner",
+          "text": "I'm sorry to hear that. Do you have your receipt?"
+        },
+        {
+          "stageId": "step-2",
+          "role": "learner",
+          "text": "Here it is. Could I get a fresh loaf instead?"
+        },
+        {
+          "stageId": "step-3",
+          "role": "partner",
+          "text": "Of course. You can choose another loaf from the shelf."
+        },
+        {
+          "stageId": "step-3",
+          "role": "learner",
+          "text": "Which loaf has the latest expiry date?"
+        }
+      ],
+      "guidedPractice": [
+        {
+          "stageId": "step-1",
+          "suggestedReply": "I bought this bread yesterday, but it's already mouldy.",
+          "partnerPrompt": "Hello. What can I do for you today?"
+        },
+        {
+          "stageId": "step-2",
+          "suggestedReply": "Here it is. Could I get a fresh loaf instead?",
+          "partnerPrompt": "I'm sorry to hear that. Do you have your receipt?"
+        },
+        {
+          "stageId": "step-3",
+          "suggestedReply": "Which loaf has the latest expiry date?",
+          "partnerPrompt": "Of course. You can choose another loaf from the shelf."
+        }
+      ],
+      "reviewPractice": [
+        {
+          "id": "review-language",
+          "prompt": "Say this in English. 过期的酸奶能退款吗？",
+          "suggestedAnswer": "Can I get a refund for the expired yogurt?"
+        }
+      ],
+      "variations": []
+    }
+  }
+}

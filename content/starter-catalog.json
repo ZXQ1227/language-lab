@@ -1,0 +1,68 @@
+[
+  {
+    "id": "travel",
+    "courses": [
+      "airport-check-in",
+      "hotel-checkin",
+      "restaurant-order",
+      "cafe-order",
+      "city-transport",
+      "tourist-information",
+      "shopping-exchange",
+      "emergency-help",
+      "talking-to-locals"
+    ]
+  },
+  {
+    "id": "career",
+    "courses": [
+      "job-hunting",
+      "job-interview",
+      "work-onboarding",
+      "office-time-off",
+      "manager-update",
+      "colleague-collaboration",
+      "professional-networking",
+      "promotion-growth",
+      "meeting-negotiation"
+    ]
+  },
+  {
+    "id": "campus",
+    "courses": [
+      "teacher-office-hours",
+      "classroom-discussion",
+      "classmate-teamup",
+      "campus-club",
+      "student-rental",
+      "part-time-job"
+    ]
+  },
+  {
+    "id": "overseas-life",
+    "courses": [
+      "supermarket-service",
+      "doctor-visit",
+      "bank-account",
+      "home-repair",
+      "pet-vet",
+      "neighbour-community",
+      "holiday-visit",
+      "inclusive-invitation",
+      "pop-culture-chat",
+      "news-discussion"
+    ]
+  },
+  {
+    "id": "social",
+    "courses": [
+      "small-talk",
+      "self-introduction",
+      "hobbies-talk",
+      "inviting-and-declining",
+      "party-conversation",
+      "online-socializing",
+      "keeping-in-touch"
+    ]
+  }
+]

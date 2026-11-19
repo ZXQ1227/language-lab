@@ -5,7 +5,6 @@
   "minutes": "minutes",
   "challenge": "Challenge: ",
   "beforeYouStart": "Before you start",
-  "practiceGuestCard": "Practice guest card",
   "warmUp": "Warm-up · ",
   "shortTasks": " short tasks",
   "compareWithASampleAnswer": "Compare with a sample answer",
@@ -48,5 +47,7 @@
   "practiceSteps": "Practice steps",
   "successCriteria": "Success criteria",
   "exportCourseJSON": "Export course JSON",
-  "practiseThisCourse": "Practise this course"
+  "practiseThisCourse": "Practise this course",
+  "scenarioBrief": "Scenario details",
+  "languageNotes": "Common mistakes"
 }

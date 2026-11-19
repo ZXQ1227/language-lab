@@ -32,17 +32,19 @@ export function CourseStudyPack({ template }: { template: CourseTemplate }) {
           <p>{challenge.briefing}</p>
         </div>
       )}
-      <div>
-        <h4 className="font-medium text-slate-900">{t("course:beforeYouStart")}</h4>
-        <ul className="mt-1 list-disc pl-5">
-          {pack.prerequisites.map((item) => (
-            <li key={item}>{item}</li>
-          ))}
-        </ul>
-      </div>
+      {pack.prerequisites.length > 0 && (
+        <div>
+          <h4 className="font-medium text-slate-900">{t("course:beforeYouStart")}</h4>
+          <ul className="mt-1 list-disc pl-5">
+            {pack.prerequisites.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </div>
+      )}
       <details>
         <summary className="cursor-pointer font-medium text-slate-900">
-          {t("course:practiceGuestCard")}
+          {t("course:scenarioBrief")}
         </summary>
         <dl className="mt-2 grid gap-2 sm:grid-cols-2">
           {pack.scenarioFacts.map((fact) => (
@@ -106,12 +108,29 @@ export function CourseStudyPack({ template }: { template: CourseTemplate }) {
         <dl className="mt-3 space-y-2">
           {template.targetPatterns.map((item) => (
             <div key={item.pattern}>
-              <dt className="font-medium text-slate-800">{item.pattern}</dt>
-              <dd>{item.example}</dd>
+              <dt lang={template.targetLanguage} className="font-medium text-slate-800">
+                {item.pattern}
+              </dt>
+              {item.example !== item.pattern && (
+                <dd lang={template.targetLanguage}>{item.example}</dd>
+              )}
+              {item.translation && <dd>{item.translation}</dd>}
             </div>
           ))}
         </dl>
       </details>
+      {pack.languageNotes && (
+        <details>
+          <summary className="cursor-pointer font-medium text-slate-900">
+            {t("course:languageNotes")}
+          </summary>
+          <ul className="mt-2 list-disc space-y-2 pl-5">
+            {pack.languageNotes.map((note) => (
+              <li key={note}>{note}</li>
+            ))}
+          </ul>
+        </details>
+      )}
       <details>
         <summary className="cursor-pointer font-medium text-slate-900">
           {t("course:modelConversationStandardScenario")}

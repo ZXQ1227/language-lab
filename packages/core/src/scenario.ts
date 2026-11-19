@@ -32,7 +32,9 @@ export const courseTemplateSchema = z
     roles: z.strictObject({ learner: text, partner: text }),
     character: roleplayCharacterSchema.optional(),
     openingLine: text,
-    targetPatterns: z.array(z.strictObject({ pattern: text, example: text })).min(1),
+    targetPatterns: z
+      .array(z.strictObject({ pattern: text, example: text, translation: text.optional() }))
+      .min(1),
     stages: z.array(courseStageSchema).min(1).max(12),
     teachingPolicy: teachingPolicySchema,
     learningPack: learningPackSchema.optional(),

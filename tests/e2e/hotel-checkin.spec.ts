@@ -19,7 +19,7 @@ test("studies the full pack, completes five tasks and restores saved independent
 }) => {
   await page.getByText("Lesson reference", { exact: true }).click();
   const pack = page.getByRole("region", { name: "Course study pack" });
-  await pack.getByText("Practice guest card", { exact: true }).click();
+  await pack.getByText("Scenario details", { exact: true }).click();
   await expect(
     pack.getByText("Two nights; confirmation number HV-2048", { exact: true }),
   ).toBeVisible();

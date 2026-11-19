@@ -1,0 +1,208 @@
+{
+  "schemaVersion": 1,
+  "id": "sc-hobbies-talk",
+  "slug": "hobbies-talk",
+  "title": "Talking about a hobby and inviting a beginner",
+  "category": "social",
+  "difficulty": "A2",
+  "objectives": [
+    "Name your hobby and explain it briefly",
+    "Describe what you enjoy about it",
+    "Invite the other person to a beginner session"
+  ],
+  "targetVocabulary": ["bouldering", "without ropes", "come along"],
+  "courseTemplate": {
+    "targetLanguage": "en",
+    "estimatedMinutes": 8,
+    "setting": "Bouldering uses low climbing walls without ropes. The learner's gym offers a free beginner session.",
+    "roles": {
+      "learner": "A person who goes bouldering",
+      "partner": "A curious member of a hobby group"
+    },
+    "openingLine": "What do you like doing outside work?",
+    "targetPatterns": [
+      {
+        "pattern": "I go bouldering. It's climbing on low walls without ropes.",
+        "example": "I go bouldering. It's climbing on low walls without ropes."
+      },
+      {
+        "pattern": "At first, yes. Now I enjoy figuring out how to get to the top.",
+        "example": "At first, yes. Now I enjoy figuring out how to get to the top."
+      },
+      {
+        "pattern": "Definitely. The first session at my gym is free. Would you like to come along?",
+        "example": "Definitely. The first session at my gym is free. Would you like to come along?"
+      },
+      {
+        "pattern": "What do you do for fun?",
+        "example": "What do you do for fun?",
+        "translation": "你平时玩点什么？"
+      },
+      {
+        "pattern": "I'm really into hiking and photography.",
+        "example": "I'm really into hiking and photography.",
+        "translation": "我特别喜欢徒步和摄影。"
+      },
+      {
+        "pattern": "How long have you been doing that?",
+        "example": "How long have you been doing that?",
+        "translation": "你玩这个多久了？"
+      },
+      {
+        "pattern": "Any tips for a beginner?",
+        "example": "Any tips for a beginner?",
+        "translation": "对新手有什么建议吗？"
+      },
+      {
+        "pattern": "I've always wanted to try that.",
+        "example": "I've always wanted to try that.",
+        "translation": "我一直想试试。"
+      },
+      {
+        "pattern": "What got you into it?",
+        "example": "What got you into it?",
+        "translation": "你是怎么喜欢上它的？"
+      },
+      {
+        "pattern": "We should go together sometime!",
+        "example": "We should go together sometime!",
+        "translation": "改天我们可以一起去！"
+      },
+      {
+        "pattern": "That's awesome — I'm more of a couch person, honestly.",
+        "example": "That's awesome — I'm more of a couch person, honestly.",
+        "translation": "太厉害了，说实话我更喜欢宅着。"
+      }
+    ],
+    "stages": [
+      {
+        "id": "step-1",
+        "title": "Name your hobby and explain it briefly",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “What do you like doing outside work?”",
+        "objectiveIds": ["obj-1"],
+        "successCriteria": [
+          "The learner can name your hobby and explain it briefly in their own words."
+        ],
+        "hints": ["You can start with “I go bouldering. It's …”"]
+      },
+      {
+        "id": "step-2",
+        "title": "Describe what you enjoy about it",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “Isn't that a bit scary?”",
+        "objectiveIds": ["obj-2"],
+        "successCriteria": ["The learner can describe what you enjoy about it in their own words."],
+        "hints": ["You can start with “At first, yes. Now …”"]
+      },
+      {
+        "id": "step-3",
+        "title": "Invite the other person to a beginner session",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “That sounds fun. Is it good for beginners?”",
+        "objectiveIds": ["obj-3"],
+        "successCriteria": [
+          "The learner can invite the other person to a beginner session in their own words."
+        ],
+        "hints": ["You can start with “Definitely. The first session …”"]
+      }
+    ],
+    "teachingPolicy": {
+      "correctionMode": "gentle",
+      "maxCorrections": 2,
+      "maxHints": 3
+    },
+    "learningPack": {
+      "schemaVersion": 1,
+      "overview": "兴趣与爱好 · Bouldering uses low climbing walls without ropes. The learner's gym offers a free beginner session.",
+      "prerequisites": [],
+      "scenarioFacts": [
+        {
+          "label": "Roleplay facts",
+          "value": "Bouldering uses low climbing walls without ropes. The learner's gym offers a free beginner session."
+        }
+      ],
+      "vocabulary": [
+        {
+          "term": "bouldering",
+          "meaning": "抱石攀岩",
+          "example": "I go bouldering. It's climbing on low walls without ropes."
+        },
+        {
+          "term": "without ropes",
+          "meaning": "不用绳索",
+          "example": "I go bouldering. It's climbing on low walls without ropes."
+        },
+        {
+          "term": "come along",
+          "meaning": "一起去",
+          "example": "Definitely. The first session at my gym is free. Would you like to come along?"
+        }
+      ],
+      "languageNotes": [
+        "「我喜欢看电影」说 I'm into movies 或 I love watching films，\"My hobby is watching movie\" 语法和语感都不对；被邀请先热情回应再婉拒，别冷冰冰说 \"no\"。"
+      ],
+      "warmup": [
+        {
+          "id": "warmup-language",
+          "prompt": "Say this in English. 你平时玩点什么？",
+          "suggestedAnswer": "What do you do for fun?"
+        }
+      ],
+      "modelDialogue": [
+        {
+          "stageId": "step-1",
+          "role": "partner",
+          "text": "What do you like doing outside work?"
+        },
+        {
+          "stageId": "step-1",
+          "role": "learner",
+          "text": "I go bouldering. It's climbing on low walls without ropes."
+        },
+        {
+          "stageId": "step-2",
+          "role": "partner",
+          "text": "Isn't that a bit scary?"
+        },
+        {
+          "stageId": "step-2",
+          "role": "learner",
+          "text": "At first, yes. Now I enjoy figuring out how to get to the top."
+        },
+        {
+          "stageId": "step-3",
+          "role": "partner",
+          "text": "That sounds fun. Is it good for beginners?"
+        },
+        {
+          "stageId": "step-3",
+          "role": "learner",
+          "text": "Definitely. The first session at my gym is free. Would you like to come along?"
+        }
+      ],
+      "guidedPractice": [
+        {
+          "stageId": "step-1",
+          "suggestedReply": "I go bouldering. It's climbing on low walls without ropes.",
+          "partnerPrompt": "What do you like doing outside work?"
+        },
+        {
+          "stageId": "step-2",
+          "suggestedReply": "At first, yes. Now I enjoy figuring out how to get to the top.",
+          "partnerPrompt": "Isn't that a bit scary?"
+        },
+        {
+          "stageId": "step-3",
+          "suggestedReply": "Definitely. The first session at my gym is free. Would you like to come along?",
+          "partnerPrompt": "That sounds fun. Is it good for beginners?"
+        }
+      ],
+      "reviewPractice": [
+        {
+          "id": "review-language",
+          "prompt": "Say this in English. 太厉害了，说实话我更喜欢宅着。",
+          "suggestedAnswer": "That's awesome — I'm more of a couch person, honestly."
+        }
+      ],
+      "variations": []
+    }
+  }
+}

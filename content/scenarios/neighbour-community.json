@@ -1,0 +1,232 @@
+{
+  "schemaVersion": 1,
+  "id": "sc-neighbour-community",
+  "slug": "neighbour-community",
+  "title": "Getting to know a new neighbour",
+  "category": "overseas-life",
+  "difficulty": "A2",
+  "objectives": [
+    "Introduce yourself as a new neighbour",
+    "Ask for a practical tip about the building",
+    "Ask how to join the building group"
+  ],
+  "targetVocabulary": [
+    "neighborhood",
+    "residents' association",
+    "community garden",
+    "block party",
+    "just moved into",
+    "rubbish"
+  ],
+  "courseTemplate": {
+    "targetLanguage": "en",
+    "estimatedMinutes": 8,
+    "setting": "The new resident is in 5B. Rubbish goes out on Tuesday evenings. There is a building group chat.",
+    "roles": {
+      "learner": "A person who just moved into apartment 5B",
+      "partner": "A neighbour introducing the building"
+    },
+    "openingLine": "Hi there! I haven't seen you around before.",
+    "targetPatterns": [
+      {
+        "pattern": "Hi, I'm Chen. I've just moved into apartment 5B.",
+        "example": "Hi, I'm Chen. I've just moved into apartment 5B."
+      },
+      {
+        "pattern": "Thanks. When should I put the rubbish out?",
+        "example": "Thanks. When should I put the rubbish out?"
+      },
+      {
+        "pattern": "Is there a building group chat I could join?",
+        "example": "Is there a building group chat I could join?"
+      },
+      {
+        "pattern": "Is there a neighborhood group chat or app?",
+        "example": "Is there a neighborhood group chat or app?",
+        "translation": "社区有群聊或 App 吗？"
+      },
+      {
+        "pattern": "How can I join the community garden?",
+        "example": "How can I join the community garden?",
+        "translation": "怎么加入社区花园？"
+      },
+      {
+        "pattern": "Are new volunteers welcome at the food bank?",
+        "example": "Are new volunteers welcome at the food bank?",
+        "translation": "食物银行欢迎新志愿者吗？"
+      },
+      {
+        "pattern": "What time is the block party on Saturday?",
+        "example": "What time is the block party on Saturday?",
+        "translation": "周六的街区派对几点开始？"
+      },
+      {
+        "pattern": "I'd like to introduce myself — I just moved in next door.",
+        "example": "I'd like to introduce myself — I just moved in next door.",
+        "translation": "自我介绍一下，我刚搬来隔壁。"
+      },
+      {
+        "pattern": "Is there a residents' association I can join?",
+        "example": "Is there a residents' association I can join?",
+        "translation": "有业主/住户协会吗？"
+      },
+      {
+        "pattern": "Where do people usually meet up around here?",
+        "example": "Where do people usually meet up around here?",
+        "translation": "这一带大家一般去哪聚？"
+      },
+      {
+        "pattern": "Could I help set up for the event?",
+        "example": "Could I help set up for the event?",
+        "translation": "活动布置需要帮忙吗？"
+      }
+    ],
+    "stages": [
+      {
+        "id": "step-1",
+        "title": "Introduce yourself as a new neighbour",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “Hi there! I haven't seen you around before.”",
+        "objectiveIds": ["obj-1"],
+        "successCriteria": [
+          "The learner can introduce yourself as a new neighbour in their own words."
+        ],
+        "hints": ["You can start with “Hi, I'm Chen. I've …”"]
+      },
+      {
+        "id": "step-2",
+        "title": "Ask for a practical tip about the building",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “Welcome! Let me know if you have questions about the building.”",
+        "objectiveIds": ["obj-2"],
+        "successCriteria": [
+          "The learner can ask for a practical tip about the building in their own words."
+        ],
+        "hints": ["You can start with “Thanks. When should I …”"]
+      },
+      {
+        "id": "step-3",
+        "title": "Ask how to join the building group",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “Tuesday evenings. It's a good idea to check notices in the hall too.”",
+        "objectiveIds": ["obj-3"],
+        "successCriteria": [
+          "The learner can ask how to join the building group in their own words."
+        ],
+        "hints": ["You can start with “Is there a building …”"]
+      }
+    ],
+    "teachingPolicy": {
+      "correctionMode": "gentle",
+      "maxCorrections": 2,
+      "maxHints": 3
+    },
+    "learningPack": {
+      "schemaVersion": 1,
+      "overview": "社区生活参与 · The new resident is in 5B. Rubbish goes out on Tuesday evenings. There is a building group chat.",
+      "prerequisites": [],
+      "scenarioFacts": [
+        {
+          "label": "Roleplay facts",
+          "value": "The new resident is in 5B. Rubbish goes out on Tuesday evenings. There is a building group chat."
+        }
+      ],
+      "vocabulary": [
+        {
+          "term": "neighborhood",
+          "meaning": "社区/街区",
+          "example": "Is there a neighborhood group chat or app?"
+        },
+        {
+          "term": "residents' association",
+          "meaning": "住户协会",
+          "example": "Is there a residents' association I can join?"
+        },
+        {
+          "term": "community garden",
+          "meaning": "社区花园",
+          "example": "How can I join the community garden?"
+        },
+        {
+          "term": "block party",
+          "meaning": "街区派对",
+          "example": "What time is the block party on Saturday?"
+        },
+        {
+          "term": "just moved into",
+          "meaning": "刚搬入",
+          "example": "Hi, I'm Chen. I've just moved into apartment 5B."
+        },
+        {
+          "term": "rubbish",
+          "meaning": "垃圾",
+          "example": "Thanks. When should I put the rubbish out?"
+        }
+      ],
+      "languageNotes": [
+        "自我介绍搬入新家时 I just moved in 比说 \"I'm new here\" 更具体；「垃圾分类」说 recycling/sorting，各国规则不同，先问再扔。"
+      ],
+      "warmup": [
+        {
+          "id": "warmup-language",
+          "prompt": "Say this in English. 社区有群聊或 App 吗？",
+          "suggestedAnswer": "Is there a neighborhood group chat or app?"
+        }
+      ],
+      "modelDialogue": [
+        {
+          "stageId": "step-1",
+          "role": "partner",
+          "text": "Hi there! I haven't seen you around before."
+        },
+        {
+          "stageId": "step-1",
+          "role": "learner",
+          "text": "Hi, I'm Chen. I've just moved into apartment 5B."
+        },
+        {
+          "stageId": "step-2",
+          "role": "partner",
+          "text": "Welcome! Let me know if you have questions about the building."
+        },
+        {
+          "stageId": "step-2",
+          "role": "learner",
+          "text": "Thanks. When should I put the rubbish out?"
+        },
+        {
+          "stageId": "step-3",
+          "role": "partner",
+          "text": "Tuesday evenings. It's a good idea to check notices in the hall too."
+        },
+        {
+          "stageId": "step-3",
+          "role": "learner",
+          "text": "Is there a building group chat I could join?"
+        }
+      ],
+      "guidedPractice": [
+        {
+          "stageId": "step-1",
+          "suggestedReply": "Hi, I'm Chen. I've just moved into apartment 5B.",
+          "partnerPrompt": "Hi there! I haven't seen you around before."
+        },
+        {
+          "stageId": "step-2",
+          "suggestedReply": "Thanks. When should I put the rubbish out?",
+          "partnerPrompt": "Welcome! Let me know if you have questions about the building."
+        },
+        {
+          "stageId": "step-3",
+          "suggestedReply": "Is there a building group chat I could join?",
+          "partnerPrompt": "Tuesday evenings. It's a good idea to check notices in the hall too."
+        }
+      ],
+      "reviewPractice": [
+        {
+          "id": "review-language",
+          "prompt": "Say this in English. 活动布置需要帮忙吗？",
+          "suggestedAnswer": "Could I help set up for the event?"
+        }
+      ],
+      "variations": []
+    }
+  }
+}

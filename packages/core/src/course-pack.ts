@@ -17,6 +17,7 @@ export const learningPackSchema = z
     schemaVersion: z.literal(1),
     overview: text,
     prerequisites: z.array(text),
+    languageNotes: z.array(text).min(1).optional(),
     scenarioFacts: z.array(courseFactSchema).min(1),
     vocabulary: z
       .array(

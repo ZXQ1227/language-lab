@@ -5,7 +5,6 @@
   "minutes": "分钟",
   "challenge": "挑战：",
   "beforeYouStart": "开始前的准备",
-  "practiceGuestCard": "练习用住客资料",
   "warmUp": "热身 ·",
   "shortTasks": "个小任务",
   "compareWithASampleAnswer": "与参考答案对照",
@@ -48,5 +47,7 @@
   "practiceSteps": "练习步骤",
   "successCriteria": "达成标准",
   "exportCourseJSON": "导出课程 JSON",
-  "practiseThisCourse": "练习此课程"
+  "practiseThisCourse": "练习此课程",
+  "scenarioBrief": "场景资料",
+  "languageNotes": "易错提示"
 }

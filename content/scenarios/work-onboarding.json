@@ -1,0 +1,224 @@
+{
+  "schemaVersion": 1,
+  "id": "sc-work-onboarding",
+  "slug": "work-onboarding",
+  "title": "Getting set up in your first week",
+  "category": "career",
+  "difficulty": "B1",
+  "objectives": [
+    "Introduce yourself as a new starter and ask about stand-up",
+    "Ask where to find the repository link",
+    "Ask who approves access requests"
+  ],
+  "targetVocabulary": [
+    "onboarding",
+    "go-to person",
+    "pinned message",
+    "stand-up",
+    "access requests"
+  ],
+  "courseTemplate": {
+    "targetLanguage": "en",
+    "estimatedMinutes": 10,
+    "setting": "Stand-up starts at 10:00. The repository link is pinned in chat. IT handles access requests.",
+    "roles": {
+      "learner": "A new engineering team member",
+      "partner": "A colleague helping with onboarding"
+    },
+    "openingLine": "Welcome aboard! What can I help you find this week?",
+    "targetPatterns": [
+      {
+        "pattern": "Thanks! I'm new to the team. What time is our stand-up?",
+        "example": "Thanks! I'm new to the team. What time is our stand-up?"
+      },
+      {
+        "pattern": "Where can I find the link to the code repository?",
+        "example": "Where can I find the link to the code repository?"
+      },
+      {
+        "pattern": "Got it. Who approves access requests?",
+        "example": "Got it. Who approves access requests?"
+      },
+      {
+        "pattern": "I'm the new product designer starting today.",
+        "example": "I'm the new product designer starting today.",
+        "translation": "我是今天入职的新产品设计师。"
+      },
+      {
+        "pattern": "Could you walk me through the team's workflow?",
+        "example": "Could you walk me through the team's workflow?",
+        "translation": "能带我过一遍团队的工作流程吗？"
+      },
+      {
+        "pattern": "Who should I ask about access to the codebase?",
+        "example": "Who should I ask about access to the codebase?",
+        "translation": "代码库权限该找谁？"
+      },
+      {
+        "pattern": "What tools does the team use for daily standups?",
+        "example": "What tools does the team use for daily standups?",
+        "translation": "团队日常站会用什么工具？"
+      },
+      {
+        "pattern": "Is there an onboarding checklist I should follow?",
+        "example": "Is there an onboarding checklist I should follow?",
+        "translation": "有入职清单吗？"
+      },
+      {
+        "pattern": "Could we schedule a one-on-one sometime this week?",
+        "example": "Could we schedule a one-on-one sometime this week?",
+        "translation": "这周能约个一对一吗？"
+      },
+      {
+        "pattern": "I'll send a short intro in the team channel.",
+        "example": "I'll send a short intro in the team channel.",
+        "translation": "我会在团队频道里发个简短自我介绍。"
+      },
+      {
+        "pattern": "Who's my go-to person for questions?",
+        "example": "Who's my go-to person for questions?",
+        "translation": "有问题我该找谁？"
+      }
+    ],
+    "stages": [
+      {
+        "id": "step-1",
+        "title": "Introduce yourself as a new starter and ask about stand-up",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “Welcome aboard! What can I help you find this week?”",
+        "objectiveIds": ["obj-1"],
+        "successCriteria": [
+          "The learner can introduce yourself as a new starter and ask about stand-up in their own words."
+        ],
+        "hints": ["You can start with “Thanks! I'm new to …”"]
+      },
+      {
+        "id": "step-2",
+        "title": "Ask where to find the repository link",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “Stand-up starts at ten every day. What else do you need?”",
+        "objectiveIds": ["obj-2"],
+        "successCriteria": [
+          "The learner can ask where to find the repository link in their own words."
+        ],
+        "hints": ["You can start with “Where can I find …”"]
+      },
+      {
+        "id": "step-3",
+        "title": "Ask who approves access requests",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “It's in the pinned message. You may need to request access first.”",
+        "objectiveIds": ["obj-3"],
+        "successCriteria": ["The learner can ask who approves access requests in their own words."],
+        "hints": ["You can start with “Got it. Who approves …”"]
+      }
+    ],
+    "teachingPolicy": {
+      "correctionMode": "gentle",
+      "maxCorrections": 2,
+      "maxHints": 3
+    },
+    "learningPack": {
+      "schemaVersion": 1,
+      "overview": "入职沟通 · Stand-up starts at 10:00. The repository link is pinned in chat. IT handles access requests.",
+      "prerequisites": [],
+      "scenarioFacts": [
+        {
+          "label": "Roleplay facts",
+          "value": "Stand-up starts at 10:00. The repository link is pinned in chat. IT handles access requests."
+        }
+      ],
+      "vocabulary": [
+        {
+          "term": "onboarding",
+          "meaning": "入职引导",
+          "example": "Is there an onboarding checklist I should follow?"
+        },
+        {
+          "term": "go-to person",
+          "meaning": "首选求助对象",
+          "example": "Who's my go-to person for questions?"
+        },
+        {
+          "term": "pinned message",
+          "meaning": "置顶消息",
+          "example": "It's in the pinned message. You may need to request access first."
+        },
+        {
+          "term": "stand-up",
+          "meaning": "每日站会",
+          "example": "Thanks! I'm new to the team. What time is our stand-up?"
+        },
+        {
+          "term": "access requests",
+          "meaning": "权限申请",
+          "example": "Got it. Who approves access requests?"
+        }
+      ],
+      "languageNotes": [
+        "\"Welcome aboard\"（欢迎加入）里是 aboard 不是 \"abroad\"（国外），发音和拼写都别搞混；「入职」名词是 onboarding，不是 \"enter-job\"。"
+      ],
+      "warmup": [
+        {
+          "id": "warmup-language",
+          "prompt": "Say this in English. 我是今天入职的新产品设计师。",
+          "suggestedAnswer": "I'm the new product designer starting today."
+        }
+      ],
+      "modelDialogue": [
+        {
+          "stageId": "step-1",
+          "role": "partner",
+          "text": "Welcome aboard! What can I help you find this week?"
+        },
+        {
+          "stageId": "step-1",
+          "role": "learner",
+          "text": "Thanks! I'm new to the team. What time is our stand-up?"
+        },
+        {
+          "stageId": "step-2",
+          "role": "partner",
+          "text": "Stand-up starts at ten every day. What else do you need?"
+        },
+        {
+          "stageId": "step-2",
+          "role": "learner",
+          "text": "Where can I find the link to the code repository?"
+        },
+        {
+          "stageId": "step-3",
+          "role": "partner",
+          "text": "It's in the pinned message. You may need to request access first."
+        },
+        {
+          "stageId": "step-3",
+          "role": "learner",
+          "text": "Got it. Who approves access requests?"
+        }
+      ],
+      "guidedPractice": [
+        {
+          "stageId": "step-1",
+          "suggestedReply": "Thanks! I'm new to the team. What time is our stand-up?",
+          "partnerPrompt": "Welcome aboard! What can I help you find this week?"
+        },
+        {
+          "stageId": "step-2",
+          "suggestedReply": "Where can I find the link to the code repository?",
+          "partnerPrompt": "Stand-up starts at ten every day. What else do you need?"
+        },
+        {
+          "stageId": "step-3",
+          "suggestedReply": "Got it. Who approves access requests?",
+          "partnerPrompt": "It's in the pinned message. You may need to request access first."
+        }
+      ],
+      "reviewPractice": [
+        {
+          "id": "review-language",
+          "prompt": "Say this in English. 有问题我该找谁？",
+          "suggestedAnswer": "Who's my go-to person for questions?"
+        }
+      ],
+      "variations": []
+    }
+  }
+}

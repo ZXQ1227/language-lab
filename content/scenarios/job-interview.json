@@ -1,0 +1,206 @@
+{
+  "schemaVersion": 1,
+  "id": "sc-job-interview",
+  "slug": "job-interview",
+  "title": "Answering a behavioural interview question",
+  "category": "career",
+  "difficulty": "B1",
+  "objectives": [
+    "Describe the situation and what changed",
+    "Explain your specific action",
+    "State a concrete result"
+  ],
+  "targetVocabulary": ["tight deadline", "optional features", "shipped on time"],
+  "courseTemplate": {
+    "targetLanguage": "en",
+    "estimatedMinutes": 10,
+    "setting": "A client moved the launch forward by two weeks. The candidate helped cut two optional features and the team shipped on time.",
+    "roles": {
+      "learner": "A candidate describing a project",
+      "partner": "A hiring manager"
+    },
+    "openingLine": "Tell me about a time you handled a tight deadline.",
+    "targetPatterns": [
+      {
+        "pattern": "Last quarter, a client moved our launch forward by two weeks.",
+        "example": "Last quarter, a client moved our launch forward by two weeks."
+      },
+      {
+        "pattern": "I worked with the team to cut two optional features and keep the core functionality.",
+        "example": "I worked with the team to cut two optional features and keep the core functionality."
+      },
+      {
+        "pattern": "We shipped on time without losing the features the client needed.",
+        "example": "We shipped on time without losing the features the client needed."
+      },
+      {
+        "pattern": "Thank you for having me today.",
+        "example": "Thank you for having me today.",
+        "translation": "感谢今天给我这个机会。"
+      },
+      {
+        "pattern": "Let me walk you through my experience.",
+        "example": "Let me walk you through my experience.",
+        "translation": "让我介绍一下我的经历。"
+      },
+      {
+        "pattern": "In my last role, I led a team of six.",
+        "example": "In my last role, I led a team of six.",
+        "translation": "在上一份工作中，我带过六人团队。"
+      },
+      {
+        "pattern": "That's a great question — let me think for a second.",
+        "example": "That's a great question — let me think for a second.",
+        "translation": "好问题，让我想一下。"
+      },
+      {
+        "pattern": "Could you clarify what you mean by \"impact\"?",
+        "example": "Could you clarify what you mean by \"impact\"?",
+        "translation": "您说的「影响力」具体指什么？"
+      },
+      {
+        "pattern": "My biggest weakness used to be delegating.",
+        "example": "My biggest weakness used to be delegating.",
+        "translation": "我最大的缺点曾经是不善于授权。"
+      },
+      {
+        "pattern": "Do you have any concerns about my background?",
+        "example": "Do you have any concerns about my background?",
+        "translation": "对我的背景您有什么顾虑吗？"
+      },
+      {
+        "pattern": "What are the next steps after this interview?",
+        "example": "What are the next steps after this interview?",
+        "translation": "面试后下一步是什么？"
+      }
+    ],
+    "stages": [
+      {
+        "id": "step-1",
+        "title": "Describe the situation and what changed",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “Tell me about a time you handled a tight deadline.”",
+        "objectiveIds": ["obj-1"],
+        "successCriteria": [
+          "The learner can describe the situation and what changed in their own words."
+        ],
+        "hints": ["You can start with “Last quarter, a client …”"]
+      },
+      {
+        "id": "step-2",
+        "title": "Explain your specific action",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “What did you do when you heard the new deadline?”",
+        "objectiveIds": ["obj-2"],
+        "successCriteria": ["The learner can explain your specific action in their own words."],
+        "hints": ["You can start with “I worked with the …”"]
+      },
+      {
+        "id": "step-3",
+        "title": "State a concrete result",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “What was the result of that decision?”",
+        "objectiveIds": ["obj-3"],
+        "successCriteria": ["The learner can state a concrete result in their own words."],
+        "hints": ["You can start with “We shipped on time …”"]
+      }
+    ],
+    "teachingPolicy": {
+      "correctionMode": "gentle",
+      "maxCorrections": 2,
+      "maxHints": 3
+    },
+    "learningPack": {
+      "schemaVersion": 1,
+      "overview": "面试问答 · A client moved the launch forward by two weeks. The candidate helped cut two optional features and the team shipped on time.",
+      "prerequisites": [],
+      "scenarioFacts": [
+        {
+          "label": "Roleplay facts",
+          "value": "A client moved the launch forward by two weeks. The candidate helped cut two optional features and the team shipped on time."
+        }
+      ],
+      "vocabulary": [
+        {
+          "term": "tight deadline",
+          "meaning": "紧迫的截止日期",
+          "example": "Tell me about a time you handled a tight deadline."
+        },
+        {
+          "term": "optional features",
+          "meaning": "可选功能",
+          "example": "I worked with the team to cut two optional features and keep the core functionality."
+        },
+        {
+          "term": "shipped on time",
+          "meaning": "按时交付",
+          "example": "We shipped on time without losing the features the client needed."
+        }
+      ],
+      "languageNotes": [
+        "回答「缺点」别用 \"I'm a workaholic\" 这类假缺点，面试官反感；用真实缺点 + 改进行动结构（used to be... now I...）。"
+      ],
+      "warmup": [
+        {
+          "id": "warmup-language",
+          "prompt": "Say this in English. 感谢今天给我这个机会。",
+          "suggestedAnswer": "Thank you for having me today."
+        }
+      ],
+      "modelDialogue": [
+        {
+          "stageId": "step-1",
+          "role": "partner",
+          "text": "Tell me about a time you handled a tight deadline."
+        },
+        {
+          "stageId": "step-1",
+          "role": "learner",
+          "text": "Last quarter, a client moved our launch forward by two weeks."
+        },
+        {
+          "stageId": "step-2",
+          "role": "partner",
+          "text": "What did you do when you heard the new deadline?"
+        },
+        {
+          "stageId": "step-2",
+          "role": "learner",
+          "text": "I worked with the team to cut two optional features and keep the core functionality."
+        },
+        {
+          "stageId": "step-3",
+          "role": "partner",
+          "text": "What was the result of that decision?"
+        },
+        {
+          "stageId": "step-3",
+          "role": "learner",
+          "text": "We shipped on time without losing the features the client needed."
+        }
+      ],
+      "guidedPractice": [
+        {
+          "stageId": "step-1",
+          "suggestedReply": "Last quarter, a client moved our launch forward by two weeks.",
+          "partnerPrompt": "Tell me about a time you handled a tight deadline."
+        },
+        {
+          "stageId": "step-2",
+          "suggestedReply": "I worked with the team to cut two optional features and keep the core functionality.",
+          "partnerPrompt": "What did you do when you heard the new deadline?"
+        },
+        {
+          "stageId": "step-3",
+          "suggestedReply": "We shipped on time without losing the features the client needed.",
+          "partnerPrompt": "What was the result of that decision?"
+        }
+      ],
+      "reviewPractice": [
+        {
+          "id": "review-language",
+          "prompt": "Say this in English. 面试后下一步是什么？",
+          "suggestedAnswer": "What are the next steps after this interview?"
+        }
+      ],
+      "variations": []
+    }
+  }
+}

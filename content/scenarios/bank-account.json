@@ -1,0 +1,232 @@
+{
+  "schemaVersion": 1,
+  "id": "sc-bank-account",
+  "slug": "bank-account",
+  "title": "Opening a bank account abroad",
+  "category": "overseas-life",
+  "difficulty": "B1",
+  "objectives": [
+    "Explain why you are visiting the bank",
+    "Confirm your documents and ask about online banking",
+    "Ask how to make a payment while waiting"
+  ],
+  "targetVocabulary": [
+    "account",
+    "debit card",
+    "direct debit",
+    "transfer",
+    "exchange rate",
+    "proof of address"
+  ],
+  "courseTemplate": {
+    "targetLanguage": "en",
+    "estimatedMinutes": 10,
+    "setting": "The student has a passport, enrolment letter and proof of address. App activation takes about five days.",
+    "roles": {
+      "learner": "An international student opening a bank account",
+      "partner": "A bank employee"
+    },
+    "openingLine": "Good afternoon. How can I help?",
+    "targetPatterns": [
+      {
+        "pattern": "I'm an international student. I'd like to open a bank account.",
+        "example": "I'm an international student. I'd like to open a bank account."
+      },
+      {
+        "pattern": "I have all three. Can I set up online banking as well?",
+        "example": "I have all three. Can I set up online banking as well?"
+      },
+      {
+        "pattern": "How can I make a bank transfer before the code arrives?",
+        "example": "How can I make a bank transfer before the code arrives?"
+      },
+      {
+        "pattern": "I'd like to open a current account.",
+        "example": "I'd like to open a current account.",
+        "translation": "我想开一个活期账户。"
+      },
+      {
+        "pattern": "What documents do I need to open an account?",
+        "example": "What documents do I need to open an account?",
+        "translation": "开户需要什么文件？"
+      },
+      {
+        "pattern": "How long does the debit card take to arrive?",
+        "example": "How long does the debit card take to arrive?",
+        "translation": "借记卡多久能到？"
+      },
+      {
+        "pattern": "I'd like to set up a direct debit for my rent.",
+        "example": "I'd like to set up a direct debit for my rent.",
+        "translation": "我想设置房租自动扣款。"
+      },
+      {
+        "pattern": "What's the exchange rate today?",
+        "example": "What's the exchange rate today?",
+        "translation": "今天汇率多少？"
+      },
+      {
+        "pattern": "I need to transfer money overseas.",
+        "example": "I need to transfer money overseas.",
+        "translation": "我需要跨境转账。"
+      },
+      {
+        "pattern": "Where can I pay my utility bills?",
+        "example": "Where can I pay my utility bills?",
+        "translation": "在哪里缴水电费？"
+      },
+      {
+        "pattern": "I'd like to report a lost card and freeze the account.",
+        "example": "I'd like to report a lost card and freeze the account.",
+        "translation": "我要挂失并冻结账户。"
+      }
+    ],
+    "stages": [
+      {
+        "id": "step-1",
+        "title": "Explain why you are visiting the bank",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “Good afternoon. How can I help?”",
+        "objectiveIds": ["obj-1"],
+        "successCriteria": [
+          "The learner can explain why you are visiting the bank in their own words."
+        ],
+        "hints": ["You can start with “I'm an international student. …”"]
+      },
+      {
+        "id": "step-2",
+        "title": "Confirm your documents and ask about online banking",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “We'll need your passport, enrolment letter and proof of address.”",
+        "objectiveIds": ["obj-2"],
+        "successCriteria": [
+          "The learner can confirm your documents and ask about online banking in their own words."
+        ],
+        "hints": ["You can start with “I have all three. …”"]
+      },
+      {
+        "id": "step-3",
+        "title": "Ask how to make a payment while waiting",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “The activation code should arrive in about five days.”",
+        "objectiveIds": ["obj-3"],
+        "successCriteria": [
+          "The learner can ask how to make a payment while waiting in their own words."
+        ],
+        "hints": ["You can start with “How can I make …”"]
+      }
+    ],
+    "teachingPolicy": {
+      "correctionMode": "gentle",
+      "maxCorrections": 2,
+      "maxHints": 3
+    },
+    "learningPack": {
+      "schemaVersion": 1,
+      "overview": "银行与公共服务 · The student has a passport, enrolment letter and proof of address. App activation takes about five days.",
+      "prerequisites": [],
+      "scenarioFacts": [
+        {
+          "label": "Roleplay facts",
+          "value": "The student has a passport, enrolment letter and proof of address. App activation takes about five days."
+        }
+      ],
+      "vocabulary": [
+        {
+          "term": "account",
+          "meaning": "账户",
+          "example": "I'm an international student. I'd like to open a bank account."
+        },
+        {
+          "term": "debit card",
+          "meaning": "借记卡",
+          "example": "How long does the debit card take to arrive?"
+        },
+        {
+          "term": "direct debit",
+          "meaning": "自动扣款",
+          "example": "I'd like to set up a direct debit for my rent."
+        },
+        {
+          "term": "transfer",
+          "meaning": "转账",
+          "example": "How can I make a bank transfer before the code arrives?"
+        },
+        {
+          "term": "exchange rate",
+          "meaning": "汇率",
+          "example": "What's the exchange rate today?"
+        },
+        {
+          "term": "proof of address",
+          "meaning": "地址证明",
+          "example": "We'll need your passport, enrolment letter and proof of address."
+        }
+      ],
+      "languageNotes": [
+        "国外 \"bank card\" 泛指，日常消费用 debit card（储蓄卡），credit card 是信贷，别混；「流水」是 bank statement，不是 \"water flow\"。"
+      ],
+      "warmup": [
+        {
+          "id": "warmup-language",
+          "prompt": "Say this in English. 我想开一个活期账户。",
+          "suggestedAnswer": "I'd like to open a current account."
+        }
+      ],
+      "modelDialogue": [
+        {
+          "stageId": "step-1",
+          "role": "partner",
+          "text": "Good afternoon. How can I help?"
+        },
+        {
+          "stageId": "step-1",
+          "role": "learner",
+          "text": "I'm an international student. I'd like to open a bank account."
+        },
+        {
+          "stageId": "step-2",
+          "role": "partner",
+          "text": "We'll need your passport, enrolment letter and proof of address."
+        },
+        {
+          "stageId": "step-2",
+          "role": "learner",
+          "text": "I have all three. Can I set up online banking as well?"
+        },
+        {
+          "stageId": "step-3",
+          "role": "partner",
+          "text": "The activation code should arrive in about five days."
+        },
+        {
+          "stageId": "step-3",
+          "role": "learner",
+          "text": "How can I make a bank transfer before the code arrives?"
+        }
+      ],
+      "guidedPractice": [
+        {
+          "stageId": "step-1",
+          "suggestedReply": "I'm an international student. I'd like to open a bank account.",
+          "partnerPrompt": "Good afternoon. How can I help?"
+        },
+        {
+          "stageId": "step-2",
+          "suggestedReply": "I have all three. Can I set up online banking as well?",
+          "partnerPrompt": "We'll need your passport, enrolment letter and proof of address."
+        },
+        {
+          "stageId": "step-3",
+          "suggestedReply": "How can I make a bank transfer before the code arrives?",
+          "partnerPrompt": "The activation code should arrive in about five days."
+        }
+      ],
+      "reviewPractice": [
+        {
+          "id": "review-language",
+          "prompt": "Say this in English. 我要挂失并冻结账户。",
+          "suggestedAnswer": "I'd like to report a lost card and freeze the account."
+        }
+      ],
+      "variations": []
+    }
+  }
+}

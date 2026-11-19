@@ -1,0 +1,230 @@
+{
+  "schemaVersion": 1,
+  "id": "sc-part-time-job",
+  "slug": "part-time-job",
+  "title": "Discussing availability for a part-time job",
+  "category": "campus",
+  "difficulty": "B1",
+  "objectives": [
+    "Explain why the job suits you",
+    "State clear weekday and weekend availability",
+    "Ask about training or the start date"
+  ],
+  "targetVocabulary": [
+    "part-time",
+    "hourly rate",
+    "payslip",
+    "swap shifts",
+    "training",
+    "morning shifts"
+  ],
+  "courseTemplate": {
+    "targetLanguage": "en",
+    "estimatedMinutes": 10,
+    "setting": "The café needs weekend shifts. It offers two paid training shifts. The student is free on weekday mornings and weekends.",
+    "roles": {
+      "learner": "A student interviewing at a café",
+      "partner": "A café hiring manager"
+    },
+    "openingLine": "What made you apply to this café?",
+    "targetPatterns": [
+      {
+        "pattern": "I like the atmosphere, and morning shifts fit around my classes.",
+        "example": "I like the atmosphere, and morning shifts fit around my classes."
+      },
+      {
+        "pattern": "I can work weekdays before eleven and on weekends.",
+        "example": "I can work weekdays before eleven and on weekends."
+      },
+      {
+        "pattern": "That sounds good. When would I start training?",
+        "example": "That sounds good. When would I start training?"
+      },
+      {
+        "pattern": "Are you hiring part-time staff?",
+        "example": "Are you hiring part-time staff?",
+        "translation": "你们招兼职吗？"
+      },
+      {
+        "pattern": "I'm looking for around 15 hours a week.",
+        "example": "I'm looking for around 15 hours a week.",
+        "translation": "我想每周工作 15 小时左右。"
+      },
+      {
+        "pattern": "Do you sponsor student work permits?",
+        "example": "Do you sponsor student work permits?",
+        "translation": "你们支持学生工作许可吗？"
+      },
+      {
+        "pattern": "What's the hourly rate?",
+        "example": "What's the hourly rate?",
+        "translation": "时薪多少？"
+      },
+      {
+        "pattern": "Can I swap shifts with someone?",
+        "example": "Can I swap shifts with someone?",
+        "translation": "我能和别人换班吗？"
+      },
+      {
+        "pattern": "I need next Saturday off — is that possible?",
+        "example": "I need next Saturday off — is that possible?",
+        "translation": "下周六我需要请假，可以吗？"
+      },
+      {
+        "pattern": "How does the tip system work here?",
+        "example": "How does the tip system work here?",
+        "translation": "这儿的小费怎么分？"
+      },
+      {
+        "pattern": "Could I get my payslip explained?",
+        "example": "Could I get my payslip explained?",
+        "translation": "能解释一下工资单吗？"
+      }
+    ],
+    "stages": [
+      {
+        "id": "step-1",
+        "title": "Explain why the job suits you",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “What made you apply to this café?”",
+        "objectiveIds": ["obj-1"],
+        "successCriteria": ["The learner can explain why the job suits you in their own words."],
+        "hints": ["You can start with “I like the atmosphere, …”"]
+      },
+      {
+        "id": "step-2",
+        "title": "State clear weekday and weekend availability",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “When would you be available to work?”",
+        "objectiveIds": ["obj-2"],
+        "successCriteria": [
+          "The learner can state clear weekday and weekend availability in their own words."
+        ],
+        "hints": ["You can start with “I can work weekdays …”"]
+      },
+      {
+        "id": "step-3",
+        "title": "Ask about training or the start date",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “Weekend cover would be great. We begin with two paid training shifts.”",
+        "objectiveIds": ["obj-3"],
+        "successCriteria": [
+          "The learner can ask about training or the start date in their own words."
+        ],
+        "hints": ["You can start with “That sounds good. When …”"]
+      }
+    ],
+    "teachingPolicy": {
+      "correctionMode": "gentle",
+      "maxCorrections": 2,
+      "maxHints": 3
+    },
+    "learningPack": {
+      "schemaVersion": 1,
+      "overview": "打工与兼职 · The café needs weekend shifts. It offers two paid training shifts. The student is free on weekday mornings and weekends.",
+      "prerequisites": [],
+      "scenarioFacts": [
+        {
+          "label": "Roleplay facts",
+          "value": "The café needs weekend shifts. It offers two paid training shifts. The student is free on weekday mornings and weekends."
+        }
+      ],
+      "vocabulary": [
+        {
+          "term": "part-time",
+          "meaning": "兼职",
+          "example": "Are you hiring part-time staff?"
+        },
+        {
+          "term": "hourly rate",
+          "meaning": "时薪",
+          "example": "What's the hourly rate?"
+        },
+        {
+          "term": "payslip",
+          "meaning": "工资单",
+          "example": "Could I get my payslip explained?"
+        },
+        {
+          "term": "swap shifts",
+          "meaning": "换班",
+          "example": "Can I swap shifts with someone?"
+        },
+        {
+          "term": "training",
+          "meaning": "培训",
+          "example": "That sounds good. When would I start training?"
+        },
+        {
+          "term": "morning shifts",
+          "meaning": "早班",
+          "example": "I like the atmosphere, and morning shifts fit around my classes."
+        }
+      ],
+      "languageNotes": [
+        "兼职是 part-time job，\"part-time work\" 也对，但别说 \"half-day job\"；英国餐厅小费文化与中国不同，别主动问 \"where's my tip\"。"
+      ],
+      "warmup": [
+        {
+          "id": "warmup-language",
+          "prompt": "Say this in English. 你们招兼职吗？",
+          "suggestedAnswer": "Are you hiring part-time staff?"
+        }
+      ],
+      "modelDialogue": [
+        {
+          "stageId": "step-1",
+          "role": "partner",
+          "text": "What made you apply to this café?"
+        },
+        {
+          "stageId": "step-1",
+          "role": "learner",
+          "text": "I like the atmosphere, and morning shifts fit around my classes."
+        },
+        {
+          "stageId": "step-2",
+          "role": "partner",
+          "text": "When would you be available to work?"
+        },
+        {
+          "stageId": "step-2",
+          "role": "learner",
+          "text": "I can work weekdays before eleven and on weekends."
+        },
+        {
+          "stageId": "step-3",
+          "role": "partner",
+          "text": "Weekend cover would be great. We begin with two paid training shifts."
+        },
+        {
+          "stageId": "step-3",
+          "role": "learner",
+          "text": "That sounds good. When would I start training?"
+        }
+      ],
+      "guidedPractice": [
+        {
+          "stageId": "step-1",
+          "suggestedReply": "I like the atmosphere, and morning shifts fit around my classes.",
+          "partnerPrompt": "What made you apply to this café?"
+        },
+        {
+          "stageId": "step-2",
+          "suggestedReply": "I can work weekdays before eleven and on weekends.",
+          "partnerPrompt": "When would you be available to work?"
+        },
+        {
+          "stageId": "step-3",
+          "suggestedReply": "That sounds good. When would I start training?",
+          "partnerPrompt": "Weekend cover would be great. We begin with two paid training shifts."
+        }
+      ],
+      "reviewPractice": [
+        {
+          "id": "review-language",
+          "prompt": "Say this in English. 能解释一下工资单吗？",
+          "suggestedAnswer": "Could I get my payslip explained?"
+        }
+      ],
+      "variations": []
+    }
+  }
+}

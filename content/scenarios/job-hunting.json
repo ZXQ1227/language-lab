@@ -1,0 +1,224 @@
+{
+  "schemaVersion": 1,
+  "id": "sc-job-hunting",
+  "slug": "job-hunting",
+  "title": "Taking a recruiter screening call",
+  "category": "career",
+  "difficulty": "B1",
+  "objectives": [
+    "Summarize relevant experience",
+    "Explain why you are looking for a new role",
+    "Confirm hybrid availability and ask about next steps"
+  ],
+  "targetVocabulary": [
+    "job posting",
+    "notice period",
+    "data analyst",
+    "ownership",
+    "hybrid schedule"
+  ],
+  "courseTemplate": {
+    "targetLanguage": "en",
+    "estimatedMinutes": 10,
+    "setting": "The candidate has four years of e-commerce analytics experience, wants more ownership and can work on-site twice a week.",
+    "roles": {
+      "learner": "A data analyst speaking with a recruiter",
+      "partner": "A recruiter filling a senior analyst role"
+    },
+    "openingLine": "Thanks for your interest in the senior analyst role. Tell me a bit about your experience.",
+    "targetPatterns": [
+      {
+        "pattern": "I've worked as a data analyst for four years, mostly in e-commerce.",
+        "example": "I've worked as a data analyst for four years, mostly in e-commerce."
+      },
+      {
+        "pattern": "I'd like more ownership so I can help decide what the team works on.",
+        "example": "I'd like more ownership so I can help decide what the team works on."
+      },
+      {
+        "pattern": "Yes, I can work on-site twice a week. What does the interview process look like?",
+        "example": "Yes, I can work on-site twice a week. What does the interview process look like?"
+      },
+      {
+        "pattern": "I have five years of experience in product management.",
+        "example": "I have five years of experience in product management.",
+        "translation": "我有五年产品管理经验。"
+      },
+      {
+        "pattern": "I saw your job posting on LinkedIn.",
+        "example": "I saw your job posting on LinkedIn.",
+        "translation": "我在 LinkedIn 上看到了你们的职位。"
+      },
+      {
+        "pattern": "My strength is turning vague requirements into clear specs.",
+        "example": "My strength is turning vague requirements into clear specs.",
+        "translation": "我的强项是把模糊需求变成清晰规格。"
+      },
+      {
+        "pattern": "Could you tell me more about the team structure?",
+        "example": "Could you tell me more about the team structure?",
+        "translation": "能介绍一下团队结构吗？"
+      },
+      {
+        "pattern": "I'm currently serving my notice period.",
+        "example": "I'm currently serving my notice period.",
+        "translation": "我目前在交接离职期。"
+      },
+      {
+        "pattern": "What does the interview process look like?",
+        "example": "What does the interview process look like?",
+        "translation": "面试流程是怎样的？"
+      },
+      {
+        "pattern": "My expected salary range is 40 to 50 thousand a month.",
+        "example": "My expected salary range is 40 to 50 thousand a month.",
+        "translation": "我的期望月薪范围是 4 万到 5 万。"
+      },
+      {
+        "pattern": "Could I get the job description in writing?",
+        "example": "Could I get the job description in writing?",
+        "translation": "能发我一份书面的职位描述吗？"
+      }
+    ],
+    "stages": [
+      {
+        "id": "step-1",
+        "title": "Summarize relevant experience",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “Thanks for your interest in the senior analyst role. Tell me a bit about your experience.”",
+        "objectiveIds": ["obj-1"],
+        "successCriteria": ["The learner can summarize relevant experience in their own words."],
+        "hints": ["You can start with “I've worked as a …”"]
+      },
+      {
+        "id": "step-2",
+        "title": "Explain why you are looking for a new role",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “What are you looking for in your next role?”",
+        "objectiveIds": ["obj-2"],
+        "successCriteria": [
+          "The learner can explain why you are looking for a new role in their own words."
+        ],
+        "hints": ["You can start with “I'd like more ownership …”"]
+      },
+      {
+        "id": "step-3",
+        "title": "Confirm hybrid availability and ask about next steps",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “Would a hybrid schedule work for you?”",
+        "objectiveIds": ["obj-3"],
+        "successCriteria": [
+          "The learner can confirm hybrid availability and ask about next steps in their own words."
+        ],
+        "hints": ["You can start with “Yes, I can work …”"]
+      }
+    ],
+    "teachingPolicy": {
+      "correctionMode": "gentle",
+      "maxCorrections": 2,
+      "maxHints": 3
+    },
+    "learningPack": {
+      "schemaVersion": 1,
+      "overview": "求职准备 · The candidate has four years of e-commerce analytics experience, wants more ownership and can work on-site twice a week.",
+      "prerequisites": [],
+      "scenarioFacts": [
+        {
+          "label": "Roleplay facts",
+          "value": "The candidate has four years of e-commerce analytics experience, wants more ownership and can work on-site twice a week."
+        }
+      ],
+      "vocabulary": [
+        {
+          "term": "job posting",
+          "meaning": "职位发布",
+          "example": "I saw your job posting on LinkedIn."
+        },
+        {
+          "term": "notice period",
+          "meaning": "离职通知期",
+          "example": "I'm currently serving my notice period."
+        },
+        {
+          "term": "data analyst",
+          "meaning": "数据分析师",
+          "example": "I've worked as a data analyst for four years, mostly in e-commerce."
+        },
+        {
+          "term": "ownership",
+          "meaning": "主导权",
+          "example": "I'd like more ownership so I can help decide what the team works on."
+        },
+        {
+          "term": "hybrid schedule",
+          "meaning": "混合办公安排",
+          "example": "Would a hybrid schedule work for you?"
+        }
+      ],
+      "languageNotes": [
+        "介绍经验用 I have X years of experience，不要说 \"I have five years working\"；「离职」主动是 resign，被裁是 laid off，语境完全不同。"
+      ],
+      "warmup": [
+        {
+          "id": "warmup-language",
+          "prompt": "Say this in English. 我有五年产品管理经验。",
+          "suggestedAnswer": "I have five years of experience in product management."
+        }
+      ],
+      "modelDialogue": [
+        {
+          "stageId": "step-1",
+          "role": "partner",
+          "text": "Thanks for your interest in the senior analyst role. Tell me a bit about your experience."
+        },
+        {
+          "stageId": "step-1",
+          "role": "learner",
+          "text": "I've worked as a data analyst for four years, mostly in e-commerce."
+        },
+        {
+          "stageId": "step-2",
+          "role": "partner",
+          "text": "What are you looking for in your next role?"
+        },
+        {
+          "stageId": "step-2",
+          "role": "learner",
+          "text": "I'd like more ownership so I can help decide what the team works on."
+        },
+        {
+          "stageId": "step-3",
+          "role": "partner",
+          "text": "Would a hybrid schedule work for you?"
+        },
+        {
+          "stageId": "step-3",
+          "role": "learner",
+          "text": "Yes, I can work on-site twice a week. What does the interview process look like?"
+        }
+      ],
+      "guidedPractice": [
+        {
+          "stageId": "step-1",
+          "suggestedReply": "I've worked as a data analyst for four years, mostly in e-commerce.",
+          "partnerPrompt": "Thanks for your interest in the senior analyst role. Tell me a bit about your experience."
+        },
+        {
+          "stageId": "step-2",
+          "suggestedReply": "I'd like more ownership so I can help decide what the team works on.",
+          "partnerPrompt": "What are you looking for in your next role?"
+        },
+        {
+          "stageId": "step-3",
+          "suggestedReply": "Yes, I can work on-site twice a week. What does the interview process look like?",
+          "partnerPrompt": "Would a hybrid schedule work for you?"
+        }
+      ],
+      "reviewPractice": [
+        {
+          "id": "review-language",
+          "prompt": "Say this in English. 能发我一份书面的职位描述吗？",
+          "suggestedAnswer": "Could I get the job description in writing?"
+        }
+      ],
+      "variations": []
+    }
+  }
+}

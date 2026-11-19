@@ -1,0 +1,213 @@
+{
+  "schemaVersion": 1,
+  "id": "sc-shopping-exchange",
+  "slug": "shopping-exchange",
+  "title": "Exchanging a damaged purchase",
+  "category": "travel",
+  "difficulty": "A2",
+  "objectives": [
+    "Explain the defect in the jacket",
+    "Offer the receipt and request an exchange",
+    "State the size and colour you want"
+  ],
+  "targetVocabulary": ["receipt", "refund", "exchange", "zipper"],
+  "courseTemplate": {
+    "targetLanguage": "en",
+    "estimatedMinutes": 8,
+    "setting": "The customer bought the jacket last week and has the receipt. The zipper is broken. The same size in navy is in stock.",
+    "roles": {
+      "learner": "A customer returning a jacket",
+      "partner": "A shop assistant"
+    },
+    "openingLine": "Hi! What can I do for you today?",
+    "targetPatterns": [
+      {
+        "pattern": "I bought this jacket last week, but the zipper is broken.",
+        "example": "I bought this jacket last week, but the zipper is broken."
+      },
+      {
+        "pattern": "Yes, here it is. Can I exchange it for another one?",
+        "example": "Yes, here it is. Can I exchange it for another one?"
+      },
+      {
+        "pattern": "The same size, please, but in navy if you have it.",
+        "example": "The same size, please, but in navy if you have it."
+      },
+      {
+        "pattern": "I'm just looking, thanks.",
+        "example": "I'm just looking, thanks.",
+        "translation": "我只是随便看看。"
+      },
+      {
+        "pattern": "Do you have this in a smaller size?",
+        "example": "Do you have this in a smaller size?",
+        "translation": "这件有小一号的吗？"
+      },
+      {
+        "pattern": "Can I get a refund if it doesn't fit?",
+        "example": "Can I get a refund if it doesn't fit?",
+        "translation": "不合适能退款吗？"
+      },
+      {
+        "pattern": "Is there any discount on this?",
+        "example": "Is there any discount on this?",
+        "translation": "这个有折扣吗？"
+      },
+      {
+        "pattern": "Could I try this on?",
+        "example": "Could I try this on?",
+        "translation": "我可以试穿吗？"
+      },
+      {
+        "pattern": "The card reader says \"declined\".",
+        "example": "The card reader says \"declined\".",
+        "translation": "刷卡机显示交易被拒。"
+      },
+      {
+        "pattern": "Do you have a tax refund service?",
+        "example": "Do you have a tax refund service?",
+        "translation": "你们有退税服务吗？"
+      },
+      {
+        "pattern": "This is a gift — could you wrap it?",
+        "example": "This is a gift — could you wrap it?",
+        "translation": "这是礼物，能帮忙包装吗？"
+      }
+    ],
+    "stages": [
+      {
+        "id": "step-1",
+        "title": "Explain the defect in the jacket",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “Hi! What can I do for you today?”",
+        "objectiveIds": ["obj-1"],
+        "successCriteria": ["The learner can explain the defect in the jacket in their own words."],
+        "hints": ["You can start with “I bought this jacket …”"]
+      },
+      {
+        "id": "step-2",
+        "title": "Offer the receipt and request an exchange",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “I'm sorry about that. Do you have the receipt?”",
+        "objectiveIds": ["obj-2"],
+        "successCriteria": [
+          "The learner can offer the receipt and request an exchange in their own words."
+        ],
+        "hints": ["You can start with “Yes, here it is. …”"]
+      },
+      {
+        "id": "step-3",
+        "title": "State the size and colour you want",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “Of course. Would you like the same size and colour?”",
+        "objectiveIds": ["obj-3"],
+        "successCriteria": [
+          "The learner can state the size and colour you want in their own words."
+        ],
+        "hints": ["You can start with “The same size, please, …”"]
+      }
+    ],
+    "teachingPolicy": {
+      "correctionMode": "gentle",
+      "maxCorrections": 2,
+      "maxHints": 3
+    },
+    "learningPack": {
+      "schemaVersion": 1,
+      "overview": "购物与支付 · The customer bought the jacket last week and has the receipt. The zipper is broken. The same size in navy is in stock.",
+      "prerequisites": [],
+      "scenarioFacts": [
+        {
+          "label": "Roleplay facts",
+          "value": "The customer bought the jacket last week and has the receipt. The zipper is broken. The same size in navy is in stock."
+        }
+      ],
+      "vocabulary": [
+        {
+          "term": "receipt",
+          "meaning": "收据",
+          "example": "I'm sorry about that. Do you have the receipt?"
+        },
+        {
+          "term": "refund",
+          "meaning": "退款",
+          "example": "Can I get a refund if it doesn't fit?"
+        },
+        {
+          "term": "exchange",
+          "meaning": "换货",
+          "example": "Yes, here it is. Can I exchange it for another one?"
+        },
+        {
+          "term": "zipper",
+          "meaning": "拉链",
+          "example": "I bought this jacket last week, but the zipper is broken."
+        }
+      ],
+      "languageNotes": [
+        "「便宜」的 cheap 带贬义（廉价劣质），说价格好可以用 good value；「试穿」是 try on，不是 \"try it\"。"
+      ],
+      "warmup": [
+        {
+          "id": "warmup-language",
+          "prompt": "Say this in English. 我只是随便看看。",
+          "suggestedAnswer": "I'm just looking, thanks."
+        }
+      ],
+      "modelDialogue": [
+        {
+          "stageId": "step-1",
+          "role": "partner",
+          "text": "Hi! What can I do for you today?"
+        },
+        {
+          "stageId": "step-1",
+          "role": "learner",
+          "text": "I bought this jacket last week, but the zipper is broken."
+        },
+        {
+          "stageId": "step-2",
+          "role": "partner",
+          "text": "I'm sorry about that. Do you have the receipt?"
+        },
+        {
+          "stageId": "step-2",
+          "role": "learner",
+          "text": "Yes, here it is. Can I exchange it for another one?"
+        },
+        {
+          "stageId": "step-3",
+          "role": "partner",
+          "text": "Of course. Would you like the same size and colour?"
+        },
+        {
+          "stageId": "step-3",
+          "role": "learner",
+          "text": "The same size, please, but in navy if you have it."
+        }
+      ],
+      "guidedPractice": [
+        {
+          "stageId": "step-1",
+          "suggestedReply": "I bought this jacket last week, but the zipper is broken.",
+          "partnerPrompt": "Hi! What can I do for you today?"
+        },
+        {
+          "stageId": "step-2",
+          "suggestedReply": "Yes, here it is. Can I exchange it for another one?",
+          "partnerPrompt": "I'm sorry about that. Do you have the receipt?"
+        },
+        {
+          "stageId": "step-3",
+          "suggestedReply": "The same size, please, but in navy if you have it.",
+          "partnerPrompt": "Of course. Would you like the same size and colour?"
+        }
+      ],
+      "reviewPractice": [
+        {
+          "id": "review-language",
+          "prompt": "Say this in English. 这是礼物，能帮忙包装吗？",
+          "suggestedAnswer": "This is a gift — could you wrap it?"
+        }
+      ],
+      "variations": []
+    }
+  }
+}

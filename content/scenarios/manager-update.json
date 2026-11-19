@@ -1,0 +1,208 @@
+{
+  "schemaVersion": 1,
+  "id": "sc-manager-update",
+  "slug": "manager-update",
+  "title": "Raising a launch risk with a manager",
+  "category": "career",
+  "difficulty": "B1",
+  "objectives": [
+    "Report the status and identify the risk",
+    "Offer two workable options",
+    "Confirm the decision and your next action"
+  ],
+  "targetVocabulary": ["on track", "testing", "scope change"],
+  "courseTemplate": {
+    "targetLanguage": "en",
+    "estimatedMinutes": 10,
+    "setting": "Testing needs two more days. A QA tester could help, or the team could drop dark mode. The manager prefers to drop the feature.",
+    "roles": {
+      "learner": "A project lead reporting a testing delay",
+      "partner": "A manager who wants to protect the launch date"
+    },
+    "openingLine": "Before we start, where are we on the launch?",
+    "targetPatterns": [
+      {
+        "pattern": "We're mostly on track, but testing needs two more days.",
+        "example": "We're mostly on track, but testing needs two more days."
+      },
+      {
+        "pattern": "We could bring in another tester this week or drop dark mode from this release.",
+        "example": "We could bring in another tester this week or drop dark mode from this release."
+      },
+      {
+        "pattern": "Understood. I'll tell the team about the scope change today.",
+        "example": "Understood. I'll tell the team about the scope change today."
+      },
+      {
+        "pattern": "Here's a quick update on the project status.",
+        "example": "Here's a quick update on the project status.",
+        "translation": "简单同步一下项目进展。"
+      },
+      {
+        "pattern": "We're on track for the Friday deadline.",
+        "example": "We're on track for the Friday deadline.",
+        "translation": "我们能按时完成周五的节点。"
+      },
+      {
+        "pattern": "I need one more engineer to hit this timeline.",
+        "example": "I need one more engineer to hit this timeline.",
+        "translation": "要按这个时间表交付，还需要一名工程师。"
+      },
+      {
+        "pattern": "I see it differently — may I share another angle?",
+        "example": "I see it differently — may I share another angle?",
+        "translation": "我有不同看法，能换个角度说说吗？"
+      },
+      {
+        "pattern": "Thanks for the feedback — I'll iterate on it.",
+        "example": "Thanks for the feedback — I'll iterate on it.",
+        "translation": "谢谢反馈，我会迭代。"
+      },
+      {
+        "pattern": "What's your top priority for this quarter?",
+        "example": "What's your top priority for this quarter?",
+        "translation": "您这季度最优先的事项是什么？"
+      },
+      {
+        "pattern": "Could we revisit the scope of this sprint?",
+        "example": "Could we revisit the scope of this sprint?",
+        "translation": "能重新讨论下这个迭代的范围吗？"
+      },
+      {
+        "pattern": "I'd like your input before I finalize this.",
+        "example": "I'd like your input before I finalize this.",
+        "translation": "定稿前想听听您的意见。"
+      }
+    ],
+    "stages": [
+      {
+        "id": "step-1",
+        "title": "Report the status and identify the risk",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “Before we start, where are we on the launch?”",
+        "objectiveIds": ["obj-1"],
+        "successCriteria": [
+          "The learner can report the status and identify the risk in their own words."
+        ],
+        "hints": ["You can start with “We're mostly on track, …”"]
+      },
+      {
+        "id": "step-2",
+        "title": "Offer two workable options",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “What do you need to protect the deadline?”",
+        "objectiveIds": ["obj-2"],
+        "successCriteria": ["The learner can offer two workable options in their own words."],
+        "hints": ["You can start with “We could bring in …”"]
+      },
+      {
+        "id": "step-3",
+        "title": "Confirm the decision and your next action",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “Let's drop dark mode and keep the date. Can you make sure the team knows?”",
+        "objectiveIds": ["obj-3"],
+        "successCriteria": [
+          "The learner can confirm the decision and your next action in their own words."
+        ],
+        "hints": ["You can start with “Understood. I'll tell the …”"]
+      }
+    ],
+    "teachingPolicy": {
+      "correctionMode": "gentle",
+      "maxCorrections": 2,
+      "maxHints": 3
+    },
+    "learningPack": {
+      "schemaVersion": 1,
+      "overview": "上下级沟通 · Testing needs two more days. A QA tester could help, or the team could drop dark mode. The manager prefers to drop the feature.",
+      "prerequisites": [],
+      "scenarioFacts": [
+        {
+          "label": "Roleplay facts",
+          "value": "Testing needs two more days. A QA tester could help, or the team could drop dark mode. The manager prefers to drop the feature."
+        }
+      ],
+      "vocabulary": [
+        {
+          "term": "on track",
+          "meaning": "进度正常",
+          "example": "We're mostly on track, but testing needs two more days."
+        },
+        {
+          "term": "testing",
+          "meaning": "测试",
+          "example": "We're mostly on track, but testing needs two more days."
+        },
+        {
+          "term": "scope change",
+          "meaning": "范围变更",
+          "example": "Understood. I'll tell the team about the scope change today."
+        }
+      ],
+      "languageNotes": [
+        "向上级提异议先认可再转折（I see the logic, but have we considered...），直接说 \"No, you're wrong\" 在英文职场是大忌；「汇报」用 give an update，不是 \"report to you\"。"
+      ],
+      "warmup": [
+        {
+          "id": "warmup-language",
+          "prompt": "Say this in English. 简单同步一下项目进展。",
+          "suggestedAnswer": "Here's a quick update on the project status."
+        }
+      ],
+      "modelDialogue": [
+        {
+          "stageId": "step-1",
+          "role": "partner",
+          "text": "Before we start, where are we on the launch?"
+        },
+        {
+          "stageId": "step-1",
+          "role": "learner",
+          "text": "We're mostly on track, but testing needs two more days."
+        },
+        {
+          "stageId": "step-2",
+          "role": "partner",
+          "text": "What do you need to protect the deadline?"
+        },
+        {
+          "stageId": "step-2",
+          "role": "learner",
+          "text": "We could bring in another tester this week or drop dark mode from this release."
+        },
+        {
+          "stageId": "step-3",
+          "role": "partner",
+          "text": "Let's drop dark mode and keep the date. Can you make sure the team knows?"
+        },
+        {
+          "stageId": "step-3",
+          "role": "learner",
+          "text": "Understood. I'll tell the team about the scope change today."
+        }
+      ],
+      "guidedPractice": [
+        {
+          "stageId": "step-1",
+          "suggestedReply": "We're mostly on track, but testing needs two more days.",
+          "partnerPrompt": "Before we start, where are we on the launch?"
+        },
+        {
+          "stageId": "step-2",
+          "suggestedReply": "We could bring in another tester this week or drop dark mode from this release.",
+          "partnerPrompt": "What do you need to protect the deadline?"
+        },
+        {
+          "stageId": "step-3",
+          "suggestedReply": "Understood. I'll tell the team about the scope change today.",
+          "partnerPrompt": "Let's drop dark mode and keep the date. Can you make sure the team knows?"
+        }
+      ],
+      "reviewPractice": [
+        {
+          "id": "review-language",
+          "prompt": "Say this in English. 定稿前想听听您的意见。",
+          "suggestedAnswer": "I'd like your input before I finalize this."
+        }
+      ],
+      "variations": []
+    }
+  }
+}

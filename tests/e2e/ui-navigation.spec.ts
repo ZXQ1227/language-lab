@@ -49,13 +49,47 @@ test("settings shows system diagnostics, database location and keyring note", as
   ).toBeVisible();
 });
 
-test("course library shows bundled scenarios after content sync", async ({ page }) => {
+test("course library lists the five ordered paths and opens a bundled lesson offline", async ({
+  page,
+}) => {
   await openWorkspacePage(page, "Scenarios");
-  await expect(page.getByText("Ordering at a cafe")).toBeVisible();
+  const paths = page.getByRole("group", { name: "Learning paths", exact: true });
+  const choices = [
+    "Travel & stays",
+    "Career development",
+    "Study & campus life",
+    "Living abroad",
+    "Everyday conversation",
+  ];
+  await expect(paths.getByRole("button")).toHaveText(choices);
+  const travel = page.getByRole("region", { name: choices[0], exact: true });
+  await expect(travel.getByRole("article")).toHaveCount(9);
+  await expect(travel.getByRole("heading", { level: 2 }).first()).toHaveText(
+    "Checking in for a flight",
+  );
+  await expect(travel.getByText("Ordering at a cafe")).toBeVisible();
+  await expect(travel.getByText("Hotel Check-in", { exact: true })).toBeVisible();
+  await expect(travel.getByText("latte", { exact: true })).toBeVisible();
+  await paths.getByRole("button", { name: choices[2], exact: true }).click();
+  await expect(page.getByText("Clarifying an essay at office hours")).toBeVisible();
+  await paths.getByRole("button", { name: choices[3], exact: true }).click();
   await expect(page.getByText("Seeing a doctor")).toBeVisible();
+  await paths.getByRole("button", { name: choices[4], exact: true }).click();
   await expect(page.getByText("Small talk with a colleague")).toBeVisible();
-  await expect(page.getByText("Hotel Check-in", { exact: true })).toBeVisible();
-  await expect(page.getByText("latte", { exact: true })).toBeVisible();
+
+  await paths.getByRole("button", { name: choices[1], exact: true }).click();
+  const recruiter = page
+    .getByRole("article")
+    .filter({ hasText: "Taking a recruiter screening call" });
+  await recruiter.getByRole("button", { name: "Set up lesson", exact: true }).click();
+  await expect(page.getByLabel("Practice mode")).toHaveValue("demo");
+  await page.getByText("Lesson reference", { exact: true }).click();
+  await page.getByText(/^Useful expressions/).click();
+  await expect(page.getByText("我有五年产品管理经验。", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Start lesson", exact: true }).click();
+  await expect(page.getByLabel("Conversation")).toContainText(
+    "Tell me a bit about your experience.",
+  );
 });
 
 test("degrades gracefully when the IPC bridge is unavailable", async ({ page }) => {

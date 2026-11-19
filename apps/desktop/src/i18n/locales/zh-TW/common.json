@@ -38,13 +38,16 @@
     "manualActive": "手動選擇的語言已儲存在本機。"
   },
   "categories": {
-    "travel": "旅行",
+    "travel": "出國旅行或旅居",
     "dining": "餐飲",
     "accommodation": "住宿",
-    "social": "社交",
+    "social": "想要與外國人聊天",
     "daily": "日常",
     "health": "健康",
-    "work": "職場"
+    "work": "職場",
+    "career": "促進我的職涯發展",
+    "campus": "留學和校園生活",
+    "overseas-life": "融入海外生活"
   },
   "phases": {
     "setup": "課程準備",

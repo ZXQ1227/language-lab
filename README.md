@@ -145,6 +145,10 @@ roleplay, guided practice and listening. Review contains follow-up tasks and
 lesson history. My learning contains the local profile, progress and settings.
 See [desktop learning workspaces](docs/product/PRD.md#desktop-learning-workspaces).
 
+The starter course library includes 41 English practice lessons in five ordered
+learning paths. All starter lessons can run as guided examples without a model.
+See [Starter library](docs/development/SCENARIO_COURSES.md#starter-library).
+
 Save an AI connection in **My learning → Settings** to design a lesson from a
 practice goal on the learning plan. Preview the steps and example phrases,
 then start the lesson. Built-in courses remain available for guided offline

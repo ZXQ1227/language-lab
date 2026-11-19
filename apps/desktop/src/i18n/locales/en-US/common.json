@@ -38,13 +38,16 @@
     "manualActive": "Manual language override is saved on this device."
   },
   "categories": {
-    "travel": "travel",
+    "travel": "Travel & stays",
     "dining": "dining",
     "accommodation": "accommodation",
-    "social": "social",
+    "social": "Everyday conversation",
     "daily": "daily",
     "health": "health",
-    "work": "work"
+    "work": "work",
+    "career": "Career development",
+    "campus": "Study & campus life",
+    "overseas-life": "Living abroad"
   },
   "phases": {
     "setup": "setup",

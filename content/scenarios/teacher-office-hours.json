@@ -1,0 +1,230 @@
+{
+  "schemaVersion": 1,
+  "id": "sc-teacher-office-hours",
+  "slug": "teacher-office-hours",
+  "title": "Clarifying an essay at office hours",
+  "category": "campus",
+  "difficulty": "B1",
+  "objectives": [
+    "Explain what is unclear about your essay",
+    "Name the sources you are using",
+    "Check that you understood the teacher's advice"
+  ],
+  "targetVocabulary": [
+    "extension",
+    "assignment",
+    "thesis",
+    "reference letter",
+    "outline",
+    "essay outline"
+  ],
+  "courseTemplate": {
+    "targetLanguage": "en",
+    "estimatedMinutes": 10,
+    "setting": "The essay uses chapters two and five. The teacher recommends one claim and three pieces of evidence.",
+    "roles": {
+      "learner": "A student working on an essay",
+      "partner": "A teacher responding to questions"
+    },
+    "openingLine": "Come in. Are you here about the essay outline?",
+    "targetPatterns": [
+      {
+        "pattern": "Yes. My argument feels too broad, and I'm not sure what to cut.",
+        "example": "Yes. My argument feels too broad, and I'm not sure what to cut."
+      },
+      {
+        "pattern": "Mostly chapters two and five of the reader.",
+        "example": "Mostly chapters two and five of the reader."
+      },
+      {
+        "pattern": "Yes. So I should narrow the question and use three examples to support one claim?",
+        "example": "Yes. So I should narrow the question and use three examples to support one claim?"
+      },
+      {
+        "pattern": "Professor Smith, do you have a moment after class?",
+        "example": "Professor Smith, do you have a moment after class?",
+        "translation": "Smith 教授，课后能占用您一点时间吗？"
+      },
+      {
+        "pattern": "I didn't quite follow the part about regression models.",
+        "example": "I didn't quite follow the part about regression models.",
+        "translation": "回归模型那部分我没完全听懂。"
+      },
+      {
+        "pattern": "Could I get an extension on the assignment?",
+        "example": "Could I get an extension on the assignment?",
+        "translation": "作业能申请延期吗？"
+      },
+      {
+        "pattern": "Would you be available during office hours this week?",
+        "example": "Would you be available during office hours this week?",
+        "translation": "您这周办公时间方便吗？"
+      },
+      {
+        "pattern": "I'm considering this topic for my thesis — what do you think?",
+        "example": "I'm considering this topic for my thesis — what do you think?",
+        "translation": "我论文想选这个方向，您觉得如何？"
+      },
+      {
+        "pattern": "Could you write a reference letter for my application?",
+        "example": "Could you write a reference letter for my application?",
+        "translation": "能帮我写封推荐信吗？"
+      },
+      {
+        "pattern": "I want to make sure I'm on the right track.",
+        "example": "I want to make sure I'm on the right track.",
+        "translation": "我想确认方向没错。"
+      },
+      {
+        "pattern": "How should I prioritize my reading list?",
+        "example": "How should I prioritize my reading list?",
+        "translation": "阅读清单该怎么排优先级？"
+      }
+    ],
+    "stages": [
+      {
+        "id": "step-1",
+        "title": "Explain what is unclear about your essay",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “Come in. Are you here about the essay outline?”",
+        "objectiveIds": ["obj-1"],
+        "successCriteria": [
+          "The learner can explain what is unclear about your essay in their own words."
+        ],
+        "hints": ["You can start with “Yes. My argument feels …”"]
+      },
+      {
+        "id": "step-2",
+        "title": "Name the sources you are using",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “Which sources give you the strongest evidence?”",
+        "objectiveIds": ["obj-2"],
+        "successCriteria": ["The learner can name the sources you are using in their own words."],
+        "hints": ["You can start with “Mostly chapters two and …”"]
+      },
+      {
+        "id": "step-3",
+        "title": "Check that you understood the teacher's advice",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “Keep one claim and support it with three pieces of evidence. Does that help?”",
+        "objectiveIds": ["obj-3"],
+        "successCriteria": [
+          "The learner can check that you understood the teacher's advice in their own words."
+        ],
+        "hints": ["You can start with “Yes. So I should …”"]
+      }
+    ],
+    "teachingPolicy": {
+      "correctionMode": "gentle",
+      "maxCorrections": 2,
+      "maxHints": 3
+    },
+    "learningPack": {
+      "schemaVersion": 1,
+      "overview": "与老师沟通 · The essay uses chapters two and five. The teacher recommends one claim and three pieces of evidence.",
+      "prerequisites": [],
+      "scenarioFacts": [
+        {
+          "label": "Roleplay facts",
+          "value": "The essay uses chapters two and five. The teacher recommends one claim and three pieces of evidence."
+        }
+      ],
+      "vocabulary": [
+        {
+          "term": "extension",
+          "meaning": "延期",
+          "example": "Could I get an extension on the assignment?"
+        },
+        {
+          "term": "assignment",
+          "meaning": "作业",
+          "example": "Could I get an extension on the assignment?"
+        },
+        {
+          "term": "thesis",
+          "meaning": "论文",
+          "example": "I'm considering this topic for my thesis — what do you think?"
+        },
+        {
+          "term": "reference letter",
+          "meaning": "推荐信",
+          "example": "Could you write a reference letter for my application?"
+        },
+        {
+          "term": "outline",
+          "meaning": "提纲",
+          "example": "Come in. Are you here about the essay outline?"
+        },
+        {
+          "term": "essay outline",
+          "meaning": "论文提纲",
+          "example": "Come in. Are you here about the essay outline?"
+        }
+      ],
+      "languageNotes": [
+        "称呼教授用 Professor + 姓，别用 \"Teacher\"（英语里对大学老师不这么称呼）；请教问题先说明自己尝试过的思路，避免显得伸手党。"
+      ],
+      "warmup": [
+        {
+          "id": "warmup-language",
+          "prompt": "Say this in English. Smith 教授，课后能占用您一点时间吗？",
+          "suggestedAnswer": "Professor Smith, do you have a moment after class?"
+        }
+      ],
+      "modelDialogue": [
+        {
+          "stageId": "step-1",
+          "role": "partner",
+          "text": "Come in. Are you here about the essay outline?"
+        },
+        {
+          "stageId": "step-1",
+          "role": "learner",
+          "text": "Yes. My argument feels too broad, and I'm not sure what to cut."
+        },
+        {
+          "stageId": "step-2",
+          "role": "partner",
+          "text": "Which sources give you the strongest evidence?"
+        },
+        {
+          "stageId": "step-2",
+          "role": "learner",
+          "text": "Mostly chapters two and five of the reader."
+        },
+        {
+          "stageId": "step-3",
+          "role": "partner",
+          "text": "Keep one claim and support it with three pieces of evidence. Does that help?"
+        },
+        {
+          "stageId": "step-3",
+          "role": "learner",
+          "text": "Yes. So I should narrow the question and use three examples to support one claim?"
+        }
+      ],
+      "guidedPractice": [
+        {
+          "stageId": "step-1",
+          "suggestedReply": "Yes. My argument feels too broad, and I'm not sure what to cut.",
+          "partnerPrompt": "Come in. Are you here about the essay outline?"
+        },
+        {
+          "stageId": "step-2",
+          "suggestedReply": "Mostly chapters two and five of the reader.",
+          "partnerPrompt": "Which sources give you the strongest evidence?"
+        },
+        {
+          "stageId": "step-3",
+          "suggestedReply": "Yes. So I should narrow the question and use three examples to support one claim?",
+          "partnerPrompt": "Keep one claim and support it with three pieces of evidence. Does that help?"
+        }
+      ],
+      "reviewPractice": [
+        {
+          "id": "review-language",
+          "prompt": "Say this in English. 阅读清单该怎么排优先级？",
+          "suggestedAnswer": "How should I prioritize my reading list?"
+        }
+      ],
+      "variations": []
+    }
+  }
+}

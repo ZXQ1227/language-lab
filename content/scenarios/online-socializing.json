@@ -1,0 +1,225 @@
+{
+  "schemaVersion": 1,
+  "id": "sc-online-socializing",
+  "slug": "online-socializing",
+  "title": "Starting a friendly chat online",
+  "category": "social",
+  "difficulty": "B1",
+  "objectives": [
+    "Open the conversation with a specific reference to a post",
+    "Share your own experience at an appropriate level",
+    "Suggest a low-pressure activity and a time"
+  ],
+  "targetVocabulary": ["reply", "hectic", "made my day", "voice call", "Haha", "climbing photo"],
+  "courseTemplate": {
+    "targetLanguage": "en",
+    "estimatedMinutes": 10,
+    "setting": "The partner knows a beginner wall at Eastside Gym. Saturday morning is available.",
+    "roles": {
+      "learner": "A beginner climber messaging someone about a post",
+      "partner": "A climber who shared a trip photo"
+    },
+    "openingLine": "Hey! Thanks for commenting on my climbing photo.",
+    "targetPatterns": [
+      {
+        "pattern": "The view in your climbing post looked amazing! Where did you go?",
+        "example": "The view in your climbing post looked amazing! Where did you go?"
+      },
+      {
+        "pattern": "I just started. I've done two sessions so far, and I'm still nervous about heights.",
+        "example": "I just started. I've done two sessions so far, and I'm still nervous about heights."
+      },
+      {
+        "pattern": "Would you be up for going together on Saturday morning?",
+        "example": "Would you be up for going together on Saturday morning?"
+      },
+      {
+        "pattern": "Hey! How's it going?",
+        "example": "Hey! How's it going?",
+        "translation": "嗨，最近怎么样？"
+      },
+      {
+        "pattern": "That photo is stunning — where was it taken?",
+        "example": "That photo is stunning — where was it taken?",
+        "translation": "照片太美了，在哪拍的？"
+      },
+      {
+        "pattern": "Sorry for the late reply — it's been a hectic week.",
+        "example": "Sorry for the late reply — it's been a hectic week.",
+        "translation": "回复晚了，这周太忙了。"
+      },
+      {
+        "pattern": "Haha, that made my day.",
+        "example": "Haha, that made my day.",
+        "translation": "哈哈，这条让我一天都有好心情。"
+      },
+      {
+        "pattern": "Are you on WeChat too?",
+        "example": "Are you on WeChat too?",
+        "translation": "你也用微信吗？"
+      },
+      {
+        "pattern": "Talk later — something just came up.",
+        "example": "Talk later — something just came up.",
+        "translation": "回头聊，突然有点事。"
+      },
+      {
+        "pattern": "Sending you the details now.",
+        "example": "Sending you the details now.",
+        "translation": "详情马上发你。"
+      },
+      {
+        "pattern": "Let's move this to a voice call?",
+        "example": "Let's move this to a voice call?",
+        "translation": "我们打个语音？"
+      }
+    ],
+    "stages": [
+      {
+        "id": "step-1",
+        "title": "Open the conversation with a specific reference to a post",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “Hey! Thanks for commenting on my climbing photo.”",
+        "objectiveIds": ["obj-1"],
+        "successCriteria": [
+          "The learner can open the conversation with a specific reference to a post in their own words."
+        ],
+        "hints": ["You can start with “The view in your …”"]
+      },
+      {
+        "id": "step-2",
+        "title": "Share your own experience at an appropriate level",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “That was at Pine Ridge. Do you climb too?”",
+        "objectiveIds": ["obj-2"],
+        "successCriteria": [
+          "The learner can share your own experience at an appropriate level in their own words."
+        ],
+        "hints": ["You can start with “I just started. I've …”"]
+      },
+      {
+        "id": "step-3",
+        "title": "Suggest a low-pressure activity and a time",
+        "instruction": "Use the course facts to invite this task. A natural prompt is “Eastside Gym has a good beginner wall if you want to practise.”",
+        "objectiveIds": ["obj-3"],
+        "successCriteria": [
+          "The learner can suggest a low-pressure activity and a time in their own words."
+        ],
+        "hints": ["You can start with “Would you be up …”"]
+      }
+    ],
+    "teachingPolicy": {
+      "correctionMode": "gentle",
+      "maxCorrections": 2,
+      "maxHints": 3
+    },
+    "learningPack": {
+      "schemaVersion": 1,
+      "overview": "在线社交沟通 · The partner knows a beginner wall at Eastside Gym. Saturday morning is available.",
+      "prerequisites": [],
+      "scenarioFacts": [
+        {
+          "label": "Roleplay facts",
+          "value": "The partner knows a beginner wall at Eastside Gym. Saturday morning is available."
+        }
+      ],
+      "vocabulary": [
+        {
+          "term": "reply",
+          "meaning": "回复",
+          "example": "Sorry for the late reply — it's been a hectic week."
+        },
+        {
+          "term": "hectic",
+          "meaning": "超忙",
+          "example": "Sorry for the late reply — it's been a hectic week."
+        },
+        {
+          "term": "made my day",
+          "meaning": "让我一天心情好",
+          "example": "Haha, that made my day."
+        },
+        {
+          "term": "voice call",
+          "meaning": "语音通话",
+          "example": "Let's move this to a voice call?"
+        },
+        {
+          "term": "Haha",
+          "meaning": "表示笑",
+          "example": "Haha, that made my day."
+        },
+        {
+          "term": "climbing photo",
+          "meaning": "攀岩照片",
+          "example": "Hey! Thanks for commenting on my climbing photo."
+        }
+      ],
+      "languageNotes": [
+        "网络聊天语气靠表情/语气词补偿，纯英文短句（\"OK.\"）在英文社交语境里可能被读成冷漠；回复慢先致歉一句（Sorry for the late reply）比直接跳过更礼貌。"
+      ],
+      "warmup": [
+        {
+          "id": "warmup-language",
+          "prompt": "Say this in English. 嗨，最近怎么样？",
+          "suggestedAnswer": "Hey! How's it going?"
+        }
+      ],
+      "modelDialogue": [
+        {
+          "stageId": "step-1",
+          "role": "partner",
+          "text": "Hey! Thanks for commenting on my climbing photo."
+        },
+        {
+          "stageId": "step-1",
+          "role": "learner",
+          "text": "The view in your climbing post looked amazing! Where did you go?"
+        },
+        {
+          "stageId": "step-2",
+          "role": "partner",
+          "text": "That was at Pine Ridge. Do you climb too?"
+        },
+        {
+          "stageId": "step-2",
+          "role": "learner",
+          "text": "I just started. I've done two sessions so far, and I'm still nervous about heights."
+        },
+        {
+          "stageId": "step-3",
+          "role": "partner",
+          "text": "Eastside Gym has a good beginner wall if you want to practise."
+        },
+        {
+          "stageId": "step-3",
+          "role": "learner",
+          "text": "Would you be up for going together on Saturday morning?"
+        }
+      ],
+      "guidedPractice": [
+        {
+          "stageId": "step-1",
+          "suggestedReply": "The view in your climbing post looked amazing! Where did you go?",
+          "partnerPrompt": "Hey! Thanks for commenting on my climbing photo."
+        },
+        {
+          "stageId": "step-2",
+          "suggestedReply": "I just started. I've done two sessions so far, and I'm still nervous about heights.",
+          "partnerPrompt": "That was at Pine Ridge. Do you climb too?"
+        },
+        {
+          "stageId": "step-3",
+          "suggestedReply": "Would you be up for going together on Saturday morning?",
+          "partnerPrompt": "Eastside Gym has a good beginner wall if you want to practise."
+        }
+      ],
+      "reviewPractice": [
+        {
+          "id": "review-language",
+          "prompt": "Say this in English. 我们打个语音？",
+          "suggestedAnswer": "Let's move this to a voice call?"
+        }
+      ],
+      "variations": []
+    }
+  }
+}
