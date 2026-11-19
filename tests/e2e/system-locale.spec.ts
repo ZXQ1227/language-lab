@@ -33,6 +33,10 @@ for (const [locale, language, profile, settings, heading] of [
     });
     await page.goto("/");
     await expect(page.locator("html")).toHaveAttribute("lang", language!);
+    await expect(page).toHaveTitle("Sayden · 言港");
+    await expect(page.getByText("Sayden · 言港", { exact: true })).toBeVisible();
+    await expect(page.getByText("Practice here. Speak out there.", { exact: true })).toBeVisible();
+    await expect(page.getByText("真实对话，先练一遍。", { exact: true })).toBeVisible();
     await page.getByRole("button", { name: profile, exact: true }).click();
     await page.getByRole("button", { name: settings, exact: true }).click();
     await expect(page.getByRole("combobox", { name: heading!, exact: true })).toBeDisabled();

@@ -22,7 +22,7 @@ export function applyInterfaceLocale(appLocale: AppLocale, systemRegion: string)
   if (typeof document !== "undefined") {
     document.documentElement.lang = appLocale;
     document.documentElement.dir = i18n.dir(appLocale);
-    document.title = i18n.t("common:languageLab");
+    document.title = i18n.t("common:brand.name");
   }
 }
 export function formatNumber(value: number, options?: Intl.NumberFormatOptions): string {

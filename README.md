@@ -1,8 +1,11 @@
-# Language Lab
+# Sayden · 言港
 
-Local-first AI language learning desktop app, built with Tauri 2 + React + TypeScript.
+_Practice here. Speak out there._
 
-Language Lab is an AI-native language learning application: a teaching agent with
+真实对话，先练一遍。
+
+Sayden is a local-first AI language learning desktop app built with Tauri 2,
+React and TypeScript. It combines a teaching agent with
 skills and a lesson state machine, student data stored locally in SQLite, and an
 installation protocol that lets AI coding assistants (Codex, Claude Code, ...)
 install the app from this repository.

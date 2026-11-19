@@ -3,6 +3,6 @@
 <plist version="1.0">
   <dict>
     <key>NSMicrophoneUsageDescription</key>
-    <string>Language Lab records your practice reply only when you choose Record reply. Audio is processed in memory by your configured speech recognition service.</string>
+    <string>Sayden records your practice reply only when you choose Record reply. Audio is processed in memory by your configured speech recognition service.</string>
   </dict>
 </plist>

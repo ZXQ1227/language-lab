@@ -1,3 +1,4 @@
+import brand from "./locales/brand.json";
 import enCommon from "./locales/en-US/common.json";
 import enCourse from "./locales/en-US/course.json";
 import enDashboard from "./locales/en-US/dashboard.json";
@@ -31,7 +32,7 @@ import zhTWTraining from "./locales/zh-TW/training.json";
 
 export const resources = {
   "en-US": {
-    common: enCommon,
+    common: { ...enCommon, brand },
     course: enCourse,
     dashboard: enDashboard,
     memory: enMemory,
@@ -43,7 +44,7 @@ export const resources = {
     training: enTraining,
   },
   "zh-CN": {
-    common: zhCNCommon,
+    common: { ...zhCNCommon, brand },
     course: zhCNCourse,
     dashboard: zhCNDashboard,
     memory: zhCNMemory,
@@ -55,7 +56,7 @@ export const resources = {
     training: zhCNTraining,
   },
   "zh-TW": {
-    common: zhTWCommon,
+    common: { ...zhTWCommon, brand },
     course: zhTWCourse,
     dashboard: zhTWDashboard,
     memory: zhTWMemory,

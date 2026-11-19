@@ -70,7 +70,7 @@ describe("interface locale policy", () => {
   });
   it("ships every key and interpolation in all three real translations", () => {
     const english = leaves(resources["en-US"]);
-    const unchanged = new Set(["Language Lab", "AI", "v", "—"]);
+    const unchanged = new Set(["AI", "v", "—"]);
     for (const locale of appLocales) {
       const translated = leaves(resources[locale]);
       expect(Object.keys(translated).sort()).toEqual(Object.keys(english).sort());
@@ -80,7 +80,8 @@ describe("interface locale policy", () => {
           [...value.matchAll(/{{\s*([^}]+)\s*}}/g)].map((m) => m[1]).sort(),
           `${locale}:${key}`,
         ).toEqual([...english[key]!.matchAll(/{{\s*([^}]+)\s*}}/g)].map((m) => m[1]).sort());
-        if (locale !== "en-US" && /[a-z]{3}/i.test(value) && !unchanged.has(value.trim()))
+        if (key.startsWith("common.brand.")) expect(value, `${locale}:${key}`).toBe(english[key]);
+        else if (locale !== "en-US" && /[a-z]{3}/i.test(value) && !unchanged.has(value.trim()))
           expect(value, `${locale}:${key}`).not.toBe(english[key]);
       }
     }
