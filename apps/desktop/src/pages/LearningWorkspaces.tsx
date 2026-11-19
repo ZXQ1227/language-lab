@@ -14,11 +14,10 @@ import { characterVoiceStyle } from "../speech/voices";
 
 const courses = loadScenarioContent().filter((course) => course.courseTemplate);
 const guidedCourse = courses.find((course) => course.slug === "hotel-checkin")!;
-const panel = "rounded-2xl border border-stone-200 bg-white p-5 sm:p-6";
-const primary =
-  "rounded-lg bg-emerald-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-800 disabled:opacity-50";
+const panel = "rounded-2xl border border-line bg-surface p-5 sm:p-6";
+const primary = "rounded-lg button-primary px-4 py-2.5 text-sm font-semibold disabled:opacity-50";
 const secondary =
-  "rounded-lg border border-stone-300 bg-white px-4 py-2.5 text-sm font-semibold text-emerald-950 hover:bg-stone-50 disabled:opacity-50";
+  "button-secondary rounded-lg px-4 py-2.5 text-sm font-semibold disabled:opacity-50";
 
 function useLearningOverview() {
   const store = useTrainingStore();
@@ -39,7 +38,7 @@ function OverviewStatus() {
     return (
       <div
         role="alert"
-        className="rounded-lg border border-rose-200 bg-rose-50 p-3 text-sm text-rose-900"
+        className="rounded-lg border border-error-line bg-chat-error p-3 text-sm text-error-ink"
       >
         <LocalizedError error={error} />
         <button
@@ -53,7 +52,7 @@ function OverviewStatus() {
       </div>
     );
   return !loaded ? (
-    <p role="status" className="text-sm text-slate-600">
+    <p role="status" className="text-sm text-ink-muted">
       {t("training:loadingSavedPractice")}
     </p>
   ) : null;
@@ -110,7 +109,7 @@ export function PlanPage() {
         <h1 id="plan-heading" className="text-3xl font-semibold tracking-tight sm:text-4xl">
           {t("common:workspace.learningPlan")}
         </h1>
-        <div className="mt-3 space-y-1 text-sm leading-relaxed text-emerald-900">
+        <div className="mt-3 space-y-1 text-sm leading-relaxed text-brand-ink">
           <p lang="en" className="font-medium italic">
             {t("common:brand.taglineEnglish")}
           </p>
@@ -124,7 +123,7 @@ export function PlanPage() {
             <section className={panel}>
               <h2 className="font-semibold">{t("common:workspace.resume")}</h2>
               <p className="mt-2 text-xl">{ongoing.scenario.title}</p>
-              <p className="mt-1 text-sm text-slate-600">
+              <p className="mt-1 text-sm text-ink-muted">
                 {t(`common:phases.${ongoing.state.phase}`)}
               </p>
               <button
@@ -142,18 +141,18 @@ export function PlanPage() {
           )}
           {aiConfigured && designer}
           <section
-            className="rounded-2xl bg-[#e8efdf] p-6 sm:p-8"
+            className="rounded-2xl border border-line-info bg-brand-primary-subtle p-6 sm:p-8"
             aria-labelledby="suggested-heading"
           >
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <h2 id="suggested-heading" className="text-sm font-semibold text-emerald-950">
+              <h2 id="suggested-heading" className="text-sm font-semibold text-ink">
                 {aiConfigured
                   ? t("common:courseDesigner.builtIn")
                   : t("common:workspace.recommended")}
               </h2>
               <button
                 type="button"
-                className="text-sm font-semibold text-emerald-950 underline underline-offset-4"
+                className="text-sm font-semibold text-brand-ink underline underline-offset-4"
                 onClick={() => navigate("memory")}
               >
                 {t("common:workspace.preferences")}
@@ -161,7 +160,7 @@ export function PlanPage() {
             </div>
             {recommended ? (
               <>
-                <p className="mt-5 text-sm text-emerald-950/80">
+                <p className="mt-5 text-sm text-ink-muted">
                   {t(`common:categories.${recommended.category}`, {
                     defaultValue: recommended.category,
                   })}{" "}
@@ -176,10 +175,10 @@ export function PlanPage() {
                     </>
                   )}
                 </p>
-                <h3 className="mt-2 text-3xl font-semibold tracking-tight text-emerald-950">
+                <h3 className="mt-2 text-3xl font-semibold tracking-tight text-ink">
                   {recommended.title}
                 </h3>
-                <p className="mt-3 max-w-prose text-sm leading-relaxed text-emerald-950/90">
+                <p className="mt-3 max-w-prose text-sm leading-relaxed text-ink">
                   {recommended.objectives[0]}
                 </p>
                 <div className="mt-6 flex flex-wrap gap-3">
@@ -201,14 +200,11 @@ export function PlanPage() {
                     </button>
                   )}
                 </div>
-                <details
-                  key={recommended.slug}
-                  className="mt-5 border-t border-emerald-950/15 pt-3"
-                >
-                  <summary className="cursor-pointer text-sm font-semibold text-emerald-950">
+                <details key={recommended.slug} className="mt-5 border-t border-line-strong pt-3">
+                  <summary className="cursor-pointer text-sm font-semibold text-ink">
                     {t("common:workspace.coursePath")}
                   </summary>
-                  <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm text-emerald-950">
+                  <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm text-ink">
                     {recommended.courseTemplate?.stages.map((stage) => (
                       <li key={stage.id}>{stage.title}</li>
                     ))}
@@ -222,7 +218,7 @@ export function PlanPage() {
             )}
             <button
               type="button"
-              className="mt-4 text-sm font-semibold text-emerald-950 underline underline-offset-4"
+              className="mt-4 text-sm font-semibold text-brand-ink underline underline-offset-4"
               onClick={() => navigate("scenarios")}
             >
               {t("common:workspace.browseCourses")}
@@ -237,19 +233,19 @@ export function PlanPage() {
             </h2>
             <button
               type="button"
-              className="text-sm font-semibold text-emerald-900 underline underline-offset-4"
+              className="text-sm font-semibold text-brand-ink underline underline-offset-4"
               onClick={() => navigate("reports")}
             >
               {t("common:workspace.allHistory")}
             </button>
           </div>
           {recent.length > 0 ? (
-            <ul className="mt-3 divide-y divide-stone-200">
+            <ul className="mt-3 divide-y divide-line">
               {recent.map((item) => (
                 <li key={item.lessonId}>
                   <button
                     type="button"
-                    className="w-full py-3 text-left text-sm hover:text-emerald-800 disabled:opacity-50"
+                    className="w-full py-3 text-left text-sm hover:text-brand-ink disabled:opacity-50"
                     disabled={busy}
                     onClick={() => {
                       void loadReport(item.lessonId).then((opened) => {
@@ -258,7 +254,7 @@ export function PlanPage() {
                     }}
                   >
                     <span className="block font-semibold">{item.title}</span>
-                    <span className="mt-1 block text-xs text-slate-600">
+                    <span className="mt-1 block text-xs text-ink-muted">
                       {formatDateTime(item.at)}
                     </span>
                   </button>
@@ -267,7 +263,7 @@ export function PlanPage() {
             </ul>
           ) : (
             loaded && (
-              <p className="mt-3 text-sm text-slate-600">{t("common:workspace.noHistory")}</p>
+              <p className="mt-3 text-sm text-ink-muted">{t("common:workspace.noHistory")}</p>
             )
           )}
         </section>
@@ -295,14 +291,14 @@ export function ConversationPage() {
           <button
             key={id}
             type="button"
-            className={`${panel} flex flex-col gap-3 text-left hover:border-emerald-700 hover:bg-emerald-50 disabled:opacity-50`}
+            className={`${panel} flex flex-col gap-3 text-left hover:border-brand-primary hover:bg-brand-primary-soft disabled:opacity-50`}
             disabled={id === "guided" && busy}
             onClick={open}
           >
-            <span className="text-lg font-semibold text-emerald-950">
+            <span className="text-lg font-semibold text-ink">
               {t(`common:workspace.modes.${id}.title`)}
             </span>
-            <span className="text-sm leading-relaxed text-slate-600">
+            <span className="text-sm leading-relaxed text-ink-muted">
               {t(`common:workspace.modes.${id}.description`)}
             </span>
           </button>
@@ -335,7 +331,7 @@ export function ListeningPage() {
         <label className="block text-sm font-semibold">
           {t("training:course")}
           <select
-            className="mt-2 block w-full rounded-lg border border-stone-300 bg-white p-2.5"
+            className="form-control mt-2 block w-full rounded-lg border p-2.5"
             value={slug}
             onChange={(event) => {
               voice.stopPlayback();
@@ -350,7 +346,7 @@ export function ListeningPage() {
             ))}
           </select>
         </label>
-        <p className="text-sm text-slate-600">{t("common:workspace.listeningInstructions")}</p>
+        <p className="text-sm text-ink-muted">{t("common:workspace.listeningInstructions")}</p>
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
@@ -390,7 +386,10 @@ export function ListeningPage() {
           </button>
         )}
         {revealed && (
-          <blockquote lang={template.targetLanguage} className="rounded-lg bg-emerald-50 p-4">
+          <blockquote
+            lang={template.targetLanguage}
+            className="rounded-lg bg-chat-ai p-4 text-chat-ai-ink"
+          >
             {template.openingLine}
           </blockquote>
         )}
@@ -457,10 +456,8 @@ export function ProfilePage() {
           <dl className="grid gap-4 sm:grid-cols-3">
             {stats.map(({ title, value }) => (
               <div className={panel} key={title}>
-                <dt className="text-sm text-slate-600">{t(title)}</dt>
-                <dd className="mt-2 text-3xl font-semibold text-emerald-950">
-                  {formatNumber(value)}
-                </dd>
+                <dt className="text-sm text-ink-muted">{t(title)}</dt>
+                <dd className="mt-2 text-3xl font-semibold text-ink">{formatNumber(value)}</dd>
               </div>
             ))}
           </dl>

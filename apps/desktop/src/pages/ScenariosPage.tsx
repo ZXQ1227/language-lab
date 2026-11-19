@@ -29,32 +29,32 @@ function CourseCard({
 }) {
   const { t } = useTranslation();
   return (
-    <article className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+    <article className="rounded-lg border border-line bg-surface p-5 shadow-sm">
       <div className="flex items-baseline justify-between gap-3">
-        <h2 className="text-base font-semibold text-slate-900">{item.title}</h2>
-        <span className="shrink-0 rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600">
+        <h2 className="text-base font-semibold text-ink">{item.title}</h2>
+        <span className="shrink-0 rounded-full bg-surface-secondary px-2.5 py-0.5 text-xs font-medium text-ink-muted">
           {!course && (
             <>{t(`common:categories.${item.category}`, { defaultValue: item.category })} · </>
           )}
           {item.difficulty}
         </span>
       </div>
-      <h3 className="mt-3 text-xs font-medium uppercase tracking-wide text-slate-400">
+      <h3 className="mt-3 text-xs font-medium uppercase tracking-wide text-ink-muted">
         {t("scenarios:objectives")}
       </h3>
-      <ul className="mt-1 list-disc space-y-0.5 pl-5 text-sm text-slate-600">
+      <ul className="mt-1 list-disc space-y-0.5 pl-5 text-sm text-ink-muted">
         {item.objectives.map((objective) => (
           <li key={objective}>{objective}</li>
         ))}
       </ul>
-      <h3 className="mt-3 text-xs font-medium uppercase tracking-wide text-slate-400">
+      <h3 className="mt-3 text-xs font-medium uppercase tracking-wide text-ink-muted">
         {t("scenarios:targetVocabulary")}
       </h3>
       <div className="mt-1 flex flex-wrap gap-1.5">
         {item.targetVocabulary.map((word) => (
           <span
             key={word}
-            className="rounded bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700 ring-1 ring-emerald-200"
+            className="rounded bg-brand-primary-soft px-2 py-0.5 text-xs font-medium text-brand-ink ring-1 ring-line-info"
           >
             {word}
           </span>
@@ -65,7 +65,7 @@ function CourseCard({
           type="button"
           disabled={busy}
           onClick={() => onPractise(course)}
-          className="mt-4 rounded-lg bg-emerald-900 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-800 disabled:opacity-50"
+          className="mt-4 rounded-lg button-primary px-3 py-2 text-sm font-semibold disabled:opacity-50"
         >
           {t("common:workspace.beginCourse")}
         </button>
@@ -138,14 +138,14 @@ export function ScenariosPage() {
   return (
     <section aria-label={t("scenarios:scenarios")} className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-slate-900">{t("scenarios:scenarios")}</h1>
-        <p className="mt-1 text-sm text-slate-500">
+        <h1 className="text-2xl font-semibold text-ink">{t("scenarios:scenarios")}</h1>
+        <p className="mt-1 text-sm text-ink-muted">
           {t("scenarios:realLifeConversationScenariosWithClearObjectivesAndTargetVocabulary")}
         </p>
       </div>
 
       <div className="space-y-2">
-        <label className="inline-block cursor-pointer rounded border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 focus-within:ring-2">
+        <label className="button-secondary inline-block cursor-pointer rounded px-3 py-2 text-sm font-medium focus-within:ring-2 focus-within:ring-brand-primary hover:bg-line">
           {t("scenarios:importCourseTemplate")}
           <input
             className="sr-only"
@@ -159,16 +159,16 @@ export function ScenariosPage() {
             }}
           />
         </label>
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-ink-muted">
           {t("scenarios:importedTemplatesAreAvailableForThisVisitExportAJSON")}
         </p>
         {importing && (
-          <p role="status" className="text-sm text-slate-500">
+          <p role="status" className="text-sm text-ink-muted">
             {t("scenarios:validatingCourseTemplate")}
           </p>
         )}
         {importError && (
-          <p role="alert" className="text-sm text-red-700">
+          <p role="alert" className="text-sm text-error-ink">
             {t("scenarios:couldNotImportTemplate")}
             <LocalizedError error={importError} />
           </p>
@@ -177,17 +177,17 @@ export function ScenariosPage() {
 
       {imported.length > 0 && (
         <section aria-label={t("scenarios:importedTemplates")} className="space-y-3">
-          <h2 className="font-semibold text-slate-900">{t("scenarios:importedTemplates")}</h2>
+          <h2 className="font-semibold text-ink">{t("scenarios:importedTemplates")}</h2>
           {imported.map(({ scenario, revision }) => (
             <article
               key={`${scenario.slug}:${revision}`}
-              className="rounded-lg border border-emerald-200 bg-white p-5"
+              className="rounded-lg border border-line-info bg-surface p-5"
             >
-              <h3 className="font-semibold text-slate-900">{scenario.title}</h3>
+              <h3 className="font-semibold text-ink">{scenario.title}</h3>
               <CourseTemplateEditor scenario={scenario} />
               <button
                 type="button"
-                className="mt-3 text-sm text-slate-500"
+                className="mt-3 text-sm text-ink-muted"
                 onClick={() =>
                   setImported((current) =>
                     current.filter((item) => item.scenario.slug !== scenario.slug),
@@ -204,7 +204,7 @@ export function ScenariosPage() {
       {error && (
         <div
           role="alert"
-          className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700"
+          className="rounded-lg border border-error-line bg-chat-error p-4 text-sm text-error-ink"
         >
           {t("scenarios:couldNotLoadScenarios")}
           <LocalizedError error={error} />
@@ -219,7 +219,7 @@ export function ScenariosPage() {
       )}
 
       {!error && !scenarios && (
-        <p className="text-sm text-slate-500">{t("scenarios:loadingScenarioLibrary")}</p>
+        <p className="text-sm text-ink-muted">{t("scenarios:loadingScenarioLibrary")}</p>
       )}
 
       <div role="group" aria-label={t("scenarios:learningPaths")} className="flex flex-wrap gap-2">
@@ -229,7 +229,7 @@ export function ScenariosPage() {
             type="button"
             aria-pressed={path.id === selectedPath.id}
             onClick={() => setSelectedPath(path)}
-            className="rounded-lg border border-emerald-950/15 bg-white px-3 py-2 text-sm font-medium text-emerald-950 hover:bg-emerald-50 aria-pressed:border-emerald-900 aria-pressed:bg-emerald-900 aria-pressed:text-white"
+            className="rounded-lg border border-line-strong bg-surface px-3 py-2 text-sm font-medium text-ink hover:bg-surface-hover aria-pressed:border-brand-primary aria-pressed:bg-brand-primary-soft aria-pressed:font-semibold aria-pressed:text-brand-ink aria-pressed:hover:bg-selected-hover"
           >
             {t(`common:categories.${path.id}`)}
           </button>
@@ -255,7 +255,7 @@ export function ScenariosPage() {
 
       {!!scenarios?.length && (
         <section className="space-y-3" aria-labelledby="other-local-scenarios">
-          <h2 id="other-local-scenarios" className="font-semibold text-slate-900">
+          <h2 id="other-local-scenarios" className="font-semibold text-ink">
             {t("scenarios:otherLocalScenarios")}
           </h2>
           <div className="grid items-start gap-4 lg:grid-cols-2">

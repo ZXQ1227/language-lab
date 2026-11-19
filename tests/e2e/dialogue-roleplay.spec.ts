@@ -84,6 +84,12 @@ test("guided repeat and hint preserve an unsent draft and never complete an obje
   await expect(page.getByRole("textbox", { name: "Your reply", exact: true })).toHaveValue(draft);
   await page.getByRole("button", { name: "Give me a hint", exact: true }).click();
   await expect(page.getByRole("button", { name: "Give me a hint", exact: true })).toBeDisabled();
+  const hint = page
+    .getByLabel("Conversation")
+    .getByRole("listitem")
+    .filter({ hasText: "Maya · Hint" });
+  await expect(hint).toHaveCSS("background-color", "rgb(255, 245, 217)");
+  await expect(hint).toHaveCSS("color", "rgb(89, 69, 31)");
   await expect(page.getByRole("textbox", { name: "Your reply", exact: true })).toHaveValue(draft);
   const saved = await checkpoint(page);
   expect(

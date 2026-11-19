@@ -116,6 +116,9 @@ pnpm --filter @language-lab/desktop tauri dev   # full desktop shell (needs Rust
   (no router dependency; sidebar navigation drives the active page).
 - All Tauri IPC goes through `src/lib/ipc.ts` (normalized `IpcError`).
 - Styling is Tailwind CSS v4 (`@tailwindcss/vite`); fixed light theme for v0.1.
+- Use semantic colors. Define palette values in `apps/desktop/src/styles.css`
+  and check contrast for new text, controls and teaching states.
+  [Sayden color system](docs/development/UI_COLOR_SYSTEM.md)
 - Every page renders three states: loading / error (with retry) / data.
 - Scenario content ships as `content/scenarios/*.json`, bundled through
   `src/content/scenarioContent.ts` and upserted at startup by

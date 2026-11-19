@@ -12,7 +12,7 @@ function ReviewLaunch({ session }: { session: TrainingSession }) {
   const navigate = useNavStore((s) => s.navigate);
   return (
     <button
-      className="rounded bg-slate-900 px-3 py-2 text-sm text-white disabled:opacity-40"
+      className="rounded button-primary px-3 py-2 text-sm disabled:opacity-40"
       disabled={busy}
       onClick={() =>
         void (async () => {
@@ -35,7 +35,7 @@ export function LearningReport({ session }: { session: TrainingSession }) {
   return (
     <section
       aria-label={t("reports:lessonReview")}
-      className="space-y-5 rounded-lg border border-emerald-200 bg-white p-5"
+      className="space-y-5 rounded-lg border border-line-info bg-surface p-5"
     >
       <div>
         <h2 className="font-semibold">
@@ -46,7 +46,7 @@ export function LearningReport({ session }: { session: TrainingSession }) {
           {session.scenario.title} · {session.state.difficulty} ·{" "}
           {session.state.courseTemplate?.targetLanguage}
         </p>
-        <p className="mt-1 text-xs text-slate-500">
+        <p className="mt-1 text-xs text-ink-muted">
           {report.provenance === "reconstructed"
             ? t("reports:reconstructedFromALegacyCheckpointOriginalReportTimeIsUnavailable")
             : t("reports:completedValue", {
@@ -59,7 +59,10 @@ export function LearningReport({ session }: { session: TrainingSession }) {
           {t("reports:youCompletedTheGuidedExamplesThisIsADemonstrationNot")}
         </p>
       )}
-      <div aria-label={t("reports:practiceSummary")} className="rounded bg-slate-50 p-3 text-sm">
+      <div
+        aria-label={t("reports:practiceSummary")}
+        className="rounded bg-surface-secondary p-3 text-sm"
+      >
         <p>
           {t("reports:goalCriteriaWithEvidence")}
           {formatNumber(criteria.filter((c) => c.met).length)}/{formatNumber(criteria.length)}{" "}
@@ -75,11 +78,11 @@ export function LearningReport({ session }: { session: TrainingSession }) {
       </div>
       <section aria-label={t("reports:goalEvidence")} className="space-y-3">
         <h3 className="font-medium">{t("reports:whatWentWellGoalEvidence")}</h3>
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-ink-muted">
           {t("reports:stageJudgmentsAreBackedByExactLearnerQuotesTheyDescribe")}
         </p>
         {report.stages.map((stage) => (
-          <details key={stage.id} className="rounded border border-slate-200 p-3 text-sm">
+          <details key={stage.id} className="rounded border border-line p-3 text-sm">
             <summary className="cursor-pointer font-medium">
               {stage.objectives.join(" · ")} ·{" "}
               {formatNumber(stage.criteria.filter((c) => c.met).length)}/
@@ -93,7 +96,7 @@ export function LearningReport({ session }: { session: TrainingSession }) {
                     {criterion.description}
                   </p>
                   {criterion.evidence.map((cite, i) => (
-                    <blockquote key={i} className="ml-3 break-words border-l-2 pl-3 text-slate-600">
+                    <blockquote key={i} className="ml-3 break-words border-l-2 pl-3 text-ink-muted">
                       “{cite.quote}
                       {t("reports:message")}
                       {formatNumber(cite.messageSeq)}
@@ -107,7 +110,7 @@ export function LearningReport({ session }: { session: TrainingSession }) {
       </section>
       <section aria-label={t("reports:reportVocabulary")} className="space-y-2 text-sm">
         <h3 className="font-medium">{t("reports:vocabularyPractice")}</h3>
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-ink-muted">
           {t("reports:exactLexicalMatchesInLearnerPracticeOnlyUseDoesNot")}
         </p>
         <ul className="space-y-2">
@@ -121,7 +124,7 @@ export function LearningReport({ session }: { session: TrainingSession }) {
                   })
                 : t("reports:notUsedYet")}
               {item.latest && (
-                <blockquote className="ml-3 break-words text-slate-600">
+                <blockquote className="ml-3 break-words text-ink-muted">
                   “{item.latest.content}
                   {t("reports:message")}
                   {formatNumber(item.latest.messageSeq)}
@@ -145,14 +148,14 @@ export function LearningReport({ session }: { session: TrainingSession }) {
           {formatNumber(report.correctionsGiven)} {t("reports:withVerifiedDialogueDelivery")}{" "}
           {formatNumber(report.issues.filter((issue) => issue.deliveryVerified).length)}
         </p>
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-ink-muted">
           {t("reports:modelJudgmentsCanBeWrongDemoChecksCoverLimitedExamples")}
         </p>
         {!report.issues.length && (
           <p>{t("reports:noLanguageIssuesRecordedInTheAvailableChecksThisDoes")}</p>
         )}
         {report.issues.map((issue, index) => (
-          <details key={index} className="rounded border border-slate-200 p-3">
+          <details key={index} className="rounded border border-line p-3">
             <summary className="cursor-pointer break-words">
               “{issue.error.original}” → “{issue.error.corrected}” ·{" "}
               {issue.deliveryVerified
@@ -162,10 +165,10 @@ export function LearningReport({ session }: { session: TrainingSession }) {
                   : t("reports:forReview")}
             </summary>
             <p className="mt-2 break-words">{issue.error.explanation}</p>
-            <blockquote className="mt-2 break-words text-slate-600">
+            <blockquote className="mt-2 break-words text-ink-muted">
               “{session.messages.find((message) => message.seq === issue.messageSeq)?.content}”
             </blockquote>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-ink-muted">
               {t(`training:categories.${issue.error.category}`)} ·{" "}
               {issue.source === "demo"
                 ? t("reports:limitedDemoCheck")
@@ -183,7 +186,7 @@ export function LearningReport({ session }: { session: TrainingSession }) {
             <li key={task.id}>
               <p className="break-words">{task.prompt}</p>
               {task.source && (
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-ink-muted">
                   {t("reports:from")}
                   {task.source.quote}
                   {t("reports:message")}
@@ -192,7 +195,7 @@ export function LearningReport({ session }: { session: TrainingSession }) {
               )}
               {task.suggestedAnswer && (
                 <details>
-                  <summary className="cursor-pointer text-slate-600">
+                  <summary className="cursor-pointer text-ink-muted">
                     {t("reports:showExample")}
                   </summary>
                   <p className="break-words">{task.suggestedAnswer}</p>
@@ -206,12 +209,12 @@ export function LearningReport({ session }: { session: TrainingSession }) {
       {session.provider.mode === "ai" && (
         <details
           aria-label={t("reports:modelCommentary")}
-          className="rounded bg-slate-50 p-3 text-sm"
+          className="rounded bg-brand-purple-soft p-3 text-sm text-ai-ink"
         >
           <summary className="cursor-pointer font-medium">
             {t("reports:modelCommentarySubjectiveEstimate")}
           </summary>
-          <p className="mt-2 text-xs text-slate-500">
+          <p className="mt-2 text-xs text-ink-muted">
             {t("reports:modelEstimate")}
             {formatNumber(session.report.score)}
             {t("reports:100ThisIsNotAProficiencyAssessmentOrAMeasure")}

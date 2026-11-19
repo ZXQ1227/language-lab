@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAiProviderStore } from "../stores/aiProvider";
 
-const control = "mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm";
+const control = "mt-1 w-full rounded-md border form-control px-3 py-2 text-sm";
 
 function Editor() {
   const { t } = useTranslation();
@@ -64,15 +64,15 @@ function Editor() {
           onChange={(event) => setApiKey(event.target.value)}
         />
       </label>
-      <p className="text-xs text-slate-500">
+      <p className="text-xs text-ink-muted">
         {t("settings:useAnOpenAICompatibleEndpointAPIKeysAreSavedIn")}
       </p>
-      <p role="status" className="text-xs text-slate-500">
+      <p role="status" className="text-xs text-ink-muted">
         {dirty ? t("settings:unsavedAIConnection") : saved ? t("settings:savedOnDevice") : ""}
       </p>
       <button
         type="submit"
-        className="rounded bg-slate-900 px-3 py-2 text-sm text-white disabled:opacity-40"
+        className="rounded button-primary px-3 py-2 text-sm disabled:opacity-40"
         disabled={busy}
       >
         {t("settings:saveAIConnection")}
@@ -90,19 +90,19 @@ export function AiProviderSettings() {
   return (
     <section
       aria-label={t("settings:aIConnection")}
-      className="space-y-3 rounded border border-slate-200 bg-white p-5"
+      className="space-y-3 rounded border border-line bg-surface p-5"
     >
       <h2 className="font-semibold">{t("settings:aIConnection")}</h2>
-      <p className="text-sm text-slate-600">
+      <p className="text-sm text-ink-muted">
         {t("settings:aPIKeysAreStoredInTheOSKeyringThroughThe")}
       </p>
       {error && (
-        <p role="alert" className="text-sm text-red-700">
+        <p role="alert" className="text-sm text-error-ink">
           {error}
         </p>
       )}
       {busy && !settings && (
-        <p className="text-sm text-slate-500">{t("settings:loadingAIConnection")}</p>
+        <p className="text-sm text-ink-muted">{t("settings:loadingAIConnection")}</p>
       )}
       <Editor />
     </section>

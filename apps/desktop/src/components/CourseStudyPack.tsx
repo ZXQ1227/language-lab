@@ -13,10 +13,10 @@ export function CourseStudyPack({ template }: { template: CourseTemplate }) {
   return (
     <section
       aria-label={t("course:courseStudyPack")}
-      className="space-y-4 rounded-lg border border-slate-200 bg-white p-4 text-sm text-slate-600"
+      className="space-y-4 rounded-lg border border-line bg-surface p-4 text-sm text-ink-muted"
     >
       <div>
-        <h3 className="font-semibold text-slate-900">
+        <h3 className="font-semibold text-ink">
           {t("course:yourCompleteLesson")}
           {formatNumber(template.stages.length)} {t("course:steps")}
           {formatNumber(template.estimatedMinutes)} {t("course:minutes")}
@@ -24,8 +24,8 @@ export function CourseStudyPack({ template }: { template: CourseTemplate }) {
         <p className="mt-2">{pack.overview}</p>
       </div>
       {challenge && (
-        <div className="rounded-md bg-amber-50 p-3">
-          <h4 className="font-medium text-slate-900">
+        <div className="rounded-md bg-chat-hint p-3 text-hint-ink">
+          <h4 className="font-medium">
             {t("course:challenge")}
             {challenge.title}
           </h4>
@@ -34,7 +34,7 @@ export function CourseStudyPack({ template }: { template: CourseTemplate }) {
       )}
       {pack.prerequisites.length > 0 && (
         <div>
-          <h4 className="font-medium text-slate-900">{t("course:beforeYouStart")}</h4>
+          <h4 className="font-medium text-ink">{t("course:beforeYouStart")}</h4>
           <ul className="mt-1 list-disc pl-5">
             {pack.prerequisites.map((item) => (
               <li key={item}>{item}</li>
@@ -43,20 +43,20 @@ export function CourseStudyPack({ template }: { template: CourseTemplate }) {
         </div>
       )}
       <details>
-        <summary className="cursor-pointer font-medium text-slate-900">
+        <summary className="cursor-pointer font-medium text-ink">
           {t("course:scenarioBrief")}
         </summary>
         <dl className="mt-2 grid gap-2 sm:grid-cols-2">
           {pack.scenarioFacts.map((fact) => (
-            <div key={fact.label} className="rounded bg-slate-50 p-2">
-              <dt className="font-medium text-slate-800">{fact.label}</dt>
+            <div key={fact.label} className="rounded bg-surface-secondary p-2">
+              <dt className="font-medium text-ink">{fact.label}</dt>
               <dd>{fact.value}</dd>
             </div>
           ))}
         </dl>
       </details>
       <details>
-        <summary className="cursor-pointer font-medium text-slate-900">
+        <summary className="cursor-pointer font-medium text-ink">
           {t("course:warmUp")}
           {formatNumber(pack.warmup.length)} {t("course:shortTasks")}
         </summary>
@@ -65,24 +65,24 @@ export function CourseStudyPack({ template }: { template: CourseTemplate }) {
             <li key={exercise.id}>
               <p>{exercise.prompt}</p>
               <details className="mt-1">
-                <summary className="cursor-pointer text-slate-500">
+                <summary className="cursor-pointer text-ink-muted">
                   {t("course:compareWithASampleAnswer")}
                 </summary>
-                <p className="mt-1 rounded bg-slate-50 p-2">{exercise.suggestedAnswer}</p>
+                <p className="mt-1 rounded bg-surface-secondary p-2">{exercise.suggestedAnswer}</p>
               </details>
             </li>
           ))}
         </ol>
       </details>
       <details>
-        <summary className="cursor-pointer font-medium text-slate-900">
+        <summary className="cursor-pointer font-medium text-ink">
           {t("course:vocabularyAndMeaning")}
           {formatNumber(pack.vocabulary.length)} {t("course:wordsAndPhrases")}
         </summary>
         <dl className="mt-3 space-y-3">
           {pack.vocabulary.map((item) => (
-            <div key={item.term} className="border-l-2 border-emerald-200 pl-3">
-              <dt className="font-medium text-slate-900">
+            <div key={item.term} className="border-l-2 border-line-info pl-3">
+              <dt className="font-medium text-ink">
                 {item.term}
                 {item.translation ? t("course:value", { v0: uiValue(item.translation) }) : ""}
               </dt>
@@ -90,7 +90,7 @@ export function CourseStudyPack({ template }: { template: CourseTemplate }) {
                 {item.meaning}
                 <p className="mt-1 italic">{item.example}</p>
                 {item.forms?.length ? (
-                  <p className="mt-1 text-xs text-slate-500">
+                  <p className="mt-1 text-xs text-ink-muted">
                     {t("course:acceptedForms")}
                     {item.forms.join(", ")}
                   </p>
@@ -101,27 +101,31 @@ export function CourseStudyPack({ template }: { template: CourseTemplate }) {
         </dl>
       </details>
       <details>
-        <summary className="cursor-pointer font-medium text-slate-900">
+        <summary className="cursor-pointer font-medium text-ink">
           {t("course:usefulExpressions")}
           {formatNumber(template.targetPatterns.length)} {t("course:patterns")}
         </summary>
         <dl className="mt-3 space-y-2">
           {template.targetPatterns.map((item) => (
             <div key={item.pattern}>
-              <dt lang={template.targetLanguage} className="font-medium text-slate-800">
+              <dt lang={template.targetLanguage} className="font-medium text-ink">
                 {item.pattern}
               </dt>
               {item.example !== item.pattern && (
                 <dd lang={template.targetLanguage}>{item.example}</dd>
               )}
-              {item.translation && <dd>{item.translation}</dd>}
+              {item.translation && (
+                <dd className="mt-1 w-fit rounded-md bg-chat-translation px-2 py-0.5 text-ink-muted">
+                  {item.translation}
+                </dd>
+              )}
             </div>
           ))}
         </dl>
       </details>
       {pack.languageNotes && (
         <details>
-          <summary className="cursor-pointer font-medium text-slate-900">
+          <summary className="cursor-pointer font-medium text-ink">
             {t("course:languageNotes")}
           </summary>
           <ul className="mt-2 list-disc space-y-2 pl-5">
@@ -132,15 +136,15 @@ export function CourseStudyPack({ template }: { template: CourseTemplate }) {
         </details>
       )}
       <details>
-        <summary className="cursor-pointer font-medium text-slate-900">
+        <summary className="cursor-pointer font-medium text-ink">
           {t("course:modelConversationStandardScenario")}
         </summary>
-        <p className="mt-2 text-xs text-slate-500">
+        <p className="mt-2 text-xs text-ink-muted">
           {t("course:readForUsefulLanguageThenPractiseYourOwnRepliesChallenges")}
         </p>
         <ol className="mt-3 space-y-2">
           {pack.modelDialogue.map((line, index) => (
-            <li key={index} className="rounded bg-slate-50 p-2">
+            <li key={index} className="rounded bg-surface-secondary p-2">
               <span className="font-medium">
                 {line.role === "learner" ? t("course:you") : t("course:practicePartner")}:{" "}
               </span>
@@ -170,10 +174,10 @@ export function CourseReviewPractice({
   return (
     <section
       aria-label={t("course:independentReviewPractice")}
-      className="space-y-4 rounded-lg border border-slate-200 bg-white p-5"
+      className="space-y-4 rounded-lg border border-line bg-surface p-5"
     >
-      <h2 className="font-semibold text-slate-900">{t("course:independentReviewPractice")}</h2>
-      <p className="text-sm text-slate-500">
+      <h2 className="font-semibold text-ink">{t("course:independentReviewPractice")}</h2>
+      <p className="text-sm text-ink-muted">
         {t("course:tryFromMemoryThenCompareWithTheExamplesTheseAnswers")}
       </p>
       <form
@@ -185,14 +189,14 @@ export function CourseReviewPractice({
       >
         {pack.reviewPractice.map((exercise, index) => (
           <div key={exercise.id} className="space-y-2 text-sm">
-            <p className="font-medium text-slate-800">
+            <p className="font-medium text-ink">
               {formatNumber(index + 1)}. {exercise.prompt}
             </p>
-            <label className="block text-slate-600">
+            <label className="block text-ink-muted">
               {t("course:reviewAnswer")}
               {formatNumber(index + 1)}
               <textarea
-                className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2"
+                className="mt-1 w-full rounded-md border form-control px-3 py-2"
                 rows={3}
                 maxLength={2000}
                 disabled={busy}
@@ -203,21 +207,21 @@ export function CourseReviewPractice({
                 }}
               />
             </label>
-            <details className="text-slate-600">
+            <details className="text-ink-muted">
               <summary className="cursor-pointer">{t("course:compareWithExample")}</summary>
-              <p className="mt-2 rounded bg-slate-50 p-3">{exercise.suggestedAnswer}</p>
+              <p className="mt-2 rounded bg-surface-secondary p-3">{exercise.suggestedAnswer}</p>
             </details>
           </div>
         ))}
         <button
           type="submit"
           disabled={busy || !Object.values(answers).some((answer) => answer.trim())}
-          className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-40"
+          className="rounded-md button-primary px-4 py-2 text-sm font-medium disabled:opacity-40"
         >
           {t("course:saveReviewAnswers")}
         </button>
         {saved && (
-          <p role="status" className="text-sm text-emerald-700">
+          <p role="status" className="text-sm text-brand-ink">
             {t("course:reviewAnswersSavedOnThisDevice")}
           </p>
         )}

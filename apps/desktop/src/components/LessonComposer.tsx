@@ -7,10 +7,9 @@ import { getGuidedExample, type TrainingSession } from "../training/session";
 import type { useSpeechLoop } from "../speech/useSpeechLoop";
 import { VoiceInput } from "./VoiceInput";
 
-const action =
-  "rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm font-semibold text-emerald-950 hover:bg-emerald-50 disabled:opacity-50";
-const primary =
-  "rounded-xl bg-emerald-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-800 disabled:opacity-50";
+const action = "button-secondary rounded-lg px-3 py-2 text-sm font-semibold disabled:opacity-50";
+const record = "button-record rounded-xl px-3 py-2.5 text-sm font-semibold disabled:opacity-50";
+const primary = "rounded-xl button-primary px-4 py-2.5 text-sm font-semibold disabled:opacity-50";
 const maxReply = 4000;
 
 export function LessonComposer({
@@ -44,7 +43,7 @@ export function LessonComposer({
   return (
     <form
       aria-label={t("training:focus.replyControls")}
-      className="shrink-0 border-t border-emerald-950/10 bg-white"
+      className="shrink-0 border-t border-line bg-surface"
       onSubmit={(event) => {
         event.preventDefault();
         if (busy || dealingWithVoice || !reply.trim()) return;
@@ -81,10 +80,10 @@ export function LessonComposer({
           hidden={!textOpen}
           className="flex flex-wrap items-end gap-2 sm:flex-nowrap"
         >
-          <label className="min-w-0 grow basis-56 text-xs font-medium text-slate-600">
+          <label className="min-w-0 grow basis-56 text-xs font-medium text-ink-muted">
             {t("training:yourReply")}
             <textarea
-              className="mt-1 block w-full resize-y rounded-lg border border-stone-300 p-2.5 text-base text-slate-900"
+              className="form-control mt-1 block w-full resize-y rounded-lg border p-2.5 text-base"
               rows={2}
               maxLength={maxReply}
               value={reply}
@@ -116,17 +115,13 @@ export function LessonComposer({
             {t("training:focus.keyboard")}
           </button>
           {recording ? (
-            <button
-              type="button"
-              className="rounded-xl bg-rose-800 px-3 py-2.5 text-sm font-semibold text-white"
-              onClick={voice.stopRecording}
-            >
+            <button type="button" className={record} onClick={voice.stopRecording}>
               {t("speech:stopAndRecognize")}
             </button>
           ) : (
             <button
               type="button"
-              className={primary}
+              className={record}
               disabled={busy || dealingWithVoice || !asrEnabled}
               onClick={voice.start}
             >
@@ -135,7 +130,7 @@ export function LessonComposer({
           )}
           <button
             type="button"
-            className={action}
+            className="rounded-lg border border-warning-line bg-chat-hint px-3 py-2 text-sm font-semibold text-hint-ink enabled:hover:border-warning disabled:opacity-50"
             aria-label={t("training:giveMeAHint")}
             disabled={busy || dealingWithVoice || session.state.hintsGiven >= hints}
             onClick={() => support("hint")}
@@ -146,7 +141,7 @@ export function LessonComposer({
         <div
           role="group"
           aria-label={t("training:practiceHelp")}
-          className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-emerald-950"
+          className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-ink"
         >
           {example && (
             <button
@@ -180,7 +175,7 @@ export function LessonComposer({
               {t("training:useSimplerEnglish")}
             </button>
           )}
-          <p className="ml-auto text-slate-600">
+          <p className="ml-auto text-ink-muted">
             {t("training:hintsUsed")}
             {formatNumber(session.state.hintsGiven)}/{formatNumber(hints)}
           </p>

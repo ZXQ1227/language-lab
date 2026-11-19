@@ -69,16 +69,16 @@ export function App() {
     <div
       className={
         focused
-          ? "flex h-dvh overflow-hidden bg-stone-50 text-slate-900"
-          : "min-h-screen bg-stone-50 text-slate-900 lg:grid lg:grid-cols-[13.5rem_minmax(0,1fr)]"
+          ? "flex h-dvh overflow-hidden bg-app text-ink"
+          : "min-h-screen bg-app text-ink lg:grid lg:grid-cols-[13.5rem_minmax(0,1fr)]"
       }
     >
       {!focused && (
-        <aside className="border-b border-emerald-950/15 bg-[#11332f] px-4 py-5 text-white lg:sticky lg:top-0 lg:flex lg:h-screen lg:flex-col lg:border-b-0 lg:px-5 lg:py-8">
+        <aside className="border-b border-line bg-sidebar px-4 py-5 lg:sticky lg:top-0 lg:flex lg:h-screen lg:flex-col lg:border-r lg:border-b-0 lg:px-5 lg:py-8">
           <div className="flex items-center gap-3">
             <span
               aria-hidden="true"
-              className="grid size-9 shrink-0 place-items-center rounded-lg bg-[#def3ad] text-sm font-bold text-emerald-950"
+              className="brand-mark grid size-9 shrink-0 place-items-center rounded-lg text-sm font-bold text-ink"
             >
               {t("common:brand.monogram")}
             </span>
@@ -96,13 +96,13 @@ export function App() {
                   if (workspace.id !== id) navigate(pages[0]);
                 }}
                 aria-current={workspace.id === id ? "true" : undefined}
-                className={`rounded-lg px-1 py-2.5 text-xs font-medium sm:px-3 sm:text-sm lg:px-4 lg:text-left ${workspace.id === id ? "bg-[#def3ad] text-emerald-950" : "text-emerald-50 hover:bg-white/10"}`}
+                className={`rounded-lg px-1 py-2.5 text-xs sm:px-3 sm:text-sm lg:px-4 lg:text-left ${workspace.id === id ? "bg-brand-primary-soft font-semibold text-brand-ink ring-1 ring-brand-primary ring-inset hover:bg-selected-hover" : "button-ghost font-medium"}`}
               >
                 {t(`common:workspace.sections.${id}`)}
               </button>
             ))}
           </nav>
-          <p className="mt-auto hidden text-xs text-emerald-100/70 lg:block">
+          <p className="mt-auto hidden text-xs text-ink-muted lg:block">
             {t("common:v001YourDataStaysOnThisDevice")}
           </p>
         </aside>
@@ -115,7 +115,7 @@ export function App() {
           {!focused && (
             <nav
               aria-label={t("common:workspace.sectionNavigation")}
-              className="mb-7 flex flex-wrap gap-x-5 gap-y-1 border-b border-stone-200 pt-3 sm:mb-9 sm:pt-5"
+              className="mb-7 flex flex-wrap gap-x-5 gap-y-1 border-b border-line pt-3 sm:mb-9 sm:pt-5"
             >
               {workspace.pages.map((item) => (
                 <button
@@ -123,7 +123,7 @@ export function App() {
                   type="button"
                   onClick={() => navigate(item)}
                   aria-current={page === item ? "page" : undefined}
-                  className={`border-b-2 py-3 text-sm font-semibold ${page === item ? "border-emerald-700 text-emerald-900" : "border-transparent text-slate-600 hover:text-emerald-900"}`}
+                  className={`border-b-2 py-3 text-sm font-semibold ${page === item ? "border-brand-primary text-brand-ink" : "border-transparent text-ink-muted hover:text-brand-ink"}`}
                 >
                   {t(`common:workspace.pages.${item}`)}
                 </button>
@@ -133,7 +133,7 @@ export function App() {
           {locale.error && page !== "settings" && (
             <div
               role="status"
-              className="mb-4 rounded border border-amber-200 bg-amber-50 p-3 text-sm"
+              className="mb-4 rounded border border-warning-line bg-chat-hint p-3 text-sm text-hint-ink"
             >
               {t(`common:locale.errors.${locale.error}`)}
               <button

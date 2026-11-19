@@ -6,9 +6,9 @@ import { useSystemStore } from "../stores/system";
 
 function StatCard({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-      <p className="text-xs font-medium uppercase tracking-wide text-slate-500">{label}</p>
-      <div className="mt-2 text-sm text-slate-800">{children}</div>
+    <div className="rounded-lg border border-line bg-surface p-4 shadow-sm">
+      <p className="text-xs font-medium uppercase tracking-wide text-ink-muted">{label}</p>
+      <div className="mt-2 text-sm text-ink">{children}</div>
     </div>
   );
 }
@@ -27,21 +27,21 @@ export function SystemStatus() {
       {error && (
         <div
           role="alert"
-          className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700"
+          className="rounded-lg border border-error-line bg-chat-error p-4 text-sm text-error-ink"
         >
           {t("dashboard:systemCheckFailed")}
           <LocalizedError error={error} />
           <button
             type="button"
             onClick={() => void refresh()}
-            className="ml-3 rounded border border-red-300 px-2 py-1 text-xs font-medium text-red-700 hover:bg-red-100"
+            className="ml-3 rounded border border-error-line px-2 py-1 text-xs font-medium text-error-ink hover:bg-error-mark"
           >
             {t("dashboard:retry")}
           </button>
         </div>
       )}
 
-      {loading && <p className="text-sm text-slate-500">{t("dashboard:checkingSystem")}</p>}
+      {loading && <p className="text-sm text-ink-muted">{t("dashboard:checkingSystem")}</p>}
 
       {!loading && !error && (
         <div className="grid gap-4 sm:grid-cols-2">
@@ -49,10 +49,10 @@ export function SystemStatus() {
             {health ? (
               <>
                 {t("dashboard:status")}
-                <code className="rounded bg-slate-100 px-1">{health.status}</code>
+                <code className="rounded bg-surface-secondary px-1">{health.status}</code>
                 {" · "}
                 {t("dashboard:v")}
-                <code className="rounded bg-slate-100 px-1">{health.appVersion}</code>
+                <code className="rounded bg-surface-secondary px-1">{health.appVersion}</code>
               </>
             ) : (
               t("dashboard:unavailable")
@@ -61,8 +61,8 @@ export function SystemStatus() {
           <StatCard label={t("dashboard:platform")}>
             {health ? (
               <>
-                <code className="rounded bg-slate-100 px-1">{health.os}</code> /{" "}
-                <code className="rounded bg-slate-100 px-1">{health.arch}</code>
+                <code className="rounded bg-surface-secondary px-1">{health.os}</code> /{" "}
+                <code className="rounded bg-surface-secondary px-1">{health.arch}</code>
               </>
             ) : (
               t("dashboard:unavailable")
@@ -71,9 +71,11 @@ export function SystemStatus() {
           <StatCard label={t("dashboard:localDatabase")}>
             {dbStatus ? (
               <>
-                <code className="rounded bg-slate-100 px-1">{formatNumber(dbStatus.tables)}</code>{" "}
+                <code className="rounded bg-surface-secondary px-1">
+                  {formatNumber(dbStatus.tables)}
+                </code>{" "}
                 {t("dashboard:tables")}{" "}
-                <code className="rounded bg-slate-100 px-1">
+                <code className="rounded bg-surface-secondary px-1">
                   {formatNumber(dbStatus.migrationsApplied)}
                 </code>{" "}
                 {t("dashboard:migrations")}

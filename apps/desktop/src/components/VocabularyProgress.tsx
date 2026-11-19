@@ -21,20 +21,20 @@ export function VocabularyProgress({ session }: { session: TrainingSession }) {
   return (
     <details
       aria-label={t("training:vocabularyProgress")}
-      className="rounded-lg border border-slate-200 bg-white p-4 text-sm"
+      className="rounded-lg border border-line bg-surface p-4 text-sm"
     >
       <summary className="cursor-pointer font-medium">
         {t("training:vocabularyProgress2")}
         {formatNumber(used)}/{formatNumber(progress.length)} {t("training:used")}
       </summary>
       <div className="mt-3 space-y-3">
-        <p className="text-slate-500">
+        <p className="text-ink-muted">
           {t("training:countsShowPracticeTurnsContainingAWordOrAnAccepted")}
         </p>
         {session.provider.mode === "demo" && (
-          <p className="text-slate-500">{t("training:guidedExamplesCountAsSupportedPractice")}</p>
+          <p className="text-ink-muted">{t("training:guidedExamplesCountAsSupportedPractice")}</p>
         )}
-        <ul className="divide-y divide-slate-100">
+        <ul className="divide-y divide-line">
           {progress.map((item) => {
             const material = vocabulary?.find((entry) => entry.term === item.term);
             const evidence = item.latest;
@@ -56,7 +56,7 @@ export function VocabularyProgress({ session }: { session: TrainingSession }) {
                     : t("training:notUsedYet")}
                 </p>
                 {material && (
-                  <p className="text-slate-600">
+                  <p className="text-ink-muted">
                     {material.meaning}
                     {material.translation
                       ? t("training:value", { v0: uiValue(material.translation) })
@@ -64,22 +64,22 @@ export function VocabularyProgress({ session }: { session: TrainingSession }) {
                   </p>
                 )}
                 {material?.forms?.length ? (
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-ink-muted">
                     {t("training:alsoAccepts")}
                     {material.forms.join(", ")}
                   </p>
                 ) : null}
                 {evidence && (
-                  <blockquote className="border-l-2 border-sky-300 pl-2 text-slate-600">
+                  <blockquote className="border-l-2 border-line-info pl-2 text-ink-muted">
                     {t("training:latestEvidenceReply")}
                     {formatNumber(Math.ceil(evidence.messageSeq / 2))}: “
                     {evidence.content.slice(0, evidence.start)}
-                    <mark className="bg-sky-100">{evidence.quote}</mark>
+                    <mark className="bg-brand-primary-soft text-brand-ink">{evidence.quote}</mark>
                     {evidence.content.slice(evidence.end)}”
                   </blockquote>
                 )}
                 {!evidence && material && (
-                  <p className="text-slate-500">
+                  <p className="text-ink-muted">
                     {t("training:try")}
                     {material.example}
                   </p>

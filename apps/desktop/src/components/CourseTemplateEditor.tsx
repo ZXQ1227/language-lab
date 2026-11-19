@@ -76,20 +76,19 @@ export function CourseTemplateEditor({ scenario }: { scenario: ScenarioContent }
     }
   }
 
-  const controlClass =
-    "mt-1 w-full rounded border border-slate-300 bg-white px-2 py-1.5 text-sm text-slate-900";
+  const controlClass = "mt-1 w-full rounded border form-control px-2 py-1.5 text-sm";
   return (
-    <details className="mt-4 border-t border-slate-200 pt-3">
-      <summary className="cursor-pointer text-sm font-medium text-slate-800">
+    <details className="mt-4 border-t border-line pt-3">
+      <summary className="cursor-pointer text-sm font-medium text-ink">
         {t("course:configureCourse")}
       </summary>
       <div className="mt-4 space-y-5">
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-ink-muted">
           {t("course:configureACopyAndExportItToKeepYourChanges")}
         </p>
         <div className="grid gap-3 sm:grid-cols-2">
           {!!template.learningPack?.variations.length && (
-            <label className="text-sm text-slate-600">
+            <label className="text-sm text-ink-muted">
               {t("course:courseChallenge")}
               <select
                 className={controlClass}
@@ -105,7 +104,7 @@ export function CourseTemplateEditor({ scenario }: { scenario: ScenarioContent }
               </select>
             </label>
           )}
-          <label className="text-sm text-slate-600">
+          <label className="text-sm text-ink-muted">
             {t("course:practiceLevel")}
             <select
               className={controlClass}
@@ -117,7 +116,7 @@ export function CourseTemplateEditor({ scenario }: { scenario: ScenarioContent }
               ))}
             </select>
           </label>
-          <label className="text-sm text-slate-600">
+          <label className="text-sm text-ink-muted">
             {t("course:correctionStyle")}
             <select
               className={controlClass}
@@ -130,7 +129,7 @@ export function CourseTemplateEditor({ scenario }: { scenario: ScenarioContent }
               <option value="off">{t("course:correctionsOff")}</option>
             </select>
           </label>
-          <label className="text-sm text-slate-600">
+          <label className="text-sm text-ink-muted">
             {t("course:maximumCorrections")}
             <input
               className={controlClass}
@@ -142,7 +141,7 @@ export function CourseTemplateEditor({ scenario }: { scenario: ScenarioContent }
               onChange={(event) => setMaxCorrections(event.target.value)}
             />
           </label>
-          <label className="text-sm text-slate-600">
+          <label className="text-sm text-ink-muted">
             {t("course:maximumHints")}
             <input
               className={controlClass}
@@ -154,7 +153,7 @@ export function CourseTemplateEditor({ scenario }: { scenario: ScenarioContent }
               onChange={(event) => setMaxHints(event.target.value)}
             />
           </label>
-          <label className="text-sm text-slate-600">
+          <label className="text-sm text-ink-muted">
             {t("course:practiceTurnsBetweenCorrections")}
             <input
               className={controlClass}
@@ -166,7 +165,7 @@ export function CourseTemplateEditor({ scenario }: { scenario: ScenarioContent }
               onChange={(event) => setCorrectionCooldown(event.target.value)}
             />
           </label>
-          <label className="text-sm text-slate-600">
+          <label className="text-sm text-ink-muted">
             {t("course:practiceTurnsBeforeRepeatingACorrection")}
             <input
               className={controlClass}
@@ -180,16 +179,16 @@ export function CourseTemplateEditor({ scenario }: { scenario: ScenarioContent }
           </label>
         </div>
         {validationError && (
-          <p role="alert" className="text-sm text-red-700">
+          <p role="alert" className="text-sm text-error-ink">
             <LocalizedError error={validationError} />
           </p>
         )}
         {preview && (
           <div
             aria-label={t("course:lessonPreview")}
-            className="space-y-3 rounded-lg bg-slate-50 p-4 text-sm text-slate-600"
+            className="space-y-3 rounded-lg bg-surface-secondary p-4 text-sm text-ink-muted"
           >
-            <h3 className="font-semibold text-slate-900">
+            <h3 className="font-semibold text-ink">
               {t("course:lessonPreview2")}
               {preview.difficulty} · {formatNumber(displayTemplate.estimatedMinutes)}{" "}
               {t("course:minutes2")}
@@ -210,7 +209,7 @@ export function CourseTemplateEditor({ scenario }: { scenario: ScenarioContent }
             <p>
               <strong>{t("course:opening")}</strong> {displayTemplate.openingLine}
             </p>
-            <h4 className="font-medium text-slate-900">{t("course:usefulExpressions2")}</h4>
+            <h4 className="font-medium text-ink">{t("course:usefulExpressions2")}</h4>
             <ul className="list-disc space-y-1 pl-5">
               {displayTemplate.targetPatterns.map((item) => (
                 <li key={item.pattern}>
@@ -218,11 +217,11 @@ export function CourseTemplateEditor({ scenario }: { scenario: ScenarioContent }
                 </li>
               ))}
             </ul>
-            <h4 className="font-medium text-slate-900">{t("course:practiceSteps")}</h4>
+            <h4 className="font-medium text-ink">{t("course:practiceSteps")}</h4>
             <ol className="list-decimal space-y-3 pl-5">
               {displayTemplate.stages.map((stage) => (
                 <li key={stage.id}>
-                  <p className="font-medium text-slate-800">{stage.title}</p>
+                  <p className="font-medium text-ink">{stage.title}</p>
                   <p>{stage.instruction}</p>
                   <p className="mt-1 text-xs font-medium">{t("course:successCriteria")}</p>
                   <ul className="list-disc pl-4">
@@ -239,7 +238,7 @@ export function CourseTemplateEditor({ scenario }: { scenario: ScenarioContent }
           <CourseStudyPack template={preview.courseTemplate} />
         )}
         {exportError && (
-          <p role="alert" className="text-sm text-red-700">
+          <p role="alert" className="text-sm text-error-ink">
             <LocalizedError error={exportError} />
           </p>
         )}
@@ -247,14 +246,14 @@ export function CourseTemplateEditor({ scenario }: { scenario: ScenarioContent }
           type="button"
           disabled={!configured}
           onClick={exportTemplate}
-          className="rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white disabled:opacity-40"
+          className="rounded-md button-primary px-3 py-2 text-sm font-medium disabled:opacity-40"
         >
           {t("course:exportCourseJSON")}
         </button>
         <button
           type="button"
           disabled={!configured || trainingBusy}
-          className="ml-3 rounded-md border border-slate-300 px-3 py-2 text-sm font-medium disabled:opacity-40"
+          className="button-secondary ml-3 rounded-md px-3 py-2 text-sm font-medium disabled:opacity-40"
           onClick={() => {
             if (!configured || useTrainingStore.getState().busy) return;
             useTrainingStore.getState().prepare(configured);

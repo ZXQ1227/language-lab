@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import { formatNumber } from "../i18n";
 import { useTrainingStore } from "../stores/training";
 
-const control = "mt-1 w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm";
+const control = "mt-1 w-full rounded-lg border form-control px-3 py-2 text-sm";
 
 export function SavedPracticePicker() {
   const { t } = useTranslation();

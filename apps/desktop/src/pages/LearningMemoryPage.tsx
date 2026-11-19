@@ -6,8 +6,8 @@ import { profileMemorySchema, type LearningProfile } from "@language-lab/memory"
 import { useTrainingStore } from "../stores/training";
 import { useNavStore } from "../stores/nav";
 
-const control = "mt-1 block w-full rounded border border-slate-300 bg-white p-2 text-sm";
-const button = "rounded bg-slate-900 px-3 py-2 text-sm text-white disabled:opacity-40";
+const control = "mt-1 block w-full rounded border form-control p-2 text-sm";
+const button = "rounded button-primary px-3 py-2 text-sm disabled:opacity-40";
 
 function ProfileEditor({ profile, saved }: { profile: LearningProfile; saved: boolean }) {
   const { t } = useTranslation();
@@ -47,7 +47,7 @@ function ProfileEditor({ profile, saved }: { profile: LearningProfile; saved: bo
         });
       }}
     >
-      <p className="text-sm text-slate-500">
+      <p className="text-sm text-ink-muted">
         {dirty
           ? t("memory:unsavedProfileChanges")
           : saved
@@ -95,7 +95,7 @@ function ProfileEditor({ profile, saved }: { profile: LearningProfile; saved: bo
         />
       </label>
       {error && (
-        <p role="alert" className="text-sm text-red-700">
+        <p role="alert" className="text-sm text-error-ink">
           <LocalizedError error={error} />
         </p>
       )}
@@ -151,7 +151,7 @@ export function LearningMemoryPage({
         <div>
           <h1 className="text-2xl font-semibold">{title}</h1>
           {view === "all" && (
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-sm text-ink-muted">
               {t("memory:yourProfileVocabularyObservationsLanguageIssuesAndPracticeHistoryAcross")}
             </p>
           )}
@@ -163,7 +163,7 @@ export function LearningMemoryPage({
       {error && (
         <div
           role="alert"
-          className="rounded border border-red-200 bg-red-50 p-4 text-sm text-red-700"
+          className="rounded border border-error-line bg-chat-error p-4 text-sm text-error-ink"
         >
           <LocalizedError error={error} />
           <button
@@ -182,7 +182,7 @@ export function LearningMemoryPage({
           {view === "all" && (
             <section
               aria-label={t("memory:profileMemory")}
-              className="space-y-3 rounded border border-slate-200 bg-white p-5"
+              className="space-y-3 rounded border border-line bg-surface p-5"
             >
               <h2 className="font-semibold">{t("memory:profileMemory")}</h2>
               <ProfileEditor
@@ -211,13 +211,13 @@ export function LearningMemoryPage({
           {view !== "corrections" && (
             <section
               aria-label={t("memory:knowledgeMemory")}
-              className="space-y-3 rounded border border-slate-200 bg-white p-5"
+              className="space-y-3 rounded border border-line bg-surface p-5"
             >
               <h2 className="font-semibold">
                 {t("memory:knowledgeMemory2")}
                 {formatNumber(knowledge.length)}
               </h2>
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-ink-muted">
                 {t("memory:usageIsEvidenceOfPracticeNotCorrectnessOrMasteryGuided")}
               </p>
               {!knowledge.length && (
@@ -225,7 +225,7 @@ export function LearningMemoryPage({
                   {t("memory:noVocabularyObservationsYetStartALessonToCollectEvidence")}
                 </p>
               )}
-              <ul className="divide-y divide-slate-100">
+              <ul className="divide-y divide-line">
                 {knowledge.slice(0, limit).map((item) => (
                   <li key={`${item.language}:${item.item}`} className="space-y-1 py-3 text-sm">
                     <p className="font-medium">
@@ -243,7 +243,7 @@ export function LearningMemoryPage({
                     </p>
                     {item.latest && (
                       <>
-                        <blockquote className="break-words text-slate-600">
+                        <blockquote className="break-words text-ink-muted">
                           “{item.latest.quote}” · {item.latest.title}
                         </blockquote>
                         {sourceButton(item.latest.lessonId)}
@@ -257,19 +257,19 @@ export function LearningMemoryPage({
           {view !== "vocabulary" && (
             <section
               aria-label={t("memory:errorMemory")}
-              className="space-y-3 rounded border border-slate-200 bg-white p-5"
+              className="space-y-3 rounded border border-line bg-surface p-5"
             >
               <h2 className="font-semibold">
                 {t("memory:errorMemory2")}
                 {formatNumber(errors.length)}
               </h2>
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-ink-muted">
                 {t("memory:savedDiagnosisObservationsNotProofOfAnOngoingMistakeDemo")}
               </p>
               {!errors.length && (
                 <p className="text-sm">{t("memory:noDiagnosedLanguageIssuesRecorded")}</p>
               )}
-              <ul className="divide-y divide-slate-100">
+              <ul className="divide-y divide-line">
                 {errors.slice(0, limit).map((item, index) => (
                   <li key={`${item.language}:${index}`} className="space-y-1 py-3 text-sm">
                     <p className="break-words font-medium">{item.pattern}</p>
@@ -298,14 +298,14 @@ export function LearningMemoryPage({
           {view === "all" && (
             <section
               aria-label={t("memory:episodicMemory")}
-              className="space-y-3 rounded border border-slate-200 bg-white p-5"
+              className="space-y-3 rounded border border-line bg-surface p-5"
             >
               <h2 className="font-semibold">
                 {t("memory:episodicMemory2")}
                 {formatNumber(episodes.length)}
               </h2>
               {!episodes.length && <p className="text-sm">{t("memory:noPracticeHistoryYet")}</p>}
-              <ul className="divide-y divide-slate-100">
+              <ul className="divide-y divide-line">
                 {episodes.slice(0, limit).map((item) => (
                   <li key={item.lessonId} className="space-y-1 py-3 text-sm">
                     <p className="font-medium">
@@ -313,7 +313,7 @@ export function LearningMemoryPage({
                       {item.completed ? t("memory:completed") : t("memory:inProgress")}
                     </p>
                     <p>{item.summary}</p>
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs text-ink-muted">
                       {t("memory:lastSaved")}
                       {formatDateTime(item.at)}
                     </p>

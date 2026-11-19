@@ -123,6 +123,7 @@ failure then blocks merges.
 
 - `docs/product/PRD.md` — product requirements
 - `docs/architecture/` — system, agent and memory architecture
+- Light theme tokens and contrast [UI color system](docs/development/UI_COLOR_SYSTEM.md)
 - `docs/adr/` — architecture decision records (read before changing documented behavior)
 - `docs/installation/AI_INSTALL.md` — LLAIP: the agent installation protocol
 - `AGENTS.md` — how AI assistants should operate on this repository

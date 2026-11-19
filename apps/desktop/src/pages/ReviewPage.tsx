@@ -8,8 +8,8 @@ import { useTrainingStore } from "../stores/training";
 import { useNavStore } from "../stores/nav";
 import type { TrainingSession } from "../training/session";
 
-const button = "rounded bg-slate-900 px-3 py-2 text-sm text-white disabled:opacity-40";
-const control = "mt-1 block w-full rounded border border-slate-300 p-2 text-sm";
+const button = "rounded button-primary px-3 py-2 text-sm disabled:opacity-40";
+const control = "mt-1 block w-full rounded border form-control p-2 text-sm";
 const feedback = {
   reference_match: "review:feedback.reference_match",
   reference_differs: "review:feedback.reference_differs",
@@ -32,7 +32,7 @@ function ReviewPractice({ session, task }: { session: TrainingSession; task: Rev
   return (
     <section
       aria-label={t("review:targetedReviewPractice")}
-      className="space-y-4 rounded border border-emerald-200 bg-white p-5"
+      className="space-y-4 rounded border border-line-info bg-surface p-5"
     >
       <h2 className="font-semibold">{t(kind[task.kind])}</h2>
       <p className="text-sm">
@@ -40,19 +40,21 @@ function ReviewPractice({ session, task }: { session: TrainingSession; task: Rev
         {session.state.courseTemplate?.targetLanguage}
       </p>
       {session.provider.mode === "demo" && (
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-ink-muted">
           {t("review:basedOnGuidedDemoEvidenceDemoDiagnosesCoverLimitedExamples")}
         </p>
       )}
       <p className="text-sm">{task.prompt}</p>
       {task.kind === "error_practice" && (
-        <div className="space-y-1 rounded bg-slate-50 p-3 text-sm">
+        <div className="space-y-1 rounded bg-chat-error p-3 text-sm text-error-ink">
           <blockquote className="break-words">
             “{task.evidence.context.slice(0, task.error.start)}
-            <mark>{task.evidence.context.slice(task.error.start, task.error.end)}</mark>
+            <mark className="rounded-sm bg-error-mark text-error-ink">
+              {task.evidence.context.slice(task.error.start, task.error.end)}
+            </mark>
             {task.evidence.context.slice(task.error.end)}”
           </blockquote>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-ink-muted">
             {t("review:sourceMessage")}
             {formatNumber(task.evidence.messageSeq)} · {formatNumber(task.observedTurns)}{" "}
             {t("review:observedPracticeReplies")}{" "}
@@ -125,21 +127,21 @@ function ReviewPractice({ session, task }: { session: TrainingSession; task: Rev
       {revealed && (
         <div
           aria-label={t("review:reviewExample")}
-          className="space-y-2 rounded bg-slate-50 p-3 text-sm"
+          className="space-y-2 rounded bg-surface-secondary p-3 text-sm"
         >
           <p className="break-words">{task.reference}</p>
           {task.kind === "error_practice" && <p>{task.error.explanation}</p>}
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-ink-muted">
             {t("review:exampleRevealedThisAttemptWillBeRecordedAsSupportedPractice")}
           </p>
         </div>
       )}
       {checked && (
-        <p role="status" className="rounded bg-emerald-50 p-3 text-sm">
+        <p role="status" className="rounded bg-chat-success p-3 text-sm text-success-ink">
           {t(feedback[checkReviewAnswer(task, answer)])}
         </p>
       )}
-      <p className="text-xs text-slate-500">
+      <p className="text-xs text-ink-muted">
         {t("review:chooseYourOwnNextStepAfterCheckingPractisedMeansYou")}
       </p>
       <div className="flex gap-3">
@@ -180,7 +182,7 @@ function AttemptHistory({ progress }: { progress: ReviewPlan["progress"][number]
   return (
     <details
       aria-label={t("review:reviewAttemptHistory")}
-      className="rounded border border-slate-200 bg-white p-4 text-sm"
+      className="rounded border border-line bg-surface p-4 text-sm"
       open={progress.status === "done"}
     >
       <summary className="cursor-pointer">
@@ -189,7 +191,7 @@ function AttemptHistory({ progress }: { progress: ReviewPlan["progress"][number]
           ? t("review:practisedSelfReported")
           : t("review:pendingTryAgain")}
       </summary>
-      <p className="mt-2 text-xs text-slate-500">
+      <p className="mt-2 text-xs text-ink-muted">
         {t("review:showingTheLatest10AttemptsTheseAnswersAreSeparateFrom")}
       </p>
       <ol className="mt-3 space-y-3">
@@ -202,7 +204,7 @@ function AttemptHistory({ progress }: { progress: ReviewPlan["progress"][number]
                 ? t("review:exampleRevealed")
                 : t("review:exampleNotRevealed")}
             </p>
-            <blockquote className="break-words text-slate-600">“{attempt.answer}”</blockquote>
+            <blockquote className="break-words text-ink-muted">“{attempt.answer}”</blockquote>
             <p className="text-xs">{t(feedback[attempt.check])}</p>
             <p className="text-xs">
               {t("review:yourChoice")}
@@ -296,7 +298,7 @@ export function ReviewPage({ sentencesOnly = false }: { sentencesOnly?: boolean 
           <h1 className="text-2xl font-semibold">
             {sentencesOnly ? t("common:workspace.pages.sentences") : t("review:review")}
           </h1>
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-sm text-ink-muted">
             {t("review:shortFollowUpPracticeBasedOnYourSavedLessonEvidence")}
           </p>
         </div>
@@ -307,7 +309,7 @@ export function ReviewPage({ sentencesOnly = false }: { sentencesOnly?: boolean 
       {error && (
         <div
           role="alert"
-          className="rounded border border-red-200 bg-red-50 p-4 text-sm text-red-700"
+          className="rounded border border-error-line bg-chat-error p-4 text-sm text-error-ink"
         >
           <LocalizedError error={error} />
           <button className="ml-3 underline" disabled={busy} onClick={() => void reload()}>
@@ -350,7 +352,7 @@ export function ReviewPage({ sentencesOnly = false }: { sentencesOnly?: boolean 
             </select>
           </label>
           {!matching.length && (
-            <p className="rounded border border-slate-200 bg-white p-5 text-sm">
+            <p className="rounded border border-line bg-surface p-5 text-sm">
               {t("review:noReviewTasksInThisViewCompleteALessonTo")}
             </p>
           )}
@@ -358,7 +360,7 @@ export function ReviewPage({ sentencesOnly = false }: { sentencesOnly?: boolean 
             {matching.slice(0, limit).map(({ plan, task, progress }) => (
               <li key={task.id}>
                 <button
-                  className={`w-full rounded border p-3 text-left text-sm disabled:opacity-40 ${selected === task.id ? "border-emerald-500 bg-emerald-50" : "border-slate-200 bg-white"}`}
+                  className={`w-full rounded border p-3 text-left text-sm disabled:opacity-40 ${selected === task.id ? "border-brand-primary bg-brand-primary-soft" : "border-line bg-surface"}`}
                   disabled={busy}
                   aria-pressed={selected === task.id}
                   onClick={() => {
@@ -372,17 +374,21 @@ export function ReviewPage({ sentencesOnly = false }: { sentencesOnly?: boolean 
                       ? t("review:value", { v0: uiValue(task.term) })
                       : ""}
                   </span>
-                  <span className="block text-xs text-slate-500">
+                  <span className="block text-xs text-ink-muted">
                     {learningMemory?.episodes.find((e) => e.lessonId === plan.lessonId)?.title ??
                       t("review:savedLesson")}{" "}
                     · {plan.difficulty} · {plan.language}
                   </span>
-                  <span className="text-xs text-slate-500">
-                    {progress.status === "done"
-                      ? t("review:practised")
-                      : progress.dueAt <= now
-                        ? t("review:due")
-                        : t("review:upcoming2")}{" "}
+                  <span className="mt-1 block text-xs text-ink-muted">
+                    <span
+                      className={`inline-block rounded-md px-1.5 py-0.5 font-medium ${progress.status === "done" ? "bg-chat-success text-success-ink" : "bg-chat-hint text-hint-ink"}`}
+                    >
+                      {progress.status === "done"
+                        ? t("review:practised")
+                        : progress.dueAt <= now
+                          ? t("review:due")
+                          : t("review:upcoming2")}
+                    </span>{" "}
                     {t("review:suggestedDate")}
                     {formatDateTime(progress.dueAt)} {t("review:attempts")}{" "}
                     {formatNumber(progress.attemptCount)}
@@ -424,7 +430,7 @@ export function ReviewPage({ sentencesOnly = false }: { sentencesOnly?: boolean 
                   task={canonicalTask}
                 />
               ) : (
-                <p role="status" className="rounded bg-emerald-50 p-4 text-sm">
+                <p role="status" className="rounded bg-chat-success p-4 text-sm text-success-ink">
                   {t("review:practiceSavedChooseAnotherPendingTaskWhenYouAreReady")}
                 </p>
               )}

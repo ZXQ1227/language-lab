@@ -5,7 +5,7 @@ import { useSpeechStore } from "../stores/speech";
 import type { SpeechSettings as Settings } from "../speech/settings";
 import { openAiRoleVoice, voiceMode } from "../speech/voices";
 
-const control = "mt-1 block w-full rounded border border-slate-300 bg-white p-2 text-sm";
+const control = "mt-1 block w-full rounded border form-control p-2 text-sm";
 function Editor({ saved }: { saved: Settings }) {
   const { t } = useTranslation();
   const { save, busy } = useSpeechStore();
@@ -28,7 +28,7 @@ function Editor({ saved }: { saved: Settings }) {
         });
       }}
     >
-      <p className="text-sm text-slate-600">
+      <p className="text-sm text-ink-muted">
         {draft.asr.enabled && draft.asr.mode === "device"
           ? t("speech:deviceRecognitionProcessesYourRecordingsWithTheBuiltInRecognizer")
           : t("speech:recognitionSendsYourRecordingToTheASREndpointYouEnable")}
@@ -61,7 +61,7 @@ function Editor({ saved }: { saved: Settings }) {
             </select>
           </label>
           {draft.asr.mode === "device" ? (
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-ink-muted">
               {t("speech:deviceRecognitionUsesTheBuiltInSpeechRecognizerNoApiKeyNeeded")}
             </p>
           ) : (
@@ -147,7 +147,7 @@ function Editor({ saved }: { saved: Settings }) {
             </select>
           </label>
           {draft.tts.mode === "system" && selectedVoiceMode !== "default" && (
-            <p className="text-xs text-slate-500">{t("speech:deviceVoiceSelectionHint")}</p>
+            <p className="text-xs text-ink-muted">{t("speech:deviceVoiceSelectionHint")}</p>
           )}
         </>
       )}
@@ -209,7 +209,7 @@ function Editor({ saved }: { saved: Settings }) {
                   </label>
                 );
               })}
-              <p className="text-xs text-slate-500">{t("speech:providerVoiceSelectionHint")}</p>
+              <p className="text-xs text-ink-muted">{t("speech:providerVoiceSelectionHint")}</p>
             </>
           )}
           <label className="block text-sm">
@@ -254,15 +254,15 @@ function Editor({ saved }: { saved: Settings }) {
           </label>
         </>
       )}
-      <p className="text-xs text-slate-500">
+      <p className="text-xs text-ink-muted">
         {t("speech:openAICompatibleAudioTranscriptionsAndAudioSpeechEndpointsHTTPIs")}
       </p>
-      <p role="status" className="text-xs text-slate-500">
+      <p role="status" className="text-xs text-ink-muted">
         {dirty ? t("speech:unsavedSpeechSettings") : savedMessage ? t("speech:savedOnDevice") : ""}
       </p>
       <button
         type="submit"
-        className="rounded bg-slate-900 px-3 py-2 text-sm text-white disabled:opacity-40"
+        className="rounded button-primary px-3 py-2 text-sm disabled:opacity-40"
         disabled={busy}
       >
         {t("speech:saveSpeechSettings")}
@@ -279,11 +279,11 @@ export function SpeechSettings() {
   return (
     <section
       aria-label={t("speech:speechSettings")}
-      className="space-y-3 rounded border border-slate-200 bg-white p-5"
+      className="space-y-3 rounded border border-line bg-surface p-5"
     >
       <h2 className="font-semibold">{t("speech:speechInputAndPlayback")}</h2>
       {error && (
-        <p role="alert" className="text-sm text-red-700">
+        <p role="alert" className="text-sm text-error-ink">
           <LocalizedError error={error} />{" "}
           {!settings && (
             <button className="ml-2 underline" disabled={busy} onClick={() => void load()}>

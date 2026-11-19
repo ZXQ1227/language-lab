@@ -9,7 +9,7 @@ import { useNavStore } from "../stores/nav";
 import { useTrainingStore } from "../stores/training";
 
 const courses = loadScenarioContent();
-const control = "mt-1 w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm";
+const control = "mt-1 w-full rounded-lg border form-control px-3 py-2 text-sm";
 
 export function TrainingPage() {
   const { t } = useTranslation();
@@ -27,7 +27,7 @@ export function TrainingPage() {
         <h1 className="text-2xl font-semibold tracking-tight">{t("training:training")}</h1>
         <button
           type="button"
-          className="text-sm font-semibold text-emerald-900 underline underline-offset-4"
+          className="text-sm font-semibold text-brand-ink underline underline-offset-4"
           disabled={busy}
           onClick={() => navigate("conversation")}
         >
@@ -37,7 +37,7 @@ export function TrainingPage() {
       {error && (
         <div
           role="alert"
-          className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700"
+          className="rounded-lg border border-error-line bg-chat-error p-4 text-sm text-error-ink"
         >
           <LocalizedError error={error} />
           <p>{t("training:yourLastSavedProgressIsPreservedYouCanRetryThe")}</p>
@@ -59,7 +59,7 @@ export function TrainingPage() {
         <>
           <SavedPracticePicker />
           {pendingCourse ? (
-            <p className="text-sm text-slate-600">
+            <p className="text-sm text-ink-muted">
               {t("training:usingYourConfiguredCourseTemplate")}
             </p>
           ) : (

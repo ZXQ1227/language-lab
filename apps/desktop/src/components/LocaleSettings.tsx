@@ -19,10 +19,10 @@ export function LocaleSettings() {
   return (
     <section
       aria-label={t("common:locale.settings")}
-      className="space-y-4 rounded border border-slate-200 bg-white p-5"
+      className="space-y-4 rounded border border-line bg-surface p-5"
     >
       <h2 className="font-semibold">{t("common:locale.heading")}</h2>
-      <p className="text-sm text-slate-500">{t("common:locale.description")}</p>
+      <p className="text-sm text-ink-muted">{t("common:locale.description")}</p>
       <label className="flex items-center gap-2 text-sm">
         <input
           type="checkbox"
@@ -41,7 +41,7 @@ export function LocaleSettings() {
       <label className="block max-w-xs text-sm">
         {t("common:locale.interfaceLanguage")}
         <select
-          className="mt-1 block w-full rounded border border-slate-300 bg-white p-2"
+          className="mt-1 block w-full rounded border form-control p-2"
           value={state.appLocale}
           disabled={busy || state.localeMode === "system"}
           onChange={(event) =>
@@ -76,7 +76,7 @@ export function LocaleSettings() {
         </div>
       </dl>
       {state.error && (
-        <p role="alert" className="text-sm text-red-700">
+        <p role="alert" className="text-sm text-error-ink">
           {t(`common:locale.errors.${state.error}`)}
           <button
             type="button"
@@ -88,7 +88,7 @@ export function LocaleSettings() {
           </button>
         </p>
       )}
-      <p role="status" className="text-xs text-slate-500">
+      <p role="status" className="text-xs text-ink-muted">
         {state.saving
           ? t("common:locale.saving")
           : state.localeMode === "system"

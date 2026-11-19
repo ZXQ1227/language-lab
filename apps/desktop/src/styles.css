@@ -1,6 +1,62 @@
 @import "tailwindcss";
 
-/* Base look: fixed light scheme for v0.1 (dark mode lands later). */
+@theme static {
+  /* Brand swatches and their text-safe action tones. */
+  --color-brand-primary: #3978f6;
+  --color-brand-primary-hover: #2865e6;
+  --color-brand-primary-soft: #eaf1ff;
+  --color-brand-primary-subtle: #f3f6ff;
+  --color-brand-purple: #9275f5;
+  --color-brand-purple-soft: #f1edff;
+  --color-brand-yellow: #ffc95c;
+  --color-brand-yellow-soft: #fff5d9;
+  --color-brand-action: #2f6dea;
+  --color-brand-ink: #2455bf;
+  --color-on-brand: #ffffff;
+  --color-selected-hover: #dce8ff;
+  --color-record-action: #795be7;
+  --color-record-hover: #6f52d5;
+
+  /* Light surfaces, content and control boundaries. */
+  --color-app: #f7f8fc;
+  --color-surface: #ffffff;
+  --color-surface-secondary: #f2f4f9;
+  --color-surface-hover: #eef1f7;
+  --color-sidebar: #f2f4fa;
+  --color-ink: #20283b;
+  --color-ink-secondary: #68738a;
+  --color-ink-muted: #59657a;
+  --color-ink-tertiary: #98a1b2;
+  --color-ink-disabled: #b8bfcc;
+  --color-line: #e7eaf1;
+  --color-line-strong: #d7dde8;
+  --color-control: #7d899f;
+  --color-line-info: #cfdfff;
+
+  /* Conversation and teaching feedback. */
+  --color-chat-ai: #f0eeff;
+  --color-chat-ai-ink: #252b43;
+  --color-chat-user: var(--color-brand-action);
+  --color-chat-hint: var(--color-brand-yellow-soft);
+  --color-chat-success: #eaf7f0;
+  --color-chat-error: #fcedef;
+  --color-chat-translation: var(--color-surface-secondary);
+  --color-ai-ink: #44327f;
+  --color-hint-ink: #59451f;
+  --color-success-ink: #285d46;
+  --color-error-ink: #803b49;
+  --color-success-line: #bfe4d2;
+  --color-warning-line: #eedba7;
+  --color-error-line: #edc7ce;
+  --color-error-mark: #f8dce2;
+
+  --color-success: #27966b;
+  --color-warning: #d99524;
+  --color-error: #d85b69;
+  --color-info: var(--color-brand-primary);
+  --color-ai-insight: var(--color-brand-purple);
+}
+
 :root {
   font-family:
     system-ui,
@@ -8,8 +64,90 @@
     "Segoe UI",
     sans-serif;
   color-scheme: light;
+  --gradient-brand: linear-gradient(135deg, #76c8fa, #8a83f7, #e9a4e9);
+  --gradient-warm: linear-gradient(135deg, #8ccfff, #b4a6ff, #ffd58c);
 }
 
-body {
-  margin: 0;
+@layer base {
+  body {
+    margin: 0;
+    background: var(--color-app);
+    color: var(--color-ink);
+  }
+
+  :where(button, a, input, textarea, select, summary):focus-visible {
+    outline: 2px solid var(--color-brand-primary);
+    outline-offset: 2px;
+  }
+
+  :where(input, textarea, select):focus-visible {
+    border-color: var(--color-brand-primary);
+  }
+
+  :where(input[type="checkbox"], input[type="radio"]) {
+    accent-color: var(--color-brand-primary);
+  }
+
+  progress {
+    appearance: none;
+    overflow: hidden;
+    border: 0;
+    border-radius: 999px;
+    background-color: var(--color-line-strong);
+    color: var(--color-brand-primary);
+  }
+
+  progress::-webkit-progress-bar {
+    background-color: var(--color-line-strong);
+  }
+
+  progress::-webkit-progress-value {
+    background-color: var(--color-brand-primary);
+    border-radius: 999px;
+  }
+
+  progress::-moz-progress-bar {
+    background-color: var(--color-brand-primary);
+    border-radius: 999px;
+  }
+
+  :where(input, textarea)::placeholder {
+    color: var(--color-ink-muted);
+    opacity: 1;
+  }
+
+  mark {
+    background: var(--color-chat-hint);
+    color: var(--color-hint-ink);
+  }
+}
+
+@layer components {
+  .button-primary {
+    @apply bg-brand-action text-on-brand enabled:hover:bg-brand-primary-hover;
+  }
+
+  .button-secondary {
+    @apply border border-line-strong bg-surface-secondary text-ink enabled:hover:bg-line;
+  }
+
+  .button-ghost {
+    @apply bg-transparent text-ink enabled:hover:bg-surface-hover;
+  }
+
+  .button-record {
+    @apply bg-record-action text-on-brand enabled:hover:bg-record-hover;
+  }
+
+  .form-control {
+    @apply border-control bg-surface text-ink focus-visible:border-brand-primary;
+  }
+
+  .brand-mark {
+    background-image: var(--gradient-brand);
+  }
+
+  .teacher-avatar {
+    background-image: var(--gradient-warm);
+  }
 }

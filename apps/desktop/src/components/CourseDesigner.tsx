@@ -32,12 +32,12 @@ export function CourseDesigner({
 
   if (!configured) {
     return (
-      <section className="rounded-2xl border border-stone-200 bg-white p-5 sm:p-6">
+      <section className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
         <h2 className="font-semibold">{t("common:courseDesigner.title")}</h2>
         {error ? (
           <button
             type="button"
-            className="mt-3 text-sm font-semibold text-emerald-950 underline underline-offset-4"
+            className="mt-3 text-sm font-semibold text-ink underline underline-offset-4"
             onClick={() => void load()}
             disabled={busy}
           >
@@ -46,13 +46,13 @@ export function CourseDesigner({
         ) : loaded ? (
           <button
             type="button"
-            className="mt-3 text-sm font-semibold text-emerald-950 underline underline-offset-4"
+            className="mt-3 text-sm font-semibold text-ink underline underline-offset-4"
             onClick={() => navigate("settings")}
           >
             {t("common:courseDesigner.configure")}
           </button>
         ) : (
-          <p role="status" className="mt-2 text-sm text-slate-600">
+          <p role="status" className="mt-2 text-sm text-ink-muted">
             {t("common:courseDesigner.loadingSettings")}
           </p>
         )}
@@ -61,11 +61,11 @@ export function CourseDesigner({
   }
 
   return (
-    <section className="rounded-2xl border border-emerald-900/15 bg-white p-5 sm:p-6">
-      <h2 className="text-xl font-semibold tracking-tight text-emerald-950">
+    <section className="rounded-2xl border border-line-info bg-surface p-5 sm:p-6">
+      <h2 className="text-xl font-semibold tracking-tight text-ink">
         {t("common:courseDesigner.title")}
       </h2>
-      <p className="mt-2 text-sm text-slate-600">
+      <p className="mt-2 text-sm text-ink-muted">
         {t("common:courseDesigner.profile", {
           language: profile.targetLanguage,
           level: profile.level,
@@ -99,7 +99,7 @@ export function CourseDesigner({
         <label className="block text-sm font-semibold">
           {t("common:courseDesigner.goal")}
           <textarea
-            className="mt-1.5 block min-h-20 w-full resize-y rounded-lg border border-stone-300 px-3 py-2 font-normal"
+            className="form-control mt-1.5 block min-h-20 w-full resize-y rounded-lg border px-3 py-2 font-normal"
             rows={2}
             value={goal}
             onChange={(event) => setGoal(event.target.value)}
@@ -109,11 +109,11 @@ export function CourseDesigner({
             required
           />
         </label>
-        <p className="text-sm text-slate-600">{t("common:courseDesigner.providerNotice")}</p>
+        <p className="text-sm text-ink-muted">{t("common:courseDesigner.providerNotice")}</p>
         {error && (
           <button
             type="button"
-            className="text-sm font-semibold text-emerald-950 underline underline-offset-4"
+            className="text-sm font-semibold text-ink underline underline-offset-4"
             disabled={busy}
             onClick={() => void load()}
           >
@@ -121,13 +121,13 @@ export function CourseDesigner({
           </button>
         )}
         {failed && (
-          <p role="alert" className="text-sm text-rose-800">
+          <p role="alert" className="text-sm text-error-ink">
             {t("common:courseDesigner.failed")}
           </p>
         )}
         <button
           type="submit"
-          className="rounded-lg bg-emerald-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-800 disabled:opacity-50"
+          className="rounded-lg button-primary px-4 py-2.5 text-sm font-semibold disabled:opacity-50"
           disabled={disabled || busy || !!error || generating || !goal.trim()}
         >
           {generating ? t("common:courseDesigner.generating") : t("common:courseDesigner.generate")}

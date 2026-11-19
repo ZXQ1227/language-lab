@@ -10,8 +10,8 @@ export function SettingsPage() {
   return (
     <section aria-label={t("settings:settings")} className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-slate-900">{t("settings:settings")}</h1>
-        <p className="mt-1 text-sm text-slate-500">
+        <h1 className="text-2xl font-semibold text-ink">{t("settings:settings")}</h1>
+        <p className="mt-1 text-sm text-ink-muted">
           {t("settings:systemStatusAndProviderConfiguration")}
         </p>
       </div>

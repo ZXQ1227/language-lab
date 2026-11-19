@@ -7,8 +7,8 @@ import { useTrainingStore } from "../stores/training";
 import { useNavStore } from "../stores/nav";
 import type { TrainingSession } from "../training/session";
 
-const button = "rounded bg-slate-900 px-3 py-2 text-sm text-white disabled:opacity-40";
-const control = "mt-1 block w-full rounded border border-slate-300 p-2 text-sm";
+const button = "rounded button-primary px-3 py-2 text-sm disabled:opacity-40";
+const control = "mt-1 block w-full rounded border form-control p-2 text-sm";
 
 function Reflection({ session }: { session: TrainingSession }) {
   const { t } = useTranslation();
@@ -21,14 +21,14 @@ function Reflection({ session }: { session: TrainingSession }) {
   return (
     <form
       aria-label={t("reports:lessonReflection")}
-      className="space-y-3 rounded border border-slate-200 bg-white p-5"
+      className="space-y-3 rounded border border-line bg-surface p-5"
       onSubmit={(e) => {
         e.preventDefault();
         void saveReflection({ note, nextPractice });
       }}
     >
       <h2 className="font-semibold">{t("reports:yourReflection")}</h2>
-      <p className="text-sm text-slate-500">
+      <p className="text-sm text-ink-muted">
         {t("reports:aPersonalSelfCheckSeparateFromTheLessonEvidenceAnd")}
       </p>
       <label className="block text-sm">
@@ -53,7 +53,7 @@ function Reflection({ session }: { session: TrainingSession }) {
           onChange={(e) => setNextPractice(e.target.value)}
         />
       </label>
-      <p role="status" className="text-xs text-slate-500">
+      <p role="status" className="text-xs text-ink-muted">
         {dirty
           ? t("reports:unsavedReflection")
           : session.reportReflection
@@ -111,7 +111,7 @@ export function ReportsPage() {
       <div className="flex items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold">{t("reports:reports")}</h1>
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-sm text-ink-muted">
             {t("reports:reviewCompletedLessonsInspectYourEvidenceAndChooseTheNext")}
           </p>
         </div>
@@ -122,7 +122,7 @@ export function ReportsPage() {
       {error && (
         <div
           role="alert"
-          className="rounded border border-red-200 bg-red-50 p-4 text-sm text-red-700"
+          className="rounded border border-error-line bg-chat-error p-4 text-sm text-error-ink"
         >
           <LocalizedError error={error} />
           <button className="ml-3 underline" disabled={busy} onClick={() => void reload()}>
@@ -151,21 +151,21 @@ export function ReportsPage() {
             </select>
           </label>
           {!reports.length && (
-            <p className="rounded border border-slate-200 bg-white p-5 text-sm">
+            <p className="rounded border border-line bg-surface p-5 text-sm">
               {t("reports:noCompletedReportsInThisViewFinishALessonAnd")}
             </p>
           )}
           <div aria-label={t("reports:reportHistory")} role="group" className="space-y-4">
             {Array.from(days, ([day, items]) => (
               <section key={day} aria-label={day}>
-                <h2 className="mb-2 text-sm font-semibold text-slate-600">{day}</h2>
+                <h2 className="mb-2 text-sm font-semibold text-ink-muted">{day}</h2>
                 <ul className="grid gap-2 sm:grid-cols-2">
                   {items.map((item) => (
                     <li key={item.lessonId}>
                       <button
                         disabled={busy}
                         aria-pressed={selected === item.lessonId}
-                        className={`w-full rounded border p-3 text-left text-sm disabled:opacity-40 ${selected === item.lessonId ? "border-emerald-500 bg-emerald-50" : "border-slate-200 bg-white"}`}
+                        className={`w-full rounded border p-3 text-left text-sm disabled:opacity-40 ${selected === item.lessonId ? "border-brand-primary bg-brand-primary-soft" : "border-line bg-surface"}`}
                         onClick={() => {
                           setSelected(item.lessonId);
                           void loadReport(item.lessonId);
@@ -174,7 +174,7 @@ export function ReportsPage() {
                         <span className="block font-medium">
                           {item.title} · {item.difficulty}
                         </span>
-                        <span className="text-xs text-slate-500">
+                        <span className="text-xs text-ink-muted">
                           {item.mode === "demo"
                             ? t("reports:guidedDemo")
                             : t("reports:aIConversation")}{" "}

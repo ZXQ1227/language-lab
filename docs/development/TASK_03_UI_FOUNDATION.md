@@ -24,6 +24,7 @@ storage and platform decisions.
 
 ## Development acceptance criteria
 
+- Use the shared color tokens for the fixed light theme. [Sayden color system](UI_COLOR_SYSTEM.md)
 - All static UI text, a11y labels, statuses and application validation copy use
   `src/i18n/locales/{zh-CN,zh-TW,en-US}/*.json` resources. Never defer localization
   until after a page is built. Complete all three catalogs with matching variables.

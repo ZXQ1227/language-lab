@@ -14,14 +14,14 @@ export function PagePlaceholder({ title, description, planned }: PagePlaceholder
   return (
     <section aria-label={title} className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-slate-900">{title}</h1>
-        <p className="mt-1 text-sm text-slate-500">{description}</p>
+        <h1 className="text-2xl font-semibold text-ink">{title}</h1>
+        <p className="mt-1 text-sm text-ink-muted">{description}</p>
       </div>
-      <div className="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-6">
-        <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+      <div className="rounded-lg border border-dashed border-line-strong bg-surface-secondary p-6">
+        <p className="text-xs font-medium uppercase tracking-wide text-ink-muted">
           {t("common:plannedForThisPage")}
         </p>
-        <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-slate-600">
+        <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-ink-muted">
           {planned.map((item) => (
             <li key={item}>{item}</li>
           ))}

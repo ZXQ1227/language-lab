@@ -27,23 +27,23 @@ export function VoiceInput({
   useEffect(() => {
     setText(capture.text ?? "");
   }, [capture.text]);
-  const button = "rounded border border-slate-300 bg-white px-3 py-2 text-sm disabled:opacity-40";
+  const button = "button-secondary rounded px-3 py-2 text-sm disabled:opacity-40";
   const showSettings = !voice.settings?.asr.enabled || !!voice.error;
   const active = capture.phase !== "idle";
   if (!active && !showSettings) return null;
   return (
     <section
       aria-label={t("speech:voiceInput")}
-      className="space-y-2 rounded-xl bg-stone-100 px-3 py-2 text-sm"
+      className="space-y-2 rounded-xl bg-surface-secondary px-3 py-2 text-sm"
     >
       {(showSettings || active) && (
         <div className="flex flex-wrap items-center justify-between gap-2">
           {showSettings && (
             <>
-              <p className="text-xs text-slate-600">{t("training:focus.microphoneSetup")}</p>
+              <p className="text-xs text-ink-muted">{t("training:focus.microphoneSetup")}</p>
               <button
                 type="button"
-                className="text-xs font-semibold text-emerald-900 underline"
+                className="text-xs font-semibold text-brand-ink underline"
                 disabled={busy || voice.capturing}
                 onClick={() => navigate("settings")}
               >
@@ -63,7 +63,7 @@ export function VoiceInput({
         </div>
       )}
       {voice.error && (
-        <p role="alert" className="text-sm text-red-700">
+        <p role="alert" className="text-sm text-error-ink">
           <LocalizedError error={voice.error} />
           <button type="button" className="ml-2 underline" onClick={() => void voice.load()}>
             {t("speech:retrySpeechSetup")}
@@ -76,7 +76,10 @@ export function VoiceInput({
         </p>
       )}
       {capture.phase === "recording" && (
-        <p role="status" className="text-sm">
+        <p
+          role="status"
+          className="w-fit rounded-md bg-brand-primary-soft px-2 py-1 text-sm text-brand-ink"
+        >
           {t("speech:recordingStopWhenYourReplyIsComplete")}
         </p>
       )}
@@ -86,7 +89,7 @@ export function VoiceInput({
         </p>
       )}
       {capture.error && (
-        <p role="alert" className="text-sm text-red-700">
+        <p role="alert" className="text-sm text-error-ink">
           <LocalizedError error={capture.error} />{" "}
           {capture.canRetry && (
             <button type="button" className="ml-2 underline" disabled={busy} onClick={voice.retry}>
@@ -100,7 +103,7 @@ export function VoiceInput({
           <label className="block text-sm">
             {t("speech:recognizedSpeech")}
             <textarea
-              className="mt-1 block w-full rounded border border-slate-300 bg-white p-2"
+              className="mt-1 block w-full rounded border form-control p-2"
               rows={3}
               maxLength={4000}
               value={text}
@@ -108,7 +111,7 @@ export function VoiceInput({
               onChange={(event) => setText(event.target.value)}
             />
           </label>
-          <p className="text-xs text-slate-600">
+          <p className="text-xs text-ink-muted">
             {capture.confidence === undefined
               ? t("speech:recognitionConfidenceWasNotSupplied")
               : capture.confidence < 0.75
@@ -133,7 +136,7 @@ export function VoiceInput({
             {hasDraft ? t("speech:appendTranscriptToDraft") : t("speech:useTranscript")}
           </button>
           {text.trim().length > remainingCharacters && (
-            <p role="alert" className="text-sm text-red-700">
+            <p role="alert" className="text-sm text-error-ink">
               {t("speech:theCombinedDraftExceeds4000CharactersShortenTheTranscriptBefore")}
             </p>
           )}

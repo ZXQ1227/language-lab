@@ -29,7 +29,7 @@ function Correction({
   return (
     <div
       aria-label={t("training:correction")}
-      className="space-y-2 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm"
+      className="space-y-2 rounded-lg border border-error-line bg-chat-error p-4 text-sm text-error-ink"
     >
       <p className="font-medium">
         {t(categories[error.category])} ·{" "}
@@ -38,20 +38,18 @@ function Correction({
       <blockquote>
         {t("training:reply")}
         {formatNumber(Math.ceil(record.messageSeq / 2))}: “{message.content.slice(0, error.start)}
-        <mark className="bg-amber-200">{error.original}</mark>
+        <mark className="rounded-sm bg-error-mark text-error-ink">{error.original}</mark>
         {message.content.slice(error.end)}”
       </blockquote>
       <p>
         {error.original} → <strong>{error.corrected}</strong>
       </p>
       <details>
-        <summary className="cursor-pointer text-slate-700">{t("training:whyThisWording")}</summary>
+        <summary className="cursor-pointer font-medium">{t("training:whyThisWording")}</summary>
         <p className="mt-2">{error.explanation}</p>
       </details>
       {record.diagnosis.errors.length > 1 && (
-        <p className="text-xs text-slate-600">
-          {t("training:onePointToFocusOnBeforeContinuingTheConversation")}
-        </p>
+        <p className="text-xs">{t("training:onePointToFocusOnBeforeContinuingTheConversation")}</p>
       )}
     </div>
   );
@@ -67,14 +65,14 @@ export function LanguageFeedback({ session }: { session: TrainingSession }) {
   return (
     <section
       aria-label={t("training:languageFeedback")}
-      className="space-y-3 rounded-lg border border-slate-200 bg-white p-4 text-sm"
+      className="space-y-3 rounded-lg border border-line bg-surface p-4 text-sm"
     >
       <h3 className="font-medium">
         {t("training:languageFeedbackReply")}
         {formatNumber(Math.ceil(latest.messageSeq / 2))}
       </h3>
       {latest.diagnosis.source === "demo" && (
-        <p className="text-slate-500">
+        <p className="text-ink-muted">
           {t("training:guidedDemoChecksAFewExamplePatternsOnlyConnectAI")}
         </p>
       )}
@@ -100,16 +98,16 @@ export function LanguageFeedback({ session }: { session: TrainingSession }) {
         <p>{t("training:noHighConfidenceCorrectionWasFoundInThisReply")}</p>
       )}
       {latest.diagnosis.status === "uncertain" && latest.diagnosis.source === "model" && (
-        <p className="text-slate-500">
+        <p className="text-ink-muted">
           {t("training:someWordingNeedsMoreContextUncertainSuggestionsWereNotTreated")}
         </p>
       )}
-      <p className="text-xs text-slate-500">
+      <p className="text-xs text-ink-muted">
         {t("training:keepYourIntendedMeaningWhenTryingACorrectionSpokenFluency")}
       </p>
       {earlier.length > 0 && (
         <details>
-          <summary className="cursor-pointer text-slate-700">
+          <summary className="cursor-pointer text-ink">
             {t("training:earlierFeedback")}
             {formatNumber(earlier.length)}
           </summary>

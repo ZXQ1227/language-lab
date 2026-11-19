@@ -128,6 +128,9 @@ test("prioritizes vocabulary meaning, highlights evidence and restores feedback 
   const calls = await startHotel(page);
   await send(page, utterance);
   const feedback = page.getByLabel("Language feedback", { exact: true });
+  const correction = feedback.getByLabel("Correction", { exact: true });
+  await expect(correction).toHaveCSS("background-color", "rgb(252, 237, 239)");
+  await expect(correction).toHaveCSS("color", "rgb(128, 59, 73)");
   await expect(feedback.getByText("Word choice · Affects meaning", { exact: true })).toBeVisible();
   await expect(feedback.locator("mark")).toHaveText("reserve");
   await feedback.getByText("Why this wording?", { exact: true }).click();
