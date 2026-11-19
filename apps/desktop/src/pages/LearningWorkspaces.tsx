@@ -99,6 +99,12 @@ export function PlanPage() {
         <h1 id="plan-heading" className="text-3xl font-semibold tracking-tight sm:text-4xl">
           {t("common:workspace.learningPlan")}
         </h1>
+        <div className="mt-3 space-y-1 text-sm leading-relaxed text-emerald-900">
+          <p lang="en" className="font-medium italic">
+            {t("common:brand.taglineEnglish")}
+          </p>
+          <p lang="zh-Hans">{t("common:brand.taglineChinese")}</p>
+        </div>
       </header>
       <OverviewStatus />
       <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">

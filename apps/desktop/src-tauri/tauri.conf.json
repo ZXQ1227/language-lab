@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "Sayden",
+        "title": "Sayden · 言港",
         "width": 1120,
         "height": 760,
         "minWidth": 880,
@@ -26,6 +26,11 @@
   "bundle": {
     "active": true,
     "targets": ["dmg", "msi"],
+    "windows": {
+      "wix": {
+        "upgradeCode": "fb70951d-e596-566b-b1e9-1f718ccc13dc"
+      }
+    },
     "macOS": {
       "infoPlist": "Info.plist",
       "entitlements": "Entitlements.plist"

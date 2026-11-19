@@ -12,7 +12,7 @@ test.describe("local data persistence", () => {
   test("records written through IPC survive an app restart (reload)", async ({ page }) => {
     await installTauriMock(page, { lessons: [], scenarios: [] });
     await page.goto("/");
-    await expect(page.getByText("Sayden", { exact: true })).toBeVisible();
+    await expect(page.getByText("Sayden · 言港", { exact: true })).toBeVisible();
 
     // Write one lesson row through the (mocked) persistence layer.
     const written = await page.evaluate(async () => {
@@ -37,7 +37,7 @@ test.describe("local data persistence", () => {
     expect(afterRestart.map((r) => r.id)).toEqual(["lesson-e2e-1"]);
 
     // And the shell is healthy after the restart.
-    await expect(page.getByText("Sayden", { exact: true })).toBeVisible();
+    await expect(page.getByText("Sayden · 言港", { exact: true })).toBeVisible();
   });
 
   test("fresh sessions start with an empty store (no leakage between users)", async ({

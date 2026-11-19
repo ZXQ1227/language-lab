@@ -8,7 +8,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test("shows the four learning workspaces and the plan at startup", async ({ page }) => {
-  await expect(page.getByText("Sayden", { exact: true })).toBeVisible();
+  await expect(page.getByText("Sayden · 言港", { exact: true })).toBeVisible();
   const nav = page.getByRole("navigation", { name: "Main navigation" });
   await expect(nav.getByRole("button")).toHaveText([
     "Home",

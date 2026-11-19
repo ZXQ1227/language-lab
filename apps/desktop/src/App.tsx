@@ -78,11 +78,11 @@ export function App() {
           <div className="flex items-center gap-3">
             <span
               aria-hidden="true"
-              className="grid size-9 place-items-center rounded-lg bg-[#def3ad] text-sm font-bold text-emerald-950"
+              className="grid size-9 shrink-0 place-items-center rounded-lg bg-[#def3ad] text-sm font-bold text-emerald-950"
             >
-              {t("common:workspace.monogram")}
+              {t("common:brand.monogram")}
             </span>
-            <p className="font-semibold tracking-tight">{t("common:languageLab")}</p>
+            <p className="font-semibold tracking-tight">{t("common:brand.name")}</p>
           </div>
           <nav
             aria-label={t("common:mainNavigation")}

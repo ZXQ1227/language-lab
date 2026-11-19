@@ -1,5 +1,4 @@
 {
-  "languageLab": "Sayden",
   "localFirstEnglishLearning": "Local-first English learning",
   "mainNavigation": "Main navigation",
   "v001YourDataStaysOnThisDevice": "v0.0.1 · your data stays on this device",
@@ -91,7 +90,6 @@
     "missingVoice": "No installed device voice is available for {{language}}. Choose a TTS provider in Settings or use text."
   },
   "workspace": {
-    "monogram": "LL",
     "sections": {
       "home": "Home",
       "conversation": "Conversation",

@@ -1,5 +1,4 @@
 {
-  "languageLab": "Sayden",
   "localFirstEnglishLearning": "本地优先的英语学习",
   "mainNavigation": "主导航",
   "v001YourDataStaysOnThisDevice": "v0.0.1 · 学习记录保存在本机",
@@ -91,7 +90,6 @@
     "missingVoice": "设备没有可用于 {{language}} 的已安装语音，请在设置中选择 TTS 服务商，或使用文字。"
   },
   "workspace": {
-    "monogram": "LL",
     "sections": {
       "home": "首页",
       "conversation": "对话",

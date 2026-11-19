@@ -81,7 +81,7 @@ fn wait_for_authorization() -> Result<(), String> {
             Ok(resolved) if resolved == SFSpeechRecognizerAuthorizationStatus::Authorized => {}
             Ok(_) => {
                 return Err(
-                    "Speech recognition permission was denied. Enable Language Lab in System Settings > Privacy & Security > Speech Recognition, or switch to a custom API endpoint in Settings."
+                    "Speech recognition permission was denied. Enable Sayden in System Settings > Privacy & Security > Speech Recognition, or switch to a custom API endpoint in Settings."
                         .into(),
                 )
             }
@@ -94,7 +94,7 @@ fn wait_for_authorization() -> Result<(), String> {
         }
     } else if status != SFSpeechRecognizerAuthorizationStatus::Authorized {
         return Err(
-            "Speech recognition permission was denied. Enable Language Lab in System Settings > Privacy & Security > Speech Recognition, or switch to a custom API endpoint in Settings."
+            "Speech recognition permission was denied. Enable Sayden in System Settings > Privacy & Security > Speech Recognition, or switch to a custom API endpoint in Settings."
                 .into(),
         );
     }
