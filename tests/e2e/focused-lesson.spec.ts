@@ -23,6 +23,12 @@ test("previews the course, keeps reply controls within the window and resumes sa
   const dock = page.getByRole("form", { name: "Reply controls" });
   const composer = dock.getByRole("textbox", { name: "Your reply", exact: true });
   await expect(transcript).toContainText("What can I get for you today?");
+  await expect(transcript.getByText("Zoi", { exact: true })).toHaveCount(1);
+  const avatar = page.getByText("Zoi", { exact: true }).first().locator("..").locator("img");
+  await expect(avatar).toBeVisible();
+  await expect
+    .poll(() => avatar.evaluate((image: HTMLImageElement) => image.naturalWidth))
+    .toBeGreaterThan(0);
   await expect(dock).toBeInViewport({ ratio: 1 });
   await expect(page.getByRole("navigation", { name: "Main navigation" })).toHaveCount(0);
   await composer.fill("Could I have a latte and a muffin, please?");
@@ -37,6 +43,7 @@ test("previews the course, keeps reply controls within the window and resumes sa
   await expect(page.getByRole("heading", { name: "Conversation", exact: true })).toBeVisible();
   await openWorkspacePage(page, "Training");
   await expect(transcript).toContainText("What size would you like?");
+  await expect(transcript.getByText("Zoi", { exact: true })).toHaveCount(2);
   await expect(
     transcript.getByText("Could I have a latte and a muffin, please?", { exact: true }),
   ).toHaveCount(1);
