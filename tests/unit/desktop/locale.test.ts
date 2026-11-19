@@ -80,7 +80,8 @@ describe("interface locale policy", () => {
           [...value.matchAll(/{{\s*([^}]+)\s*}}/g)].map((m) => m[1]).sort(),
           `${locale}:${key}`,
         ).toEqual([...english[key]!.matchAll(/{{\s*([^}]+)\s*}}/g)].map((m) => m[1]).sort());
-        if (key.startsWith("common.brand.")) expect(value, `${locale}:${key}`).toBe(english[key]);
+        if (key.startsWith("common.brand.") || key === "training.defaultPartnerName")
+          expect(value, `${locale}:${key}`).toBe(english[key]);
         else if (locale !== "en-US" && /[a-z]{3}/i.test(value) && !unchanged.has(value.trim()))
           expect(value, `${locale}:${key}`).not.toBe(english[key]);
       }

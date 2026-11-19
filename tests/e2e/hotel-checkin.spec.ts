@@ -34,6 +34,10 @@ test("studies the full pack, completes five tasks and restores saved independent
   await pack.getByText("Model conversation · standard scenario", { exact: true }).click();
   await expect(pack.getByText(/So the deposit is separate/)).toBeVisible();
   await page.getByRole("button", { name: "Start lesson", exact: true }).click();
+  const transcript = page.getByLabel("Conversation", { exact: true });
+  await expect(transcript.getByText("Maya", { exact: true })).toHaveCount(1);
+  const partnerHeader = page.getByText("Maya", { exact: true }).first().locator("..");
+  await expect(partnerHeader.locator("img")).toHaveCount(0);
   for (const next of [
     "Confirm your stay and room",
     "Clarify the deposit",

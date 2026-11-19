@@ -16,6 +16,7 @@ import { VocabularyProgress } from "./VocabularyProgress";
 
 const action =
   "rounded-lg border border-stone-300 bg-white px-3 py-2 text-xs font-semibold text-emerald-950 hover:bg-emerald-50 disabled:opacity-50";
+const zoiAvatar = new URL("../assets/zoi-avatar.webp", import.meta.url).href;
 
 export function LessonConversation({ session }: { session: TrainingSession }) {
   const { t } = useTranslation();
@@ -33,7 +34,8 @@ export function LessonConversation({ session }: { session: TrainingSession }) {
   );
   const phase = session.state.phase;
   const immersive = phase !== "done";
-  const partner = session.state.courseTemplate?.character?.name ?? t("training:practicePartner2");
+  const character = session.state.courseTemplate?.character;
+  const partner = character?.name ?? t("training:defaultPartnerName");
   const completed = session.state.objectives.filter((objective) => objective.completed).length;
   const total = session.state.objectives.length;
   const latest = [...session.messages].reverse().find((message) => message.role === "assistant");
@@ -227,12 +229,22 @@ export function LessonConversation({ session }: { session: TrainingSession }) {
       >
         <div className="mx-auto max-w-3xl space-y-4 px-3 py-4 sm:px-6 sm:py-6">
           <div className="flex items-center gap-2 text-sm font-semibold text-emerald-950">
-            <span
-              aria-hidden="true"
-              className="grid size-8 place-items-center rounded-lg bg-[#dceac8] uppercase"
-            >
-              {Array.from(partner)[0]}
-            </span>
+            {character ? (
+              <span
+                aria-hidden="true"
+                className="grid size-8 place-items-center rounded-lg bg-[#dceac8] uppercase"
+              >
+                {Array.from(partner)[0]}
+              </span>
+            ) : (
+              <img
+                src={zoiAvatar}
+                alt=""
+                width={48}
+                height={48}
+                className="size-12 shrink-0 rounded-xl border border-emerald-950/10 bg-[#e5eddd] object-cover"
+              />
+            )}
             <span>{partner}</span>
           </div>
           <ol aria-label={t("training:conversation")} className="space-y-3">

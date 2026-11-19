@@ -9,7 +9,9 @@ Alternatively, configure or import a course in **Scenarios**, then select
 copied into the saved practice session.
 
 An active lesson fills the window. The header shows the current goal and offers
-playback and lesson details. Open **Lesson details** for criteria, course
+playback and lesson details. The conversation shows **Zoi** with a bundled
+portrait when the course has no named character. Courses with a named character
+show that character's name. Open **Lesson details** for criteria, course
 materials, vocabulary evidence and saved practice. The conversation scrolls
 independently of the bottom reply controls. Toggle **Keyboard** to show or hide
 the current text draft. **Exit lesson** returns to the practice modes. Reopen
