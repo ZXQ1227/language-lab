@@ -1,7 +1,7 @@
 # Product Requirements Document
 
 Status: placeholder. The product definition and engineering blueprint live in
-the Language Lab Engineering Blueprint v1.1 (see AGENTS.md status note).
+the Sayden Engineering Blueprint v1.1 (see AGENTS.md status note).
 
 Scope to fill in:
 

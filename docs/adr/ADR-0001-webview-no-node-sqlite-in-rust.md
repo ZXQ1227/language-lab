@@ -6,7 +6,7 @@
 
 ## Context
 
-Language Lab is a Tauri 2 app. Tauri's webview (WKWebView / WebView2) has no
+Sayden is a Tauri 2 app. Tauri's webview (WKWebView / WebView2) has no
 Node.js runtime. The original blueprint v1.0 placed Drizzle + a SQLite driver
 in a TypeScript `packages/database` runtime layer, which cannot work.
 

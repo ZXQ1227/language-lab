@@ -11,7 +11,7 @@ AI coding assistant (Codex, Claude Code, …) to set the app up on their machine
 
 ## Decision
 
-- `docs/installation/AI_INSTALL.md` defines **LLAIP** (Language Lab AI
+- `docs/installation/AI_INSTALL.md` defines **LLAIP** (Sayden AI
   Installation Protocol): a structured, machine-readable checklist an agent
   follows to verify OS requirements, download the right release asset, run
   first-launch checks (DB created, migrations applied, health check green),

@@ -1,4 +1,4 @@
-// Drizzle schema for Language Lab.
+// Drizzle schema for Sayden.
 //
 // Build-time only (blueprint v1.1): drizzle-kit turns this into versioned SQL
 // migrations executed by the Rust core at startup. Nothing here runs in the

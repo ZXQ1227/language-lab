@@ -2,7 +2,7 @@
 
 Status: placeholder.
 
-The Language Lab Agent Installation Protocol defines how an AI assistant
+The Sayden Agent Installation Protocol (LLAIP) defines how an AI assistant
 installs this app for an end user. Planned stages:
 Discover → Inspect → Verify → Install → Configure → Validate.
 

@@ -70,7 +70,7 @@ describe("interface locale policy", () => {
   });
   it("ships every key and interpolation in all three real translations", () => {
     const english = leaves(resources["en-US"]);
-    const unchanged = new Set(["Language Lab", "AI", "v", "—"]);
+    const unchanged = new Set(["Sayden", "AI", "v", "—"]);
     for (const locale of appLocales) {
       const translated = leaves(resources[locale]);
       expect(Object.keys(translated).sort()).toEqual(Object.keys(english).sort());
