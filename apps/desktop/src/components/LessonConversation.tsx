@@ -15,7 +15,8 @@ import { LocalizedError } from "./LocalizedError";
 import { SavedPracticePicker } from "./SavedPracticePicker";
 import { VocabularyProgress } from "./VocabularyProgress";
 
-const action = "button-secondary rounded-lg px-3 py-2 text-xs font-semibold disabled:opacity-50";
+const action =
+  "button-secondary rounded-full px-3 py-1.5 text-xs font-semibold disabled:opacity-50";
 const zoiAvatar = new URL("../assets/zoi-avatar.webp", import.meta.url).href;
 
 export function LessonConversation({ session }: { session: TrainingSession }) {
@@ -63,13 +64,61 @@ export function LessonConversation({ session }: { session: TrainingSession }) {
     }
   };
 
+  const composing = phase === "briefing" || phase === "practice";
+  const lessonDetails = (
+    <details className="text-sm">
+      <summary className="button-secondary w-fit cursor-pointer rounded-full px-3 py-1.5 text-xs font-semibold">
+        {t("training:focus.details")}
+      </summary>
+      <div
+        className={`max-h-[34dvh] space-y-3 overflow-y-auto overscroll-contain rounded-2xl border border-line bg-surface p-4 ${composing ? "absolute inset-x-3 bottom-full z-10 mx-auto mb-2 max-w-4xl shadow-lg" : "mt-2"}`}
+      >
+        <p className="text-sm text-ink-muted">
+          {session.provider.mode === "demo"
+            ? t("training:guidedDemoSuggestedRepliesOnly")
+            : t("training:connectedAIValue", { v0: session.provider.model })}
+        </p>
+        <ul className="space-y-1 text-sm">
+          {session.state.objectives.map((objective) => (
+            <li key={objective.id}>
+              {objective.completed ? "✓" : "○"} {objective.description}
+            </li>
+          ))}
+        </ul>
+        {stage && (
+          <ul
+            aria-label={t("training:currentSuccessCriteria")}
+            className="list-disc pl-5 text-sm text-ink-muted"
+          >
+            {stage.successCriteria.map((criterion) => (
+              <li key={criterion}>{criterion}</li>
+            ))}
+          </ul>
+        )}
+        {session.state.courseTemplate?.learningPack && (
+          <details className="text-sm">
+            <summary className="cursor-pointer font-medium text-ink">
+              {t("training:lessonReference")}
+            </summary>
+            <div className="mt-3">
+              <CourseStudyPack template={session.state.courseTemplate} />
+            </div>
+          </details>
+        )}
+        <VocabularyProgress session={session} />
+
+        <SavedPracticePicker />
+      </div>
+    </details>
+  );
+
   return (
     <section
       aria-label={t("training:training")}
       className={immersive ? "flex min-h-0 flex-1 flex-col bg-app" : "mx-auto max-w-3xl space-y-4"}
     >
       <header className="shrink-0 border-b border-line bg-surface">
-        <div className="mx-auto max-w-3xl px-3 py-3 sm:px-6 sm:py-4">
+        <div className="mx-auto max-w-4xl px-4 py-3 sm:px-6 sm:py-4">
           <h1 className="sr-only">{t("training:training")}</h1>
           <div className="flex flex-wrap items-start justify-between gap-2">
             <div className="min-w-0 grow">
@@ -100,14 +149,16 @@ export function LessonConversation({ session }: { session: TrainingSession }) {
               {challenge.title}
             </p>
           )}
-          <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2">
+          <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
             {total > 0 && (
-              <label className="inline-flex flex-wrap items-center gap-2 text-xs font-medium text-ink">
-                {t("training:focus.goalProgress", {
-                  completed: formatNumber(completed),
-                  total: formatNumber(total),
-                })}
-                <progress className="h-1.5 w-20 sm:w-28" value={completed} max={total} />
+              <label className="flex min-w-[min(100%,13rem)] flex-1 items-center gap-3 text-xs font-medium text-ink-muted">
+                <progress className="h-1.5 min-w-8 flex-1" value={completed} max={total} />
+                <span>
+                  {t("training:focus.goalProgress", {
+                    completed: formatNumber(completed),
+                    total: formatNumber(total),
+                  })}
+                </span>
               </label>
             )}
             <section
@@ -149,48 +200,7 @@ export function LessonConversation({ session }: { session: TrainingSession }) {
               </div>
             </section>
           </div>
-          <details className="mt-2 text-sm">
-            <summary className="cursor-pointer py-1 text-xs font-semibold text-ink">
-              {t("training:focus.details")}
-            </summary>
-            <div className="mt-2 max-h-[34dvh] space-y-3 overflow-y-auto overscroll-contain rounded-lg border border-line p-3">
-              <p className="text-sm text-ink-muted">
-                {session.provider.mode === "demo"
-                  ? t("training:guidedDemoSuggestedRepliesOnly")
-                  : t("training:connectedAIValue", { v0: session.provider.model })}
-              </p>
-              <ul className="space-y-1 text-sm">
-                {session.state.objectives.map((objective) => (
-                  <li key={objective.id}>
-                    {objective.completed ? "✓" : "○"} {objective.description}
-                  </li>
-                ))}
-              </ul>
-              {stage && (
-                <ul
-                  aria-label={t("training:currentSuccessCriteria")}
-                  className="list-disc pl-5 text-sm text-ink-muted"
-                >
-                  {stage.successCriteria.map((criterion) => (
-                    <li key={criterion}>{criterion}</li>
-                  ))}
-                </ul>
-              )}
-              {session.state.courseTemplate?.learningPack && (
-                <details className="text-sm">
-                  <summary className="cursor-pointer font-medium text-ink">
-                    {t("training:lessonReference")}
-                  </summary>
-                  <div className="mt-3">
-                    <CourseStudyPack template={session.state.courseTemplate} />
-                  </div>
-                </details>
-              )}
-              <VocabularyProgress session={session} />
-
-              <SavedPracticePicker />
-            </div>
-          </details>
+          {!composing && <div className="mt-2">{lessonDetails}</div>}
           {error && (
             <div
               role="alert"
@@ -220,12 +230,16 @@ export function LessonConversation({ session }: { session: TrainingSession }) {
           follow.current = scrollHeight - scrollTop - clientHeight < 64;
         }}
       >
-        <div className="mx-auto max-w-3xl space-y-4 px-3 py-4 sm:px-6 sm:py-6">
-          <div className="flex items-center gap-2 text-sm font-semibold text-ink">
+        <div className="mx-auto max-w-4xl space-y-5 px-4 py-5 sm:space-y-6 sm:px-6 sm:py-7">
+          <div
+            role="group"
+            aria-label={t("course:practicePartner")}
+            className="flex w-fit max-w-full items-center gap-4 rounded-3xl border border-line-info bg-brand-primary-subtle p-3.5 pr-5 sm:gap-5 sm:p-4 sm:pr-6"
+          >
             {character ? (
               <span
                 aria-hidden="true"
-                className="teacher-avatar grid size-8 place-items-center rounded-lg uppercase"
+                className="teacher-avatar grid size-14 shrink-0 place-items-center rounded-full text-xl font-semibold uppercase sm:size-16"
               >
                 {Array.from(partner)[0]}
               </span>
@@ -233,14 +247,24 @@ export function LessonConversation({ session }: { session: TrainingSession }) {
               <img
                 src={zoiAvatar}
                 alt=""
-                width={48}
-                height={48}
-                className="teacher-avatar size-12 shrink-0 rounded-xl object-cover"
+                width={64}
+                height={64}
+                className="teacher-avatar size-14 shrink-0 rounded-full object-cover sm:size-16"
               />
             )}
-            <span>{partner}</span>
+            <div className="min-w-0">
+              <p className="break-words font-semibold text-ink">{partner}</p>
+              {session.state.courseTemplate?.roles.partner && (
+                <p
+                  lang={language}
+                  className="mt-0.5 max-w-48 break-words text-xs leading-relaxed text-ink-muted"
+                >
+                  {session.state.courseTemplate.roles.partner}
+                </p>
+              )}
+            </div>
           </div>
-          <ol aria-label={t("training:conversation")} className="space-y-3">
+          <ol aria-label={t("training:conversation")} className="space-y-4 sm:space-y-5">
             {session.messages.map((message, index) => {
               const previous = session.messages[index - 1];
               const hint =
@@ -250,16 +274,16 @@ export function LessonConversation({ session }: { session: TrainingSession }) {
                 detectDialogueSupport(previous.content) === "hint";
               const bubble =
                 message.role === "user"
-                  ? "ml-auto rounded-br-sm bg-chat-user text-on-brand"
+                  ? "ml-auto rounded-tr-md bg-chat-user text-on-brand"
                   : hint
-                    ? "rounded-bl-sm bg-chat-hint text-hint-ink"
-                    : "rounded-bl-sm bg-chat-ai text-chat-ai-ink";
+                    ? "rounded-tl-md bg-chat-hint text-hint-ink"
+                    : "rounded-tl-md bg-chat-ai text-chat-ai-ink";
               return (
                 <li
                   key={message.seq}
-                  className={`w-fit max-w-[92%] rounded-2xl px-4 py-3 sm:max-w-[78%] sm:px-5 ${bubble}`}
+                  className={`w-fit max-w-[92%] rounded-3xl px-4 py-3 sm:max-w-[78%] sm:px-5 sm:py-4 ${bubble}`}
                 >
-                  <p className="mb-1 text-xs font-semibold">
+                  <p className="mb-1.5 text-xs font-semibold">
                     {message.role === "user"
                       ? message.purpose === "support"
                         ? t("training:youHelpRequest")
@@ -274,13 +298,16 @@ export function LessonConversation({ session }: { session: TrainingSession }) {
                         ? `${partner} · ${t("training:focus.hint")}`
                         : partner}
                   </p>
-                  <p lang={language} className="whitespace-pre-wrap break-words leading-relaxed">
+                  <p
+                    lang={language}
+                    className="whitespace-pre-wrap break-words text-base leading-relaxed sm:text-lg"
+                  >
                     {message.content}
                   </p>
                   {message.role === "assistant" && (
                     <button
                       type="button"
-                      className="mt-2 text-xs underline disabled:opacity-40"
+                      className="mt-3 inline-flex min-h-8 items-center gap-2 rounded-full bg-surface px-3 text-xs font-semibold enabled:hover:bg-surface-hover disabled:opacity-50"
                       disabled={
                         busy ||
                         voice.capturing ||
@@ -289,8 +316,11 @@ export function LessonConversation({ session }: { session: TrainingSession }) {
                       }
                       onClick={() => voice.speak(message.content)}
                     >
-                      {t("training:readMessage")}
-                      {formatNumber(message.seq)}
+                      <span className="lesson-icon lesson-icon-speaker" aria-hidden="true" />
+                      <span>
+                        {t("training:readMessage")}
+                        <span className="sr-only"> {formatNumber(index + 1)}</span>
+                      </span>
                     </button>
                   )}
                 </li>
@@ -342,16 +372,17 @@ export function LessonConversation({ session }: { session: TrainingSession }) {
           )}
         </div>
       </div>
-      {(phase === "briefing" || phase === "practice") && (
+      {composing && (
         <LessonComposer
           session={session}
           voice={voice}
+          lessonDetails={lessonDetails}
           onSaved={(saved) => readSavedReply(saved, session.id)}
         />
       )}
       {phase === "debrief" && (
         <div className="shrink-0 border-t border-line bg-surface px-3 py-3">
-          <div className="mx-auto flex max-w-3xl justify-end">
+          <div className="mx-auto flex max-w-4xl justify-end">
             <button
               type="button"
               className="rounded-xl button-primary px-4 py-2.5 font-semibold disabled:opacity-50"

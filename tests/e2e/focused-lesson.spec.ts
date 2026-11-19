@@ -51,12 +51,19 @@ test("previews the course, keeps reply controls within the window and resumes sa
   await expect(transcript).toContainText("What can I get for you today?");
   await expectReadableColorPair(transcript.getByRole("listitem").first(), "rgb(240, 238, 255)");
   await expect(transcript.getByText("Zoi", { exact: true })).toHaveCount(1);
-  const avatar = page.getByText("Zoi", { exact: true }).first().locator("..").locator("img");
+  const partner = page.getByRole("group", { name: "Practice partner", exact: true });
+  await expect(partner.getByText("Zoi", { exact: true })).toBeVisible();
+  const avatar = partner.locator("img");
   await expect(avatar).toBeVisible();
   await expect
     .poll(() => avatar.evaluate((image: HTMLImageElement) => image.naturalWidth))
     .toBeGreaterThan(0);
   await expect(dock).toBeInViewport({ ratio: 1 });
+  const details = dock.getByText("Lesson details", { exact: true });
+  await details.click();
+  await expect(dock.getByLabel("Current success criteria", { exact: true })).toBeInViewport();
+  await expect(dock.getByRole("button", { name: "Record reply", exact: true })).toBeInViewport();
+  await details.click();
   await expect(page.getByRole("navigation", { name: "Main navigation" })).toHaveCount(0);
   await composer.fill("Could I have a latte and a muffin, please?");
   await expect(composer).toHaveCSS("outline-color", "rgb(57, 120, 246)");

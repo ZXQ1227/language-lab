@@ -8,14 +8,18 @@ Alternatively, configure or import a course in **Scenarios**, then select
 **Practise this course**. The selected course, level and feedback policy are
 copied into the saved practice session.
 
-An active lesson fills the window. The header shows the current goal and offers
-playback and lesson details. The conversation shows **Zoi** with a bundled
-portrait when the course has no named character. Courses with a named character
-show that character's name. Open **Lesson details** for criteria, course
-materials, vocabulary evidence and saved practice. The conversation scrolls
-independently of the bottom reply controls. Toggle **Keyboard** to show or hide
-the current text draft. **Exit lesson** returns to the practice modes. Reopen
-Training or choose **Continue lesson** on the plan to resume saved turns.
+An active lesson fills the window. The header shows the current goal and
+progress. A partner card introduces **Zoi** or the course's named character.
+Partner and learner turns sit on opposite sides of the conversation, with
+playback alongside each partner reply. The conversation scrolls independently
+of the dock at the bottom.
+
+The dock groups course details and practice shortcuts above the keyboard,
+microphone and hint controls. **Lesson details** opens criteria, course
+materials, vocabulary evidence and saved practice. Toggle **Keyboard** to
+show or hide the current text draft. **Exit lesson** returns to the practice
+modes. Reopen Training or choose **Continue lesson** on the plan to resume
+saved turns.
 
 - **Guided demo** is available for the unchanged teaching material in bundled
   courses (level and feedback settings may change). It checks the suggested
