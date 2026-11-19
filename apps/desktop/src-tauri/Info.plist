@@ -4,5 +4,7 @@
   <dict>
     <key>NSMicrophoneUsageDescription</key>
     <string>Language Lab records your practice reply only when you choose Record reply. Audio is processed in memory by your configured speech recognition service.</string>
+    <key>NSSpeechRecognitionUsageDescription</key>
+    <string>Language Lab uses the built-in speech recognizer to turn your recorded practice replies into text. Recordings are processed on your device when possible and never stored.</string>
   </dict>
 </plist>

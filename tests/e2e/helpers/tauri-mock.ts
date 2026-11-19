@@ -74,6 +74,7 @@ export async function installTauriMock(page: Page, state?: MockState): Promise<v
     let failNextReviewRead = false;
     let failNextSpeechSettings = false;
     let failNextLocaleSettings = false;
+    let failNextDeviceTranscribe = false;
     const secrets = new Map<string, string>();
 
     const invokeFn = async (cmd: string, args?: Record<string, unknown>) => {
@@ -97,6 +98,15 @@ export async function installTauriMock(page: Page, state?: MockState): Promise<v
         case "test_fail_next_speech_settings":
           failNextSpeechSettings = true;
           return null;
+        case "test_fail_next_device_transcribe":
+          failNextDeviceTranscribe = true;
+          return null;
+        case "speech_transcribe_device":
+          if (failNextDeviceTranscribe) {
+            failNextDeviceTranscribe = false;
+            throw new Error("Injected device recognition failure");
+          }
+          return { text: "A latte and a muffin please.", confidence: 0.9 };
         case "test_fail_next_review":
           failNextReviewSave = true;
           return null;

@@ -27,7 +27,9 @@ function Editor({ saved }: { saved: Settings }) {
       }}
     >
       <p className="text-sm text-slate-600">
-        {t("speech:recognitionSendsYourRecordingToTheASREndpointYouEnable")}
+        {draft.asr.enabled && draft.asr.mode === "device"
+          ? t("speech:deviceRecognitionProcessesYourRecordingsWithTheBuiltInRecognizer")
+          : t("speech:recognitionSendsYourRecordingToTheASREndpointYouEnable")}
       </p>
       <label className="flex gap-2 text-sm">
         <input
@@ -41,37 +43,63 @@ function Editor({ saved }: { saved: Settings }) {
       {draft.asr.enabled && (
         <fieldset className="space-y-3" disabled={busy}>
           <label className="block text-sm">
-            {t("speech:aSREndpoint")}
-            <input
+            {t("speech:speechRecognitionMode")}
+            <select
               className={control}
-              type="url"
-              required
-              value={draft.asr.baseUrl}
+              value={draft.asr.mode}
               onChange={(e) =>
-                setDraft({ ...draft, asr: { ...draft.asr, baseUrl: e.target.value } })
+                setDraft({
+                  ...draft,
+                  asr: { ...draft.asr, mode: e.target.value as Settings["asr"]["mode"] },
+                })
               }
-            />
+            >
+              <option value="device">{t("speech:deviceBuiltInOfflineWhenSupported")}</option>
+              <option value="provider">{t("speech:customOpenAICompatibleEndpoint")}</option>
+            </select>
           </label>
-          <label className="block text-sm">
-            {t("speech:aSRModel")}
-            <input
-              className={control}
-              required
-              maxLength={120}
-              value={draft.asr.model}
-              onChange={(e) => setDraft({ ...draft, asr: { ...draft.asr, model: e.target.value } })}
-            />
-          </label>
-          <label className="block text-sm">
-            {t("speech:aSRAPIKeyLeaveBlankToKeepSavedKey")}
-            <input
-              className={control}
-              type="password"
-              autoComplete="off"
-              value={keys.asr}
-              onChange={(e) => setKeys({ ...keys, asr: e.target.value })}
-            />
-          </label>
+          {draft.asr.mode === "device" ? (
+            <p className="text-xs text-slate-500">
+              {t("speech:deviceRecognitionUsesTheBuiltInSpeechRecognizerNoApiKeyNeeded")}
+            </p>
+          ) : (
+            <>
+              <label className="block text-sm">
+                {t("speech:aSREndpoint")}
+                <input
+                  className={control}
+                  type="url"
+                  required
+                  value={draft.asr.baseUrl}
+                  onChange={(e) =>
+                    setDraft({ ...draft, asr: { ...draft.asr, baseUrl: e.target.value } })
+                  }
+                />
+              </label>
+              <label className="block text-sm">
+                {t("speech:aSRModel")}
+                <input
+                  className={control}
+                  required
+                  maxLength={120}
+                  value={draft.asr.model}
+                  onChange={(e) =>
+                    setDraft({ ...draft, asr: { ...draft.asr, model: e.target.value } })
+                  }
+                />
+              </label>
+              <label className="block text-sm">
+                {t("speech:aSRAPIKeyLeaveBlankToKeepSavedKey")}
+                <input
+                  className={control}
+                  type="password"
+                  autoComplete="off"
+                  value={keys.asr}
+                  onChange={(e) => setKeys({ ...keys, asr: e.target.value })}
+                />
+              </label>
+            </>
+          )}
         </fieldset>
       )}
       <label className="block text-sm">

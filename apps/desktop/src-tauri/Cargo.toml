@@ -19,6 +19,10 @@ serde_json = "1"
 sys-locale = "=0.3.2"
 rusqlite = { version = "0.37", features = ["bundled", "backup"] }
 keyring = { version = "3", features = ["apple-native", "windows-native"] }
+objc2-speech = "0.3.2"
+block2 = "0.6.2"
+objc2-foundation = { version = "0.3.2", features = ["NSLocale", "NSURL", "NSString", "NSError", "NSArray"] }
+objc2 = "0.6.5"
 
 [profile.release]
 codegen-units = 1

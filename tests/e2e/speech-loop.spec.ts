@@ -36,6 +36,7 @@ const checkpoint = async (page: Page) =>
 async function configure(page: Page, playback = true) {
   await openWorkspacePage(page, "Settings");
   await page.getByRole("checkbox", { name: "Enable speech recognition", exact: true }).check();
+  await page.getByRole("combobox", { name: "Recognition", exact: true }).selectOption("provider");
   await page.getByRole("textbox", { name: "ASR endpoint", exact: true }).fill(endpoint);
   if (playback) {
     await page

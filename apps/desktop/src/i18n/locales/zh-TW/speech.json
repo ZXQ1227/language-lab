@@ -43,5 +43,10 @@
   "appendTranscriptToDraft": "將辨識文字附加到草稿",
   "useTranscript": "使用辨識文字",
   "theCombinedDraftExceeds4000CharactersShortenTheTranscriptBefore": "合併後的草稿超過 4000 字元。請先縮短辨識文字，再附加到草稿。",
-  "savedOnDevice": "語音設定已儲存至此裝置。"
+  "savedOnDevice": "語音設定已儲存至此裝置。",
+  "speechRecognitionMode": "識別方式",
+  "deviceBuiltInOfflineWhenSupported": "裝置端識別（系統內建，支援時離線）",
+  "customOpenAICompatibleEndpoint": "自訂 API 端點（OpenAI 相容）",
+  "deviceRecognitionUsesTheBuiltInSpeechRecognizerNoApiKeyNeeded": "使用 macOS 內建語音識別器，無需 API key；裝置支援時離線處理，錄音不會被保存。",
+  "deviceRecognitionProcessesYourRecordingsWithTheBuiltInRecognizer": "裝置端識別使用系統內建語音識別器處理你的錄音；也可以在下方切換為自訂 API 端點。"
 }

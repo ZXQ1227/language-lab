@@ -43,5 +43,10 @@
   "appendTranscriptToDraft": "Append transcript to draft",
   "useTranscript": "Use transcript",
   "theCombinedDraftExceeds4000CharactersShortenTheTranscriptBefore": "The combined draft exceeds 4000 characters. Shorten the transcript before appending it.",
-  "savedOnDevice": "Speech settings saved on this device."
+  "savedOnDevice": "Speech settings saved on this device.",
+  "speechRecognitionMode": "Recognition",
+  "deviceBuiltInOfflineWhenSupported": "Device (built-in, offline when supported)",
+  "customOpenAICompatibleEndpoint": "Custom OpenAI-compatible endpoint",
+  "deviceRecognitionUsesTheBuiltInSpeechRecognizerNoApiKeyNeeded": "Uses the built-in macOS speech recognizer; no API key needed. Audio is processed on device when supported and never stored.",
+  "deviceRecognitionProcessesYourRecordingsWithTheBuiltInRecognizer": "Device recognition processes your recordings with the built-in recognizer; switch to a custom API endpoint below if you prefer."
 }
