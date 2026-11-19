@@ -11,6 +11,7 @@ import {
 } from "./pages/LearningWorkspaces";
 import { ScenariosPage } from "./pages/ScenariosPage";
 import { TrainingPage } from "./pages/TrainingPage";
+import { FreeConversationPage } from "./pages/FreeConversationPage";
 import { ReportsPage } from "./pages/ReportsPage";
 import { ReviewPage } from "./pages/ReviewPage";
 import { SettingsPage } from "./pages/SettingsPage";
@@ -25,6 +26,7 @@ const PAGES: Record<PageId, React.ReactNode> = {
   scenarios: <ScenariosPage />,
   guided: <GuidedPracticePage />,
   training: <TrainingPage />,
+  freeConversation: <FreeConversationPage />,
   listening: <ListeningPage />,
   review: <ReviewPage />,
   vocabulary: <LearningMemoryPage key="vocabulary" view="vocabulary" />,
@@ -111,7 +113,7 @@ export function App() {
   const lessonActive = useTrainingStore(
     (s) => !!s.session && s.loaded && s.session.state.phase !== "done",
   );
-  const focused = page === "training" && lessonActive;
+  const focused = page === "freeConversation" || (page === "training" && lessonActive);
   const sectionPage = page === "training" ? trainingReturnPage : page;
   const workspace = workspaces.find(({ pages }) => pages.some((item) => item === sectionPage))!;
   const atLibrary = libraryTabs.some((item) => item === sectionPage);
@@ -185,7 +187,7 @@ export function App() {
         className={
           focused
             ? "flex min-w-0 flex-1 flex-col"
-            : "min-w-0 px-4 pb-[calc(6rem+env(safe-area-inset-bottom))] sm:px-8 lg:px-10 lg:pb-12"
+            : `min-w-0 px-4 sm:px-8 lg:px-10 ${page === "plan" ? "pb-[calc(10rem+env(safe-area-inset-bottom))] lg:pb-24" : "pb-[calc(6rem+env(safe-area-inset-bottom))] lg:pb-12"}`
         }
       >
         <div className={focused ? "flex min-h-0 flex-1 flex-col" : "mx-auto max-w-6xl"}>

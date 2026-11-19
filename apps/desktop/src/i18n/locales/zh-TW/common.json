@@ -104,8 +104,18 @@
     "generate": "產生課程預覽",
     "generating": "正在設計課程…",
     "failed": "無法產生課程。請檢查 AI 連線後重試，也可以選擇下方的內建課程。",
-    "builtIn": "內建課程",
     "outcomes": "你將練習"
+  },
+  "freeConversation": {
+    "title": "自由對話",
+    "invitation": "只想隨便聊聊？",
+    "close": "退出對話",
+    "responding": "Zoi 正在回覆…",
+    "needsConnection": "連接 AI 後即可回覆 Zoi。",
+    "connect": "設定對話 AI",
+    "providerNotice": "傳送回覆時，近期對話內容會傳給已設定的 AI 服務。",
+    "failed": "Zoi 暫時無法回覆。草稿已保留，可以再次傳送。",
+    "microphoneSetup": "設定麥克風"
   },
   "workspace": {
     "sections": {

@@ -1,14 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { cefrLevelSchema, type ScenarioContent } from "@language-lab/core";
-import { defaultProfileMemory } from "@language-lab/memory";
 import { loadScenarioContent } from "../content/scenarioContent";
 import { matchesLibraryDifficulty } from "../content/courseDifficulty";
-import { CourseDesigner } from "../components/CourseDesigner";
 import { LocalizedError } from "../components/LocalizedError";
 import { formatDateTime, formatNumber } from "../i18n";
 import { useNavStore } from "../stores/nav";
-import { useAiProviderStore } from "../stores/aiProvider";
 import { useTrainingStore } from "../stores/training";
 import { useSpeechLoop } from "../speech/useSpeechLoop";
 import { characterVoiceStyle } from "../speech/voices";
@@ -71,7 +68,6 @@ export function PlanPage() {
   const { learningMemory, sessions, session, loaded, busy, resume, loadReport } =
     useLearningOverview();
   const navigate = useNavStore((state) => state.navigate);
-  const aiConfigured = useAiProviderStore((state) => state.configured);
   const [alternate, setAlternate] = useState(0);
   const profile = learningMemory?.profile;
   const target = profile?.targetLanguage.toLowerCase();
@@ -96,14 +92,6 @@ export function PlanPage() {
       ? session
       : sessions.find((item) => item.state.phase !== "done");
   const recent = learningMemory?.episodes.filter((item) => item.completed).slice(0, 3) ?? [];
-  const designer = (
-    <CourseDesigner
-      profile={profile ?? defaultProfileMemory()}
-      disabled={!loaded || busy}
-      onPreview={prepareCourse}
-    />
-  );
-
   return (
     <section className="space-y-6" aria-labelledby="plan-heading">
       <header>
@@ -140,16 +128,13 @@ export function PlanPage() {
               </button>
             </section>
           )}
-          {aiConfigured && designer}
           <section
             className="rounded-2xl border border-line-info bg-brand-primary-subtle p-6 sm:p-8"
             aria-labelledby="suggested-heading"
           >
             <div className="flex flex-wrap items-center justify-between gap-3">
               <h2 id="suggested-heading" className="text-sm font-semibold text-ink">
-                {aiConfigured
-                  ? t("common:courseDesigner.builtIn")
-                  : t("common:workspace.recommended")}
+                {t("common:workspace.recommended")}
               </h2>
               <button
                 type="button"
@@ -225,7 +210,6 @@ export function PlanPage() {
               {t("common:workspace.browseCourses")}
             </button>
           </section>
-          {!aiConfigured && designer}
         </div>
         <section className={panel} aria-labelledby="recent-heading">
           <div className="flex flex-wrap items-center justify-between gap-3">
@@ -268,6 +252,23 @@ export function PlanPage() {
             )
           )}
         </section>
+      </div>
+      <div className="pointer-events-none fixed inset-x-4 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-20 flex justify-center sm:inset-x-8 lg:right-10 lg:bottom-5 lg:left-64">
+        <button
+          type="button"
+          onClick={() => navigate("freeConversation")}
+          className="pointer-events-auto flex min-h-12 w-full max-w-4xl flex-wrap items-center justify-between gap-x-3 gap-y-1 rounded-full border border-line-info bg-surface/95 px-4 py-2 text-left text-sm shadow-md backdrop-blur-md hover:bg-brand-primary-soft sm:px-5"
+          aria-labelledby="free-conversation-launch-title"
+        >
+          <span className="text-ink-muted">{t("common:freeConversation.invitation")}</span>
+          <span
+            id="free-conversation-launch-title"
+            className="ml-auto inline-flex items-center gap-2 font-semibold text-brand-ink"
+          >
+            <span className="lesson-icon lesson-icon-mic" aria-hidden="true" />
+            {t("common:freeConversation.title")}
+          </span>
+        </button>
       </div>
     </section>
   );

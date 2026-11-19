@@ -5,9 +5,11 @@ import { createRepositories, createTauriTransport } from "@language-lab/database
 import { invoke } from "@tauri-apps/api/core";
 import type { ScenarioRow } from "@language-lab/database";
 import { scenarioContentSchema, type ScenarioContent } from "@language-lab/core";
+import { defaultProfileMemory } from "@language-lab/memory";
 import { loadScenarioContent, starterCoursePaths } from "../content/scenarioContent";
 import { matchesLibraryDifficulty } from "../content/courseDifficulty";
 import { CourseTemplateEditor } from "../components/CourseTemplateEditor";
+import { CourseDesigner } from "../components/CourseDesigner";
 import { CourseDialog, CoursePathRow } from "../components/StarterCourseLibrary";
 import { useNavStore } from "../stores/nav";
 import { useTrainingStore } from "../stores/training";
@@ -84,6 +86,11 @@ export function ScenariosPage() {
   const setDifficulty = useNavStore((state) => state.setLibraryDifficulty);
   const prepare = useTrainingStore((state) => state.prepare);
   const busy = useTrainingStore((state) => state.busy);
+  const trainingLoaded = useTrainingStore((state) => state.loaded);
+  const loadTraining = useTrainingStore((state) => state.load);
+  const trainingError = useTrainingStore((state) => state.error);
+  const profile = useTrainingStore((state) => state.learningMemory?.profile);
+  const [designerOpen, setDesignerOpen] = useState(false);
   const [scenarios, setScenarios] = useState<ScenarioRow[] | null>(null);
   const [selectedCourse, setSelectedCourse] = useState<ScenarioContent | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -101,6 +108,10 @@ export function ScenariosPage() {
     .filter(({ entries }) => entries.length > 0);
   const visibleImports = imported.filter(({ scenario }) => matches(scenario));
   const localScenarios = scenarios?.filter(matches) ?? [];
+
+  useEffect(() => {
+    if (designerOpen && !trainingLoaded) void loadTraining();
+  }, [designerOpen, trainingLoaded, loadTraining]);
 
   useEffect(() => {
     let active = true;
@@ -164,6 +175,15 @@ export function ScenariosPage() {
             >
               {t("common:workspace.roleplay")}
             </button>
+            <button
+              type="button"
+              aria-expanded={designerOpen}
+              aria-controls="scenario-course-designer"
+              onClick={() => setDesignerOpen((open) => !open)}
+              className="button-secondary rounded-lg px-3 py-2 text-sm font-semibold"
+            >
+              {t("common:courseDesigner.title")}
+            </button>
             <label className="button-secondary inline-block cursor-pointer rounded-lg px-3 py-2 text-sm font-medium focus-within:ring-2 focus-within:ring-brand-primary hover:bg-line">
               {t("scenarios:importCourseTemplate")}
               <input
@@ -194,6 +214,34 @@ export function ScenariosPage() {
             {t("scenarios:couldNotImportTemplate")}
             <LocalizedError error={importError} />
           </p>
+        )}
+      </div>
+
+      <div id="scenario-course-designer" hidden={!designerOpen}>
+        {designerOpen && (
+          <>
+            {!trainingLoaded && trainingError && (
+              <p role="alert" className="mb-2 text-sm text-error-ink">
+                <LocalizedError error={trainingError} />
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() => void loadTraining()}
+                  className="ml-2 underline"
+                >
+                  {t("training:retry")}
+                </button>
+              </p>
+            )}
+            <CourseDesigner
+              profile={profile ?? defaultProfileMemory()}
+              disabled={!trainingLoaded || busy}
+              onPreview={(course) => {
+                prepare(course);
+                navigate("training");
+              }}
+            />
+          </>
         )}
       </div>
 

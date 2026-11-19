@@ -61,6 +61,12 @@ Successful recognition discards the recording; unconfirmed preview text is not
 saved. Cancelling a pending permission request closes its stream if it arrives
 later. Replay releases the previous audio and URL first.
 
+**Free conversation** on the learning plan opens a separate English chat with
+Zoi. Use the keyboard or review a voice transcript before sending it to the
+configured AI provider. Individual replies can be read aloud using the same
+speech settings and voice selection. The conversation lives in memory until the
+view closes. It does not create lesson progress or review tasks.
+
 ## Evidence and privacy
 
 The existing checkpoint optionally records speech provider ID, course language,

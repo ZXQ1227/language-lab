@@ -32,8 +32,10 @@ export function CourseDesigner({
 
   if (!configured) {
     return (
-      <section className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
-        <h2 className="font-semibold">{t("common:courseDesigner.title")}</h2>
+      <section
+        aria-label={t("common:courseDesigner.title")}
+        className="rounded-2xl border border-line bg-surface p-5 sm:p-6"
+      >
         {error ? (
           <button
             type="button"
@@ -61,11 +63,11 @@ export function CourseDesigner({
   }
 
   return (
-    <section className="rounded-2xl border border-line-info bg-surface p-5 sm:p-6">
-      <h2 className="text-xl font-semibold tracking-tight text-ink">
-        {t("common:courseDesigner.title")}
-      </h2>
-      <p className="mt-2 text-sm text-ink-muted">
+    <section
+      aria-label={t("common:courseDesigner.title")}
+      className="rounded-2xl border border-line-info bg-surface p-5 sm:p-6"
+    >
+      <p className="text-sm text-ink-muted">
         {t("common:courseDesigner.profile", {
           language: profile.targetLanguage,
           level: profile.level,

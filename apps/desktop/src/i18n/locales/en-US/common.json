@@ -104,8 +104,18 @@
     "generate": "Generate lesson preview",
     "generating": "Designing your lesson…",
     "failed": "Could not design a lesson. Check the AI connection and try again, or choose a built-in lesson below.",
-    "builtIn": "Built-in lessons",
     "outcomes": "What you’ll practise"
+  },
+  "freeConversation": {
+    "title": "Free conversation",
+    "invitation": "Just want to chat?",
+    "close": "Exit conversation",
+    "responding": "Zoi is replying…",
+    "needsConnection": "Connect an AI provider to reply to Zoi.",
+    "connect": "Set up AI for conversation",
+    "providerNotice": "When you send a reply, recent messages go to your AI connection.",
+    "failed": "Zoi couldn’t reply. Your draft is still here. Try sending it again.",
+    "microphoneSetup": "Microphone setup"
   },
   "workspace": {
     "sections": {

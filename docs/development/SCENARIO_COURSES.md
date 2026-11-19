@@ -112,12 +112,12 @@ for target language, stated level and completed lessons.
 
 ## AI-designed lessons
 
-With an AI connection saved in Settings, open the learning plan and describe
-a concrete goal under **Design a lesson with AI**. The request sends that
+With an AI connection saved in Settings, open **Course library → Scenario
+dialogues** and describe a concrete goal under **Design a lesson with AI**. The request sends that
 goal, the profile's target language and stated CEFR level, and a ten-minute
 length to the configured provider. It makes no automatic request on startup.
-Without a saved connection, the plan leads with the built-in recommendation.
-Built-in lessons remain available if generation fails or while offline.
+Built-in recommendations are on the plan, with the full catalog available
+in Scenario dialogues.
 
 The Course Designer uses one structured generation call. Its draft includes
 roles, a setting and opening line, vocabulary, example expressions, and two

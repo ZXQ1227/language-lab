@@ -44,6 +44,16 @@ opens in the usual preview and is snapshotted locally when the learner starts.
 Built-in course packs remain available for first use and offline practice.
 See [ADR-0019](../adr/ADR-0019-validated-ai-course-design.md).
 
+## Free conversation
+
+The learning plan opens a dedicated conversation with Zoi. The greeting is
+local. Sending text or a confirmed transcript uses the saved AI connection
+and endpoint-scoped keyring access through the same Model Gateway as Training.
+The request contains a bounded window of recent conversation, and the gateway
+validates a bounded reply before it reaches the transcript. Leaving the view
+cancels the pending reply and speech resources. A conversation lives in memory
+for that visit and never creates a lesson checkpoint or review record.
+
 ## Text teaching loop
 
 Training composes the single teaching orchestrator with either explicitly labelled

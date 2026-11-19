@@ -1,7 +1,7 @@
 import { openWorkspacePage } from "./helpers/navigation";
 import { readFile } from "node:fs/promises";
 import { expect, test, type Page } from "@playwright/test";
-import { installTauriMock } from "./helpers/tauri-mock";
+import { configureAiConnection, installTauriMock } from "./helpers/tauri-mock";
 
 test.use({
   launchOptions: {
@@ -93,6 +93,55 @@ test.beforeEach(async ({ page }) => {
     };
   });
   await page.goto("/");
+});
+
+test("sends reviewed speech to Zoi only after the learner confirms and sends it", async ({
+  page,
+}) => {
+  await configureAiConnection(page, { model: "test-free-conversation-voice" });
+  await configure(page, false);
+  const outgoing: string[] = [];
+  await page.route(`${endpoint}/audio/transcriptions`, (route) =>
+    route.fulfill({
+      headers: { "access-control-allow-origin": "*" },
+      json: { text: "I saw a rabbit." },
+    }),
+  );
+  await page.route("http://localhost:11434/v1/chat/completions", async (route) => {
+    const headers = {
+      "access-control-allow-origin": "*",
+      "access-control-allow-methods": "POST",
+      "access-control-allow-headers": "authorization,content-type",
+    };
+    if (route.request().method() === "OPTIONS") {
+      await route.fulfill({ status: 204, headers });
+      return;
+    }
+    outgoing.push(route.request().postDataJSON().messages.at(-1).content);
+    await route.fulfill({
+      headers,
+      json: {
+        choices: [{ message: { content: JSON.stringify({ reply: "Where did you see it?" }) } }],
+      },
+    });
+  });
+  await openWorkspacePage(page, "Home");
+  await nav(page, "Free conversation");
+  await record(page);
+  const recognized = page.getByRole("textbox", { name: "Recognized speech", exact: true });
+  await expect(recognized).toHaveValue("I saw a rabbit.");
+  await recognized.fill("I saw a hare.");
+  await nav(page, "Use transcript");
+  await expect(page.getByRole("textbox", { name: "Your reply", exact: true })).toHaveValue(
+    "I saw a hare.",
+  );
+  expect(outgoing).toEqual([]);
+  await nav(page, "Send reply");
+  await expect(page.getByRole("list", { name: "Conversation", exact: true })).toContainText(
+    "Where did you see it?",
+  );
+  expect(outgoing).toEqual(["I saw a hare."]);
+  expect((await rows(page)).some(({ type }) => type === "training_checkpoint")).toBe(false);
 });
 
 test("records, reviews, commits confirmed speech and plays the saved partner reply without storing audio", async ({

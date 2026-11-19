@@ -21,7 +21,8 @@ test("cold start keeps a guided course available without calling a model", async
   });
   await installTauriMock(page);
   await page.goto("/");
-  await expect(button(page, "Set up AI to design lessons")).toBeVisible();
+  await expect(button(page, "Free conversation")).toBeVisible();
+  await expect(button(page, "Design a lesson with AI")).toHaveCount(0);
   await expect(button(page, "Generate lesson preview")).toHaveCount(0);
   await button(page, "Set up lesson").click();
   await expect(page.getByLabel("Practice mode")).toHaveValue("demo");
@@ -91,7 +92,8 @@ test("retries an invalid generation, previews without writing, and teaches the s
 
   await page.goto("/");
   await configureAiConnection(page, { model: "test-course-designer" });
-  await openWorkspacePage(page, "Home");
+  await openWorkspacePage(page, "Scenarios");
+  await button(page, "Design a lesson with AI").click();
   await expect(button(page, "Generate lesson preview")).toBeDisabled();
   expect(generationRequests).toHaveLength(0);
 
@@ -101,8 +103,8 @@ test("retries an invalid generation, previews without writing, and teaches the s
   await expect(page.getByRole("alert")).toContainText("Could not design a lesson");
   await expect(
     page
-      .getByRole("region", { name: "Built-in lessons" })
-      .getByRole("heading", { name: "Checking in for a flight" }),
+      .getByRole("region", { name: "Travel & stays" })
+      .getByRole("button", { name: "Checking in for a flight" }),
   ).toBeVisible();
   await expect(goal).toHaveValue(practiceGoal);
   expect(await checkpoints(page)).toEqual([]);

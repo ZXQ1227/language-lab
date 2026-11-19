@@ -152,7 +152,8 @@ The starter course library includes 41 English practice lessons in five ordered
 learning paths. All starter lessons can run as guided examples without a model.
 See [Starter library](docs/development/SCENARIO_COURSES.md#starter-library).
 
-Save an AI connection in **My learning → Settings** to design a lesson from a
-practice goal on the learning plan. Preview the steps and example phrases,
-then start the lesson. Built-in courses remain available for guided offline
-practice. See [AI-designed lessons](docs/development/SCENARIO_COURSES.md#ai-designed-lessons).
+Open **Free conversation** at the bottom of the learning plan to chat in English
+with Zoi. Replies use the AI connection from **My learning → Settings**.
+**Course library → Scenario dialogues** also offers **Design a lesson with AI**
+for a specific practice goal. Preview the steps and example phrases before
+starting the lesson. See [AI-designed lessons](docs/development/SCENARIO_COURSES.md#ai-designed-lessons).

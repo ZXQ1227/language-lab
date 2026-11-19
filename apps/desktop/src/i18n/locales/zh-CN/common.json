@@ -104,8 +104,18 @@
     "generate": "生成课程预览",
     "generating": "正在设计课程…",
     "failed": "课程生成失败。请检查 AI 连接后重试，也可以选择下方的内置课程。",
-    "builtIn": "内置课程",
     "outcomes": "你将练习"
+  },
+  "freeConversation": {
+    "title": "自由对话",
+    "invitation": "只想随便聊聊？",
+    "close": "退出对话",
+    "responding": "Zoi 正在回复…",
+    "needsConnection": "连接 AI 后即可回复 Zoi。",
+    "connect": "设置对话 AI",
+    "providerNotice": "发送回复时，近期对话内容会发给已配置的 AI 服务。",
+    "failed": "Zoi 暂时无法回复。草稿已保留，可以再次发送。",
+    "microphoneSetup": "设置麦克风"
   },
   "workspace": {
     "sections": {

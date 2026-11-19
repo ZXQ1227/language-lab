@@ -12,7 +12,8 @@ reports and follow-up review.
 
 ## Decision
 
-- Offer on-demand generation on the learning plan once AI settings are saved.
+- Offer on-demand generation in the scenario section of the course library
+  once AI settings are saved.
   The learner supplies a goal. The request includes that goal, the learning
   language and profile level, and a fixed lesson length. It carries no
   transcripts, learning evidence or identifiers.

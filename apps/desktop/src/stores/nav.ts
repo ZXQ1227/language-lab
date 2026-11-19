@@ -5,7 +5,7 @@ export const homeTabs = ["plan", "scenarios"] as const;
 export const libraryTabs = ["scenarios", "guided", "listening"] as const;
 
 export const workspaces = [
-  { id: "home", pages: ["plan", ...libraryTabs, "training"] },
+  { id: "home", pages: ["plan", ...libraryTabs, "training", "freeConversation"] },
   { id: "review", pages: ["review", "vocabulary", "sentences", "corrections", "reports"] },
   { id: "profile", pages: ["profile", "memory", "settings"] },
 ] as const;
