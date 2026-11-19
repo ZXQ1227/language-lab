@@ -4,6 +4,7 @@
 pub mod db;
 pub mod secrets;
 pub mod locale;
+pub mod speech_recognition;
 
 use std::path::PathBuf;
 use tauri::Manager;
@@ -71,7 +72,8 @@ pub fn run() {
             db::db_restore,
             secrets::secrets_set,
             secrets::secrets_get,
-            secrets::secrets_delete
+            secrets::secrets_delete,
+            speech_recognition::speech_transcribe_device
         ])
         .setup(|app| {
             let handle = app.handle().clone();

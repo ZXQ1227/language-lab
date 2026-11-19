@@ -7,6 +7,7 @@ import {
   type KeyName,
 } from "@language-lab/model-gateway";
 import { call } from "../lib/ipc";
+import { DeviceAsrProvider } from "./device";
 
 const connection = z.object({
   baseUrl: audioEndpointSchema,
@@ -14,7 +15,12 @@ const connection = z.object({
 });
 export const speechSettingsSchema = z.object({
   version: z.literal(1),
-  asr: connection.extend({ enabled: z.boolean() }),
+  asr: connection.extend({
+    enabled: z.boolean(),
+    // Settings saved before device recognition existed default to the
+    // endpoint flow they were written for; new defaults use the device.
+    mode: z.enum(["device", "provider"]).default("provider"),
+  }),
   tts: connection.extend({
     mode: z.enum(["off", "system", "provider"]),
     voice: z.string().regex(/^[a-zA-Z0-9_-]{1,80}$/),
@@ -25,7 +31,12 @@ export const speechSettingsSchema = z.object({
 export type SpeechSettings = z.infer<typeof speechSettingsSchema>;
 export const defaultSpeechSettings = (): SpeechSettings => ({
   version: 1,
-  asr: { enabled: false, baseUrl: "https://api.openai.com/v1", model: "whisper-1" },
+  asr: {
+    enabled: false,
+    mode: "device",
+    baseUrl: "https://api.openai.com/v1",
+    model: "whisper-1",
+  },
   tts: {
     mode: "system",
     baseUrl: "https://api.openai.com/v1",
@@ -48,7 +59,10 @@ async function credentials(kind: "asr" | "tts", baseUrl: string) {
 }
 export async function saveSpeechKeys(settings: SpeechSettings, keys: { asr: string; tts: string }) {
   for (const kind of ["asr", "tts"] as const) {
-    const active = kind === "asr" ? settings.asr.enabled : settings.tts.mode === "provider";
+    const active =
+      kind === "asr"
+        ? settings.asr.enabled && settings.asr.mode === "provider"
+        : settings.tts.mode === "provider";
     if (!active) continue;
     const baseUrl = settings[kind].baseUrl;
     if (keys[kind].trim())
@@ -59,6 +73,7 @@ export async function saveSpeechKeys(settings: SpeechSettings, keys: { asr: stri
 export async function speechAsr(settings: SpeechSettings) {
   const config = speechSettingsSchema.parse(settings);
   if (!config.asr.enabled) throw new Error("Enable speech recognition in Settings first");
+  if (config.asr.mode === "device") return new DeviceAsrProvider();
   return new OpenAiCompatibleAsrProvider({
     ...config.asr,
     apiKey: await credentials("asr", config.asr.baseUrl),

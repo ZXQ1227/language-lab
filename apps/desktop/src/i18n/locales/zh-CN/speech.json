@@ -43,5 +43,10 @@
   "appendTranscriptToDraft": "将识别文字追加到草稿",
   "useTranscript": "使用识别文字",
   "theCombinedDraftExceeds4000CharactersShortenTheTranscriptBefore": "合并后的草稿超过 4000 字符。请先缩短识别文字，再追加到草稿。",
-  "savedOnDevice": "语音设置已保存到此设备。"
+  "savedOnDevice": "语音设置已保存到此设备。",
+  "speechRecognitionMode": "识别方式",
+  "deviceBuiltInOfflineWhenSupported": "设备端识别（系统内置，支持时离线）",
+  "customOpenAICompatibleEndpoint": "自定义 API 端点（OpenAI 兼容）",
+  "deviceRecognitionUsesTheBuiltInSpeechRecognizerNoApiKeyNeeded": "使用 macOS 内置语音识别器，无需 API key；设备支持时离线处理，录音不会被保存。",
+  "deviceRecognitionProcessesYourRecordingsWithTheBuiltInRecognizer": "设备端识别使用系统内置语音识别器处理你的录音；也可以在下方切换为自定义 API 端点。"
 }
