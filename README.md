@@ -144,3 +144,8 @@ The app opens to the learning plan and course library. Conversation contains
 roleplay, guided practice and listening. Review contains follow-up tasks and
 lesson history. My learning contains the local profile, progress and settings.
 See [desktop learning workspaces](docs/product/PRD.md#desktop-learning-workspaces).
+
+Save an AI connection in **My learning → Settings** to design a lesson from a
+practice goal on the learning plan. Preview the steps and example phrases,
+then start the lesson. Built-in courses remain available for guided offline
+practice. See [AI-designed lessons](docs/development/SCENARIO_COURSES.md#ai-designed-lessons).

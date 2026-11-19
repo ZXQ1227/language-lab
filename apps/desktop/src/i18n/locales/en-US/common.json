@@ -89,6 +89,21 @@
     "missingKey": "Save an API key for this {{kind}} endpoint in Settings first",
     "missingVoice": "No installed device voice is available for {{language}}. Choose a TTS provider in Settings or use text."
   },
+  "courseDesigner": {
+    "title": "Design a lesson with AI",
+    "configure": "Set up AI to design lessons",
+    "reloadSettings": "Retry loading AI settings",
+    "loadingSettings": "Loading AI settings…",
+    "profile": "Practice language {{language}} · Level {{level}}",
+    "goal": "What would you like to practise?",
+    "example": "For example, reschedule an interview and confirm the new time.",
+    "providerNotice": "Your goal, practice language and level are sent to your configured AI provider.",
+    "generate": "Generate lesson preview",
+    "generating": "Designing your lesson…",
+    "failed": "Could not design a lesson. Check the AI connection and try again, or choose a built-in lesson below.",
+    "builtIn": "Built-in lessons",
+    "outcomes": "What you’ll practise"
+  },
   "workspace": {
     "sections": {
       "home": "Home",

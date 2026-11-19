@@ -37,29 +37,29 @@ export class DuplicateSkillError extends Error {
   }
 }
 
-export class SkillRegistry {
-  private readonly defs = new Map<string, AnySkillDefinition>();
+export class SkillRegistry<TContext = SkillContext> {
+  private readonly defs = new Map<string, AnySkillDefinition<TContext>>();
 
-  register<TInput, TOutput>(def: SkillDefinition<TInput, TOutput>): void {
+  register<TInput, TOutput>(def: SkillDefinition<TInput, TOutput, TContext>): void {
     if (this.defs.has(def.id)) throw new DuplicateSkillError(def.id);
-    this.defs.set(def.id, def as unknown as AnySkillDefinition);
+    this.defs.set(def.id, def as unknown as AnySkillDefinition<TContext>);
   }
 
   has(id: string): boolean {
     return this.defs.has(id);
   }
 
-  get(id: string): AnySkillDefinition | undefined {
+  get(id: string): AnySkillDefinition<TContext> | undefined {
     return this.defs.get(id);
   }
 
-  require(id: string): AnySkillDefinition {
+  require(id: string): AnySkillDefinition<TContext> {
     const def = this.defs.get(id);
     if (!def) throw new UnknownSkillError(id);
     return def;
   }
 
-  list(): readonly AnySkillDefinition[] {
+  list(): readonly AnySkillDefinition<TContext>[] {
     return [...this.defs.values()];
   }
 
@@ -71,7 +71,7 @@ export class SkillRegistry {
    * Validated invocation. Input is parsed before execute(); output is parsed
    * before returning. Both failures surface as SkillValidationError.
    */
-  async call<TOutput>(id: string, input: unknown, context: SkillContext): Promise<TOutput> {
+  async call<TOutput>(id: string, input: unknown, context: TContext): Promise<TOutput> {
     const def = this.require(id);
     const parsedInput = def.inputSchema.safeParse(input);
     if (!parsedInput.success) {

@@ -14,6 +14,7 @@ interface AiProviderStore {
   /** 永不为 null：加载前用默认值，保证训练页可随时启动。 */
   settings: AiProviderSettings;
   loaded: boolean;
+  configured: boolean;
   busy: boolean;
   error: string | null;
   load: () => Promise<void>;
@@ -23,6 +24,7 @@ interface AiProviderStore {
 export const useAiProviderStore = create<AiProviderStore>((set, get) => ({
   settings: defaultAiProviderSettings(),
   loaded: false,
+  configured: false,
   busy: false,
   error: null,
   load: async () => {
@@ -35,6 +37,7 @@ export const useAiProviderStore = create<AiProviderStore>((set, get) => ({
           ? aiProviderSettingsSchema.parse(JSON.parse(row.payload))
           : defaultAiProviderSettings(),
         loaded: true,
+        configured: row != null,
       });
     } catch {
       set({
@@ -53,7 +56,7 @@ export const useAiProviderStore = create<AiProviderStore>((set, get) => ({
       const repository = repos();
       await repository.users.ensureLocalLearner();
       await repository.learningEvents.saveModelSettings(settings);
-      set({ settings, loaded: true });
+      set({ settings, loaded: true, configured: true });
       return true;
     } catch {
       set({

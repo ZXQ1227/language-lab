@@ -6,6 +6,7 @@ import {
   type ScenarioContent,
 } from "@language-lab/core";
 import { CourseStudyPack } from "./CourseStudyPack";
+import { formatNumber } from "../i18n";
 import { useTrainingStore } from "../stores/training";
 import { useAiProviderStore } from "../stores/aiProvider";
 import { toTrainingProvider } from "../training/provider";
@@ -79,6 +80,30 @@ export function LessonSetup({ course }: { course: ScenarioContent }) {
               </li>
             ))}
           </ul>
+          {course.category === "personalized" && (
+            <div className="border-t border-emerald-900/10 pt-4 text-sm">
+              <p>{template.setting}</p>
+              <p className="mt-2 text-slate-600">
+                {t("training:practicePartner")}
+                {template.roles.partner}
+                {" · "}
+                {t("common:workspace.duration", {
+                  minutes: formatNumber(template.estimatedMinutes),
+                })}
+              </p>
+              <h4 className="mt-4 font-semibold">{t("common:courseDesigner.outcomes")}</h4>
+              <ol className="mt-2 list-decimal space-y-2 pl-5">
+                {template.stages.map((stage) => (
+                  <li key={stage.id}>
+                    <span className="font-medium">{stage.title}</span>
+                    {stage.objectiveIds.map((id) => (
+                      <p key={id}>{course.objectives[Number(id.slice(4)) - 1]}</p>
+                    ))}
+                  </li>
+                ))}
+              </ol>
+            </div>
+          )}
         </section>
       )}
       {course.courseTemplate?.learningPack && (

@@ -71,13 +71,37 @@ patterns, stages and success criteria in JSON, then import to validate and previ
 The form exposes level and feedback options; it does not generate new authored
 activities when the level changes.
 
+## AI-designed lessons
+
+With an AI connection saved in Settings, open the learning plan and describe
+a concrete goal under **Design a lesson with AI**. The request sends that
+goal, the profile's target language and stated CEFR level, and a ten-minute
+length to the configured provider. It makes no automatic request on startup.
+Without a saved connection, the plan leads with the built-in recommendation.
+Built-in lessons remain available if generation fails or while offline.
+
+The Course Designer uses one structured generation call. Its draft includes
+roles, a setting and opening line, vocabulary, example expressions, and two
+to four sequential steps with observable criteria and a hint for each step.
+The app assigns identity, objective references and the teaching policy, then
+validates the complete version 1 scenario. The preview shows the objectives,
+setting and sample language. Starting a lesson uses connected AI and saves the
+usual local checkpoint, including the generated course. Generating a preview
+does not write a lesson, and an unstarted draft does not survive app restart.
+
+The same evidence checks, correction budgets, reports and review pipeline
+apply during the lesson. A schema check ensures the material can enter that
+pipeline. The model supplies its wording and teaching content. Generated drafts
+are individual roleplay lessons with no generated catalog or automatic sequence.
+See [ADR-0019](../adr/ADR-0019-validated-ai-course-design.md).
+
 ## Runtime integration
 
 `ScenarioView.courseTemplate` carries authored content through the existing data
 port. `resolveCourseTemplate` compiles a chosen challenge from the original source
 without mutating its standard stages. Checkpoints contain the resolved snapshot;
 exported templates retain their editable source and selected challenge id.
-The desktop Training composition returns the selected bundled or imported
+The desktop Training composition returns the selected bundled, imported or generated
 course from `findScenario`. The current SQLite `scenarios` row stays a metadata
 projection; no database migration is necessary for this step.
 

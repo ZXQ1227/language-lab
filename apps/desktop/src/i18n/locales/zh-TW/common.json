@@ -89,6 +89,21 @@
     "missingKey": "請先在設定中儲存此 {{kind}} 服務的 API 金鑰",
     "missingVoice": "裝置沒有可用於 {{language}} 的已安裝語音，請在設定中選擇 TTS 服務商，或使用文字。"
   },
+  "courseDesigner": {
+    "title": "用 AI 設計課程",
+    "configure": "設定 AI 後即可設計課程",
+    "reloadSettings": "重新讀取 AI 設定",
+    "loadingSettings": "正在讀取 AI 設定…",
+    "profile": "學習語言 {{language}} · {{level}} 程度",
+    "goal": "你想練習什麼？",
+    "example": "例如，改約面試並確認新的時間。",
+    "providerNotice": "你的練習目標、學習語言和級別將傳送給已設定的 AI 服務。",
+    "generate": "產生課程預覽",
+    "generating": "正在設計課程…",
+    "failed": "無法產生課程。請檢查 AI 連線後重試，也可以選擇下方的內建課程。",
+    "builtIn": "內建課程",
+    "outcomes": "你將練習"
+  },
   "workspace": {
     "sections": {
       "home": "首頁",

@@ -7,14 +7,18 @@
 import type { ZodSchema } from "zod";
 import type { SkillContext } from "./context";
 
-export interface SkillDefinition<TInput, TOutput> {
+export interface SkillDefinition<TInput, TOutput, TContext = SkillContext> {
   readonly id: string;
   readonly version: string;
   readonly description: string;
   readonly inputSchema: ZodSchema<TInput>;
   readonly outputSchema: ZodSchema<TOutput>;
-  execute(input: TInput, context: SkillContext): Promise<TOutput>;
+  execute(input: TInput, context: TContext): Promise<TOutput>;
 }
 
 /** Type-erased skill as stored in the registry. */
-export type AnySkillDefinition = SkillDefinition<unknown, unknown>;
+export type AnySkillDefinition<TContext = SkillContext> = SkillDefinition<
+  unknown,
+  unknown,
+  TContext
+>;

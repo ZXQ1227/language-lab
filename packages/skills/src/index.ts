@@ -16,6 +16,7 @@ export * from "./definitions/teaching-intervention";
 export * from "./definitions/lesson-evaluator";
 export * from "./definitions/review-generator";
 export * from "./definitions/objective-evaluator";
+export * from "./definitions/course-designer";
 
 import { SkillRegistry } from "./registry";
 import {

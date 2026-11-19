@@ -1,10 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { cefrLevelSchema, type ScenarioContent } from "@language-lab/core";
+import { defaultProfileMemory } from "@language-lab/memory";
 import { loadScenarioContent } from "../content/scenarioContent";
+import { CourseDesigner } from "../components/CourseDesigner";
 import { LocalizedError } from "../components/LocalizedError";
 import { formatDateTime, formatNumber } from "../i18n";
 import { useNavStore } from "../stores/nav";
+import { useAiProviderStore } from "../stores/aiProvider";
 import { useTrainingStore } from "../stores/training";
 import { useSpeechLoop } from "../speech/useSpeechLoop";
 
@@ -67,6 +70,7 @@ export function PlanPage() {
   const { learningMemory, sessions, session, loaded, busy, resume, loadReport } =
     useLearningOverview();
   const navigate = useNavStore((state) => state.navigate);
+  const aiConfigured = useAiProviderStore((state) => state.configured);
   const [alternate, setAlternate] = useState(0);
   const profile = learningMemory?.profile;
   const target = profile?.targetLanguage.toLowerCase();
@@ -92,6 +96,13 @@ export function PlanPage() {
       ? session
       : sessions.find((item) => item.state.phase !== "done");
   const recent = learningMemory?.episodes.filter((item) => item.completed).slice(0, 3) ?? [];
+  const designer = (
+    <CourseDesigner
+      profile={profile ?? defaultProfileMemory()}
+      disabled={!loaded || busy}
+      onPreview={prepareCourse}
+    />
+  );
 
   return (
     <section className="space-y-6" aria-labelledby="plan-heading">
@@ -129,13 +140,16 @@ export function PlanPage() {
               </button>
             </section>
           )}
+          {aiConfigured && designer}
           <section
             className="rounded-2xl bg-[#e8efdf] p-6 sm:p-8"
             aria-labelledby="suggested-heading"
           >
             <div className="flex flex-wrap items-center justify-between gap-3">
               <h2 id="suggested-heading" className="text-sm font-semibold text-emerald-950">
-                {t("common:workspace.recommended")}
+                {aiConfigured
+                  ? t("common:courseDesigner.builtIn")
+                  : t("common:workspace.recommended")}
               </h2>
               <button
                 type="button"
@@ -214,6 +228,7 @@ export function PlanPage() {
               {t("common:workspace.browseCourses")}
             </button>
           </section>
+          {!aiConfigured && designer}
         </div>
         <section className={panel} aria-labelledby="recent-heading">
           <div className="flex flex-wrap items-center justify-between gap-3">

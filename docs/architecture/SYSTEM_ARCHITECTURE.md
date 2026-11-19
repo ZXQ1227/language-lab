@@ -32,6 +32,13 @@ validated JSON import/export. Edits and imported previews are temporary until
 exported to a file. Configured courses can now open directly in Training.
 See [Scenario courses](../development/SCENARIO_COURSES.md).
 
+Before a session exists, the Course Designer skill uses the configured model
+gateway to turn a learner's goal into a version 1 scenario. It validates the
+model payload and assigns objective references and policy in code. The result
+opens in the usual preview and is snapshotted locally when the learner starts.
+Built-in course packs remain available for first use and offline practice.
+See [ADR-0019](../adr/ADR-0019-validated-ai-course-design.md).
+
 ## Text teaching loop
 
 Training composes the single teaching orchestrator with either explicitly labelled
