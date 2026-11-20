@@ -20,7 +20,7 @@ const replySchema = z.strictObject({
 });
 
 /** A standalone refusal can be acknowledged without sending it to the model. */
-function isStandaloneTopicBoundary(utterance: string): boolean {
+export function isStandaloneTopicBoundary(utterance: string): boolean {
   const refusal =
     /^(?:(?:i|we)\s+(?:can(?:['’]t|not|\s+not)|(?:don['’]t|do not) want to|prefer not to)|(?:i|we)['’]d (?:rather|prefer) not|let['’]s not)\s+(?:(?:talk|chat|speak) about|discuss)\s+([^.!?;,:\n]+)[.!]?$/iu.exec(
       utterance,

@@ -6,6 +6,10 @@ import { useTrainingStore } from "../stores/training";
 import { getGuidedExample, type TrainingSession } from "../training/session";
 import type { useSpeechLoop } from "../speech/useSpeechLoop";
 import { VoiceInput } from "./VoiceInput";
+import { SpeakingHintButton, SpeakingHintCard } from "./SpeakingHint";
+import { latestSpeakingHint } from "../practice/records";
+import { useSpeakingHint } from "../practice/useSpeakingHint";
+import { courseSpeakingHint } from "../practice/authored";
 
 const shortcut = "button-secondary rounded-full px-3 py-1.5 font-semibold disabled:opacity-50";
 const dockAction =
@@ -28,7 +32,7 @@ export function LessonComposer({
   onSaved: (saved: boolean) => void;
 }) {
   const { t } = useTranslation();
-  const { busy, turnStatus, send, requestSupport } = useTrainingStore();
+  const { busy, turnStatus, send, requestSupport, requestSpeakingHint } = useTrainingStore();
   const [reply, setReply] = useState("");
   const [speechDraft, setSpeechDraft] = useState<{ input: SpeechInput; recognized: string } | null>(
     null,
@@ -41,7 +45,17 @@ export function LessonComposer({
   const textOpen = keyboard ?? !asrEnabled;
   const example = session.provider.mode === "demo" ? getGuidedExample(session) : undefined;
   const hints = session.state.courseTemplate?.teachingPolicy.maxHints ?? 3;
+  const language = session.state.courseTemplate?.targetLanguage ?? "en";
+  const anchorSeq = session.messages.length - 1;
+  const hint = useSpeakingHint(
+    `${session.id}:${anchorSeq}`,
+    latestSpeakingHint(session.speakingPractice, anchorSeq),
+    (signal) => requestSpeakingHint(session, reply, signal),
+  );
+  const canHint = session.provider.mode === "ai" || !!courseSpeakingHint(session, reply, example);
   const support = (request: DialogueSupport) => {
+    if (useTrainingStore.getState().busy) return;
+    hint.cancel();
     voice.stopPlayback();
     void requestSupport(request).then(onSaved);
   };
@@ -52,7 +66,8 @@ export function LessonComposer({
       className="relative shrink-0 rounded-t-3xl border-t border-line bg-surface"
       onSubmit={(event) => {
         event.preventDefault();
-        if (busy || dealingWithVoice || !reply.trim()) return;
+        if (useTrainingStore.getState().busy || dealingWithVoice || !reply.trim()) return;
+        hint.cancel();
         voice.stopPlayback();
         const speech = speechDraft && {
           ...speechDraft.input,
@@ -107,12 +122,26 @@ export function LessonComposer({
               {t("training:useSimplerEnglish")}
             </button>
           )}
+          <button
+            type="button"
+            className={shortcut}
+            disabled={busy || dealingWithVoice || session.state.hintsGiven >= hints}
+            onClick={() => support("hint")}
+          >
+            {t("training:giveMeAHint")}
+          </button>
           <p className="ml-auto text-ink-muted">
             {t("training:hintsUsed")}
             {formatNumber(session.state.hintsGiven)}/{formatNumber(hints)}
           </p>
         </div>
         <div className="min-h-0 space-y-2 overflow-y-auto overscroll-contain p-0.5">
+          <SpeakingHintCard
+            hint={hint}
+            language={language}
+            onRead={voice.speak}
+            readDisabled={voice.capturing || !voice.settings || voice.settings.tts.mode === "off"}
+          />
           <VoiceInput
             voice={voice}
             busy={busy}
@@ -190,20 +219,11 @@ export function LessonComposer({
               <span>{t("speech:recordReply")}</span>
             </button>
           )}
-          <button
-            type="button"
+          <SpeakingHintButton
+            hint={hint}
             className={dockAction}
-            aria-label={t("training:giveMeAHint")}
-            disabled={busy || dealingWithVoice || session.state.hintsGiven >= hints}
-            onClick={() => support("hint")}
-          >
-            <span
-              className={`${circle} border-warning-line bg-chat-hint text-hint-ink group-hover:border-warning`}
-            >
-              <span className="lesson-icon lesson-icon-hint" aria-hidden="true" />
-            </span>
-            <span>{t("training:focus.hint")}</span>
-          </button>
+            disabled={!canHint || busy || dealingWithVoice || turnStatus === "saveFailed"}
+          />
         </div>
       </div>
     </form>

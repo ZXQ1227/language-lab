@@ -143,5 +143,25 @@
     "ended": "對話和已驗證的進度已儲存。空心圓標示仍需練習的任務。",
     "turnLimit": "這次練習已達 {{count}} 輪。對話和已驗證的進度已儲存，空心圓標示仍需練習的任務。",
     "retry": "再練一次這門課"
+  },
+  "speakingPractice": {
+    "hint": "給我一句",
+    "example": "範例回覆",
+    "loadingHint": "正在準備例句…",
+    "hintFailed": "暫時無法提供例句。可以重試或繼續寫回覆。",
+    "readExample": "朗讀範例",
+    "hideExample": "收合範例",
+    "transfer": "換個情境再說一次",
+    "loadingTransfer": "正在準備新情境…",
+    "transferFailed": "暫時無法準備或儲存複練，請重試。",
+    "working": "處理中…",
+    "skip": "跳過這次複練",
+    "close": "關閉複練",
+    "result": {
+      "independent": "獨立完成",
+      "assisted": "借助提示完成",
+      "retry": "可以換個說法再試一次",
+      "uncertain": "暫時無法確認結果"
+    }
   }
 }

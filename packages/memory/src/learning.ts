@@ -39,6 +39,20 @@ export const lessonMemoryContributionSchema = z
     completed: z.boolean(),
     objectivesCompleted: z.number().int().nonnegative(),
     objectiveCount: z.number().int().nonnegative(),
+    speakingPractice: z
+      .strictObject({
+        version: z.literal(1),
+        category: text.optional(),
+        expressions: z.array(
+          z.strictObject({
+            anchorSeq: z.number().int().nonnegative().multipleOf(2),
+            answeredAt: timestamp,
+            authored: z.boolean(),
+            status: z.enum(["ready", "independent", "assisted", "skipped"]),
+          }),
+        ),
+      })
+      .optional(),
     knowledge: z.array(
       z.strictObject({
         term: text,
@@ -71,6 +85,17 @@ export const lessonMemoryContributionSchema = z
         (lesson.objectiveCount === 0 || lesson.objectivesCompleted !== lesson.objectiveCount))
     )
       ctx.addIssue({ code: "custom", message: "Memory lesson counters are inconsistent" });
+    const speaking = lesson.speakingPractice;
+    if (
+      speaking &&
+      ((!!speaking.category && lesson.source === "free-conversation") ||
+        speaking.expressions.some(
+          (item, index) =>
+            item.anchorSeq >= lesson.totalTurns * 2 ||
+            (index > 0 && speaking.expressions[index - 1]!.anchorSeq >= item.anchorSeq),
+        ))
+    )
+      ctx.addIssue({ code: "custom", message: "Invalid speaking practice memory references" });
     const terms = new Set<string>();
     for (const item of lesson.knowledge) {
       const key = memoryTextKey(item.term);

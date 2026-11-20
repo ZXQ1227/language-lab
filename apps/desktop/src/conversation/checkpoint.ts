@@ -7,6 +7,11 @@ import {
 } from "@language-lab/core";
 import { lessonMemoryContributionSchema } from "@language-lab/memory";
 import { projectPracticeEvidence } from "../training/learningMemory";
+import {
+  speakingMemory,
+  speakingPracticeSchema,
+  validateSpeakingPractice,
+} from "../practice/records";
 
 export const freeConversationGreeting = "Hey, What’s on your mind today?";
 export const freeConversationMessageLimit = 4000;
@@ -39,12 +44,27 @@ const turnSchema = z
     }
   });
 
-export const freeConversationCheckpointSchema = z.strictObject({
-  version: z.literal(1),
-  id: z.templateLiteral(["free-", z.uuid()]),
-  updatedAt: z.number().int().nonnegative().max(8_640_000_000_000_000),
-  turns: z.array(turnSchema).min(1),
-});
+export const freeConversationCheckpointSchema = z
+  .strictObject({
+    version: z.literal(1),
+    id: z.templateLiteral(["free-", z.uuid()]),
+    updatedAt: z.number().int().nonnegative().max(8_640_000_000_000_000),
+    turns: z.array(turnSchema).min(1),
+    speakingPractice: speakingPracticeSchema.optional(),
+  })
+  .superRefine((checkpoint, ctx) => {
+    if (
+      !validateSpeakingPractice(checkpoint.speakingPractice, checkpoint.turns.length * 2, (seq) => {
+        const turn = checkpoint.turns[(seq - 1) / 2];
+        return turn?.purpose ? undefined : turn?.utterance;
+      })
+    )
+      ctx.addIssue({
+        code: "custom",
+        path: ["speakingPractice"],
+        message: "Invalid speaking practice evidence",
+      });
+  });
 
 export type FreeConversationCheckpoint = z.infer<typeof freeConversationCheckpointSchema>;
 export type FreeConversationTurn = z.infer<typeof turnSchema>;
@@ -87,6 +107,7 @@ export function buildFreeConversationContribution(checkpoint: FreeConversationCh
     completed: false,
     objectivesCompleted: 0,
     objectiveCount: 0,
+    speakingPractice: speakingMemory(checkpoint.speakingPractice),
     ...projectPracticeEvidence(
       checkpoint.turns.flatMap((turn) => turn.vocabulary),
       messages,

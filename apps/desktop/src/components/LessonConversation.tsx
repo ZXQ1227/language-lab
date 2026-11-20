@@ -14,6 +14,7 @@ import { isTrainingUnfinished, trainingTurnLimit, type TrainingSession } from ".
 import { CourseStudyPack, CourseReviewPractice } from "./CourseStudyPack";
 import { TrainingMessageFeedback } from "./LanguageFeedback";
 import { LearningReport } from "./LearningReport";
+import { LessonSpeakingPractice } from "./LessonSpeakingPractice";
 import { LessonComposer } from "./LessonComposer";
 import { LocalizedError } from "./LocalizedError";
 import { PartnerMessageActions } from "./PartnerMessageActions";
@@ -313,6 +314,7 @@ export function LessonConversation({ session }: { session: TrainingSession }) {
       {session.report && (
         <>
           <LearningReport session={session} />
+          <LessonSpeakingPractice key={session.id} session={session} />
           {session.state.courseTemplate?.learningPack && (
             <CourseReviewPractice session={session} busy={busy} onSave={saveReviewAnswers} />
           )}

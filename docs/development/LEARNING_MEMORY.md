@@ -149,6 +149,12 @@ practice projections and explicit profile edits can change stored memory. Memory
 may help the partner choose natural practice, but cannot complete objectives or
 bypass correction/hint budgets.
 
+Optional speaking-practice indexes allow finished course reports to recommend a
+ready expression from the same category and language when cross-session reuse
+is enabled. Transfer attempts are persisted with the source checkpoint, so
+deleting that source removes both the attempt and its recommendation. See
+[Contextual speaking practice](CONTEXTUAL_SPEAKING_PRACTICE.md).
+
 ## Verification and limits
 
 Tests exercise contribution grounding, replacement/idempotency, language scope,

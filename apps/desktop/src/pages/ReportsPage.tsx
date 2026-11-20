@@ -3,6 +3,7 @@ import { formatDate, formatDateTime } from "../i18n";
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { LearningReport } from "../components/LearningReport";
+import { LessonSpeakingPractice } from "../components/LessonSpeakingPractice";
 import { useTrainingStore } from "../stores/training";
 import { useNavStore } from "../stores/nav";
 import type { TrainingSession } from "../training/session";
@@ -222,6 +223,7 @@ export function ReportsPage() {
                 </button>
               </div>
               <LearningReport session={reportSession} />
+              <LessonSpeakingPractice key={reportSession.id} session={reportSession} />
               <Reflection
                 key={`${reportSession.id}:${JSON.stringify(reportSession.reportReflection)}`}
                 session={reportSession}

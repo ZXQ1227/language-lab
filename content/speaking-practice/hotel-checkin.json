@@ -1,0 +1,52 @@
+[
+  {
+    "id": "hotel-luggage",
+    "stageId": "ask-services",
+    "draftCues": [
+      "寄存",
+      "存放行李",
+      "先放行李",
+      "leave my bags",
+      "leave my luggage",
+      "keep my bags",
+      "keep my luggage",
+      "store my bags",
+      "store my luggage"
+    ],
+    "hint": {
+      "intent": "Ask the front desk to keep your luggage until check-in.",
+      "example": "Could I leave my bags here until check-in?"
+    },
+    "initialTerms": [
+      ["leave", "keep", "store", "hold", "look after"],
+      ["bags", "bag", "luggage", "baggage", "suitcase"],
+      ["check-in", "check in", "my room is ready"]
+    ],
+    "transfer": {
+      "situation": "You have just checked out. You will pick up your luggage at four before going to the airport. Ask the front desk to keep it for you.",
+      "criterion": "Ask the front desk to keep your luggage until four.",
+      "example": "Could you keep my luggage until four?"
+    },
+    "transferTerms": [
+      ["leave", "keep", "store", "hold", "look after"],
+      ["bags", "bag", "luggage", "baggage", "suitcase", "it"],
+      ["until four", "till four", "until 4", "till 4", "until 4pm", "till 4pm"]
+    ],
+    "reply": "Of course. We can keep your bags at the front desk until your room is ready. Did you have any questions about breakfast, Wi-Fi or check-out?"
+  },
+  {
+    "id": "hotel-reservation",
+    "stageId": "find-reservation",
+    "hint": {
+      "intent": "Give the name on the reservation and say how many nights you are staying.",
+      "example": "Hello, I have a reservation under Alex Chen for two nights."
+    },
+    "initialTerms": [["alex chen"], ["two nights", "2 nights"]],
+    "transfer": {
+      "situation": "You are checking in at a different hotel. You booked under Morgan Lee for three nights. Tell the receptionist your booking name and how long you are staying.",
+      "criterion": "Give the booking name Morgan Lee and say the stay is for three nights.",
+      "example": "The booking is under Morgan Lee. I’m staying for three nights."
+    },
+    "transferTerms": [["morgan lee"], ["three nights", "3 nights"]]
+  }
+]

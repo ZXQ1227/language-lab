@@ -13,7 +13,10 @@ import {
   type LessonMemoryContribution,
 } from "@language-lab/memory";
 
+import { speakingMemory, type SpeakingPractice } from "../practice/records";
+
 export interface LearningMemorySource {
+  speakingPractice?: SpeakingPractice;
   id: string;
   scenario: ScenarioContent;
   state: LessonState;
@@ -77,6 +80,7 @@ export function buildLearningContribution(session: LearningMemorySource): Lesson
     completed: session.state.phase === "done",
     objectivesCompleted: session.state.objectives.filter((objective) => objective.completed).length,
     objectiveCount: session.state.objectives.length,
+    speakingPractice: speakingMemory(session.speakingPractice, session.scenario.category),
     ...projectPracticeEvidence(
       session.state.targetVocabulary,
       session.messages,

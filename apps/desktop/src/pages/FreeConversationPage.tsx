@@ -12,7 +12,7 @@ import {
   type FreeConversationCheckpoint,
   type FreeConversationMessage,
 } from "../conversation/checkpoint";
-import { replyToConversation } from "../conversation/reply";
+import { isStandaloneTopicBoundary, replyToConversation } from "../conversation/reply";
 import {
   findVoiceMeaningAmbiguities,
   rebaseVoiceMeaningAmbiguities,
@@ -22,6 +22,19 @@ import { characterVoiceStyle } from "../speech/voices";
 import { useAiProviderStore } from "../stores/aiProvider";
 import { useNavStore } from "../stores/nav";
 import { useTrainingStore } from "../stores/training";
+import { SpeakingHintButton, SpeakingHintCard } from "../components/SpeakingHint";
+import { SpeakingTransferControl } from "../components/SpeakingTransfer";
+import { useSpeakingHint } from "../practice/useSpeakingHint";
+import {
+  assessSpeaking,
+  generateSpeakingHint,
+  recentSpeakingMessages,
+} from "../practice/generation";
+import {
+  latestSpeakingHint,
+  replaceSpeakingHint,
+  type SpeakingHintRecord,
+} from "../practice/records";
 import { trainingGateway } from "../training/gateway";
 import { toTrainingProvider } from "../training/provider";
 
@@ -39,6 +52,7 @@ export function FreeConversationPage() {
   const loadConversation = useTrainingStore((state) => state.loadFreeConversation);
   const saveConversation = useTrainingStore((state) => state.saveFreeConversation);
   const getMemory = useTrainingStore((state) => state.freeConversationMemory);
+  const storeBusy = useTrainingStore((state) => state.busy);
   const { settings, loaded, configured, busy: loadingAi, error, load } = useAiProviderStore();
   const [checkpoint, setCheckpoint] = useState<FreeConversationCheckpoint>(() => ({
     version: 1,
@@ -57,6 +71,7 @@ export function FreeConversationPage() {
   const [pendingText, setPendingText] = useState<string | null>(null);
   const [failed, setFailed] = useState<"failed" | "invalidReply" | "saveFailed" | null>(null);
   const [saving, setSaving] = useState(false);
+  const [transferActive, setTransferActive] = useState<number>();
   const unsaved = useRef<FreeConversationCheckpoint | null>(null);
   const [keyboard, setKeyboard] = useState<boolean | null>(null);
   const [showSpeechSetup, setShowSpeechSetup] = useState(false);
@@ -81,6 +96,31 @@ export function FreeConversationPage() {
     ? [...messages, { role: "user", content: pendingText }]
     : messages;
   const ambiguity = ambiguities[0];
+  const anchorSeq = checkpoint.turns.length * 2;
+  const speakingHint = latestSpeakingHint(checkpoint.speakingPractice, anchorSeq);
+  const hint = useSpeakingHint(`${checkpoint.id}:${anchorSeq}`, speakingHint, async (signal) => {
+    const gateway = await trainingGateway(toTrainingProvider(settings));
+    signal.throwIfAborted();
+    const result = await generateSpeakingHint(
+      gateway,
+      {
+        language: "en",
+        draft: ambiguity ? "" : draft.trim().slice(0, 800),
+        history: recentSpeakingMessages(messages),
+      },
+      signal,
+    );
+    signal.throwIfAborted();
+    if (pending.current) return;
+    const record: SpeakingHintRecord = { ...result, anchorSeq, source: "ai", shownAt: Date.now() };
+    const next = {
+      ...checkpoint,
+      speakingPractice: replaceSpeakingHint(checkpoint.speakingPractice, record),
+    };
+    if (next.turns.length && !(await saveConversation(next, signal)))
+      throw new Error("Could not save hint");
+    if (!signal.aborted) setCheckpoint(next);
+  });
   const alternative = ambiguity
     ? draft.slice(0, ambiguity.start) +
       ambiguity.alternative +
@@ -126,6 +166,8 @@ export function FreeConversationPage() {
       text.trim().length <= freeConversationMessageLimit &&
       ready &&
       !pending.current &&
+      transferActive === undefined &&
+      !useTrainingStore.getState().busy &&
       !dealingWithVoice
     );
   }
@@ -153,6 +195,7 @@ export function FreeConversationPage() {
   }
 
   async function sendReply(text: string) {
+    hint.cancel();
     const content = text.trim();
     const controller = new AbortController();
     const history: FreeConversationMessage[] = [...messages, { role: "user", content }];
@@ -172,6 +215,22 @@ export function FreeConversationPage() {
         if (controller.signal.aborted) return;
         const turn = await replyToConversation(gateway, history, controller.signal, memory);
         next = { ...checkpoint, updatedAt: Date.now(), turns: [...checkpoint.turns, turn] };
+        if (speakingHint && !turn.purpose && !isStandaloneTopicBoundary(turn.utterance)) {
+          const assessment = await assessSpeaking(
+            gateway,
+            speakingHint.intent,
+            turn.utterance,
+            controller.signal,
+          );
+          next.speakingPractice = replaceSpeakingHint(next.speakingPractice, {
+            ...speakingHint,
+            answer: {
+              messageSeq: anchorSeq + 1,
+              assessment,
+              at: Math.max(Date.now(), speakingHint.shownAt),
+            },
+          });
+        }
         unsaved.current = next;
       }
       if (controller.signal.aborted) return;
@@ -276,6 +335,10 @@ export function FreeConversationPage() {
                   isLightCorrection(error) && preservesCorrectionPolarity(message.content, error),
               );
               const checked = diagnosis?.status === "checked" && diagnosis.errors.length === 0;
+              const guided =
+                message.role === "user"
+                  ? latestSpeakingHint(checkpoint.speakingPractice, index - 1)
+                  : undefined;
               return (
                 <li
                   key={index}
@@ -299,6 +362,47 @@ export function FreeConversationPage() {
                       onRead={() => voice.speak(message.content)}
                     />
                   )}
+                  {guided?.answer?.assessment.result === "met" &&
+                    (guided.transfer?.skippedAt === undefined ||
+                      transferActive === guided.anchorSeq) && (
+                      <SpeakingTransferControl
+                        disabled={
+                          !ready ||
+                          busy ||
+                          storeBusy ||
+                          dealingWithVoice ||
+                          failed === "saveFailed" ||
+                          (transferActive !== undefined && transferActive !== guided.anchorSeq)
+                        }
+                        language="en"
+                        provider={toTrainingProvider(settings)}
+                        voiceStyle={characterVoiceStyle()}
+                        resolveSource={async () => ({
+                          hint: guided,
+                          originalPrompt: messages[guided.anchorSeq]?.content,
+                        })}
+                        save={async (next, _previous, signal) => {
+                          const updated = {
+                            ...checkpoint,
+                            speakingPractice: replaceSpeakingHint(checkpoint.speakingPractice, {
+                              ...guided,
+                              transfer: next,
+                            }),
+                          };
+                          const saved = await saveConversation(updated, signal);
+                          if (saved && !signal.aborted) setCheckpoint(updated);
+                          return saved;
+                        }}
+                        onActive={(active) => {
+                          if (active) {
+                            hint.cancel();
+                            voice.stopPlayback();
+                            voice.cancel();
+                          }
+                          setTransferActive(active ? guided.anchorSeq : undefined);
+                        }}
+                      />
+                    )}
                   {(correction || checked) && (
                     <LanguageFeedback
                       text={message.content}
@@ -379,6 +483,12 @@ export function FreeConversationPage() {
                 {t("common:freeConversation.connect")}
               </button>
             )}
+            <SpeakingHintCard
+              hint={hint}
+              language="en"
+              onRead={voice.speak}
+              readDisabled={readDisabled}
+            />
             {(showSpeechSetup || voice.capture.phase !== "idle") && (
               <VoiceInput
                 voice={voice}
@@ -455,7 +565,7 @@ export function FreeConversationPage() {
               </section>
             )}
           </div>
-          <div className="mx-auto grid w-full max-w-xs shrink-0 grid-cols-2 items-center gap-3 pt-1">
+          <div className="mx-auto grid w-full max-w-sm shrink-0 grid-cols-3 items-center gap-3 pt-1">
             <button
               type="button"
               className={inputControl}
@@ -493,6 +603,18 @@ export function FreeConversationPage() {
                     : "common:freeConversation.microphoneSetup",
               )}
             </button>
+            <SpeakingHintButton
+              hint={hint}
+              className={inputControl}
+              disabled={
+                !ready ||
+                busy ||
+                storeBusy ||
+                dealingWithVoice ||
+                transferActive !== undefined ||
+                failed === "saveFailed"
+              }
+            />
           </div>
         </div>
       </form>

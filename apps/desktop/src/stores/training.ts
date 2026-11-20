@@ -4,6 +4,8 @@ import {
   scenarioContentSchema,
   dialogueSupportSchema,
   detectDialogueSupport,
+  getCurrentCourseStage,
+  learnerPracticeText,
   trackVocabulary,
   type DialogueSupport,
   type ScenarioContent,
@@ -25,6 +27,7 @@ import {
 import { call } from "../lib/ipc";
 import {
   createTrainingSession,
+  getGuidedExample,
   finishTrainingSession,
   endTrainingEarly,
   runTrainingTurn,
@@ -52,6 +55,20 @@ import {
   freeConversationCheckpointSchema,
   type FreeConversationCheckpoint,
 } from "../conversation/checkpoint";
+
+import { courseSpeakingHint, checkAuthoredSpeaking } from "../practice/authored";
+import {
+  assessSpeaking,
+  generateSpeakingHint,
+  recentSpeakingMessages,
+} from "../practice/generation";
+import {
+  latestSpeakingHint,
+  replaceSpeakingHint,
+  sameSpeakingTransferVersion,
+  type SpeakingHintRecord,
+  type SpeakingTransfer,
+} from "../practice/records";
 
 const repositories = () => createRepositories(createTauriTransport(call));
 
@@ -97,6 +114,16 @@ interface TrainingStore {
   resume: (id: string) => void;
   start: (course: ScenarioContent, provider: TrainingProvider, key?: string) => Promise<void>;
   send: (utterance: string, speech?: SpeechInput) => Promise<boolean>;
+  requestSpeakingHint: (base: TrainingSession, draft: string, signal: AbortSignal) => Promise<void>;
+  loadSpeakingSource: (lessonId: string) => Promise<TrainingSession>;
+  saveSpeakingTransfer: (
+    report: TrainingSession,
+    lessonId: string,
+    anchorSeq: number,
+    next: SpeakingTransfer,
+    expected: SpeakingTransfer | undefined,
+    signal: AbortSignal,
+  ) => Promise<boolean>;
   requestSupport: (request: DialogueSupport) => Promise<boolean>;
   finish: () => Promise<void>;
   endEarly: () => Promise<boolean>;
@@ -107,8 +134,8 @@ export const useTrainingStore = create<TrainingStore>((set, get) => {
   let pendingWrite: { base: TrainingSession; key: string; next: TrainingSession } | undefined;
 
   async function commit(session: TrainingSession, activate = true) {
-    const checkpoint = trainingSessionSchema.parse(session);
-    const contribution = checkpoint.learningMemory ?? buildLearningContribution(checkpoint);
+    const contribution = buildLearningContribution(session);
+    const checkpoint = trainingSessionSchema.parse({ ...session, learningMemory: contribution });
     const contributions = [
       ...get().memoryContributions.filter((item) => item.lessonId !== checkpoint.id),
       contribution,
@@ -147,6 +174,19 @@ export const useTrainingStore = create<TrainingStore>((set, get) => {
         50,
       ),
     });
+  }
+  async function loadSpeakingSource(id: string) {
+    const row = await repositories().learningEvents.findTrainingCheckpoint(id);
+    if (
+      !row ||
+      row.userId !== LOCAL_LEARNER_ID ||
+      row.type !== "training_checkpoint" ||
+      row.id !== `training-${id}`
+    )
+      throw new Error("Practice source is unavailable");
+    const session = trainingSessionSchema.parse(JSON.parse(row.payload));
+    if (session.id !== id) throw new Error("Invalid practice source");
+    return session;
   }
   async function teachingMemory() {
     const repos = repositories();
@@ -364,22 +404,107 @@ export const useTrainingStore = create<TrainingStore>((set, get) => {
         await commit(session);
       });
     },
+    requestSpeakingHint: async (base, draft, signal) => {
+      const stage = getCurrentCourseStage(base.state);
+      const template = base.state.courseTemplate;
+      const anchorSeq = base.messages.length - 1;
+      if (!stage || !template || latestSpeakingHint(base.speakingPractice, anchorSeq)) return;
+      let source: SpeakingHintRecord["source"] = "authored";
+      let hint = courseSpeakingHint(base, draft, getGuidedExample(base));
+      if (base.provider.mode === "ai" && !hint?.authoredId) {
+        const gateway = await trainingGateway(base.provider);
+        hint = await generateSpeakingHint(
+          gateway,
+          {
+            draft: draft.trim().slice(0, 800),
+            history: recentSpeakingMessages(base.messages),
+            language: template.targetLanguage,
+            course: {
+              difficulty: base.state.difficulty,
+              setting: template.setting.slice(0, 800),
+              learnerRole: template.roles.learner.slice(0, 240),
+              stage: stage.instruction.slice(0, 500),
+            },
+          },
+          signal,
+        );
+        source = "ai";
+      }
+      signal.throwIfAborted();
+      if (!hint) throw new Error("No example is available for the current stage");
+      const record = { ...hint, anchorSeq, stageId: stage.id, source, shownAt: Date.now() };
+      const saved = await operation(async () => {
+        signal.throwIfAborted();
+        if (get().session !== base) throw new Error("The conversation has moved on");
+        await commit({
+          ...base,
+          speakingPractice: replaceSpeakingHint(base.speakingPractice, record),
+        });
+      });
+      if (!saved) throw new Error("Could not save practice hint");
+    },
+    loadSpeakingSource,
+    saveSpeakingTransfer: async (report, id, anchorSeq, next, expected, signal) =>
+      operation(async () => {
+        signal.throwIfAborted();
+        const source = await loadSpeakingSource(id);
+        if (source.state.phase !== "done") throw new Error("Practice source is unfinished");
+        if (
+          id !== report.id &&
+          (!(await readMemoryReuse(repositories())) ||
+            source.scenario.category !== report.scenario.category ||
+            source.state.courseTemplate?.targetLanguage !==
+              report.state.courseTemplate?.targetLanguage)
+        )
+          throw new Error("Saved expressions are unavailable for this lesson");
+        signal.throwIfAborted();
+        const hint = latestSpeakingHint(source.speakingPractice, anchorSeq);
+        if (!hint || !sameSpeakingTransferVersion(hint.transfer, expected))
+          throw new Error("The speaking practice has changed");
+        await commit(
+          {
+            ...source,
+            speakingPractice: replaceSpeakingHint(source.speakingPractice, {
+              ...hint,
+              transfer: next,
+            }),
+          },
+          false,
+        );
+      }),
     send: async (utterance, speech) =>
       operation(async () => {
         const current = get().session;
         if (!current) throw new Error("Start or resume a lesson first");
-        await saveTurn(current, JSON.stringify([utterance.trim(), speech]), async () =>
-          runTrainingTurn(
-            current,
-            utterance,
+        await saveTurn(current, JSON.stringify([utterance.trim(), speech]), async () => {
+          const gateway =
             detectDialogueSupport(utterance) === "repeat"
               ? createMockGateway()
-              : await trainingGateway(current.provider),
+              : await trainingGateway(current.provider);
+          const next = await runTrainingTurn(
+            current,
+            utterance,
+            gateway,
             undefined,
             await snapshot(current.scenario),
             speech,
-          ),
-        );
+          );
+          const hint = latestSpeakingHint(current.speakingPractice, current.messages.length - 1);
+          const messageSeq = current.messages.length;
+          const text = learnerPracticeText(next.messages[messageSeq]!);
+          if (!hint || !text) return next;
+          const assessment =
+            hint.source === "authored" && current.provider.mode === "demo"
+              ? checkAuthoredSpeaking(hint, text)
+              : await assessSpeaking(gateway, hint.intent, text);
+          return {
+            ...next,
+            speakingPractice: replaceSpeakingHint(next.speakingPractice, {
+              ...hint,
+              answer: { messageSeq, assessment, at: Math.max(Date.now(), hint.shownAt) },
+            }),
+          };
+        });
       }),
     finish: async () => {
       await operation(async () => {

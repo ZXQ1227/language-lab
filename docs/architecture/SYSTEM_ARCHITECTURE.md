@@ -227,6 +227,17 @@ edge changes are needed. See
 [ADR-0016](../adr/ADR-0016-targeted-follow-up-review.md) and
 [Review Generator](../development/REVIEW_GENERATOR.md).
 
+## Contextual speaking practice
+
+Free Conversation and Training can request a contextual example separately from
+ordinary turns. An optional versioned checkpoint section links the shown example,
+the next eligible learner reply and a new situation. The existing teaching loop
+still produces the normal partner reply. Transfer tasks have their own validated
+criteria and results, can also use authored offline material, and persist on their
+original source with the learning-memory index. The memory setting and source
+deletion govern historical recommendations. See
+[Contextual speaking practice](../development/CONTEXTUAL_SPEAKING_PRACTICE.md).
+
 ## Confirmed voice input and reply playback
 
 OpenAI-compatible ASR/TTS adapters now implement the existing Model Gateway audio

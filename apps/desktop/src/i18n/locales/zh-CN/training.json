@@ -143,5 +143,25 @@
     "ended": "对话和已验证的进度已保存。空心圆标示仍需练习的任务。",
     "turnLimit": "这次练习已达到 {{count}} 轮。对话和已验证的进度已保存，空心圆标示仍需练习的任务。",
     "retry": "再练一次这门课"
+  },
+  "speakingPractice": {
+    "hint": "给我一句",
+    "example": "示例回复",
+    "loadingHint": "正在准备例句…",
+    "hintFailed": "暂时无法提供例句。可以重试或继续写回复。",
+    "readExample": "朗读示例",
+    "hideExample": "收起示例",
+    "transfer": "换个情境再说一次",
+    "loadingTransfer": "正在准备新情境…",
+    "transferFailed": "暂时无法准备或保存复练，请重试。",
+    "working": "处理中…",
+    "skip": "跳过这次复练",
+    "close": "关闭复练",
+    "result": {
+      "independent": "独立完成",
+      "assisted": "借助提示完成",
+      "retry": "可以换个说法再试一次",
+      "uncertain": "暂无法确认结果"
+    }
   }
 }

@@ -143,5 +143,25 @@
     "ended": "Your conversation and verified progress are saved. Open circles mark tasks still to practise.",
     "turnLimit": "This practice reached {{count}} turns. Your conversation and verified progress are saved. Open circles mark tasks still to practise.",
     "retry": "Practise this course again"
+  },
+  "speakingPractice": {
+    "hint": "Give me a line",
+    "example": "Example reply",
+    "loadingHint": "Preparing an example…",
+    "hintFailed": "Couldn’t get an example. Try again or keep writing your reply.",
+    "readExample": "Read the example",
+    "hideExample": "Hide example",
+    "transfer": "Try it in a new situation",
+    "loadingTransfer": "Preparing a new situation…",
+    "transferFailed": "Couldn’t prepare or save the practice. Try again.",
+    "working": "Working…",
+    "skip": "Skip this practice",
+    "close": "Close practice",
+    "result": {
+      "independent": "Completed independently",
+      "assisted": "Completed with a hint",
+      "retry": "Try expressing that again",
+      "uncertain": "Couldn’t confirm the outcome"
+    }
   }
 }

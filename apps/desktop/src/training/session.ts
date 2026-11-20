@@ -51,6 +51,12 @@ import {
 } from "@language-lab/memory";
 import { buildLearningContribution } from "./learningMemory";
 import { loadScenarioContent } from "../content/scenarioContent";
+import { authoredSpeakingExercise, checkAuthoredSpeaking } from "../practice/authored";
+import {
+  latestSpeakingHint,
+  speakingPracticeSchema,
+  validateSpeakingPractice,
+} from "../practice/records";
 
 import { trainingProviderSchema, type TrainingProvider } from "./provider";
 
@@ -62,6 +68,7 @@ export const trainingSessionSchema = z
     vocabularyTrackingVersion: z.literal(1).optional(),
     diagnoses: z.array(errorDiagnosisRecordSchema).max(100).optional(),
     learningMemory: lessonMemoryContributionSchema.optional(),
+    speakingPractice: speakingPracticeSchema.optional(),
     id: z.string().min(1),
     scenario: scenarioContentSchema,
     provider: trainingProviderSchema,
@@ -98,6 +105,19 @@ export const trainingSessionSchema = z
     reviewAnswers: z.record(z.string(), z.string().max(2000)).optional(),
   })
   .superRefine((session, ctx) => {
+    if (
+      !validateSpeakingPractice(
+        session.speakingPractice,
+        session.messages.length - 1,
+        (seq) => session.messages[seq] && learnerPracticeText(session.messages[seq]),
+        new Set(session.state.courseTemplate?.stages.map((stage) => stage.id)),
+      )
+    )
+      ctx.addIssue({
+        code: "custom",
+        path: ["speakingPractice"],
+        message: "Invalid speaking practice evidence",
+      });
     if (session.travelTransfer) {
       const { sourceLessonId, completedAt } = session.travelTransfer;
       const complete = session.state.phase === "debrief" || session.state.phase === "done";
@@ -427,7 +447,7 @@ export function getGuidedExample(session: TrainingSession): string | undefined {
     : undefined;
 }
 
-function makeSkills(scenario: ScenarioContent, demo: boolean) {
+function makeSkills(scenario: ScenarioContent, demo: boolean, saved?: TrainingSession) {
   if (!demo) return createDefaultSkillRegistry();
   const registry = new SkillRegistry();
   for (const skill of createMockSkillRegistry().list()) {
@@ -480,14 +500,25 @@ function makeSkills(scenario: ScenarioContent, demo: boolean) {
           memoryUpdates: [],
         };
       }
+      const hint = saved && latestSpeakingHint(saved.speakingPractice, saved.messages.length - 1);
+      const authored = hint && authoredSpeakingExercise(hint.authoredId);
+      const reply =
+        !input.supportRequest &&
+        !input.evidenceStatus &&
+        hint &&
+        authored?.reply &&
+        checkAuthoredSpeaking(hint, input.utterance.slice(input.practiceStart)).result === "met"
+          ? authored.reply
+          : undefined;
       return {
         reply:
           (input.intervention.correction
             ? `You can say: “${input.intervention.correction.corrected}”. `
             : "") +
-          (stage
-            ? (guidedMaterial(scenario, stage.id)?.prompt ?? "Please try the suggested reply.")
-            : "Well done! You completed all practice steps. You can now review the lesson."),
+          (reply ??
+            (stage
+              ? (guidedMaterial(scenario, stage.id)?.prompt ?? "Please try the suggested reply.")
+              : "Well done! You completed all practice steps. You can now review the lesson.")),
         tone: input.intervention.action === "light_correction" ? "corrective" : "encouraging",
       };
     },
@@ -525,7 +556,7 @@ function runtime(
     : undefined;
   return new TeachingOrchestrator({
     gateway,
-    skills: makeSkills(scenario, provider.mode === "demo"),
+    skills: makeSkills(scenario, provider.mode === "demo", saved),
     stateStore: {
       load: async () => state ?? null,
       save: async (value) => {
