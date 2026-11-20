@@ -15,5 +15,22 @@
   "unsavedAIConnection": "AI 连接配置有未保存的修改。",
   "savedOnDevice": "已保存到本机。",
   "saveAIConnection": "保存 AI 连接",
-  "loadingAIConnection": "正在读取 AI 连接配置…"
+  "loadingAIConnection": "正在读取 AI 连接配置…",
+  "connection": {
+    "test": "测试 AI 连接",
+    "unverified": "连接已保存。请测试模型能否返回结构化响应。",
+    "checking": "正在测试结构化响应…",
+    "verified": "AI 连接已验证。",
+    "invalidSettings": "请输入模型及 HTTPS 端点，本机端点也可用 HTTP。网址中请勿填写凭据、查询参数或片段。",
+    "failure": {
+      "timeout": "连接测试超时。请重试或检查端点。",
+      "cancelled": "连接测试已取消。请重试。",
+      "network": "无法连接此端点。请检查网址和网络。",
+      "auth": "此端点需要有效的 API 密钥。请更新后重试。",
+      "rate_limit": "服务商已限制请求频率。请稍后重试。",
+      "invalid_request": "服务商拒绝了此模型或结构化响应请求。",
+      "schema_violation": "模型已响应，但结构化结果未通过校验。",
+      "provider_error": "连接测试失败。请检查端点、模型和密钥后重试。"
+    }
+  }
 }

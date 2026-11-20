@@ -15,5 +15,22 @@
   "unsavedAIConnection": "The AI connection has unsaved changes.",
   "savedOnDevice": "Saved on this device.",
   "saveAIConnection": "Save AI connection",
-  "loadingAIConnection": "Loading AI connection settings…"
+  "loadingAIConnection": "Loading AI connection settings…",
+  "connection": {
+    "test": "Test AI connection",
+    "unverified": "Saved connection. Test it to verify that the model can return structured responses.",
+    "checking": "Testing structured responses…",
+    "verified": "AI connection verified.",
+    "invalidSettings": "Enter a model and an HTTPS endpoint, or use HTTP on localhost. Leave credentials, query parameters and fragments out of the URL.",
+    "failure": {
+      "timeout": "The connection test timed out. Try again or check the endpoint.",
+      "cancelled": "The connection test was cancelled. Try again.",
+      "network": "Could not reach this endpoint. Check the URL and network.",
+      "auth": "The endpoint needs a valid API key. Update it and test again.",
+      "rate_limit": "The provider has limited requests. Try again later.",
+      "invalid_request": "The provider rejected this model or its structured-response request.",
+      "schema_violation": "The model responded, but its structured response failed validation.",
+      "provider_error": "The connection test failed. Check your endpoint, model and key, then try again."
+    }
+  }
 }

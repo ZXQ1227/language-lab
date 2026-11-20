@@ -15,5 +15,22 @@
   "unsavedAIConnection": "AI 連線設定有未儲存的修改。",
   "savedOnDevice": "已儲存到本機。",
   "saveAIConnection": "儲存 AI 連線",
-  "loadingAIConnection": "正在讀取 AI 連線設定…"
+  "loadingAIConnection": "正在讀取 AI 連線設定…",
+  "connection": {
+    "test": "測試 AI 連線",
+    "unverified": "連線已儲存。請測試模型能否回傳結構化回應。",
+    "checking": "正在測試結構化回應…",
+    "verified": "AI 連線已驗證。",
+    "invalidSettings": "請輸入模型及 HTTPS 端點，本機端點也可用 HTTP。網址中請勿填寫憑證、查詢參數或片段。",
+    "failure": {
+      "timeout": "連線測試逾時。請重試或檢查端點。",
+      "cancelled": "連線測試已取消。請重試。",
+      "network": "無法連線至此端點。請檢查網址和網路。",
+      "auth": "此端點需要有效的 API 金鑰。請更新後重試。",
+      "rate_limit": "服務商已限制請求頻率。請稍後重試。",
+      "invalid_request": "服務商拒絕了此模型或結構化回應請求。",
+      "schema_violation": "模型已回應，但結構化結果未通過驗證。",
+      "provider_error": "連線測試失敗。請檢查端點、模型和金鑰後重試。"
+    }
+  }
 }

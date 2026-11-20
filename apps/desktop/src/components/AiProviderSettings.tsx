@@ -1,32 +1,30 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAiProviderStore } from "../stores/aiProvider";
+import { aiProviderSettingsSchema } from "../training/provider";
 
 const control = "mt-1 w-full rounded-md border form-control px-3 py-2 text-sm";
 
 function Editor() {
   const { t } = useTranslation();
-  const { settings, save, busy } = useAiProviderStore();
-  const [draft, setDraft] = useState(settings);
+  const { settings, save, verify, configured, busy, connectionCheck, error } = useAiProviderStore();
+  const [edit, setEdit] = useState<typeof settings | null>(null);
   const [apiKey, setApiKey] = useState("");
-  const [saved, setSaved] = useState(false);
+  const [invalid, setInvalid] = useState(false);
+  const draft = edit ?? settings;
   const dirty = JSON.stringify(draft) !== JSON.stringify(settings) || !!apiKey.trim();
-  // Follow store updates (initial load) without remounting, so the saved
-  // status message survives; user edits are never clobbered. `dirty` is read
-  // at effect time on purpose: it guards, it does not trigger.
-  useEffect(() => {
-    if (!dirty) setDraft(settings);
-  }, [settings]);
   return (
     <form
       className="space-y-4"
       onSubmit={(event) => {
         event.preventDefault();
-        void save(draft, apiKey).then((success) => {
+        const parsed = aiProviderSettingsSchema.safeParse(draft);
+        setInvalid(!parsed.success);
+        if (!parsed.success) return;
+        void save(parsed.data, apiKey).then((success) => {
           if (success) {
-            setDraft(useAiProviderStore.getState().settings);
+            setEdit(null);
             setApiKey("");
-            setSaved(true);
           }
         });
       }}
@@ -39,7 +37,10 @@ function Editor() {
           required
           value={draft.baseUrl}
           disabled={busy}
-          onChange={(event) => setDraft({ ...draft, baseUrl: event.target.value })}
+          onChange={(event) => {
+            setInvalid(false);
+            setEdit({ ...draft, baseUrl: event.target.value });
+          }}
         />
       </label>
       <label className="block text-sm">
@@ -50,7 +51,10 @@ function Editor() {
           maxLength={120}
           value={draft.model}
           disabled={busy}
-          onChange={(event) => setDraft({ ...draft, model: event.target.value })}
+          onChange={(event) => {
+            setInvalid(false);
+            setEdit({ ...draft, model: event.target.value });
+          }}
         />
       </label>
       <label className="block text-sm">
@@ -68,15 +72,44 @@ function Editor() {
         {t("settings:useAnOpenAICompatibleEndpointAPIKeysAreSavedIn")}
       </p>
       <p role="status" className="text-xs text-ink-muted">
-        {dirty ? t("settings:unsavedAIConnection") : saved ? t("settings:savedOnDevice") : ""}
+        {dirty ? t("settings:unsavedAIConnection") : configured ? t("settings:savedOnDevice") : ""}
       </p>
-      <button
-        type="submit"
-        className="rounded button-primary px-3 py-2 text-sm disabled:opacity-40"
-        disabled={busy}
-      >
-        {t("settings:saveAIConnection")}
-      </button>
+      {invalid && (
+        <p role="alert" className="text-sm text-error-ink">
+          {t("settings:connection.invalidSettings")}
+        </p>
+      )}
+      {configured && !dirty && !error && (
+        <p
+          role={connectionCheck.status === "failed" ? "alert" : "status"}
+          className={
+            connectionCheck.status === "failed"
+              ? "text-sm text-error-ink"
+              : "text-sm text-ink-muted"
+          }
+        >
+          {connectionCheck.status === "failed"
+            ? t(`settings:connection.failure.${connectionCheck.kind}`)
+            : t(`settings:connection.${connectionCheck.status}`)}
+        </p>
+      )}
+      <div className="flex flex-wrap gap-2">
+        <button
+          type="submit"
+          className="rounded button-primary px-3 py-2 text-sm disabled:opacity-40"
+          disabled={busy}
+        >
+          {t("settings:saveAIConnection")}
+        </button>
+        <button
+          type="button"
+          className="rounded button-secondary px-3 py-2 text-sm disabled:opacity-40"
+          disabled={busy || !configured || dirty || !!error}
+          onClick={() => void verify()}
+        >
+          {t("settings:connection.test")}
+        </button>
+      </div>
     </form>
   );
 }

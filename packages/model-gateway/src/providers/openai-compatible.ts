@@ -128,8 +128,8 @@ export class OpenAiCompatibleLlmProvider implements LlmProvider {
 
   async *streamText(request: LlmRequest, options?: CallOptions): AsyncGenerator<LlmStreamChunk> {
     const tracker = this.tracker("llm.streamText", options);
-    const response = await this.rawChat(request, options, true).catch((error) =>
-      tracker.fail(error, options?.requestId ?? "n/a"),
+    const response = await this.rawChat(request, options, true, async (response) => response).catch(
+      (error) => tracker.fail(error, options?.requestId ?? "n/a"),
     );
     try {
       const reader = response.body!.getReader();
@@ -160,18 +160,20 @@ export class OpenAiCompatibleLlmProvider implements LlmProvider {
   async healthCheck(options?: CallOptions): Promise<HealthReport> {
     const startedAt = performance.now();
     try {
-      const response = await this.fetchWithDeadline(
+      return await this.fetchWithDeadline(
         `${this.config.baseUrl}/models`,
         { method: "GET", headers: this.headers() },
         options,
         Math.min(options?.timeoutMs ?? 5_000, 5_000),
+        async (response) => {
+          const latencyMs = Math.round(performance.now() - startedAt);
+          if (!response.ok) {
+            const detail = await readErrorDetail(response);
+            return { ok: false, latencyMs, detail: `HTTP ${response.status}: ${detail}` };
+          }
+          return { ok: true, latencyMs };
+        },
       );
-      const latencyMs = Math.round(performance.now() - startedAt);
-      if (!response.ok) {
-        const detail = await readErrorDetail(response);
-        return { ok: false, latencyMs, detail: `HTTP ${response.status}: ${detail}` };
-      }
-      return { ok: true, latencyMs };
     } catch (error) {
       const detail = error instanceof Error ? error.message : String(error);
       return {
@@ -231,30 +233,27 @@ export class OpenAiCompatibleLlmProvider implements LlmProvider {
     options: CallOptions | undefined,
     tracker: RequestTracker,
   ): Promise<ChatCompletionResponse> {
-    const response = await this.rawChat(request, options, false).catch((error) =>
-      tracker.fail(error, options?.requestId ?? "n/a"),
-    );
-    if (!response.ok) {
-      const detail = await readErrorDetail(response);
-      tracker.fail(
-        new GatewayError({
+    return this.rawChat(request, options, false, async (response) => {
+      if (!response.ok) {
+        const detail = await readErrorDetail(response);
+        throw new GatewayError({
           kind: kindForStatus(response.status),
           providerId: this.id,
           message: `provider returned HTTP ${response.status}`,
           statusCode: response.status,
           detail,
-        }),
-        options?.requestId ?? "n/a",
-      );
-    }
-    return (await response.json()) as ChatCompletionResponse;
+        });
+      }
+      return (await response.json()) as ChatCompletionResponse;
+    }).catch((error) => tracker.fail(error, options?.requestId ?? "n/a"));
   }
 
-  private async rawChat(
+  private async rawChat<T>(
     request: LlmRequest,
     options: CallOptions | undefined,
     stream: boolean,
-  ): Promise<Response> {
+    consume: (response: Response) => Promise<T>,
+  ): Promise<T> {
     const body: Record<string, unknown> = {
       model: this.config.model,
       messages: request.messages,
@@ -270,40 +269,61 @@ export class OpenAiCompatibleLlmProvider implements LlmProvider {
       { method: "POST", headers: this.headers(), body: JSON.stringify(body) },
       options,
       options?.timeoutMs ?? this.config.timeoutMs ?? DEFAULT_TIMEOUT_MS,
+      consume,
     );
   }
 
   /** fetch with a hard deadline plus caller cancellation. */
-  private async fetchWithDeadline(
+  private async fetchWithDeadline<T>(
     url: string,
     init: RequestInit,
     options: CallOptions | undefined,
     timeoutMs: number,
-  ): Promise<Response> {
+    consume: (response: Response) => Promise<T>,
+  ): Promise<T> {
     const controller = new AbortController();
     const timer = setTimeout(
       () => controller.abort(new DOMException("timeout", "TimeoutError")),
       timeoutMs,
     );
     const external = options?.signal;
-    const onExternalAbort = () => controller.abort(new DOMException("cancelled", "AbortError"));
+    const onExternalAbort = () => controller.abort(external?.reason);
     external?.addEventListener("abort", onExternalAbort, { once: true });
     try {
-      return await this.fetchImpl(url, { ...init, signal: controller.signal });
+      if (external?.aborted) onExternalAbort();
+      controller.signal.throwIfAborted();
+      const response = await this.fetchImpl(url, {
+        ...init,
+        redirect: "error",
+        signal: controller.signal,
+      });
+      const result = await consume(response);
+      controller.signal.throwIfAborted();
+      return result;
     } catch (error) {
-      // Normalize abort reasons into the taxonomy before they escape.
-      if (error instanceof DOMException && error.name === "TimeoutError") {
+      const reason = controller.signal.reason ?? error;
+      if (reason instanceof DOMException && reason.name === "TimeoutError") {
         throw new GatewayError({
           kind: "timeout",
           providerId: this.id,
           message: `call exceeded ${timeoutMs}ms`,
         });
       }
-      if (error instanceof DOMException && error.name === "AbortError") {
+      if (
+        controller.signal.aborted ||
+        (reason instanceof DOMException && reason.name === "AbortError")
+      ) {
         throw new GatewayError({
           kind: "cancelled",
           providerId: this.id,
           message: "call cancelled by caller",
+        });
+      }
+      if (error instanceof TypeError) {
+        throw new GatewayError({
+          kind: "network",
+          providerId: this.id,
+          message: "connection failed",
         });
       }
       throw error;

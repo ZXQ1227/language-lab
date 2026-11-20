@@ -20,7 +20,8 @@ export function CourseDesigner({
   const { t } = useTranslation();
   const { configured, settings, loaded, busy, error, load } = useAiProviderStore();
   const navigate = useNavStore((state) => state.navigate);
-  const [goal, setGoal] = useState("");
+  const goal = useNavStore((state) => state.courseDesignGoal);
+  const setGoal = useNavStore((state) => state.setCourseDesignGoal);
   const [generating, setGenerating] = useState(false);
   const [failed, setFailed] = useState(false);
   const pending = useRef<AbortController | null>(null);
@@ -89,7 +90,10 @@ export function CourseDesigner({
               { goal, level: profile.level, targetLanguage: profile.targetLanguage },
               { modelGateway, signal: controller.signal },
             );
-            if (!controller.signal.aborted) onPreview(course);
+            if (!controller.signal.aborted) {
+              setGoal("");
+              onPreview(course);
+            }
           } catch {
             if (!controller.signal.aborted) setFailed(true);
           } finally {
@@ -123,9 +127,25 @@ export function CourseDesigner({
           </button>
         )}
         {failed && (
-          <p role="alert" className="text-sm text-error-ink">
-            {t("common:courseDesigner.failed")}
-          </p>
+          <div className="flex flex-wrap items-center gap-2 text-sm">
+            <p role="alert" className="text-sm text-error-ink">
+              {t("common:courseDesigner.failed")}
+            </p>
+            <button
+              type="button"
+              className="font-semibold underline"
+              onClick={() => navigate("settings")}
+            >
+              {t("common:courseDesigner.configure")}
+            </button>
+            <button
+              type="button"
+              className="font-semibold underline"
+              onClick={() => navigate("guided")}
+            >
+              {t("training:openGuidedPractice")}
+            </button>
+          </div>
         )}
         <button
           type="submit"

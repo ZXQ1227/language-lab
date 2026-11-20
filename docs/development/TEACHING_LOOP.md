@@ -42,6 +42,18 @@ plan to resume saved turns.
   local provider permits it. Other endpoints require HTTPS and a saved key.
   The selected provider must support JSON responses and browser-origin requests.
 
+In **Settings → AI connection**, save the endpoint and model, then use **Test AI
+connection**. Saved means the local configuration was written. Verified means
+the selected model returned the expected JSON in a bounded chat-completions
+request containing a fixed test instruction. It sends no practice text or
+learning memory. Verification status is kept for the current app run and
+invalidated when the configuration is saved again. It is a point-in-time check.
+Training, free conversation and AI course design share the endpoint policy;
+only HTTPS and loopback HTTP without URL credentials, queries or fragments are
+allowed. When the connection is unavailable, bundled guided practice remains
+available. Unsent free-chat text and course-design goals survive navigation
+within the current app run.
+
 When changing bundled teaching material, review the associated demo answers in
 `apps/desktop/src/training/session.ts` against the new success criteria.
 

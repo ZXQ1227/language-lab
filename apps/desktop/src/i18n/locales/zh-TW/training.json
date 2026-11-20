@@ -121,5 +121,6 @@
     "keyboard": "鍵盤",
     "microphoneSetup": "啟用語音辨識後即可錄音回覆。",
     "hint": "提示"
-  }
+  },
+  "openGuidedPractice": "開啟內建引導練習"
 }

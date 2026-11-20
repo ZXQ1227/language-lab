@@ -190,3 +190,51 @@ test("saves only grounded free conversation practice, retries atomically and reo
     finishLateReply();
   }
 });
+
+test("distinguishes a saved connection from a verified response and preserves an unsent draft", async ({
+  page,
+}) => {
+  await installTauriMock(page);
+  let probes = 0;
+  await page.route(endpoint, async (route) => {
+    const headers = {
+      "access-control-allow-origin": "*",
+      "access-control-allow-methods": "POST",
+      "access-control-allow-headers": "authorization,content-type",
+    };
+    if (route.request().method() === "OPTIONS") {
+      await route.fulfill({ status: 204, headers });
+      return;
+    }
+    const { messages } = route.request().postDataJSON();
+    const isProbe = messages.length === 1;
+    if (isProbe) {
+      expect(messages).toEqual([
+        { role: "system", content: 'Reply only with this JSON object: {"ok":true}' },
+      ]);
+      probes++;
+    }
+    const content = isProbe ? { ok: probes > 1 } : { reply: "" };
+    await route.fulfill({
+      headers,
+      json: { choices: [{ message: { content: JSON.stringify(content) } }] },
+    });
+  });
+  await page.goto("/");
+  await configureAiConnection(page, { model: "test-provider" });
+  await openWorkspacePage(page, "Home");
+  await button(page, "Free conversation").click();
+  const draft = page.getByRole("textbox", { name: "Your reply", exact: true });
+  await draft.fill("I would like to talk about my weekend.");
+  await button(page, "Send reply").click();
+  await expect(button(page, "Open built-in guided practice")).toBeVisible();
+  await button(page, "Set up AI for conversation").click();
+  await expect(page.getByText(/Saved connection\. Test it/)).toBeVisible();
+  await button(page, "Test AI connection").click();
+  await expect(page.getByRole("alert")).toContainText("failed validation");
+  await button(page, "Test AI connection").click();
+  await expect(page.getByText("AI connection verified.", { exact: true })).toBeVisible();
+  await openWorkspacePage(page, "Home");
+  await button(page, "Free conversation").click();
+  await expect(draft).toHaveValue("I would like to talk about my weekend.");
+});

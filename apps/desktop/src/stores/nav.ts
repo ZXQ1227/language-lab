@@ -20,6 +20,10 @@ interface NavState {
   freeConversationReturnPage: PageId;
   openFreeConversation: (id: string) => void;
   libraryDifficulty: LibraryDifficulty;
+  freeConversationDraft: string;
+  courseDesignGoal: string;
+  setFreeConversationDraft: (draft: string) => void;
+  setCourseDesignGoal: (goal: string) => void;
   setLibraryDifficulty: (libraryDifficulty: LibraryDifficulty) => void;
   navigate: (page: PageId) => void;
 }
@@ -36,6 +40,10 @@ export const useNavStore = create<NavState>((set) => ({
       freeConversationReturnPage: state.page,
     })),
   libraryDifficulty: "all",
+  freeConversationDraft: "",
+  courseDesignGoal: "",
+  setFreeConversationDraft: (freeConversationDraft) => set({ freeConversationDraft }),
+  setCourseDesignGoal: (courseDesignGoal) => set({ courseDesignGoal }),
   setLibraryDifficulty: (libraryDifficulty) => set({ libraryDifficulty }),
   navigate: (page) =>
     set((state) => {
