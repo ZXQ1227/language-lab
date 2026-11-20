@@ -5,6 +5,7 @@ import {
   diagnosisCandidateSchema,
   errorDiagnosisSchema,
   evidenceMessageSchema,
+  learnerPracticeText,
   groundErrorDiagnosis,
   DiagnosisEvidenceError,
   type ErrorDiagnosis,
@@ -45,10 +46,11 @@ export function createErrorDiagnosisSkill(): SkillDefinition<
       const history = [];
       let characters = 0;
       for (const message of [...(input.recentMessages ?? [])].reverse()) {
-        if (message.role === "system" || message.purpose === "support") continue;
-        if (characters + message.content.length > 2000) break;
-        history.unshift({ role: message.role, content: message.content });
-        characters += message.content.length;
+        if (message.role === "system" || message.purpose) continue;
+        const content = learnerPracticeText(message) ?? message.content;
+        if (characters + content.length > 2000) break;
+        history.unshift({ role: message.role, content });
+        characters += content.length;
       }
       const system = [
         "You are a language teacher diagnosing a student utterance.",
@@ -86,6 +88,7 @@ export function createErrorDiagnosisSkill(): SkillDefinition<
               maxTokens: 1600,
             },
             diagnosisCandidateSchema,
+            { signal: context.signal },
           );
           return groundErrorDiagnosis(input.utterance, result.data);
         } catch (error) {

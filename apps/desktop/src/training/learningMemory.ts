@@ -1,5 +1,6 @@
 import {
   summarizeVocabulary,
+  learnerPracticeText,
   type EvidenceMessage,
   type ErrorDiagnosisRecord,
   type LessonState,
@@ -59,9 +60,7 @@ export function buildLearningContribution(session: LearningMemorySource): Lesson
     mode: session.provider.mode,
     updatedAt: session.state.updatedAt,
     totalTurns: session.state.turnCount,
-    practiceTurns: session.messages.filter(
-      (message) => message.role === "user" && message.purpose !== "support",
-    ).length,
+    practiceTurns: session.messages.filter(learnerPracticeText).length,
     completed: session.state.phase === "done",
     objectivesCompleted: session.state.objectives.filter((objective) => objective.completed).length,
     objectiveCount: session.state.objectives.length,

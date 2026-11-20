@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { EvidenceMessage } from "./assessment";
+import { learnerPracticeText, type EvidenceMessage } from "./assessment";
 
 const text = z.string().trim().min(1);
 export const voiceStyleSchema = z.enum(["female", "male"]);
@@ -21,9 +21,16 @@ export function detectDialogueSupport(utterance: string): DialogueSupport | unde
     .toLowerCase()
     .trim()
     .replace(/[.!?]+$/g, "")
+    .replace(/,\s*(?=please$)/u, " ")
     .replace(/\s+/g, " ");
   const prefix = "(?:(?:could|can|would) you )?(?:please )?";
   const suffix = "(?: please)?";
+  if (
+    /^(?:请|請)?(?:(?:能|可以)再说一遍吗|(?:能|可以)再說一遍嗎|再说一遍|再說一遍)[？。]*$/u.test(
+      text,
+    )
+  )
+    return "repeat";
   if (
     new RegExp(
       `^${prefix}(?:repeat (?:that|it|your last (?:reply|message))|say that again)${suffix}$`,
@@ -38,6 +45,55 @@ export function detectDialogueSupport(utterance: string): DialogueSupport | unde
     return "simplify";
   if (new RegExp(`^${prefix}(?:give me (?:a|one) hint)${suffix}$`).test(text)) return "hint";
   return undefined;
+}
+
+export const turnEvidenceStatusSchema = z.enum(["off_topic", "unclear", "unavailable"]);
+export type TurnEvidenceStatus = z.infer<typeof turnEvidenceStatusSchema>;
+
+/** Scope deterministic routing to clear controls and recognition placeholders. */
+export function classifyTeachingInput(
+  utterance: string,
+  mode: "text" | "voice",
+): {
+  support?: DialogueSupport;
+  mixedSupport?: DialogueSupport;
+  practiceStart?: number;
+  evidenceStatus?: "off_topic" | "unclear";
+} {
+  const text = utterance.trim();
+  const support = detectDialogueSupport(text);
+  if (support) return { support };
+
+  let mixed: { mixedSupport: DialogueSupport; practiceStart: number } | undefined;
+  for (const delimiter of text.matchAll(/[.!?。！？,，;；]+\s*|\s+(?:and|but)\s+/giu)) {
+    if (delimiter.index > 120) break;
+    const answerStart = delimiter.index + delimiter[0].length;
+    if (answerStart === text.length || /^please(?:[.!?]|$)/iu.test(text.slice(answerStart)))
+      continue;
+    const mixedSupport = detectDialogueSupport(text.slice(0, delimiter.index));
+    if (mixedSupport) {
+      mixed = { mixedSupport, practiceStart: answerStart };
+      break;
+    }
+  }
+  const candidate = text.slice(mixed?.practiceStart ?? 0);
+
+  if (
+    !/[\p{L}\p{N}]/u.test(candidate) ||
+    (mode === "voice" &&
+      /^(?:[\s.,!?-]*(?:\[(?:inaudible|unintelligible|noise|silence)\]|\b(?:um+|uh+|erm+)\b))*[\s.,!?-]*$/iu.test(
+        candidate,
+      ))
+  ) {
+    return { evidenceStatus: "unclear" as const };
+  }
+  if (
+    /^(?:please\s+)?(?:mark|set)\s+(?:(?:all|my|the|this|of)\s+)*(?:objectives?|goals?|lesson|stage|course)\s+(?:as\s+)?(?:completed?|done|passed)[.!?]*$/iu.test(
+      candidate,
+    )
+  )
+    return { evidenceStatus: "off_topic" as const };
+  return mixed ?? {};
 }
 export const dialogueMoveSchema = z.enum([
   "respond",
@@ -72,15 +128,11 @@ export function validateDialogueMemory(
 ): void {
   for (const item of items) {
     const message = transcript.find((entry) => entry.seq === item.messageSeq);
-    if (
-      !message ||
-      message.role !== "user" ||
-      message.purpose === "support" ||
-      !message.content.includes(item.quote)
-    ) {
+    const practice = message && learnerPracticeText(message);
+    if (!practice?.includes(item.quote)) {
       throw new Error("Dialogue memory must quote an existing learner practice message exactly");
     }
-    if (message.content.trim().length <= 300 && item.quote !== message.content.trim())
+    if (practice.trim().length <= 300 && item.quote !== practice.trim())
       throw new Error(
         "Dialogue memory must preserve the complete short learner message, including qualifications",
       );

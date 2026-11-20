@@ -61,9 +61,9 @@ describe("desktop teaching session", () => {
   it("rejects hallucinated model citations without modifying the saved session", async () => {
     const connected = createGateway({
       llm: new MockLlmProvider({}, [
-        JSON.stringify(diagnostic),
         JSON.stringify({
           stageId: "place-order",
+          relevance: "in_scene",
           criteria: [0, 1].map((criterionIndex) => ({
             criterionIndex,
             met: true,
@@ -90,6 +90,7 @@ describe("desktop teaching session", () => {
     const second = "And a muffin, please.";
     const assessment = (complete: boolean) => ({
       stageId: "place-order",
+      relevance: "in_scene",
       criteria: [
         {
           criterionIndex: 0,
@@ -109,11 +110,11 @@ describe("desktop teaching session", () => {
       llm: new MockLlmProvider(
         {},
         [
-          diagnostic,
           assessment(false),
-          { reply: "Anything to eat?", tone: "encouraging" },
           diagnostic,
+          { reply: "Anything to eat?", tone: "encouraging" },
           assessment(true),
+          diagnostic,
           { reply: "What size?", tone: "neutral" },
         ].map((value) => JSON.stringify(value)),
       ),

@@ -61,17 +61,29 @@ webview.
 
 ## What advances a stage
 
-Each practice turn runs diagnosis and vocabulary tracking, then
-`skills.objective_evaluator` for the current authored stage. The skill returns one
-assessment for every zero-based success-criterion index, with `met`, cited
-`messageSeq`/`quote` pairs, and feedback.
+Training classifies inputs before they contribute evidence. Explicit support and
+recognised standalone help requests do not enter assessment. When an answer
+follows a recognised help clause, the transcript keeps the full message and
+`practiceStart` identifies the UTF-16 start of the answer. The assessor and
+diagnosis see the answer, while saved citations refer to the original message.
+Clear control requests to mark work complete and noise-only speech transcripts
+receive a redirect or clarification and contribute no evidence.
+
+The connected `skills.objective_evaluator` returns the latest reply's relevance
+and one assessment per zero-based success-criterion index, with `met`, cited
+`messageSeq`/`quote` pairs, and feedback. Out-of-scene, unclear and timed-out
+assessments leave the previous verified progress intact. Those messages stay in
+the transcript as `non_practice` and are excluded from vocabulary, diagnosis,
+learning memory and report evidence. For eligible replies, diagnosis and
+deterministic vocabulary tracking run before the teaching action and reply.
 
 The core validates before changing state:
 
 1. The stage is the current stage; every criterion appears exactly once.
 2. Every met criterion has at least one nonempty citation.
-3. Each citation quotes an existing **learner** message exactly. Assistant
-   examples, unknown message ids and invented quotes are rejected.
+3. Each citation quotes the eligible answer from an existing **learner**
+   message exactly. Help text, excluded turns, assistant examples, unknown
+   message ids and invented quotes are rejected.
 4. Previously verified criteria remain met while their citations remain valid.
 5. All criteria must be met before completing that stage's objectives.
 
@@ -81,7 +93,7 @@ Turn count, vocabulary matching or a `complete_task` action alone cannot complet
 objectives in an authored course. Legacy metadata-only lessons retain their old
 action behavior and existing snapshots remain readable.
 
-First reply transitions briefing → practice. Verified completion of the last
+The first assessed reply transitions briefing → practice. Verified completion of the last
 stage transitions practice → debrief. **Finish and review** runs the lesson
 evaluator and transitions debrief → done only after a valid report. Sending more
 practice turns after debrief/done is rejected. The partner receives the updated
@@ -112,15 +124,25 @@ tables already contain Training sessions.
 Each operation builds a private runtime draft. The UI publishes it only after
 the checkpoint write succeeds. Model failures, invalid evidence, failed report
 generation and failed checkpoint writes leave the previous saved state intact.
-The reply remains available for retry. A single busy guard prevents overlapping
-start/send/finish operations. Retrying a failed write replaces the same snapshot
-id rather than appending another turn record.
+The learner's draft remains available for retry. A single busy guard prevents
+overlapping start/send/finish operations. The UI distinguishes a model failure
+from a save failure. Retrying the same draft on the same saved session after a
+write failure reuses the validated result and performs only the checkpoint
+write. The in-memory retry result expires when practice is replaced. The model
+portion of each turn has a 50-second budget across skills and internal retries.
 
 Reloading restores the most recently updated valid session. **Saved practice**
 switches between the latest 50 sessions. Older checkpoints stay in SQLite. New
 lessons keep previous sessions. The current text lesson limit is 100 learner
 turns, keeping the full learner evidence inside the 200-message history window.
-Unsent drafts are not saved.
+An active session can be paused with **Exit lesson**. **End practice early**
+saves the current evidence in an unfinished summary. An incomplete lesson that
+reaches the same 100-turn limit opens this summary automatically. The summary
+lists verified citations and outstanding criteria, and permits a fresh attempt
+with the same course. Unfinished sessions have no completion report or review
+plan. The optional `endedEarly`, `practiceStart`, and evidence-status fields
+extend the version-1 checkpoint. Older payloads keep their original evidence
+and remain readable without a database migration. Unsent drafts stay in memory.
 
 Conversation help uses a separate non-assessed path. Support exchanges do not
 complete criteria or add vocabulary/errors; they are excluded from review

@@ -6,12 +6,20 @@ import {
   resolveCourseTemplate,
   scenarioContentSchema,
 } from "@language-lab/core";
-import { createGateway, createMockGateway, MockLlmProvider } from "@language-lab/model-gateway";
+import {
+  createGateway,
+  createMockGateway,
+  GatewayError,
+  MockLlmProvider,
+} from "@language-lab/model-gateway";
 import {
   createTrainingSession,
   finishTrainingSession,
+  endTrainingEarly,
   getGuidedExample,
   runTrainingTurn,
+  isTrainingUnfinished,
+  trainingTurnLimit,
   saveCourseReview,
   supportsGuidedDemo,
   trainingSessionSchema,
@@ -20,6 +28,7 @@ import rawHotel from "../../../content/scenarios/hotel-checkin.json";
 
 const gateway = createMockGateway();
 const hotel = () => scenarioContentSchema.parse(rawHotel);
+const provider = { mode: "ai", baseUrl: "http://localhost:11434/v1", model: "test" };
 
 describe("Hotel Check-in complete course pack", () => {
   it.each(["standard", "reservation-not-found", "quiet-room-unavailable"])(
@@ -154,12 +163,13 @@ describe("Hotel Check-in complete course pack", () => {
     const llm = new MockLlmProvider(
       {},
       [
-        { errors: [], fluency: "fluent", intent: "begin check-in" },
         {
           stageId: "find-reservation",
+          relevance: "in_scene",
           criteria: [0, 1].map((criterionIndex) => ({ criterionIndex, met: false, evidence: [] })),
           feedback: "Please provide your name and stay length.",
         },
+        { errors: [], fluency: "fluent", intent: "begin check-in" },
         { reply: "What name is the reservation under?", tone: "encouraging" },
       ].map((item) => JSON.stringify(item)),
     );
@@ -172,7 +182,7 @@ describe("Hotel Check-in complete course pack", () => {
       connected,
     );
     await runTrainingTurn(initial, "Hello", connected);
-    const evaluation = JSON.parse(generation.mock.calls[1]![0].messages[1]!.content);
+    const evaluation = JSON.parse(generation.mock.calls[0]![0].messages[1]!.content);
     expect(evaluation.scenarioFacts).toEqual(
       initial.state.courseTemplate?.learningPack?.scenarioFacts,
     );
@@ -190,6 +200,131 @@ describe("Hotel Check-in complete course pack", () => {
     expect(supportsGuidedDemo(restored.scenario)).toBe(false);
     expect(getGuidedExample(restored)).toBe(
       rawHotel.courseTemplate.learningPack.guidedPractice[0]!.suggestedReply,
+    );
+  });
+
+  it.each(["Could you say that again?", "能再说一遍吗？"])(
+    "saves the full mixed reply but cites only the answer after %s",
+    async (request) => {
+      const initial = await createTrainingSession(hotel(), { mode: "demo" }, gateway);
+      const answer = getGuidedExample(initial)!;
+      const content = `${request} ${answer}`;
+      const next = await runTrainingTurn(initial, content, gateway);
+      expect(next.messages[1]).toMatchObject({ content, practiceStart: request.length + 1 });
+      expect(next.state.objectives[0]?.completed).toBe(true);
+      expect(next.lastTurn?.assessment?.criteria[0]?.evidence[0]?.quote).toBe(answer);
+      expect(next.learningMemory?.practiceTurns).toBe(1);
+      const altered = structuredClone(next);
+      altered.state.stageAssessments!["find-reservation"]!.criteria[0]!.evidence[0]!.quote =
+        request;
+      expect(trainingSessionSchema.safeParse(altered).success).toBe(false);
+    },
+  );
+
+  it("withholds out-of-scene model evidence, speech noise and a timed-out assessment", async () => {
+    const llm = new MockLlmProvider(
+      {},
+      [
+        {
+          stageId: "find-reservation",
+          relevance: "off_topic",
+          criteria: [0, 1].map((criterionIndex) => ({
+            criterionIndex,
+            met: true,
+            evidence: [{ messageSeq: 1, quote: "reservation" }],
+          })),
+          feedback: "This is unrelated.",
+        },
+        {
+          reply: "Let's get back to checking in. What name is your booking under?",
+          tone: "neutral",
+        },
+        { reply: "I didn't catch that. Could you try again?", tone: "neutral" },
+      ].map((response) => JSON.stringify(response)),
+    );
+    const calls = vi.spyOn(llm, "generateStructured");
+    const connected = createGateway({ llm });
+    const initial = await createTrainingSession(hotel(), provider, connected);
+    const redirected = await runTrainingTurn(
+      initial,
+      "Write a song about a reservation.",
+      connected,
+    );
+    expect(redirected.lastTurn).toMatchObject({ move: "redirect", evidenceStatus: "off_topic" });
+    expect(redirected.messages[1]?.purpose).toBe("non_practice");
+    expect(calls).toHaveBeenCalledTimes(2);
+    const unclear = await runTrainingTurn(
+      redirected,
+      "Um... [inaudible]",
+      connected,
+      undefined,
+      undefined,
+      {
+        providerId: "test-asr",
+        language: "en",
+        edited: false,
+        confidence: 0.2,
+      },
+    );
+    expect(unclear.lastTurn).toMatchObject({ move: "clarify", evidenceStatus: "unclear" });
+    expect(calls).toHaveBeenCalledTimes(3);
+
+    const timeoutGateway = createGateway({
+      llm: new MockLlmProvider(
+        {
+          failures: [
+            new GatewayError({ kind: "timeout", providerId: "test", message: "timed out" }),
+          ],
+        },
+        [
+          JSON.stringify({
+            reply: "Understood. Could you tell me the name on the booking?",
+            tone: "neutral",
+          }),
+        ],
+      ),
+    });
+    const pending = await runTrainingTurn(unclear, "I have a reservation.", timeoutGateway);
+    expect(pending.lastTurn?.evidenceStatus).toBe("unavailable");
+    expect(pending.state.stageAssessments).toBeUndefined();
+    expect(pending.state.objectives.every((objective) => !objective.completed)).toBe(true);
+    expect(pending.state.vocabularySeen).toEqual({});
+    expect(pending.learningMemory?.practiceTurns).toBe(0);
+    expect(pending.diagnoses).toEqual([]);
+  });
+
+  it("restores an unfinished session without marking it complete or generating a review", async () => {
+    const initial = await createTrainingSession(hotel(), { mode: "demo" }, gateway);
+    const next = await runTrainingTurn(initial, getGuidedExample(initial)!, gateway);
+    const ended = trainingSessionSchema.parse(JSON.parse(JSON.stringify(endTrainingEarly(next))));
+    expect(isTrainingUnfinished(ended)).toBe(true);
+    expect(ended.state.stageAssessments).toEqual(next.state.stageAssessments);
+    expect(ended.learningMemory?.completed).toBe(false);
+    expect(ended.report).toBeUndefined();
+    expect(ended.reviewPlan).toBeUndefined();
+    await expect(runTrainingTurn(ended, "Another reply", gateway)).rejects.toThrow("already ended");
+    await expect(finishTrainingSession(ended, gateway)).rejects.toThrow(
+      "Complete the lesson objectives",
+    );
+
+    const messages = [
+      initial.messages[0]!,
+      ...Array.from({ length: trainingTurnLimit * 2 }, (_, index) => ({
+        role: index % 2 === 0 ? ("user" as const) : ("assistant" as const),
+        content: "Repeat",
+        seq: index + 1,
+        purpose: "support" as const,
+      })),
+    ];
+    const capped = trainingSessionSchema.parse({
+      ...initial,
+      learningMemory: undefined,
+      messages,
+      state: { ...initial.state, turnCount: trainingTurnLimit },
+    });
+    expect(isTrainingUnfinished(capped)).toBe(true);
+    await expect(runTrainingTurn(capped, "Another reply", gateway)).rejects.toThrow(
+      "100-turn limit",
     );
   });
 });

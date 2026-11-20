@@ -6,7 +6,7 @@
 // - Skills never touch the UI. They return data; the orchestrator routes it.
 // - All model access goes through the ModelGateway in the context.
 
-import type { CourseTemplate, LessonState } from "@language-lab/core";
+import type { CourseTemplate, EvidenceMessage, LessonState } from "@language-lab/core";
 import type { MemorySnapshot } from "@language-lab/memory";
 import type { ModelGateway } from "@language-lab/model-gateway";
 
@@ -24,12 +24,7 @@ export interface ScenarioView {
 
 export type MessageRole = "user" | "assistant" | "system";
 
-export interface MessageView {
-  readonly seq: number;
-  readonly role: MessageRole;
-  readonly content: string;
-  readonly purpose?: "support";
-}
+export type MessageView = Readonly<EvidenceMessage>;
 
 /** Student profile as seen by skills. */
 export interface StudentProfileView {
@@ -50,6 +45,7 @@ export interface SkillDataPorts {
 }
 
 export interface SkillContext {
+  readonly signal?: AbortSignal;
   readonly userId: string;
   readonly lessonId: string;
   readonly conversationId: string;

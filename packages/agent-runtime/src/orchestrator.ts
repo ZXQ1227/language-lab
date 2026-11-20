@@ -13,7 +13,10 @@ import {
   createLessonStateFromScenario,
   getCurrentCourseStage,
   dialogueSupportSchema,
-  detectDialogueSupport,
+  classifyTeachingInput,
+  learnerPracticeText,
+  type EvidenceMessage,
+  type TurnEvidenceStatus,
   mergeDialogueMemory,
   validateDiagnosisRecords,
   validateDiagnosedErrors,
@@ -26,6 +29,7 @@ import {
 } from "@language-lab/core";
 import type {
   ErrorDiagnosisOutput,
+  ObjectiveEvaluation,
   LessonEvaluatorOutput,
   SkillContext,
   StudentProfileView,
@@ -183,11 +187,16 @@ export class TeachingOrchestrator {
       throw new Error("Enter a reply between 1 and 4000 characters");
 
     const profile = await this.deps.profile.profile(input.userId);
-    const context = await this.buildContext(input, state, profile);
+    const context = { ...(await this.buildContext(input, state, profile)), signal: input.signal };
+    const utterance = input.utterance.trim();
+    const classified = classifyTeachingInput(utterance, input.mode);
     const support =
       input.supportRequest !== undefined
         ? dialogueSupportSchema.parse(input.supportRequest)
-        : detectDialogueSupport(input.utterance);
+        : classified.support;
+    let evidenceStatus: TurnEvidenceStatus | undefined = support
+      ? undefined
+      : classified.evidenceStatus;
     if (
       support === "hint" &&
       state.hintsGiven >= (state.courseTemplate?.teachingPolicy.maxHints ?? 3)
@@ -197,59 +206,20 @@ export class TeachingOrchestrator {
     const recentMessages = (await this.deps.data.recentMessages(input.conversationId, 200)).slice(
       -200,
     );
-
-    // 1. Structured analysis (two independent skills).
-    const diagnosis: ErrorDiagnosisOutput = support
-      ? {
-          errors: [],
-          fluency: "not_assessed",
-          intent: `support:${support}`,
-          source: "model",
-          status: "checked",
-          withheldCount: 0,
-        }
-      : await this.runSkill<ErrorDiagnosisOutput>(
-          "skills.error_diagnosis",
-          {
-            utterance: input.utterance,
-            studentLevel: state.difficulty,
-            recentMessages: recentMessages.slice(-6),
-          },
-          context,
-          trace,
-        );
-
-    validateDiagnosedErrors(input.utterance, diagnosis.errors);
-    const vocabulary = support
-      ? { used: [], missed: [], matches: [] }
-      : await this.runSkill<VocabularyTrackerOutput>(
-          "skills.vocabulary_tracker",
-          {
-            utterance: input.utterance,
-            targetVocabulary: [...state.targetVocabulary],
-            vocabularyForms: state.courseTemplate?.learningPack?.vocabulary.map((item) => ({
-              term: item.term,
-              forms: item.forms ?? [],
-            })),
-          },
-          context,
-          trace,
-        );
-
-    const transcript = [
-      ...recentMessages,
-      {
-        seq: Math.max(-1, ...recentMessages.map((message) => message.seq)) + 1,
-        role: "user" as const,
-        content: input.utterance,
-        ...(support ? { purpose: "support" as const } : {}),
-      },
-    ];
+    const turnMessage: EvidenceMessage = {
+      seq: Math.max(-1, ...recentMessages.map((message) => message.seq)) + 1,
+      role: "user",
+      content: utterance,
+      ...(support ? { purpose: "support" } : { practiceStart: classified.practiceStart }),
+    };
+    const transcript = [...recentMessages, turnMessage];
     let assessedState = state;
     let assessment: StageAssessment | undefined;
     const stage = getCurrentCourseStage(state);
-    if (stage && !support) {
-      assessment = await this.runSkill<StageAssessment>(
+
+    // Screen the latest learner answer before it contributes any new evidence.
+    if (stage && !support && !evidenceStatus) {
+      const { relevance, ...candidate } = await this.runSkill<ObjectiveEvaluation>(
         "skills.objective_evaluator",
         {
           stage,
@@ -262,22 +232,81 @@ export class TeachingOrchestrator {
         context,
         trace,
       );
-      assessedState = applyStageAssessment(
-        { ...state, phase: "practice" },
-        assessment,
-        transcript,
-        this.now,
-      );
-      assessment = assessedState.stageAssessments?.[stage.id];
+      if (relevance && relevance !== "in_scene") {
+        evidenceStatus = relevance;
+      } else {
+        assessedState = applyStageAssessment(
+          { ...state, phase: "practice" },
+          candidate,
+          transcript,
+          this.now,
+        );
+        assessment = assessedState.stageAssessments?.[stage.id];
+      }
     }
+    if (evidenceStatus) {
+      turnMessage.purpose = "non_practice";
+      delete turnMessage.practiceStart;
+    }
+
+    const practice = learnerPracticeText(turnMessage);
+    const offset = turnMessage.practiceStart ?? 0;
+    const diagnosis: ErrorDiagnosisOutput = practice
+      ? await this.runSkill<ErrorDiagnosisOutput>(
+          "skills.error_diagnosis",
+          {
+            utterance: practice,
+            studentLevel: state.difficulty,
+            recentMessages: recentMessages.slice(-6),
+          },
+          context,
+          trace,
+        )
+      : {
+          errors: [],
+          fluency: "not_assessed",
+          intent: support ? `support:${support}` : (evidenceStatus ?? "unassessed"),
+          source: "model",
+          status: "checked",
+          withheldCount: 0,
+        };
+    validateDiagnosedErrors(practice ?? utterance, diagnosis.errors);
+    if (offset) {
+      diagnosis.errors = diagnosis.errors.map((error) => ({
+        ...error,
+        start: error.start + offset,
+        end: error.end + offset,
+      }));
+    }
+    const vocabulary = practice
+      ? await this.runSkill<VocabularyTrackerOutput>(
+          "skills.vocabulary_tracker",
+          {
+            utterance: practice,
+            targetVocabulary: [...state.targetVocabulary],
+            vocabularyForms: state.courseTemplate?.learningPack?.vocabulary.map((item) => ({
+              term: item.term,
+              forms: item.forms ?? [],
+            })),
+          },
+          context,
+          trace,
+        )
+      : { used: [], missed: [], matches: [] };
+    const vocabularyMatches = vocabulary.matches.map((match) => ({
+      ...match,
+      start: match.start + offset,
+      end: match.end + offset,
+    }));
+
     const assessedContext = { ...context, lessonState: assessedState };
 
     // 2. Deterministic teaching decision (rule-based skill).
-    const intervention: TeachingInterventionOutput = support
+    const intervention: TeachingInterventionOutput = !practice
       ? {
           action:
             support === "hint" ? ("provide_hint" as const) : ("continue_conversation" as const),
-          rationale: `Learner requested ${support}; do not assess this control message`,
+          rationale: "This turn does not provide practice evidence",
           correction: undefined,
           reason: "support_request",
         }
@@ -346,8 +375,11 @@ export class TeachingOrchestrator {
               allowHints: state.hintsGiven < state.courseTemplate.teachingPolicy.maxHints,
             }
           : undefined,
-        utterance: input.utterance,
+        utterance,
         supportRequest: support,
+        mixedSupport: !support ? classified.mixedSupport : undefined,
+        practiceStart: turnMessage.practiceStart,
+        evidenceStatus,
         learnerMemory: state.dialogueMemory,
         previousMove: state.lastDialogueMove,
         intervention: {
@@ -372,10 +404,15 @@ export class TeachingOrchestrator {
     const vocabularyUsed = vocabulary.used;
     const memory = mergeDialogueMemory(
       state.dialogueMemory ?? [],
-      roleplay.memoryUpdates ?? [],
+      practice ? (roleplay.memoryUpdates ?? []) : [],
       transcript,
     );
     const dialogueMove =
+      (evidenceStatus === "off_topic"
+        ? "redirect"
+        : evidenceStatus === "unclear"
+          ? "clarify"
+          : undefined) ??
       roleplay.move ??
       support ??
       (intervention.action === "complete_task"
@@ -388,7 +425,7 @@ export class TeachingOrchestrator {
         ...assessedState,
         ...(memory.length || state.dialogueMemory ? { dialogueMemory: memory } : {}),
         lastDialogueMove: dialogueMove,
-        ...(!support
+        ...(practice
           ? {
               interventionState: advanceInterventionState(
                 state.interventionState ?? {
@@ -409,12 +446,12 @@ export class TeachingOrchestrator {
     );
 
     const persistedEvents: { type: string; payload?: Record<string, unknown> }[] = [];
-    if (!support)
+    if (practice)
       persistedEvents.push({
         type: "utterance_diagnosed",
         payload: { messageSeq: transcript.at(-1)!.seq, diagnosis },
       });
-    if (!support)
+    if (practice)
       persistedEvents.push({
         type: "teaching_intervention_decided",
         payload: {
@@ -425,7 +462,12 @@ export class TeachingOrchestrator {
       });
     if (support)
       persistedEvents.push({ type: "dialogue_support_requested", payload: { request: support } });
-    if (roleplay.memoryUpdates?.length)
+    if (evidenceStatus)
+      persistedEvents.push({
+        type: "practice_evidence_withheld",
+        payload: { messageSeq: turnMessage.seq, reason: evidenceStatus },
+      });
+    if (practice && roleplay.memoryUpdates?.length)
       persistedEvents.push({
         type: "dialogue_memory_updated",
         payload: { items: roleplay.memoryUpdates },
@@ -437,7 +479,7 @@ export class TeachingOrchestrator {
         payload: {
           word,
           messageSeq: transcript.at(-1)!.seq,
-          matches: vocabulary.matches.filter((match) => match.term === word),
+          matches: vocabularyMatches.filter((match) => match.term === word),
         },
       });
     }
@@ -483,17 +525,19 @@ export class TeachingOrchestrator {
         intent: diagnosis.intent,
         vocabularyUsed,
         vocabularyMissed: vocabulary.missed,
-        vocabularyMatches: vocabulary.matches,
+        vocabularyMatches,
         errors: diagnosis.errors,
-        diagnosis: support ? undefined : diagnosis,
-        fluency: support ? "not_assessed" : diagnosis.fluency,
+        diagnosis: practice ? diagnosis : undefined,
+        fluency: diagnosis.fluency,
       },
       state: newState,
       assessment,
       dialogueMove,
       supportRequest: support,
       correction,
-      interventionReason: support ? undefined : intervention.reason,
+      practiceStart: turnMessage.practiceStart,
+      evidenceStatus,
+      interventionReason: practice ? intervention.reason : undefined,
       persistedEvents,
       skillTrace: trace,
       elapsedMs,

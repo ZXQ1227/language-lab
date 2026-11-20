@@ -6,7 +6,7 @@ import { useNavStore } from "../stores/nav";
 import { useTrainingStore } from "../stores/training";
 import { useSpeechLoop } from "../speech/useSpeechLoop";
 import { characterVoiceStyle } from "../speech/voices";
-import type { TrainingSession } from "../training/session";
+import { isTrainingUnfinished, trainingTurnLimit, type TrainingSession } from "../training/session";
 import { CourseStudyPack, CourseReviewPractice } from "./CourseStudyPack";
 import { LanguageFeedback } from "./LanguageFeedback";
 import { LearningReport } from "./LearningReport";
@@ -21,7 +21,8 @@ const zoiAvatar = new URL("../assets/zoi-avatar.webp", import.meta.url).href;
 
 export function LessonConversation({ session }: { session: TrainingSession }) {
   const { t } = useTranslation();
-  const { busy, error, prepare, finish, saveReviewAnswers } = useTrainingStore();
+  const { busy, error, turnStatus, prepare, finish, endEarly, saveReviewAnswers } =
+    useTrainingStore();
   const navigate = useNavStore((state) => state.navigate);
   const trainingReturnPage = useNavStore((state) => state.trainingReturnPage);
   const language = session.state.courseTemplate?.targetLanguage ?? "en";
@@ -37,7 +38,8 @@ export function LessonConversation({ session }: { session: TrainingSession }) {
     (item) => item.id === session.state.courseTemplate?.selectedVariationId,
   );
   const phase = session.state.phase;
-  const immersive = phase !== "done";
+  const unfinished = isTrainingUnfinished(session);
+  const immersive = phase !== "done" && !unfinished;
   const partner = character?.name ?? t("training:defaultPartnerName");
   const completed = session.state.objectives.filter((objective) => objective.completed).length;
   const total = session.state.objectives.length;
@@ -65,7 +67,7 @@ export function LessonConversation({ session }: { session: TrainingSession }) {
     }
   };
 
-  const composing = phase === "briefing" || phase === "practice";
+  const composing = !unfinished && (phase === "briefing" || phase === "practice");
   const lessonDetails = (
     <details className="text-sm">
       <summary className="button-secondary w-fit cursor-pointer rounded-full px-3 py-1.5 text-xs font-semibold">
@@ -140,6 +142,16 @@ export function LessonConversation({ session }: { session: TrainingSession }) {
             >
               {t("training:focus.exit")}
             </button>
+            {composing && session.state.turnCount > 0 && (
+              <button
+                type="button"
+                className={action}
+                disabled={busy || voice.capturing}
+                onClick={() => void endEarly()}
+              >
+                {t("training:unfinished.end")}
+              </button>
+            )}
             <button type="button" className={action} disabled={busy} onClick={() => prepare()}>
               {t("training:newLesson")}
             </button>
@@ -208,11 +220,60 @@ export function LessonConversation({ session }: { session: TrainingSession }) {
               className="mt-2 max-h-[16dvh] overflow-y-auto rounded-lg border border-error-line bg-chat-error p-3 text-sm text-error-ink"
             >
               <LocalizedError error={error} />
-              <p>{t("training:yourLastSavedProgressIsPreservedYouCanRetryThe")}</p>
+              <p>
+                {turnStatus === "replyFailed" || turnStatus === "saveFailed"
+                  ? t(`training:turnStatus.${turnStatus}`)
+                  : t("training:yourLastSavedProgressIsPreservedYouCanRetryThe")}
+              </p>
             </div>
           )}
         </div>
       </header>
+      {unfinished && (
+        <section
+          aria-labelledby="unfinished-heading"
+          className="space-y-3 rounded-xl border border-line bg-surface p-4"
+        >
+          <h3 id="unfinished-heading" className="font-semibold">
+            {t("training:unfinished.title")}
+          </h3>
+          <p className="text-sm text-ink-muted">
+            {session.state.turnCount >= trainingTurnLimit
+              ? t("training:unfinished.turnLimit", { count: trainingTurnLimit })
+              : t("training:unfinished.ended")}
+          </p>
+          <ul className="space-y-2 text-sm">
+            {session.state.courseTemplate?.stages.map((item) => (
+              <li key={item.id}>
+                <p className="font-medium">{item.title}</p>
+                <ul className="pl-4">
+                  {item.successCriteria.map((criterion, index) => {
+                    const verified = session.state.stageAssessments?.[item.id]?.criteria.find(
+                      (entry) => entry.criterionIndex === index && entry.met,
+                    );
+                    return (
+                      <li key={index}>
+                        {verified ? "✓" : "○"} {criterion}
+                        {verified?.evidence.map((citation, citationIndex) => (
+                          <blockquote
+                            key={citationIndex}
+                            className="ml-4 border-l-2 border-line-strong pl-2"
+                          >
+                            “{citation.quote}”
+                          </blockquote>
+                        ))}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </li>
+            ))}
+          </ul>
+          <button type="button" className={action} onClick={() => prepare(session.scenario)}>
+            {t("training:unfinished.retry")}
+          </button>
+        </section>
+      )}
       {session.report && (
         <>
           <LearningReport session={session} />
@@ -330,6 +391,15 @@ export function LessonConversation({ session }: { session: TrainingSession }) {
           </ol>
 
           <LanguageFeedback session={session} />
+          {session.lastTurn?.evidenceStatus && (
+            <div
+              aria-label={t("training:learningFeedback")}
+              className="rounded-xl border border-line bg-surface p-4 text-sm"
+            >
+              <p>{t(`training:turnEvidence.${session.lastTurn.evidenceStatus}`)}</p>
+              {session.provider.mode === "demo" && <p>{t("training:turnEvidence.demo")}</p>}
+            </div>
+          )}
           {!session.diagnoses &&
             session.lastTurn?.action === "light_correction" &&
             session.lastTurn.errors[0] && (

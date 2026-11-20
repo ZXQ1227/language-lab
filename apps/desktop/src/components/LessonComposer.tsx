@@ -28,7 +28,7 @@ export function LessonComposer({
   onSaved: (saved: boolean) => void;
 }) {
   const { t } = useTranslation();
-  const { busy, send, requestSupport } = useTrainingStore();
+  const { busy, turnStatus, send, requestSupport } = useTrainingStore();
   const [reply, setReply] = useState("");
   const [speechDraft, setSpeechDraft] = useState<{ input: SpeechInput; recognized: string } | null>(
     null,
@@ -148,7 +148,9 @@ export function LessonComposer({
               className={primary}
               disabled={busy || dealingWithVoice || !reply.trim()}
             >
-              {busy ? t("training:respondingAndSaving") : t("training:sendReply")}
+              {turnStatus === "responding" || turnStatus === "saving"
+                ? t(`training:turnStatus.${turnStatus}`)
+                : t("training:sendReply")}
             </button>
           </div>
         </div>

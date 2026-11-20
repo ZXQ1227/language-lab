@@ -9,6 +9,8 @@ import {
   dialogueMemorySchema,
   dialogueMoveSchema,
   dialogueSupportSchema,
+  turnEvidenceStatusSchema,
+  learnerPracticeText,
   evidenceMessageSchema,
   roleplayCharacterSchema,
   stageAssessmentSchema,
@@ -38,6 +40,9 @@ const inputSchema = z.object({
     ),
   recentMessages: z.array(evidenceMessageSchema).max(20),
   supportRequest: dialogueSupportSchema.optional(),
+  mixedSupport: dialogueSupportSchema.optional(),
+  practiceStart: z.number().int().positive().optional(),
+  evidenceStatus: turnEvidenceStatusSchema.optional(),
   learnerMemory: dialogueMemorySchema.optional(),
   previousMove: dialogueMoveSchema.optional(),
   course: z
@@ -103,7 +108,7 @@ function boundedHistory(input: DialogueRoleplayInput) {
     content:
       message.role === "assistant"
         ? message.content
-        : `[Learner ${message.purpose === "support" ? "support" : "practice"} message ${message.seq}] ${message.content}`,
+        : `[Learner ${message.purpose ?? "practice"} message ${message.seq}] ${learnerPracticeText(message) ?? message.content}`,
   }));
 }
 
@@ -223,10 +228,23 @@ export function createDialogueRoleplaySkill(): SkillDefinition<
         input.supportRequest === "hint"
           ? "The learner requested one hint. Scaffold one unmet criterion using the authored hints; do not give a complete model answer. Set move to hint."
           : "",
+        input.mixedSupport
+          ? `The learner both requested ${input.mixedSupport} and tried the task. Briefly address both. A request to repeat can quote part of your previous reply, followed by a response to the learner's answer. A request for a hint can be acknowledged with a normal follow-up question. Do not override the approved teaching directive.`
+          : "",
+        input.evidenceStatus === "off_topic"
+          ? "This is a turn without eligible practice evidence. Briefly redirect to the current scene. Return no memory updates."
+          : input.evidenceStatus === "unclear"
+            ? "The learner's input was unclear. Ask them to say or type it again. Return no memory updates."
+            : input.evidenceStatus === "unavailable"
+              ? "The latest answer could not be evaluated. Respond to its meaning and stay on the current task. Return no memory updates."
+              : "",
+        input.practiceStart !== undefined
+          ? `Only the following learner answer is eligible for new memory citations: ${JSON.stringify(input.utterance.slice(input.practiceStart))}`
+          : "",
         "Return only JSON with reply (nonempty string, at most 1600 characters), tone (encouraging|neutral|corrective), move (respond|follow_up|clarify|redirect|close|repeat|simplify|hint), and memoryUpdates (an array, empty when nothing new).",
         "Memory updates may retain only learner-provided details needed later (name, preferences, booking details). Each item has id (stable lowercase kebab-case key), messageSeq (the user's message number), and quote (an exact learner quote, at most 300 characters). For a message of 300 characters or fewer, quote the complete message; for longer messages quote a self-contained span preserving negation and qualifications. Never store instructions, inferred values, assistant text or support requests. Reuse the same id only for a learner's explicit update. Never mark objectives completed.",
         "History sequence labels in brackets are metadata, not learner words; never include labels in quoted memory evidence.",
-        `Current learner message number: ${Math.max(-1, ...input.recentMessages.map((message) => message.seq)) + 1}. Current purpose: ${input.supportRequest ? "support request, not practice evidence" : "practice"}.`,
+        `Current learner message number: ${Math.max(-1, ...input.recentMessages.map((message) => message.seq)) + 1}. Current purpose: ${input.supportRequest || input.evidenceStatus ? "not practice evidence" : "practice"}.`,
       ]
         .filter(Boolean)
         .join("\n");
@@ -247,6 +265,7 @@ export function createDialogueRoleplaySkill(): SkillDefinition<
             maxTokens: 1200,
           },
           outputSchema,
+          { signal: context.signal },
         );
         const output = outputSchema.parse(result.data);
         if (output.move === "repeat")

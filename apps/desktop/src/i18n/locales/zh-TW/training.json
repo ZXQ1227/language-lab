@@ -57,7 +57,6 @@
   "suggestedReply": "建議回覆：",
   "useSuggestedReply": "使用建議回覆",
   "yourReply": "你的回覆",
-  "respondingAndSaving": "正在回覆並儲存…",
   "sendReply": "傳送回覆",
   "preparingReview": "正在準備回顧…",
   "finishAndReview": "完成並回顧",
@@ -114,5 +113,25 @@
     "microphoneSetup": "啟用語音辨識後即可錄音回覆。",
     "hint": "提示"
   },
-  "openGuidedPractice": "開啟內建引導練習"
+  "openGuidedPractice": "開啟內建引導練習",
+  "turnStatus": {
+    "responding": "正在等待回覆…",
+    "saving": "正在儲存對話…",
+    "replyFailed": "草稿和已儲存的進度均已保留。再次送出即可重試取得回覆。",
+    "saveFailed": "回覆已產生。再次送出同一份草稿即可重試儲存。"
+  },
+  "turnEvidence": {
+    "off_topic": "本輪已留在對話記錄中，本課學習證據未更新。",
+    "unclear": "這次回覆不夠清楚。請再說一遍或輸入答案。",
+    "unavailable": "本輪評估逾時，已驗證的進度仍然保留。",
+    "demo": "引導練習只檢查建議回覆。"
+  },
+  "unfinished": {
+    "label": "未完成已結束",
+    "title": "未完成練習小結",
+    "end": "提前結束練習",
+    "ended": "對話和已驗證的進度已儲存。空心圓標示仍需練習的任務。",
+    "turnLimit": "這次練習已達 {{count}} 輪。對話和已驗證的進度已儲存，空心圓標示仍需練習的任務。",
+    "retry": "再練一次這門課"
+  }
 }

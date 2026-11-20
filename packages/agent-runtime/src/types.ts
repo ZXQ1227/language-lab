@@ -10,6 +10,7 @@ import type {
   VocabularyMatch,
   ErrorDiagnosis,
   InterventionReason,
+  TurnEvidenceStatus,
 } from "@language-lab/core";
 import type { DiagnosedError } from "@language-lab/skills";
 
@@ -23,6 +24,7 @@ export interface AgentInput {
   /** ASR confidence if the input came through the voice path. */
   readonly confidence?: number;
   readonly mode: ConversationMode;
+  readonly signal?: AbortSignal;
   readonly supportRequest?: DialogueSupport;
 }
 
@@ -63,6 +65,8 @@ export interface AgentOutput {
   readonly dialogueMove?: DialogueMove;
   readonly supportRequest?: DialogueSupport;
   readonly correction?: DiagnosedError;
+  readonly practiceStart?: number;
+  readonly evidenceStatus?: TurnEvidenceStatus;
   readonly interventionReason?: InterventionReason;
   /** Domain events the orchestrator persisted through the data ports. */
   readonly persistedEvents: readonly { type: string; payload?: Record<string, unknown> }[];

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { EvidenceMessage } from "./assessment";
+import { learnerPracticeText, type EvidenceMessage } from "./assessment";
 
 const text = z.string().trim().min(1);
 export const vocabularyFormsSchema = z.strictObject({
@@ -136,14 +136,23 @@ export function summarizeVocabulary(
     occurrences: 0,
   }));
   for (const message of transcript) {
-    if (message.role !== "user" || message.purpose === "support") continue;
-    const result = trackVocabulary(message.content, targets, forms);
+    const practice = learnerPracticeText(message);
+    if (!practice) continue;
+    const result = trackVocabulary(practice, targets, forms);
     for (const item of progress) {
       const matches = result.matches.filter((match) => match.term === item.term);
       if (!matches.length) continue;
       item.usedTurns++;
       item.occurrences += matches.length;
-      item.latest = { ...matches.at(-1)!, messageSeq: message.seq, content: message.content };
+      const match = matches.at(-1)!;
+      const offset = message.practiceStart ?? 0;
+      item.latest = {
+        ...match,
+        start: match.start + offset,
+        end: match.end + offset,
+        messageSeq: message.seq,
+        content: message.content,
+      };
     }
   }
   return progress;

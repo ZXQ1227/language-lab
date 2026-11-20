@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { EvidenceMessage } from "./assessment";
+import { learnerPracticeText, type EvidenceMessage } from "./assessment";
 import { interventionReasonSchema, lightCorrectionReplyIssue } from "./intervention";
 
 const text = z.string().trim().min(1);
@@ -167,17 +167,14 @@ export function validateDiagnosisRecords(
   let previousSequence = -1;
   for (const record of records) {
     const message = transcript.find((item) => item.seq === record.messageSeq);
-    if (
-      !message ||
-      message.role !== "user" ||
-      message.purpose === "support" ||
-      record.messageSeq <= previousSequence
-    )
+    if (!message || !learnerPracticeText(message) || record.messageSeq <= previousSequence)
       throw new DiagnosisEvidenceError(
         "Diagnosis records must reference distinct learner practice replies in order",
       );
     previousSequence = record.messageSeq;
     validateDiagnosedErrors(message.content, record.diagnosis.errors);
+    if (record.diagnosis.errors.some((error) => error.start < (message.practiceStart ?? 0)))
+      throw new DiagnosisEvidenceError("Diagnosis evidence cannot cite a help request");
     if (record.correctionIndex !== undefined && !record.diagnosis.errors[record.correctionIndex])
       throw new DiagnosisEvidenceError("Shown correction must reference a diagnosed error");
     if (record.interventionReason !== undefined) {

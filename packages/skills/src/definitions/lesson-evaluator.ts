@@ -2,19 +2,16 @@
 // LLM-based with deterministic fallback constraints enforced by the schema.
 
 import { z } from "zod";
-import { errorDiagnosisRecordSchema } from "@language-lab/core";
+import {
+  errorDiagnosisRecordSchema,
+  evidenceMessageSchema,
+  learnerPracticeText,
+} from "@language-lab/core";
 import type { SkillDefinition } from "../contract";
-import type { MessageView, SkillContext } from "../context";
+import type { SkillContext } from "../context";
 
 const inputSchema = z.object({
-  transcript: z.array(
-    z.object({
-      seq: z.number(),
-      role: z.enum(["user", "assistant", "system"]) satisfies z.ZodType<MessageView["role"]>,
-      content: z.string(),
-      purpose: z.literal("support").optional(),
-    }),
-  ),
+  transcript: z.array(evidenceMessageSchema),
   vocabularySeen: z.record(z.string(), z.number()),
   diagnoses: z.array(errorDiagnosisRecordSchema).max(100).optional(),
   correctionsGiven: z.number().int().nonnegative(),
@@ -59,8 +56,8 @@ export function createLessonEvaluatorSkill(): SkillDefinition<
         if (observations.length >= 10) break;
       }
       const transcript = input.transcript
-        .filter((message) => message.purpose !== "support")
-        .map((m) => `${m.role}: ${m.content}`)
+        .filter((message) => !message.purpose)
+        .map((message) => `${message.role}: ${learnerPracticeText(message) ?? message.content}`)
         .join("\n")
         .slice(-12000);
       const result = await context.modelGateway.llm.generateStructured(

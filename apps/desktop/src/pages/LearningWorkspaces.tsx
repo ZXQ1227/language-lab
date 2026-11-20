@@ -9,6 +9,7 @@ import { useNavStore } from "../stores/nav";
 import { useTrainingStore } from "../stores/training";
 import { useSpeechLoop } from "../speech/useSpeechLoop";
 import { characterVoiceStyle } from "../speech/voices";
+import { isTrainingUnfinished } from "../training/session";
 
 const courses = loadScenarioContent().filter((course) => course.courseTemplate);
 const guidedCourse = courses.find((course) => course.slug === "hotel-checkin")!;
@@ -88,9 +89,9 @@ export function PlanPage() {
     );
   const recommended = choices[alternate % choices.length];
   const ongoing =
-    session && session.state.phase !== "done"
+    session && session.state.phase !== "done" && !isTrainingUnfinished(session)
       ? session
-      : sessions.find((item) => item.state.phase !== "done");
+      : sessions.find((item) => item.state.phase !== "done" && !isTrainingUnfinished(item));
   const recent = learningMemory?.episodes.filter((item) => item.completed).slice(0, 3) ?? [];
   return (
     <section className="space-y-6" aria-labelledby="plan-heading">

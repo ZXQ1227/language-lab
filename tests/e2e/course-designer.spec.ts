@@ -57,6 +57,7 @@ test("retries an invalid generation, previews without writing, and teaches the s
       const learner = transcript.at(-1);
       result = {
         stageId: stage.id,
+        relevance: "in_scene",
         criteria: [
           {
             criterionIndex: 0,
