@@ -8,7 +8,7 @@ import { useSpeechLoop } from "../speech/useSpeechLoop";
 import { characterVoiceStyle } from "../speech/voices";
 import { isTrainingUnfinished, trainingTurnLimit, type TrainingSession } from "../training/session";
 import { CourseStudyPack, CourseReviewPractice } from "./CourseStudyPack";
-import { LanguageFeedback } from "./LanguageFeedback";
+import { TrainingMessageFeedback } from "./LanguageFeedback";
 import { LearningReport } from "./LearningReport";
 import { LessonComposer } from "./LessonComposer";
 import { LocalizedError } from "./LocalizedError";
@@ -45,6 +45,10 @@ export function LessonConversation({ session }: { session: TrainingSession }) {
   const completed = session.state.objectives.filter((objective) => objective.completed).length;
   const total = session.state.objectives.length;
   const latest = [...session.messages].reverse().find((message) => message.role === "assistant");
+  const diagnoses = new Map(session.diagnoses?.map((record) => [record.messageSeq, record]));
+  const policy = session.state.courseTemplate?.teachingPolicy;
+  const readDisabled =
+    busy || voice.capturing || !voice.settings || voice.settings.tts.mode === "off";
   const transcript = useRef<HTMLDivElement>(null);
   const follow = useRef(true);
   useLayoutEffect(() => {
@@ -329,6 +333,7 @@ export function LessonConversation({ session }: { session: TrainingSession }) {
           </div>
           <ol aria-label={t("training:conversation")} className="space-y-4 sm:space-y-5">
             {session.messages.map((message, index) => {
+              const diagnosis = diagnoses.get(message.seq);
               const previous = session.messages[index - 1];
               const hint =
                 message.role === "assistant" &&
@@ -372,13 +377,26 @@ export function LessonConversation({ session }: { session: TrainingSession }) {
                       text={message.content}
                       language={language}
                       messageNumber={index + 1}
-                      readDisabled={
-                        busy ||
-                        voice.capturing ||
-                        !voice.settings ||
-                        voice.settings.tts.mode === "off"
-                      }
+                      readDisabled={readDisabled}
                       onRead={() => voice.speak(message.content)}
+                    />
+                  )}
+                  {diagnosis && (
+                    <TrainingMessageFeedback
+                      record={diagnosis}
+                      text={message.content}
+                      language={language}
+                      readDisabled={readDisabled}
+                      onRead={voice.speak}
+                      legacyReason={
+                        policy?.correctionMode === "off"
+                          ? "corrections_off"
+                          : policy &&
+                              diagnosis.diagnosis.errors.length > 0 &&
+                              session.state.correctionsGiven >= policy.maxCorrections
+                            ? "budget_exhausted"
+                            : undefined
+                      }
                     />
                   )}
                 </li>
@@ -386,7 +404,6 @@ export function LessonConversation({ session }: { session: TrainingSession }) {
             })}
           </ol>
 
-          <LanguageFeedback session={session} />
           {session.lastTurn?.evidenceStatus && (
             <div
               aria-label={t("training:learningFeedback")}

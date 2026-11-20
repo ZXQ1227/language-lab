@@ -64,9 +64,9 @@ still a limited demonstration. Exact repeat returns the saved whole reply withou
 another correction. Original learner text is never rewritten, and only actual
 practice text contributes to vocabulary observations and objective evidence.
 
-Training distinguishes spacing, recent reminders, long rewrites and budget
-deferral instead of calling all skipped issues “no errors”. The corrected phrase
-stays visible while explanation moves under **Why this wording?**. Earlier
+Training's per-reply feedback distinguishes spacing, recent reminders, long
+rewrites and budget deferral. **Suggestion** opens the highlighted original,
+revised wording and explanation on the learner's source message. Earlier
 delivered feedback remains available after another reply, help and restart.
 
 ## Persistence and compatibility

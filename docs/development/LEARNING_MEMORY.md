@@ -74,6 +74,9 @@ original turns and their validated evidence. Useful vocabulary candidates must
 match the learner's own words. Error observations require a high-confidence
 diagnosis and an exact quote. Explicit help requests contribute to the transcript
 and episode history. Practice evidence comes from regular learner replies.
+The existing optional diagnosis also records an explicitly checked result with
+an empty error list. This feeds the **Checked** indicator and adds no error
+observation. Older version-1 checkpoints with no such record still open.
 
 When the provider repeatedly returns blank structured output, Zoi requests a
 plain-text reply using the same recent messages. A validated text reply can

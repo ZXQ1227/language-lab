@@ -72,13 +72,21 @@ Intervention also spaces corrections, suppresses exact recent reminders and
 verifies a brief recast before counting delivery. Course intervals and behavior
 are documented in [Teaching Intervention](TEACHING_INTERVENTION.md).
 
-Training's **Language feedback** shows the delivered issue's type, priority,
-highlighted original context, suggested wording and explanation. Earlier
-delivered feedback remains available after another reply, help or restart. The
-UI does not reveal additional suggestions to bypass the live correction budget.
-When feedback is off or the limit is reached, it says so. No accepted issues is
-labelled **No high-confidence correction was found**, not proof of perfect
-language. Uncertain results and the limited guided demo are labelled explicitly.
+In Training, feedback sits under the learner reply that supplied the evidence.
+**Suggestion** expands one delivered correction with the original text, the
+highlighted phrase, the suggested wording and a brief explanation. The suggested
+text can be read aloud using the existing speech settings. Earlier feedback
+stays with its source after another reply, help or restart. Deferred feedback
+shows its reason on request. **Checked** is reserved for a completed assessment
+with no high-confidence issues. Uncertain and guided checks use the neutral
+**Language feedback** control.
+
+Free conversation uses the same control with the first grounded, short
+suggestion from the saved diagnosis. An explicitly checked result with zero
+errors also gets a **Checked** control. Replies with absent, invalid or
+uncertain-only feedback, including the plain-text recovery path and old records
+with no diagnosis, show no check or suggestion. Expanding and collapsing uses
+saved evidence and makes no AI call.
 
 Learner messages are never silently rewritten. Corrected vocabulary receives no
 usage credit until it actually appears in a learner practice reply. Errors and

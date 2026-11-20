@@ -3,6 +3,8 @@ import type { VoiceStyle } from "@language-lab/core";
 import type { SpeechSettings } from "./settings";
 import { preferredVoiceStyle, selectDeviceVoice, selectProviderVoice } from "./voices";
 
+export const speechPlaybackTextLimit = 4_000;
+
 export interface PlaybackState {
   phase: "idle" | "loading" | "speaking" | "error";
   error?: string;
@@ -117,7 +119,7 @@ export class SpeechPlayback {
       }
     }, 120000);
     try {
-      if (!text.trim() || text.length > 4000) throw new Error("text_limit");
+      if (!text.trim() || text.length > speechPlaybackTextLimit) throw new Error("text_limit");
       const style = preferredVoiceStyle(settings.tts, characterStyle);
       if (settings.tts.mode === "system") {
         if (!window.speechSynthesis || typeof SpeechSynthesisUtterance === "undefined")

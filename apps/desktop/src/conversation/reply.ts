@@ -68,7 +68,7 @@ export async function replyToConversation(
             content: [
               ...instructions,
               'Return one JSON object with a string field "reply". Optionally include "vocabulary": up to six useful English words or short phrases from the learner’s latest message, excluding names and personal details.',
-              'Optionally include "diagnosis": {"intent":"brief learning intent","errors":[{"category":"grammar|vocabulary|collocation|tense|article|spelling","original":"unique exact quote from the latest learner message","corrected":"short fix preserving meaning","explanation":"brief reason","confidence":"high"}]}. Diagnose only the current learner wording. Omit uncertain judgments and use at most two errors.',
+              'For regular practice, include "diagnosis": {"intent":"brief learning intent","status":"checked|uncertain","errors":[{"category":"grammar|vocabulary|collocation|tense|article|spelling","original":"unique exact quote from the latest learner message","corrected":"short fix preserving meaning","explanation":"brief reason","confidence":"high"}]}. Diagnose only the current learner wording. Use "checked" with an empty errors array for acceptable wording, including natural short replies like "Yeah." Use "uncertain" when intent or wording is ambiguous. Omit style-only changes and uncertain judgments. Include at most two errors.',
             ].join("\n"),
           },
           ...history,
@@ -112,9 +112,16 @@ export async function replyToConversation(
     try {
       const grounded = groundErrorDiagnosis(learner.content, {
         ...candidate.data,
-        errors: candidate.data.errors.filter((item) => item.confidence === "high"),
+        errors: candidate.data.errors.map((item) => ({
+          ...item,
+          confidence: item.confidence ?? "low",
+        })),
       });
-      if (grounded.errors.length) diagnosis = grounded;
+      if (
+        grounded.errors.length ||
+        (candidate.data.status === "checked" && grounded.status === "checked")
+      )
+        diagnosis = grounded;
     } catch {
       // A usable chat reply can still be saved when the optional evidence is invalid.
     }

@@ -1,7 +1,7 @@
-import { formatNumber } from "../i18n";
+import { useId, useState } from "react";
 import { useTranslation } from "react-i18next";
-import type { ErrorDiagnosisRecord } from "@language-lab/core";
-import type { TrainingSession } from "../training/session";
+import type { DiagnosedError, ErrorDiagnosisRecord, InterventionReason } from "@language-lab/core";
+import { speechPlaybackTextLimit } from "../speech/playback";
 
 const categories = {
   grammar: "training:categories.grammar",
@@ -12,112 +12,142 @@ const categories = {
   spelling: "training:categories.spelling",
 };
 
-function Correction({
-  record,
-  session,
-}: {
-  record: ErrorDiagnosisRecord;
-  session: TrainingSession;
-}) {
+const deferral: Partial<Record<InterventionReason, string>> = {
+  correction_spacing: "training:letSKeepTheConversationMovingCorrectionsAreSpacedBetween",
+  recently_corrected: "training:youHaveSeenThisCorrectionRecentlyKeepPractisingBeforeAnother",
+  not_lightweight: "training:thisSuggestionNeedsALongerRewriteLetSKeepThe",
+  objectives_complete: "training:theSceneIsCompleteContinueToYourLessonReview",
+  corrections_off: "training:liveCorrectionsAreTurnedOffForThisCourse",
+  budget_exhausted: "training:theLiveCorrectionLimitHasBeenReachedKeepPractising",
+};
+
+interface MessageProps {
+  text: string;
+  language: string;
+  readDisabled: boolean;
+  onRead: (text: string) => void;
+}
+
+export function LanguageFeedback({
+  text,
+  language,
+  readDisabled,
+  onRead,
+  error,
+  checked,
+  note,
+  demo,
+}: MessageProps & { error?: DiagnosedError; checked?: boolean; note?: string; demo?: boolean }) {
   const { t } = useTranslation();
-  const error =
-    record.correctionIndex === undefined
-      ? undefined
-      : record.diagnosis.errors[record.correctionIndex];
-  const message = session.messages.find((item) => item.seq === record.messageSeq);
-  if (!error || !message) return null;
+  const id = useId();
+  const [open, setOpen] = useState(false);
+  const status = error ? "suggestion" : checked ? "checked" : "details";
+  const style = error
+    ? "border-warning-line bg-chat-hint text-hint-ink"
+    : checked
+      ? "border-success-line bg-chat-success text-success-ink"
+      : "border-line bg-surface-secondary text-ink";
+  const before = error ? text.slice(0, error.start) : "";
+  const after = error ? text.slice(error.end) : "";
+  const suggested = error ? before + error.corrected + after : "";
+
   return (
-    <div
-      aria-label={t("training:correction")}
-      className="space-y-2 rounded-lg border border-error-line bg-chat-error p-4 text-sm text-error-ink"
-    >
-      <p className="font-medium">
-        {t(categories[error.category])} ·{" "}
-        {error.severity === "meaning" ? t("training:affectsMeaning") : t("training:form")}
-      </p>
-      <blockquote>
-        {t("training:reply")}
-        {formatNumber(Math.ceil(record.messageSeq / 2))}: “{message.content.slice(0, error.start)}
-        <mark className="rounded-sm bg-error-mark text-error-ink">{error.original}</mark>
-        {message.content.slice(error.end)}”
-      </blockquote>
-      <p>
-        {error.original} → <strong>{error.corrected}</strong>
-      </p>
-      <details>
-        <summary className="cursor-pointer font-medium">{t("training:whyThisWording")}</summary>
-        <p className="mt-2">{error.explanation}</p>
-      </details>
-      {record.diagnosis.errors.length > 1 && (
-        <p className="text-xs">{t("training:onePointToFocusOnBeforeContinuingTheConversation")}</p>
-      )}
+    <div className="mt-2.5 text-sm text-ink">
+      <button
+        type="button"
+        aria-expanded={open}
+        aria-controls={id}
+        onClick={() => setOpen((value) => !value)}
+        className={`inline-flex min-h-8 items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold hover:brightness-95 ${style}`}
+      >
+        <span
+          aria-hidden="true"
+          className="grid size-4 place-items-center rounded-full border border-current text-[0.625rem] leading-none"
+        >
+          {error ? "!" : checked ? "✓" : "·"}
+        </span>
+        {t(`training:messageFeedback.${status}`)}
+      </button>
+      <div id={id} hidden={!open}>
+        {open && (
+          <section
+            aria-label={t(error ? "training:correction" : "training:languageFeedback")}
+            className="mt-2 space-y-2 rounded-xl border border-line bg-surface p-3 leading-relaxed"
+          >
+            {error ? (
+              <>
+                <div className="rounded-lg border border-error-line bg-chat-error px-3 py-2 text-error-ink">
+                  <p className="text-xs font-semibold">{t("training:messageFeedback.original")}</p>
+                  <p lang={language} className="whitespace-pre-wrap wrap-break-word">
+                    {before}
+                    <mark className="rounded-sm bg-error-mark font-semibold text-error-ink">
+                      {error.original}
+                    </mark>
+                    {after}
+                  </p>
+                </div>
+                <div className="rounded-lg border border-success-line bg-chat-success px-3 py-2 text-success-ink">
+                  <p className="text-xs font-semibold">
+                    {t("training:messageFeedback.suggestionText")}
+                  </p>
+                  <p lang={language} className="whitespace-pre-wrap wrap-break-word">
+                    {before}
+                    <strong>{error.corrected}</strong>
+                    {after}
+                  </p>
+                  <button
+                    type="button"
+                    className="mt-1.5 min-h-8 rounded-full border border-success-line bg-surface px-2.5 text-xs font-semibold enabled:hover:bg-surface-hover disabled:opacity-50"
+                    disabled={readDisabled || suggested.length > speechPlaybackTextLimit}
+                    onClick={() => onRead(suggested)}
+                  >
+                    {t("training:messageFeedback.readSuggestion")}
+                  </button>
+                </div>
+                <p className="px-1 text-xs font-semibold text-ink-muted">
+                  {t(categories[error.category])} ·{" "}
+                  {error.severity === "meaning" ? t("training:affectsMeaning") : t("training:form")}
+                </p>
+                <p className="px-1 break-words">{error.explanation}</p>
+              </>
+            ) : (
+              <p>{note ?? t("training:noHighConfidenceCorrectionWasFoundInThisReply")}</p>
+            )}
+            {demo && (
+              <p className="text-xs text-ink-muted">
+                {t("training:guidedDemoChecksAFewExamplePatternsOnlyConnectAI")}
+              </p>
+            )}
+          </section>
+        )}
+      </div>
     </div>
   );
 }
 
-export function LanguageFeedback({ session }: { session: TrainingSession }) {
+export function TrainingMessageFeedback({
+  record,
+  legacyReason,
+  ...message
+}: MessageProps & { record: ErrorDiagnosisRecord; legacyReason?: InterventionReason }) {
   const { t } = useTranslation();
-  const records = session.diagnoses ?? [];
-  const latest = records.at(-1);
-  if (!latest) return null;
-  const earlier = records.slice(0, -1).filter((record) => record.correctionIndex !== undefined);
-  const policy = session.state.courseTemplate?.teachingPolicy;
+  const { diagnosis, correctionIndex } = record;
+  const error = correctionIndex === undefined ? undefined : diagnosis.errors[correctionIndex];
+  const reason = record.interventionReason ?? legacyReason;
+  const noteKey =
+    (reason && deferral[reason]) ||
+    (diagnosis.status === "uncertain" && diagnosis.source === "model"
+      ? "training:someWordingNeedsMoreContextUncertainSuggestionsWereNotTreated"
+      : diagnosis.errors.length
+        ? "training:thisReplyWasRecordedWithoutALiveCorrection"
+        : undefined);
   return (
-    <section
-      aria-label={t("training:languageFeedback")}
-      className="space-y-3 rounded-lg border border-line bg-surface p-4 text-sm"
-    >
-      <h3 className="font-medium">
-        {t("training:languageFeedbackReply")}
-        {formatNumber(Math.ceil(latest.messageSeq / 2))}
-      </h3>
-      {latest.diagnosis.source === "demo" && (
-        <p className="text-ink-muted">
-          {t("training:guidedDemoChecksAFewExamplePatternsOnlyConnectAI")}
-        </p>
-      )}
-      {latest.correctionIndex !== undefined ? (
-        <Correction record={latest} session={session} />
-      ) : latest.interventionReason === "correction_spacing" ? (
-        <p>{t("training:letSKeepTheConversationMovingCorrectionsAreSpacedBetween")}</p>
-      ) : latest.interventionReason === "recently_corrected" ? (
-        <p>{t("training:youHaveSeenThisCorrectionRecentlyKeepPractisingBeforeAnother")}</p>
-      ) : latest.interventionReason === "not_lightweight" ? (
-        <p>{t("training:thisSuggestionNeedsALongerRewriteLetSKeepThe")}</p>
-      ) : latest.interventionReason === "objectives_complete" ? (
-        <p>{t("training:theSceneIsCompleteContinueToYourLessonReview")}</p>
-      ) : policy?.correctionMode === "off" ? (
-        <p>{t("training:liveCorrectionsAreTurnedOffForThisCourse")}</p>
-      ) : latest.diagnosis.errors.length > 0 ? (
-        <p>
-          {policy && session.state.correctionsGiven >= policy.maxCorrections
-            ? t("training:theLiveCorrectionLimitHasBeenReachedKeepPractising")
-            : t("training:thisReplyWasRecordedWithoutALiveCorrection")}
-        </p>
-      ) : (
-        <p>{t("training:noHighConfidenceCorrectionWasFoundInThisReply")}</p>
-      )}
-      {latest.diagnosis.status === "uncertain" && latest.diagnosis.source === "model" && (
-        <p className="text-ink-muted">
-          {t("training:someWordingNeedsMoreContextUncertainSuggestionsWereNotTreated")}
-        </p>
-      )}
-      <p className="text-xs text-ink-muted">
-        {t("training:keepYourIntendedMeaningWhenTryingACorrectionSpokenFluency")}
-      </p>
-      {earlier.length > 0 && (
-        <details>
-          <summary className="cursor-pointer text-ink">
-            {t("training:earlierFeedback")}
-            {formatNumber(earlier.length)}
-          </summary>
-          <div className="mt-3 space-y-3">
-            {earlier.map((record) => (
-              <Correction key={record.messageSeq} record={record} session={session} />
-            ))}
-          </div>
-        </details>
-      )}
-    </section>
+    <LanguageFeedback
+      {...message}
+      error={error}
+      checked={!noteKey && diagnosis.status === "checked" && diagnosis.errors.length === 0}
+      note={noteKey ? t(noteKey) : undefined}
+      demo={diagnosis.source === "demo"}
+    />
   );
 }

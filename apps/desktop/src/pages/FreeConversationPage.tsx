@@ -1,6 +1,8 @@
+import { isLightCorrection } from "@language-lab/core";
 import { isGatewayError } from "@language-lab/model-gateway";
 import { useEffect, useLayoutEffect, useRef, useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
+import { LanguageFeedback } from "../components/LanguageFeedback";
 import { LocalizedError } from "../components/LocalizedError";
 import { PartnerMessageActions } from "../components/PartnerMessageActions";
 import { VoiceInput } from "../components/VoiceInput";
@@ -73,6 +75,7 @@ export function FreeConversationPage() {
   const recording = voice.capture.phase === "recording";
   const textOpen = keyboard ?? !asrEnabled;
   const playing = voice.playback.phase === "loading" || voice.playback.phase === "speaking";
+  const readDisabled = voice.capturing || !voice.settings || voice.settings.tts.mode === "off";
   const messages = conversationMessages(checkpoint.turns);
   const visibleMessages: FreeConversationMessage[] = pendingText
     ? [...messages, { role: "user", content: pendingText }]
@@ -264,33 +267,48 @@ export function FreeConversationPage() {
             aria-relevant="additions"
             className="space-y-4"
           >
-            {visibleMessages.map((message, index) => (
-              <li
-                key={index}
-                className={`w-fit max-w-[92%] rounded-3xl px-4 py-3 sm:max-w-[78%] sm:px-5 ${message.role === "assistant" ? "rounded-tl-md bg-chat-ai text-chat-ai-ink" : "ml-auto rounded-tr-md bg-chat-user text-on-brand"}`}
-              >
-                <p className="mb-1 text-xs font-semibold">
-                  {message.role === "assistant" ? partner : t("training:you")}
-                </p>
-                <p
-                  lang="en"
-                  className="text-base leading-relaxed whitespace-pre-wrap wrap-break-word sm:text-lg"
+            {visibleMessages.map((message, index) => {
+              // The local greeting is followed by learner and partner pairs.
+              const diagnosis =
+                message.role === "user" ? checkpoint.turns[(index - 1) / 2]?.diagnosis : undefined;
+              const correction = diagnosis?.errors.find(isLightCorrection);
+              const checked = diagnosis?.status === "checked" && diagnosis.errors.length === 0;
+              return (
+                <li
+                  key={index}
+                  className={`w-fit max-w-[92%] rounded-3xl px-4 py-3 sm:max-w-[78%] sm:px-5 ${message.role === "assistant" ? "rounded-tl-md bg-chat-ai text-chat-ai-ink" : "ml-auto rounded-tr-md bg-chat-user text-on-brand"}`}
                 >
-                  {message.content}
-                </p>
-                {message.role === "assistant" && (
-                  <PartnerMessageActions
-                    text={message.content}
-                    language="en"
-                    messageNumber={index + 1}
-                    readDisabled={
-                      voice.capturing || !voice.settings || voice.settings.tts.mode === "off"
-                    }
-                    onRead={() => voice.speak(message.content)}
-                  />
-                )}
-              </li>
-            ))}
+                  <p className="mb-1 text-xs font-semibold">
+                    {message.role === "assistant" ? partner : t("training:you")}
+                  </p>
+                  <p
+                    lang="en"
+                    className="text-base leading-relaxed whitespace-pre-wrap wrap-break-word sm:text-lg"
+                  >
+                    {message.content}
+                  </p>
+                  {message.role === "assistant" && (
+                    <PartnerMessageActions
+                      text={message.content}
+                      language="en"
+                      messageNumber={index + 1}
+                      readDisabled={readDisabled}
+                      onRead={() => voice.speak(message.content)}
+                    />
+                  )}
+                  {(correction || checked) && (
+                    <LanguageFeedback
+                      text={message.content}
+                      language="en"
+                      readDisabled={readDisabled}
+                      onRead={voice.speak}
+                      error={correction}
+                      checked={checked}
+                    />
+                  )}
+                </li>
+              );
+            })}
           </ol>
           {busy && (
             <p role="status" className="text-sm text-ink-muted">

@@ -25,6 +25,12 @@ async function send(page: Page, text: string, saved = true) {
   await page.getByRole("button", { name: "Send reply", exact: true }).click();
   if (saved) await expect(composer).toHaveValue("");
 }
+const reply = (page: Page, text: string) =>
+  page
+    .getByLabel("Conversation", { exact: true })
+    .getByRole("listitem")
+    .filter({ has: page.getByText(text, { exact: true }) })
+    .last();
 const checkpoint = (page: Page) =>
   page.evaluate(() =>
     JSON.parse(
@@ -37,14 +43,14 @@ test("keeps recasts brief, persists timing across help and restart, and avoids r
 }) => {
   await startDemo(page);
   await send(page, "I go yesterday.");
-  const feedback = page.getByLabel("Language feedback", { exact: true });
+  const feedback = reply(page, "I go yesterday.");
   await expect(page.getByLabel("Conversation", { exact: true })).toContainText(
     "You can say: “I went”.",
   );
   await expect(
     feedback.getByText("Past time expressions require the past tense.", { exact: true }),
   ).not.toBeVisible();
-  await feedback.getByText("Why this wording?", { exact: true }).click();
+  await feedback.getByRole("button", { name: "Suggestion", exact: true }).click();
   await expect(
     feedback.getByText("Past time expressions require the past tense.", { exact: true }),
   ).toBeVisible();
@@ -53,13 +59,19 @@ test("keeps recasts brief, persists timing across help and restart, and avoids r
   await page.reload();
   await openWorkspacePage(page, "Training");
   await send(page, "I am agree.");
+  await reply(page, "I am agree.")
+    .getByRole("button", { name: "Language feedback", exact: true })
+    .click();
   await expect(
-    feedback.getByText(
+    reply(page, "I am agree.").getByText(
       "Let's keep the conversation moving. Corrections are spaced between practice turns.",
       { exact: true },
     ),
   ).toBeVisible();
   await send(page, "I go yesterday.");
+  await reply(page, "I go yesterday.")
+    .getByRole("button", { name: "Language feedback", exact: true })
+    .click();
   await expect(
     feedback.getByText(
       "You have seen this correction recently. Keep practising before another reminder.",
@@ -67,7 +79,10 @@ test("keeps recasts brief, persists timing across help and restart, and avoids r
     ),
   ).toBeVisible();
   await send(page, "I am agree.");
-  await expect(feedback.getByText("Grammar · Form", { exact: true })).toBeVisible();
+  await reply(page, "I am agree.").getByRole("button", { name: "Suggestion", exact: true }).click();
+  await expect(
+    reply(page, "I am agree.").getByText("Grammar · Form", { exact: true }),
+  ).toBeVisible();
   await expect(page.getByLabel("Conversation", { exact: true })).toContainText(
     "You can say: “I agree”.",
   );
@@ -109,6 +124,9 @@ test("a failed checkpoint consumes neither a correction nor a spacing turn", asy
   expect(saved.state.interventionState.practiceTurns).toBe(1);
   expect(saved.state.interventionState.corrections).toHaveLength(1);
   await send(page, "I am agree.");
+  await reply(page, "I am agree.")
+    .getByRole("button", { name: "Language feedback", exact: true })
+    .click();
   await expect(
     page.getByText(
       "Let's keep the conversation moving. Corrections are spaced between practice turns.",

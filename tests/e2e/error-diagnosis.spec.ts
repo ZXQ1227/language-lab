@@ -114,6 +114,12 @@ async function send(page: Page, text: string) {
   await page.getByRole("textbox", { name: "Your reply", exact: true }).fill(text);
   await page.getByRole("button", { name: "Send reply", exact: true }).click();
 }
+const reply = (page: Page, text: string) =>
+  page
+    .getByLabel("Conversation", { exact: true })
+    .getByRole("listitem")
+    .filter({ has: page.getByText(text, { exact: true }) })
+    .last();
 const checkpoint = (page: Page) =>
   page.evaluate(() =>
     JSON.parse(
@@ -126,13 +132,28 @@ test("prioritizes vocabulary meaning, highlights evidence and restores feedback 
 }) => {
   const calls = await startHotel(page);
   await send(page, utterance);
-  const feedback = page.getByLabel("Language feedback", { exact: true });
-  const correction = feedback.getByLabel("Correction", { exact: true });
-  await expect(correction).toHaveCSS("background-color", "rgb(252, 237, 239)");
-  await expect(correction).toHaveCSS("color", "rgb(128, 59, 73)");
-  await expect(feedback.getByText("Word choice · Affects meaning", { exact: true })).toBeVisible();
-  await expect(feedback.locator("mark")).toHaveText("reserve");
-  await feedback.getByText("Why this wording?", { exact: true }).click();
+  const feedback = reply(page, utterance);
+  const toggle = feedback.getByRole("button", { name: "Suggestion", exact: true });
+  const correction = feedback.getByRole("region", { name: "Correction", exact: true });
+  await expect(toggle).toHaveAttribute("aria-expanded", "false");
+  await expect(correction).toHaveCount(0);
+  await toggle.click();
+  await expect(toggle).toHaveAttribute("aria-expanded", "true");
+  await expect(correction.locator("mark")).toHaveText("reserve");
+  await expect(correction.getByText("You said", { exact: true }).locator("..")).toHaveCSS(
+    "background-color",
+    "rgb(252, 237, 239)",
+  );
+  await expect(correction.getByText("You said", { exact: true }).locator("..")).toHaveCSS(
+    "color",
+    "rgb(128, 59, 73)",
+  );
+  await expect(
+    correction.getByText("Word choice · Affects meaning", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    correction.getByText("I go yesterday and I have a reservation.", { exact: true }),
+  ).toBeVisible();
   await expect(
     feedback.getByText("A hotel booking is a reservation.", { exact: true }),
   ).toBeVisible();
@@ -147,12 +168,16 @@ test("prioritizes vocabulary meaning, highlights evidence and restores feedback 
   expect(calls.diagnosisCalls()).toBe(1);
   await page.reload();
   await openWorkspacePage(page, "Training");
+  await expect(toggle).toHaveAttribute("aria-expanded", "false");
+  await toggle.click();
   await expect(feedback.getByText("Word choice · Affects meaning", { exact: true })).toBeVisible();
-  await send(page, "I have a reservation under Alex Chen for two nights.");
+  const clean = "I have a reservation under Alex Chen for two nights.";
+  await send(page, clean);
+  const checked = reply(page, clean);
+  await checked.getByRole("button", { name: "Checked", exact: true }).click();
   await expect(
-    feedback.getByText("No high-confidence correction was found in this reply.", { exact: true }),
+    checked.getByText("No high-confidence correction was found in this reply.", { exact: true }),
   ).toBeVisible();
-  await feedback.getByText("Earlier feedback · 1", { exact: true }).click();
   await expect(feedback.getByText("Word choice · Affects meaning", { exact: true })).toBeVisible();
   expect((await checkpoint(page)).state.correctionsGiven).toBe(1);
 });
@@ -163,7 +188,13 @@ for (const mode of ["gentle", "off"])
   }) => {
     await startHotel(page, diagnose, mode);
     await send(page, utterance);
-    const feedback = page.getByLabel("Language feedback", { exact: true });
+    const feedback = reply(page, utterance);
+    await feedback
+      .getByRole("button", {
+        name: mode === "gentle" ? "Suggestion" : "Language feedback",
+        exact: true,
+      })
+      .click();
     if (mode === "gentle")
       await expect(
         feedback.getByText("Word choice · Affects meaning", { exact: true }),
@@ -173,11 +204,11 @@ for (const mode of ["gentle", "off"])
         feedback.getByText("Live corrections are turned off for this course.", { exact: true }),
       ).toBeVisible();
     await send(page, "I am agree.");
+    const second = reply(page, "I am agree.");
+    await second.getByRole("button", { name: "Language feedback", exact: true }).click();
+    await expect(second.getByRole("button", { name: "Suggestion", exact: true })).toHaveCount(0);
     await expect(
-      feedback.getByRole("heading", { name: "Language feedback · reply 2", exact: true }),
-    ).toBeVisible();
-    await expect(
-      feedback.getByText(
+      second.getByText(
         mode === "gentle"
           ? "The live correction limit has been reached. Keep practising."
           : "Live corrections are turned off for this course.",
@@ -224,7 +255,9 @@ test("invalid diagnosis and failed writes preserve the draft and retry without d
   await expect(page.getByRole("alert")).toContainText("Injected checkpoint write failure");
   expect((await checkpoint(page)).diagnoses).toEqual([]);
   await expect(page.getByLabel("Language feedback", { exact: true })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Suggestion", exact: true })).toHaveCount(0);
   await page.getByRole("button", { name: "Send reply", exact: true }).click();
+  await reply(page, utterance).getByRole("button", { name: "Suggestion", exact: true }).click();
   await expect(page.getByText("Word choice · Affects meaning", { exact: true })).toBeVisible();
   const saved = await checkpoint(page);
   expect(saved.diagnoses).toHaveLength(1);
@@ -238,7 +271,9 @@ test("invalid diagnosis and failed writes preserve the draft and retry without d
 test("withholds uncertain diagnoses instead of labelling them as errors", async ({ page }) => {
   await startHotel(page, (text) => diagnose(text, "medium"));
   await send(page, utterance);
-  const feedback = page.getByLabel("Language feedback", { exact: true });
+  const feedback = reply(page, utterance);
+  await expect(feedback.getByRole("button", { name: "Checked", exact: true })).toHaveCount(0);
+  await feedback.getByRole("button", { name: "Language feedback", exact: true }).click();
   await expect(
     feedback.getByText(
       "Some wording needs more context. Uncertain suggestions were not treated as errors.",

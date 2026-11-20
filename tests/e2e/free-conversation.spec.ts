@@ -49,6 +49,119 @@ test("opens Zoi from a floating Home entry before any AI connection is configure
   expect(await localRows(page)).toEqual([]);
 });
 
+test("opens a saved language suggestion on its own reply without interrupting the chat", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 620, height: 730 });
+  await installTauriMock(page);
+  await page.addInitScript(() => {
+    Object.defineProperty(window, "SpeechSynthesisUtterance", {
+      value: class {
+        constructor(readonly text: string) {}
+      },
+    });
+    Object.defineProperty(window, "speechSynthesis", {
+      value: Object.assign(new EventTarget(), {
+        getVoices: () => [{ name: "Samantha", lang: "en-US", localService: true }],
+        speak: (line: SpeechSynthesisUtterance) =>
+          sessionStorage.setItem("read-suggestion", line.text),
+        cancel() {},
+      }),
+    });
+  });
+  const practice = "We often to play tennis.";
+  const checked = "Yeah.";
+  const unchecked = "On Fridays.";
+  const uncertain = "I play as well.";
+  let requests = 0;
+  await page.route(endpoint, async (route) => {
+    const headers = {
+      "access-control-allow-origin": "*",
+      "access-control-allow-methods": "POST",
+      "access-control-allow-headers": "authorization,content-type",
+    };
+    if (route.request().method() === "OPTIONS") {
+      await route.fulfill({ status: 204, headers });
+      return;
+    }
+    requests++;
+    const { messages } = route.request().postDataJSON();
+    const text = messages.at(-1).content;
+    const errors =
+      text === practice || text === uncertain
+        ? [
+            {
+              category: "grammar",
+              original: text === practice ? "often to play" : "as well",
+              corrected: text === practice ? "often play" : "too",
+              explanation: "Use the verb directly after often here.",
+              confidence: text === practice ? "high" : "low",
+            },
+          ]
+        : [];
+    const output = {
+      reply: "Do you play with friends?",
+      ...(text !== unchecked
+        ? { diagnosis: { intent: "talk about tennis", status: "checked", errors } }
+        : {}),
+    };
+    await route.fulfill({
+      headers,
+      json: { choices: [{ message: { content: JSON.stringify(output) } }] },
+    });
+  });
+  await page.goto("/");
+  await configureAiConnection(page, { model: "test-inline-correction" });
+  await openWorkspacePage(page, "Home");
+  await button(page, "Free conversation").click();
+  const log = page.getByRole("list", { name: "Conversation", exact: true });
+  const bubble = (text: string) =>
+    log.getByRole("listitem").filter({ has: page.getByText(text, { exact: true }) });
+  for (const text of [practice, checked, unchecked, uncertain]) {
+    const draft = page.getByRole("textbox", { name: "Your reply", exact: true });
+    await draft.fill(text);
+    await button(page, "Send reply").click();
+    await expect(draft).toHaveValue("");
+  }
+  const suggestion = bubble(practice).getByRole("button", { name: "Suggestion", exact: true });
+  const pane = bubble(practice).getByRole("region", { name: "Correction", exact: true });
+  await expect(suggestion).toHaveAttribute("aria-expanded", "false");
+  await expect(pane).toHaveCount(0);
+  await bubble(checked).getByRole("button", { name: "Checked", exact: true }).click();
+  await expect(bubble(checked)).toContainText("No high-confidence correction was found");
+  await expect(bubble(unchecked).getByRole("button")).toHaveCount(0);
+  await expect(bubble(uncertain).getByRole("button")).toHaveCount(0);
+  await suggestion.focus();
+  await page.keyboard.press("Enter");
+  await expect(pane.locator("mark")).toHaveText("often to play");
+  await expect(pane.getByText("We often play tennis.", { exact: true })).toBeVisible();
+  await expect(pane.getByText("Use the verb directly after often here.")).toBeVisible();
+  await pane.getByRole("button", { name: "Read suggested sentence", exact: true }).click();
+  await expect
+    .poll(() => page.evaluate(() => sessionStorage.getItem("read-suggestion")))
+    .toBe("We often play tennis.");
+  await suggestion.click();
+  await expect(pane).toHaveCount(0);
+  await page.reload();
+  await openWorkspacePage(page, "Learning memory");
+  await page
+    .getByRole("region", { name: "Episodic memory", exact: true })
+    .getByRole("button", { name: "Open source conversation", exact: true })
+    .click();
+  await suggestion.click();
+  await expect(pane.getByText("We often play tennis.", { exact: true })).toBeVisible();
+  await expect(bubble(checked).getByRole("button", { name: "Checked", exact: true })).toBeVisible();
+  const rows = await localRows(page);
+  const saved = JSON.parse(
+    rows.find((row) => row.type === "free_conversation_checkpoint")!.payload,
+  );
+  expect(saved.turns[0].utterance).toBe(practice);
+  expect(saved.turns[1].diagnosis).toMatchObject({ status: "checked", errors: [] });
+  expect(saved.turns[2].diagnosis).toBeUndefined();
+  expect(saved.turns[3].diagnosis).toBeUndefined();
+  expect(requests).toBe(4);
+});
+
 test("continues the work conversation when the second turn returns blank JSON replies", async ({
   page,
 }) => {
