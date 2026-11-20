@@ -118,7 +118,7 @@
     "invalidReply": "The AI service didn’t return a usable reply. Your draft is still here. Try sending it again.",
     "microphoneSetup": "Microphone setup",
     "voiceConfirmation": {
-      "title": "Confirm what you meant",
+      "title": "Confirm voice transcription",
       "description": "Speech recognition may have mixed up these meanings. Choose the wording you want to send, or edit your reply."
     },
     "loadingHistory": "Opening saved conversation…",

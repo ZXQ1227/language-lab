@@ -20,6 +20,9 @@ grammar truth.
 - Withhold declared lower-confidence suggestions, deduplicate identical fixes,
   reject conflicts/no-ops/numeric rewrites and retry invalid results at most once.
   Keep unique legacy quotes readable with documented compatibility defaults.
+- Withhold proposed English corrections that change explicit negation markers
+  or only restyle a negative contraction. Restore historical checkpoints with
+  their saved evidence and apply the stricter rule when showing message feedback.
 - Treat textual/transcribed fluency as `not_assessed`; no automatic fluency hint
   is derived from grammar errors. Existing explicit help and hint budgets remain.
 - Keep diagnosis separate from deterministic correction delivery. Preserve the

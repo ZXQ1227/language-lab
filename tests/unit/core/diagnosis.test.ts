@@ -117,6 +117,61 @@ describe("grounded error diagnosis", () => {
     );
   });
 
+  it.each([
+    ["We can talk about work.", "can", "cannot"],
+    ["We cannot talk about work.", "cannot", "can"],
+    ["We can’t talk about work.", "can’t", "can"],
+    ["I could not join.", "not join", "join"],
+    ["I cannot join.", "cannot", "can't"],
+    ["I couldn't join.", "couldn't", "can't"],
+    ["I don't play tennis.", "don't play", "do play"],
+    ["I can not only read but also write.", "not only read", "not read"],
+  ])(
+    "withholds a meaning change or a contraction-only rewrite in %s",
+    (utterance, original, corrected) => {
+      const diagnosis = groundErrorDiagnosis(utterance, {
+        ...raw([{ ...tense, original, corrected, confidence: "high" }]),
+        status: "checked",
+      });
+      expect(diagnosis).toMatchObject({ errors: [], withheldCount: 1, status: "uncertain" });
+    },
+  );
+
+  it.each([
+    ["We often to play tennis.", "often to play", "often play"],
+    ["I can to play tennis.", "can to play", "can play"],
+    ["I can’t to play tennis.", "can’t to play", "cannot play"],
+    ["I bought two can of soup.", "can of soup", "cans of soup"],
+    ["I do not plays tennis.", "plays", "play"],
+  ])("keeps a real wording correction in %s", (utterance, original, corrected) => {
+    expect(
+      groundErrorDiagnosis(utterance, raw([{ ...tense, original, corrected }])).errors,
+    ).toMatchObject([{ original, corrected }]);
+  });
+
+  it("keeps a real error when another suggestion changes the learner's meaning", () => {
+    const diagnosis = groundErrorDiagnosis(
+      "We often to play tennis. We can play on Sundays.",
+      raw([
+        { ...tense, original: "often to play", corrected: "often play" },
+        { ...tense, original: "can", corrected: "cannot" },
+      ]),
+    );
+    expect(diagnosis).toMatchObject({
+      errors: [{ original: "often to play", corrected: "often play" }],
+      status: "uncertain",
+      withheldCount: 1,
+    });
+    expect(
+      groundErrorDiagnosis(
+        "Han sa no.",
+        raw([{ ...tense, original: "no", corrected: "nå" }]),
+        "model",
+        "nb",
+      ).errors,
+    ).toHaveLength(1);
+  });
+
   it("deduplicates identical fixes, prioritizes meaning and rejects conflicting overlaps", () => {
     const utterance = "I go yesterday. I have a reserve.";
     const vocabulary = {
@@ -158,5 +213,25 @@ describe("grounded error diagnosis", () => {
     expect(() => validateDiagnosisRecords([{ ...record, correctionIndex: 1 }], transcript)).toThrow(
       "Shown correction",
     );
+  });
+
+  it("keeps historical records with exact citations readable", () => {
+    const diagnosis = groundErrorDiagnosis("I can leave.", raw([]));
+    diagnosis.errors.push({
+      category: "grammar",
+      original: "can",
+      corrected: "cannot",
+      explanation: "Saved before polarity checking.",
+      start: 2,
+      end: 5,
+      severity: "form",
+      confidence: "high",
+    });
+    expect(() =>
+      validateDiagnosisRecords(
+        [{ messageSeq: 1, diagnosis, correctionIndex: 0 }],
+        [{ seq: 1, role: "user", content: "I can leave." }],
+      ),
+    ).not.toThrow();
   });
 });

@@ -109,7 +109,7 @@
   "freeConversation": {
     "title": "自由对话",
     "voiceConfirmation": {
-      "title": "确认你想表达的意思",
+      "title": "确认语音转写",
       "description": "语音识别可能把这两种意思听反了。请选择要发送的句子，或直接编辑回复。"
     },
     "invitation": "只想随便聊聊？",

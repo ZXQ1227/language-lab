@@ -194,6 +194,18 @@ describe("Error Diagnosis skill", () => {
     expect(uncertain.withheldCount).toBe(1);
   });
 
+  it("withholds a model's positive-to-negative rewrite without retrying the turn", async () => {
+    const { call, generation } = setup([
+      output([{ ...error, original: "can", corrected: "cannot" }]),
+    ]);
+    expect(await call({ utterance: "I can check in now." })).toMatchObject({
+      errors: [],
+      status: "uncertain",
+      withheldCount: 1,
+    });
+    expect(generation).toHaveBeenCalledTimes(1);
+  });
+
   it("keeps demo checks explicitly limited and handles real case-sensitive evidence", async () => {
     const { context } = setup([]);
     const result = await createMockErrorDiagnosisSkill().execute(

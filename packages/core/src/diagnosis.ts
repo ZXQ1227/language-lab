@@ -72,6 +72,34 @@ const unchanged = (value: string) => value.normalize("NFKC").trim().replace(/\s+
 const numbers = (value: string) =>
   value.normalize("NFKC").match(/[-+−]?\p{N}+(?:[.,]\p{N}+)*/gu) ?? [];
 
+function expandEnglishNegation(value: string) {
+  return value
+    .replace(/[’ʼ]/gu, "'")
+    .replace(/\b(?:cannot|can't)\b/gu, "can not")
+    .replace(/\bwon't\b/gu, "will not")
+    .replace(/\bshan't\b/gu, "shall not")
+    .replace(/\b([a-z]+)n't\b/gu, "$1 not");
+}
+
+/** A narrow guard for changes to explicit English modal and negation markers. */
+export function preservesCorrectionPolarity(
+  utterance: string,
+  error: Pick<DiagnosedError, "start" | "end" | "corrected">,
+  language = "en",
+): boolean {
+  if (!/^en(?:-|$)/iu.test(language)) return true;
+  const original = unchanged(utterance).toLowerCase();
+  const suggested = unchanged(
+    utterance.slice(0, error.start) + error.corrected + utterance.slice(error.end),
+  ).toLowerCase();
+  const before = expandEnglishNegation(original);
+  const after = expandEnglishNegation(suggested);
+  if (original !== suggested && before === after) return false;
+  const markers =
+    /\b(?:(?:can|could) not(?! only\b)|not only|not|never|no|neither|nor|without|unable)\b/gu;
+  return (before.match(markers) ?? []).join(" ") === (after.match(markers) ?? []).join(" ");
+}
+
 export function validateDiagnosedErrors(
   utterance: string,
   errors: readonly DiagnosedError[],
@@ -102,6 +130,7 @@ export function groundErrorDiagnosis(
   utterance: string,
   raw: unknown,
   source: "model" | "demo" = "model",
+  language = "en",
 ): ErrorDiagnosis {
   const candidate = diagnosisCandidateSchema.parse(raw);
   const errors: DiagnosedError[] = [];
@@ -143,12 +172,16 @@ export function groundErrorDiagnosis(
     errors.push(error);
   }
   validateDiagnosedErrors(utterance, errors);
-  errors.sort(
+  const supported = errors.filter((error) =>
+    preservesCorrectionPolarity(utterance, error, language),
+  );
+  withheldCount += errors.length - supported.length;
+  supported.sort(
     (a, b) =>
       Number(b.severity === "meaning") - Number(a.severity === "meaning") || a.start - b.start,
   );
   return errorDiagnosisSchema.parse({
-    errors,
+    errors: supported,
     intent: candidate.intent,
     fluency: "not_assessed",
     source,

@@ -140,6 +140,8 @@ The model diagnosis skill receives bounded context but may cite only the current
 learner reply. Core validation requires exact original spans, meaningful changes,
 non-overlapping suggestions and preserved numeric sequences. Declared uncertain
 suggestions are withheld; invalid schema/evidence permits one bounded repair.
+An English suggestion that alters explicit negation markers is also withheld.
+Voice transcription confirmation happens before this post-send language check.
 Text-derived fluency is `not_assessed` and cannot trigger automatic fluency hints.
 
 Deterministic teaching policy chooses one validated priority correction within

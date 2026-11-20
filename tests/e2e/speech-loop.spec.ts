@@ -193,7 +193,28 @@ test("checks uncertain voice meaning before sending and respects a confirmed top
     await route.fulfill({
       headers,
       json: {
-        choices: [{ message: { content: JSON.stringify({ reply: "What do you do for work?" }) } }],
+        choices: [
+          {
+            message: {
+              content: JSON.stringify({
+                reply: "What do you do for work?",
+                diagnosis: {
+                  intent: "talk about work",
+                  status: "checked",
+                  errors: [
+                    {
+                      category: "grammar",
+                      confidence: "high",
+                      original: "can",
+                      corrected: "cannot",
+                      explanation: "Model suggestion to be withheld.",
+                    },
+                  ],
+                },
+              }),
+            },
+          },
+        ],
       },
     });
   });
@@ -201,7 +222,7 @@ test("checks uncertain voice meaning before sending and respects a confirmed top
   await openWorkspacePage(page, "Home");
   await nav(page, "Free conversation");
   const conversation = page.getByRole("list", { name: "Conversation", exact: true });
-  const confirm = page.getByRole("region", { name: "Confirm what you meant" });
+  const confirm = page.getByRole("region", { name: "Confirm voice transcription" });
   const checkpoints = async () =>
     (await rows(page)).filter(({ type }) => type === "free_conversation_checkpoint");
   for (const [choice, reply] of [
@@ -223,9 +244,15 @@ test("checks uncertain voice meaning before sending and respects a confirmed top
     await expect(conversation).toContainText(reply);
     await expect(confirm).toHaveCount(0);
     await expect(draft).toHaveValue("");
+    const learner = conversation
+      .getByRole("listitem")
+      .filter({ has: page.getByText(choice, { exact: true }) });
+    await expect(learner.getByRole("button", { name: "Suggestion", exact: true })).toHaveCount(0);
+    await expect(learner.getByRole("button", { name: "Checked", exact: true })).toHaveCount(0);
   }
   expect(outgoing).toEqual([positive]);
   const checkpoint = JSON.parse((await checkpoints())[0]!.payload);
+  expect(checkpoint.turns.every((turn: { diagnosis?: unknown }) => !turn.diagnosis)).toBe(true);
   expect(checkpoint.turns.map((turn: { utterance: string }) => turn.utterance)).toEqual([
     positive,
     negative,

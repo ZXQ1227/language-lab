@@ -1,6 +1,10 @@
 import { useEffect, useLayoutEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { detectDialogueSupport, getCurrentCourseStage } from "@language-lab/core";
+import {
+  detectDialogueSupport,
+  getCurrentCourseStage,
+  preservesCorrectionPolarity,
+} from "@language-lab/core";
 import { formatNumber } from "../i18n";
 import { useNavStore } from "../stores/nav";
 import { useTrainingStore } from "../stores/training";
@@ -44,11 +48,38 @@ export function LessonConversation({ session }: { session: TrainingSession }) {
   const partner = character?.name ?? t("training:defaultPartnerName");
   const completed = session.state.objectives.filter((objective) => objective.completed).length;
   const total = session.state.objectives.length;
-  const latest = [...session.messages].reverse().find((message) => message.role === "assistant");
+  const newestMessages = [...session.messages].reverse();
+  const latest = newestMessages.find((message) => message.role === "assistant");
   const diagnoses = new Map(session.diagnoses?.map((record) => [record.messageSeq, record]));
   const policy = session.state.courseTemplate?.teachingPolicy;
   const readDisabled =
     busy || voice.capturing || !voice.settings || voice.settings.tts.mode === "off";
+  const legacyError =
+    !session.diagnoses && session.lastTurn?.action === "light_correction"
+      ? session.lastTurn.errors[0]
+      : undefined;
+  const legacyUtterance = legacyError
+    ? newestMessages.find((message) => message.role === "user")?.content
+    : undefined;
+  const legacyStart =
+    legacyUtterance && legacyError ? legacyUtterance.indexOf(legacyError.original) : -1;
+  const legacyCorrection =
+    legacyError &&
+    legacyUtterance &&
+    legacyStart >= 0 &&
+    legacyError.original.trim() &&
+    legacyUtterance.indexOf(legacyError.original, legacyStart + 1) < 0 &&
+    preservesCorrectionPolarity(
+      legacyUtterance,
+      {
+        start: legacyStart,
+        end: legacyStart + legacyError.original.length,
+        corrected: legacyError.corrected,
+      },
+      language,
+    )
+      ? legacyError
+      : undefined;
   const transcript = useRef<HTMLDivElement>(null);
   const follow = useRef(true);
   useLayoutEffect(() => {
@@ -413,20 +444,18 @@ export function LessonConversation({ session }: { session: TrainingSession }) {
               {session.provider.mode === "demo" && <p>{t("training:turnEvidence.demo")}</p>}
             </div>
           )}
-          {!session.diagnoses &&
-            session.lastTurn?.action === "light_correction" &&
-            session.lastTurn.errors[0] && (
-              <div
-                aria-label={t("training:correction")}
-                className="rounded-lg border border-error-line bg-chat-error p-4 text-sm text-error-ink"
-              >
-                <p className="font-medium">{t("training:aSmallCorrection")}</p>
-                <p>
-                  {session.lastTurn.errors[0].original} → {session.lastTurn.errors[0].corrected}
-                </p>
-                <p>{session.lastTurn.errors[0].explanation}</p>
-              </div>
-            )}
+          {legacyCorrection && (
+            <div
+              aria-label={t("training:correction")}
+              className="rounded-lg border border-error-line bg-chat-error p-4 text-sm text-error-ink"
+            >
+              <p className="font-medium">{t("training:aSmallCorrection")}</p>
+              <p>
+                {legacyCorrection.original} → {legacyCorrection.corrected}
+              </p>
+              <p>{legacyCorrection.explanation}</p>
+            </div>
+          )}
           {assessment && (
             <div
               aria-label={t("training:learningFeedback")}

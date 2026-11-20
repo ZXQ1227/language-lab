@@ -41,8 +41,13 @@ discarded, and cannot trigger automatic fluency hints in this pipeline.
 - Corrections and explanations must be nonempty; a correction cannot simply
   repeat the original wording. Whitespace/compatibility-only changes are no-ops.
 - Numeric sequences, including signed and Unicode numerals, must remain the
-  same. This is a narrow guard; it does not establish semantic equivalence for
-  names, written-out numbers, currency or negation.
+  same.
+- For English, compare explicit negation and negative modal markers in the
+  learner's full reply before and after applying the cited change. Withhold
+  polarity shifts and edits that only swap equivalent written forms such as
+  `cannot` and `can't`. Retain a grounded grammar or word-choice correction
+  alongside a withheld suggestion. The marker check covers explicit forms and
+  leaves wider questions of intent and negation scope to contextual judgment.
 - Identical corrections are deduplicated. Conflicting/overlapping spans fail
   validation. Meaning-affecting issues sort before form issues, then by position.
 - Declared medium/low-confidence suggestions are omitted and counted as
@@ -87,6 +92,13 @@ errors also gets a **Checked** control. Replies with absent, invalid or
 uncertain-only feedback, including the plain-text recovery path and old records
 with no diagnosis, show no check or suggestion. Expanding and collapsing uses
 saved evidence and makes no AI call.
+
+For example, `We often to play tennis.` can receive `We often play tennis.`
+as a suggestion. Choosing between `can` and `cannot` when speech recognition
+is uncertain is a separate pre-send confirmation. Post-send feedback evaluates
+the wording the learner actually submitted. Older checkpoints still open
+with their saved transcripts. The message feedback hides older suggestions
+that would fail the polarity check.
 
 Learner messages are never silently rewritten. Corrected vocabulary receives no
 usage credit until it actually appears in a learner practice reply. Errors and

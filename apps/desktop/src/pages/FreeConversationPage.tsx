@@ -1,4 +1,4 @@
-import { isLightCorrection } from "@language-lab/core";
+import { isLightCorrection, preservesCorrectionPolarity } from "@language-lab/core";
 import { isGatewayError } from "@language-lab/model-gateway";
 import { useEffect, useLayoutEffect, useRef, useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
@@ -271,7 +271,10 @@ export function FreeConversationPage() {
               // The local greeting is followed by learner and partner pairs.
               const diagnosis =
                 message.role === "user" ? checkpoint.turns[(index - 1) / 2]?.diagnosis : undefined;
-              const correction = diagnosis?.errors.find(isLightCorrection);
+              const correction = diagnosis?.errors.find(
+                (error) =>
+                  isLightCorrection(error) && preservesCorrectionPolarity(message.content, error),
+              );
               const checked = diagnosis?.status === "checked" && diagnosis.errors.length === 0;
               return (
                 <li

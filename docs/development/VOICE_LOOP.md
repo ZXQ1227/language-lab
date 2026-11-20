@@ -71,10 +71,12 @@ Free conversation checks voice-derived statements containing the English
 modal pairs `can/can't` and `could/couldn't` when recognition confidence is
 below 0.8 or unavailable. The threshold is a conservative app heuristic.
 If the voice-derived word is still in the draft when the learner presses Send,
-the composer shows both readings. The learner can choose the intended wording
+**Confirm voice transcription** shows both readings. The learner can choose the intended wording
 or edit the word in the draft. Only the selected wording reaches the dialogue
 and learning memory. The confirmation is local and has no model call. Typed
 text and high-confidence transcriptions use the usual send flow.
+Language feedback appears on the saved learner message after send and evaluates
+the confirmed wording.
 
 Zoi acknowledges a standalone request to avoid a topic and invites a different
 topic. For a longer reply that also suggests a new topic, the dialogue prompt

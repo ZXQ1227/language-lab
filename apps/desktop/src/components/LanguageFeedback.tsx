@@ -1,6 +1,11 @@
 import { useId, useState } from "react";
 import { useTranslation } from "react-i18next";
-import type { DiagnosedError, ErrorDiagnosisRecord, InterventionReason } from "@language-lab/core";
+import {
+  preservesCorrectionPolarity,
+  type DiagnosedError,
+  type ErrorDiagnosisRecord,
+  type InterventionReason,
+} from "@language-lab/core";
 import { speechPlaybackTextLimit } from "../speech/playback";
 
 const categories = {
@@ -133,6 +138,7 @@ export function TrainingMessageFeedback({
   const { t } = useTranslation();
   const { diagnosis, correctionIndex } = record;
   const error = correctionIndex === undefined ? undefined : diagnosis.errors[correctionIndex];
+  if (error && !preservesCorrectionPolarity(message.text, error, message.language)) return null;
   const reason = record.interventionReason ?? legacyReason;
   const noteKey =
     (reason && deferral[reason]) ||

@@ -68,6 +68,7 @@ export async function replyToConversation(
             content: [
               ...instructions,
               'Return one JSON object with a string field "reply". Optionally include "vocabulary": up to six useful English words or short phrases from the learner’s latest message, excluding names and personal details.',
+              "Keep conversation in the reply and language feedback in the diagnosis. Use the recent dialogue to understand the learner, then fix only an actual language error in their latest wording, such as 'We often to play tennis' to 'We often play tennis'. Preserve what they meant, including ability and negation. Leave 'cannot' and 'can't' as written when they are already valid. Do not guess what speech recognition might have heard.",
               'For regular practice, include "diagnosis": {"intent":"brief learning intent","status":"checked|uncertain","errors":[{"category":"grammar|vocabulary|collocation|tense|article|spelling","original":"unique exact quote from the latest learner message","corrected":"short fix preserving meaning","explanation":"brief reason","confidence":"high"}]}. Diagnose only the current learner wording. Use "checked" with an empty errors array for acceptable wording, including natural short replies like "Yeah." Use "uncertain" when intent or wording is ambiguous. Omit style-only changes and uncertain judgments. Include at most two errors.',
             ].join("\n"),
           },

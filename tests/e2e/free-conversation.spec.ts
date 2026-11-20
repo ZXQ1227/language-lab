@@ -73,6 +73,30 @@ test("opens a saved language suggestion on its own reply without interrupting th
   const checked = "Yeah.";
   const unchecked = "On Fridays.";
   const uncertain = "I play as well.";
+  const aboutWork = "We can talk about my job.";
+  const proposed = {
+    [practice]: {
+      original: "often to play",
+      corrected: "often play",
+      confidence: "high",
+      explanation: "Use the verb directly after often here.",
+    },
+    [uncertain]: {
+      original: "as well",
+      corrected: "too",
+      confidence: "low",
+      explanation: "The model is unsure.",
+    },
+    [aboutWork]: {
+      original: "can",
+      corrected: "cannot",
+      confidence: "high",
+      explanation: "This would change the learner's intent.",
+    },
+  } as Record<
+    string,
+    { original: string; corrected: string; confidence: string; explanation: string } | undefined
+  >;
   let requests = 0;
   await page.route(endpoint, async (route) => {
     const headers = {
@@ -87,22 +111,17 @@ test("opens a saved language suggestion on its own reply without interrupting th
     requests++;
     const { messages } = route.request().postDataJSON();
     const text = messages.at(-1).content;
-    const errors =
-      text === practice || text === uncertain
-        ? [
-            {
-              category: "grammar",
-              original: text === practice ? "often to play" : "as well",
-              corrected: text === practice ? "often play" : "too",
-              explanation: "Use the verb directly after often here.",
-              confidence: text === practice ? "high" : "low",
-            },
-          ]
-        : [];
+    const proposal = proposed[text];
     const output = {
-      reply: "Do you play with friends?",
+      reply: text === aboutWork ? "What do you do for work?" : "Do you play with friends?",
       ...(text !== unchecked
-        ? { diagnosis: { intent: "talk about tennis", status: "checked", errors } }
+        ? {
+            diagnosis: {
+              intent: "conversation practice",
+              status: "checked",
+              errors: proposal ? [{ category: "grammar", ...proposal }] : [],
+            },
+          }
         : {}),
     };
     await route.fulfill({
@@ -117,7 +136,7 @@ test("opens a saved language suggestion on its own reply without interrupting th
   const log = page.getByRole("list", { name: "Conversation", exact: true });
   const bubble = (text: string) =>
     log.getByRole("listitem").filter({ has: page.getByText(text, { exact: true }) });
-  for (const text of [practice, checked, unchecked, uncertain]) {
+  for (const text of [practice, checked, unchecked, uncertain, aboutWork]) {
     const draft = page.getByRole("textbox", { name: "Your reply", exact: true });
     await draft.fill(text);
     await button(page, "Send reply").click();
@@ -131,6 +150,10 @@ test("opens a saved language suggestion on its own reply without interrupting th
   await expect(bubble(checked)).toContainText("No high-confidence correction was found");
   await expect(bubble(unchecked).getByRole("button")).toHaveCount(0);
   await expect(bubble(uncertain).getByRole("button")).toHaveCount(0);
+  await expect(bubble(aboutWork).getByRole("button")).toHaveCount(0);
+  await expect(
+    page.getByRole("region", { name: "Confirm voice transcription", exact: true }),
+  ).toHaveCount(0);
   await suggestion.focus();
   await page.keyboard.press("Enter");
   await expect(pane.locator("mark")).toHaveText("often to play");
@@ -159,7 +182,9 @@ test("opens a saved language suggestion on its own reply without interrupting th
   expect(saved.turns[1].diagnosis).toMatchObject({ status: "checked", errors: [] });
   expect(saved.turns[2].diagnosis).toBeUndefined();
   expect(saved.turns[3].diagnosis).toBeUndefined();
-  expect(requests).toBe(4);
+  expect(saved.turns[4]).toMatchObject({ utterance: aboutWork, reply: "What do you do for work?" });
+  expect(saved.turns[4].diagnosis).toBeUndefined();
+  expect(requests).toBe(5);
 });
 
 test("continues the work conversation when the second turn returns blank JSON replies", async ({
