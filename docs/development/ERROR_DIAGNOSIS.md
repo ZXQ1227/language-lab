@@ -1,19 +1,21 @@
 # Grounded Error Diagnosis
 
-`skills.error_diagnosis` v0.2.0 diagnoses grammar and word choice in the current
+`skills.error_diagnosis` v0.3.0 diagnoses grammar and word choice in the current
 learner reply. The connected skill uses the selected model; core validation
 checks the evidence before any correction, event or checkpoint is accepted.
 
 ## Diagnosis contract
 
 Input remains `{ utterance, studentLevel }`, with optional `recentMessages` (up
-to six). The skill uses the immutable course's language, role, setting and
+to six). The skill uses the immutable course's language, role, setting, current task and
 vocabulary meanings. Earlier dialogue provides context for short answers and
 ambiguous words; only the final learner message can supply error evidence.
 System-role history and support messages are excluded, and history text is
 bounded to 2,000 characters. A provider receives the original current reply.
 
-The prompt requests at most five local corrections, each with:
+The training prompt requests up to five actual errors. For accurate replies, it can
+return one optional expression improvement with a concrete benefit in the current
+context. Both kinds of edits use these fields:
 
 - `category`: `grammar`, `vocabulary`, `collocation`, `tense`, `article` or
   `spelling`.
@@ -30,7 +32,9 @@ and stage completion remain the objective evaluator's responsibility.
 
 The canonical result contains accepted `errors`, `intent`, `source` (`model` or
 `demo`), `status` (`checked` or `uncertain`), `withheldCount` and
-`fluency: "not_assessed"`. Text and ASR transcripts contain no reliable timing or
+`fluency: "not_assessed"`. An optional `improvement` holds one grounded edit
+with a concrete contextual benefit, such as fitting a polite request. Saved
+turns also carry an optional `assessedAt` timestamp. Text and ASR transcripts contain no reliable timing or
 pronunciation evidence. Legacy provider fluency labels remain readable but are
 discarded, and cannot trigger automatic fluency hints in this pipeline.
 
@@ -41,7 +45,9 @@ discarded, and cannot trigger automatic fluency hints in this pipeline.
 - Corrections and explanations must be nonempty; a correction cannot simply
   repeat the original wording. Whitespace/compatibility-only changes are no-ops.
 - Numeric sequences, including signed and Unicode numerals, must remain the
-  same.
+  same. Common English time expressions, AM/PM and spelled booking quantities
+  are also checked. Capitalization and surrounding punctuation alone do not
+  count as spoken wording changes.
 - For English, compare explicit negation and negative modal markers in the
   learner's full reply before and after applying the cited change. Withhold
   polarity shifts and edits that only swap equivalent written forms such as
@@ -59,11 +65,13 @@ Missing legacy severity/confidence use `form`/`high` compatibility defaults;
 these defaults are not calibrated model probabilities. New prompts explicitly
 request both fields.
 
-Invalid evidence or response schema allows one repair call with the same learner
-turn, temperature 0 and a bounded response budget. A second invalid result fails
-the operation. Authentication/network errors propagate without being retried as
-language repairs. Valid empty-error responses need no retry. The core checks the
-accepted spans again before the orchestrator makes teaching decisions.
+Invalid evidence or response schema allows one repair with the same learner
+turn, within a 12-second training diagnosis deadline. Unavailable or invalid
+diagnosis leaves feedback unassessed while the conversation proceeds if the
+remaining skills succeed. A cancelled or failed overall turn still uses the
+existing draft and retry behavior. In Free Conversation, diagnosis is an
+optional part of the usual model reply. The plain-text fallback can still supply
+a partner reply.
 
 ## Teaching and learner feedback
 
@@ -77,21 +85,22 @@ Intervention also spaces corrections, suppresses exact recent reminders and
 verifies a brief recast before counting delivery. Course intervals and behavior
 are documented in [Teaching Intervention](TEACHING_INTERVENTION.md).
 
-In Training, feedback sits under the learner reply that supplied the evidence.
-**Suggestion** expands one delivered correction with the original text, the
-highlighted phrase, the suggested wording and a brief explanation. The suggested
-text can be read aloud using the existing speech settings. Earlier feedback
-stays with its source after another reply, help or restart. Deferred feedback
-shows its reason on request. **Checked** is reserved for a completed assessment
-with no high-confidence issues. Uncertain and guided checks use the neutral
-**Language feedback** control.
+Both views derive the message verdict from the saved diagnosis. A completed
+assessment with an accurate expression shows a green check. A validated error
+or useful expression improvement shows an amber exclamation mark. Uncertain
+or missing assessments carry no mark. Correct short replies such as `Yeah.` are
+valid in context, and limited demo assessments display only recognized errors.
 
-Free conversation uses the same control with the first grounded, short
-suggestion from the saved diagnosis. An explicitly checked result with zero
-errors also gets a **Checked** control. Replies with absent, invalid or
-uncertain-only feedback, including the plain-text recovery path and old records
-with no diagnosis, show no check or suggestion. Expanding and collapsing uses
-saved evidence and makes no AI call.
+The learner can open the mark to see the original, recommended wording and a
+brief explanation. Errors highlight the original span in red. Improvements use
+a neutral original panel. The suggestion can be read through existing speech
+settings. Opening and closing only reads the saved result.
+
+Training's correction switch also hides the verdict marks when set to Off.
+With feedback enabled, a grounded issue can be opened under its original
+message even when its proactive correction is deferred. Timing and budget apply
+to recasts in the partner's reply. Expression improvements contribute only to
+the message's on-demand feedback.
 
 For example, `We often to play tennis.` can receive `We often play tennis.`
 as a suggestion. Choosing between `can` and `cannot` when speech recognition
@@ -120,13 +129,14 @@ legacy latest-correction display retained; missing historical diagnoses are not
 invented.
 
 `utterance_diagnosed`, `error_made` and `correction_given` events retain source or
-original-span information. The same atomic Training checkpoint saves messages,
-diagnoses, events and counters. Model failure, invalid output or failed SQLite
-write publishes no partial progress; retry preserves the input and avoids double
-counting. No SQL migration, new IPC command or credential storage is introduced.
+original-span information. The existing atomic checkpoints save language feedback
+with the message and its source. Failed writes preserve the input for retry and
+avoid double counting. The optional improvement and timestamp extend checkpoint
+version 1 without a SQL migration or new IPC command.
 
-Lesson review receives validated records, including uncertainty, demo source and
-which corrections were delivered. Its model context includes at most ten recent
+Confirmed errors feed error memory and targeted correction exercises. Expression
+improvements stay with the original message. Lesson review receives validated
+assessments with uncertainty, demo source and delivery information. Its model context includes at most ten recent
 records that fit within 8,000 serialized characters; omitted records remain in
 the checkpoint and are not assumed error-free. Its instructions distinguish model judgments
 from facts and avoid inferring spoken fluency. Finished old reports are unchanged.

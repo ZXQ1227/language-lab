@@ -144,6 +144,12 @@ An English suggestion that alters explicit negation markers is also withheld.
 Voice transcription confirmation happens before this post-send language check.
 Text-derived fluency is `not_assessed` and cannot trigger automatic fluency hints.
 
+Free Conversation and Training share a message verdict. A grounded expression
+improvement is stored with the learner reply and its assessment time. Actual
+errors drive recasts, error memory and review. A language assessment failure
+leaves the message unassessed, and Training can display confirmed issues on
+demand even when the proactive recast is deferred.
+
 Deterministic teaching policy chooses one validated priority correction within
 the existing limits. Optional per-practice diagnosis records preserve the accepted
 observations and the delivered correction reference in the atomic checkpoint;

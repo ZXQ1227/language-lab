@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import {
   detectDialogueSupport,
   getCurrentCourseStage,
-  preservesCorrectionPolarity,
+  preservesFeedbackMeaning,
 } from "@language-lab/core";
 import { formatNumber } from "../i18n";
 import { useNavStore } from "../stores/nav";
@@ -12,7 +12,7 @@ import { useSpeechLoop } from "../speech/useSpeechLoop";
 import { characterVoiceStyle } from "../speech/voices";
 import { isTrainingUnfinished, trainingTurnLimit, type TrainingSession } from "../training/session";
 import { CourseStudyPack, CourseReviewPractice } from "./CourseStudyPack";
-import { TrainingMessageFeedback } from "./LanguageFeedback";
+import { LanguageFeedback } from "./LanguageFeedback";
 import { LearningReport } from "./LearningReport";
 import { LessonSpeakingPractice } from "./LessonSpeakingPractice";
 import { LessonComposer } from "./LessonComposer";
@@ -56,7 +56,9 @@ export function LessonConversation({ session }: { session: TrainingSession }) {
   const readDisabled =
     busy || voice.capturing || !voice.settings || voice.settings.tts.mode === "off";
   const legacyError =
-    !session.diagnoses && session.lastTurn?.action === "light_correction"
+    policy?.correctionMode !== "off" &&
+    !session.diagnoses &&
+    session.lastTurn?.action === "light_correction"
       ? session.lastTurn.errors[0]
       : undefined;
   const legacyUtterance = legacyError
@@ -70,9 +72,10 @@ export function LessonConversation({ session }: { session: TrainingSession }) {
     legacyStart >= 0 &&
     legacyError.original.trim() &&
     legacyUtterance.indexOf(legacyError.original, legacyStart + 1) < 0 &&
-    preservesCorrectionPolarity(
+    preservesFeedbackMeaning(
       legacyUtterance,
       {
+        original: legacyError.original,
         start: legacyStart,
         end: legacyStart + legacyError.original.length,
         corrected: legacyError.corrected,
@@ -414,22 +417,13 @@ export function LessonConversation({ session }: { session: TrainingSession }) {
                       onRead={() => voice.speak(message.content)}
                     />
                   )}
-                  {diagnosis && (
-                    <TrainingMessageFeedback
-                      record={diagnosis}
+                  {diagnosis && policy?.correctionMode !== "off" && (
+                    <LanguageFeedback
+                      diagnosis={diagnosis.diagnosis}
                       text={message.content}
                       language={language}
                       readDisabled={readDisabled}
                       onRead={voice.speak}
-                      legacyReason={
-                        policy?.correctionMode === "off"
-                          ? "corrections_off"
-                          : policy &&
-                              diagnosis.diagnosis.errors.length > 0 &&
-                              session.state.correctionsGiven >= policy.maxCorrections
-                            ? "budget_exhausted"
-                            : undefined
-                      }
                     />
                   )}
                 </li>

@@ -1,6 +1,7 @@
 import { z } from "zod";
 import {
   errorDiagnosisSchema,
+  diagnosisEdits,
   trackVocabulary,
   validateDiagnosedErrors,
   type EvidenceMessage,
@@ -37,7 +38,7 @@ const turnSchema = z
     }
     if (turn.diagnosis) {
       try {
-        validateDiagnosedErrors(turn.utterance, turn.diagnosis.errors);
+        validateDiagnosedErrors(turn.utterance, diagnosisEdits(turn.diagnosis));
       } catch {
         ctx.addIssue({ code: "custom", message: "Diagnosis must match the learner’s exact reply" });
       }

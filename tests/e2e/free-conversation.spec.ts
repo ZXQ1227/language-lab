@@ -74,6 +74,8 @@ test("opens a saved language suggestion on its own reply without interrupting th
   const unchecked = "On Fridays.";
   const uncertain = "I play as well.";
   const aboutWork = "We can talk about my job.";
+  const improvable = "I was born in the year of 1990.";
+  const improved = "I was born in 1990.";
   const proposed = {
     [practice]: {
       original: "often to play",
@@ -120,6 +122,18 @@ test("opens a saved language suggestion on its own reply without interrupting th
               intent: "conversation practice",
               status: "checked",
               errors: proposal ? [{ category: "grammar", ...proposal }] : [],
+              ...(text === improvable
+                ? {
+                    improvement: {
+                      category: "collocation",
+                      original: improvable,
+                      corrected: improved,
+                      confidence: "high",
+                      explanation:
+                        "For a birth year, in 1990 makes the meaning more direct in a casual conversation.",
+                    },
+                  }
+                : {}),
             },
           }
         : {}),
@@ -136,7 +150,7 @@ test("opens a saved language suggestion on its own reply without interrupting th
   const log = page.getByRole("list", { name: "Conversation", exact: true });
   const bubble = (text: string) =>
     log.getByRole("listitem").filter({ has: page.getByText(text, { exact: true }) });
-  for (const text of [practice, checked, unchecked, uncertain, aboutWork]) {
+  for (const text of [practice, checked, unchecked, uncertain, aboutWork, improvable]) {
     const draft = page.getByRole("textbox", { name: "Your reply", exact: true });
     await draft.fill(text);
     await button(page, "Send reply").click();
@@ -146,8 +160,8 @@ test("opens a saved language suggestion on its own reply without interrupting th
   const pane = bubble(practice).getByRole("region", { name: "Correction", exact: true });
   await expect(suggestion).toHaveAttribute("aria-expanded", "false");
   await expect(pane).toHaveCount(0);
-  await bubble(checked).getByRole("button", { name: "Checked", exact: true }).click();
-  await expect(bubble(checked)).toContainText("No high-confidence correction was found");
+  await bubble(checked).getByRole("button", { name: "Accurate expression", exact: true }).click();
+  await expect(bubble(checked)).toContainText("Your grammar and word choice fit this exchange");
   await expect(bubble(unchecked).getByRole("button")).toHaveCount(0);
   await expect(bubble(uncertain).getByRole("button")).toHaveCount(0);
   await expect(bubble(aboutWork).getByRole("button")).toHaveCount(0);
@@ -173,7 +187,9 @@ test("opens a saved language suggestion on its own reply without interrupting th
     .click();
   await suggestion.click();
   await expect(pane.getByText("We often play tennis.", { exact: true })).toBeVisible();
-  await expect(bubble(checked).getByRole("button", { name: "Checked", exact: true })).toBeVisible();
+  await expect(
+    bubble(checked).getByRole("button", { name: "Accurate expression", exact: true }),
+  ).toBeVisible();
   const rows = await localRows(page);
   const saved = JSON.parse(
     rows.find((row) => row.type === "free_conversation_checkpoint")!.payload,
@@ -184,7 +200,21 @@ test("opens a saved language suggestion on its own reply without interrupting th
   expect(saved.turns[3].diagnosis).toBeUndefined();
   expect(saved.turns[4]).toMatchObject({ utterance: aboutWork, reply: "What do you do for work?" });
   expect(saved.turns[4].diagnosis).toBeUndefined();
-  expect(requests).toBe(5);
+  const improvement = bubble(improvable);
+  await improvement.getByRole("button", { name: "Suggestion", exact: true }).click();
+  await expect(
+    improvement.getByText("Expression improvement · Word combination", { exact: true }),
+  ).toBeVisible();
+  await expect(improvement.getByText(improved, { exact: true })).toBeVisible();
+  await expect(improvement.locator("mark")).toHaveCount(0);
+  expect(saved.turns[5].diagnosis).toMatchObject({
+    errors: [],
+    improvement: { corrected: improved },
+    assessedAt: expect.any(Number),
+  });
+  const memory = JSON.parse(rows.find((row) => row.type === "free_conversation_memory")!.payload);
+  expect(memory.errors).toHaveLength(1);
+  expect(requests).toBe(6);
 });
 
 test("continues the work conversation when the second turn returns blank JSON replies", async ({

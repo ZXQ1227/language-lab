@@ -73,11 +73,14 @@
   "languageFeedback": "Language feedback",
   "messageFeedback": {
     "suggestion": "Suggestion",
-    "checked": "Checked",
+    "checked": "Accurate expression",
     "details": "Language feedback",
     "original": "You said",
     "suggestionText": "Try saying",
-    "readSuggestion": "Read suggested sentence"
+    "readSuggestion": "Read suggested sentence",
+    "actualError": "Grammar or word-choice error",
+    "improvement": "Expression improvement",
+    "accurateExplanation": "Your grammar and word choice fit this exchange."
   },
   "guidedDemoChecksAFewExamplePatternsOnlyConnectAI": "Guided demo checks a few example patterns only. Connect AI for grammar and word-choice assessment.",
   "letSKeepTheConversationMovingCorrectionsAreSpacedBetween": "Let's keep the conversation moving. Corrections are spaced between practice turns.",

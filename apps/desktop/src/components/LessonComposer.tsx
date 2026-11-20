@@ -6,6 +6,12 @@ import { useTrainingStore } from "../stores/training";
 import { getGuidedExample, type TrainingSession } from "../training/session";
 import type { useSpeechLoop } from "../speech/useSpeechLoop";
 import { VoiceInput } from "./VoiceInput";
+import { VoiceMeaningConfirmation } from "./VoiceMeaningConfirmation";
+import {
+  findVoiceMeaningAmbiguities,
+  rebaseVoiceMeaningAmbiguities,
+  type VoiceMeaningAmbiguity,
+} from "../conversation/voiceMeaning";
 import { SpeakingHintButton, SpeakingHintCard } from "./SpeakingHint";
 import { latestSpeakingHint } from "../practice/records";
 import { useSpeakingHint } from "../practice/useSpeakingHint";
@@ -37,6 +43,9 @@ export function LessonComposer({
   const [speechDraft, setSpeechDraft] = useState<{ input: SpeechInput; recognized: string } | null>(
     null,
   );
+  const [ambiguities, setAmbiguities] = useState<VoiceMeaningAmbiguity[]>([]);
+  const [showVoiceConfirmation, setShowVoiceConfirmation] = useState(false);
+  const ambiguity = ambiguities[0];
   const [keyboard, setKeyboard] = useState<boolean | null>(null);
   const asrEnabled = voice.settings?.asr.enabled === true;
   const reviewing = voice.capture.phase === "review";
@@ -50,7 +59,7 @@ export function LessonComposer({
   const hint = useSpeakingHint(
     `${session.id}:${anchorSeq}`,
     latestSpeakingHint(session.speakingPractice, anchorSeq),
-    (signal) => requestSpeakingHint(session, reply, signal),
+    (signal) => requestSpeakingHint(session, ambiguity ? "" : reply, signal),
   );
   const canHint = session.provider.mode === "ai" || !!courseSpeakingHint(session, reply, example);
   const support = (request: DialogueSupport) => {
@@ -59,6 +68,42 @@ export function LessonComposer({
     voice.stopPlayback();
     void requestSupport(request).then(onSaved);
   };
+  function canSend(text: string) {
+    return (
+      !useTrainingStore.getState().busy &&
+      !dealingWithVoice &&
+      !!text.trim() &&
+      text.trim().length <= maxReply
+    );
+  }
+
+  function sendReply(text: string) {
+    hint.cancel();
+    voice.stopPlayback();
+    const speech = speechDraft && {
+      ...speechDraft.input,
+      edited: speechDraft.input.edited || text.trim() !== speechDraft.recognized,
+    };
+    void send(text, speech ?? undefined).then((saved) => {
+      if (saved) {
+        setReply("");
+        setSpeechDraft(null);
+        setAmbiguities([]);
+        voice.cancel();
+      }
+      onSaved(saved);
+    });
+  }
+
+  function confirmVoiceMeaning(text: string) {
+    if (!canSend(text)) return;
+    const remaining = rebaseVoiceMeaningAmbiguities(reply, text, ambiguities.slice(1));
+    setReply(text);
+    setAmbiguities(remaining);
+    if (remaining.length) return;
+    setShowVoiceConfirmation(false);
+    sendReply(text);
+  }
 
   return (
     <form
@@ -66,21 +111,12 @@ export function LessonComposer({
       className="relative shrink-0 rounded-t-3xl border-t border-line bg-surface"
       onSubmit={(event) => {
         event.preventDefault();
-        if (useTrainingStore.getState().busy || dealingWithVoice || !reply.trim()) return;
-        hint.cancel();
-        voice.stopPlayback();
-        const speech = speechDraft && {
-          ...speechDraft.input,
-          edited: speechDraft.input.edited || reply.trim() !== speechDraft.recognized,
-        };
-        void send(reply, speech ?? undefined).then((saved) => {
-          if (saved) {
-            setReply("");
-            setSpeechDraft(null);
-            voice.cancel();
-          }
-          onSaved(saved);
-        });
+        if (!canSend(reply)) return;
+        if (ambiguity) {
+          setShowVoiceConfirmation(true);
+          return;
+        }
+        sendReply(reply);
       }}
     >
       <div className="mx-auto flex max-h-[58dvh] max-w-4xl flex-col gap-2 px-4 py-2.5 sm:px-6 sm:py-3">
@@ -98,6 +134,8 @@ export function LessonComposer({
               onClick={() => {
                 setReply(example);
                 setSpeechDraft(null);
+                setAmbiguities([]);
+                setShowVoiceConfirmation(false);
                 setKeyboard(true);
               }}
             >
@@ -147,7 +185,16 @@ export function LessonComposer({
             busy={busy}
             language={session.state.courseTemplate?.targetLanguage ?? "en"}
             onUse={(text, recognized, input) => {
-              setReply((previous) => (previous.trim() ? `${previous}\n${text}` : text));
+              const prefix = reply.trim() ? `${reply}\n` : "";
+              const checks = /^en(?:-|$)/i.test(language)
+                ? findVoiceMeaningAmbiguities(text, input.confidence)
+                : [];
+              setReply(prefix + text);
+              setAmbiguities([
+                ...ambiguities,
+                ...checks.map((check) => ({ ...check, start: check.start + prefix.length })),
+              ]);
+              setShowVoiceConfirmation(false);
               setSpeechDraft({ input, recognized });
               setKeyboard(true);
             }}
@@ -167,6 +214,9 @@ export function LessonComposer({
                 disabled={busy || dealingWithVoice}
                 onChange={(event) => {
                   setKeyboard(true);
+                  setAmbiguities(
+                    rebaseVoiceMeaningAmbiguities(reply, event.target.value, ambiguities),
+                  );
                   setReply(event.target.value);
                   if (!event.target.value.trim()) setSpeechDraft(null);
                 }}
@@ -175,13 +225,21 @@ export function LessonComposer({
             <button
               type="submit"
               className={primary}
-              disabled={busy || dealingWithVoice || !reply.trim()}
+              disabled={busy || !canSend(reply) || (showVoiceConfirmation && !!ambiguity)}
             >
               {turnStatus === "responding" || turnStatus === "saving"
                 ? t(`training:turnStatus.${turnStatus}`)
                 : t("training:sendReply")}
             </button>
           </div>
+          {showVoiceConfirmation && ambiguity && (
+            <VoiceMeaningConfirmation
+              draft={reply}
+              ambiguity={ambiguity}
+              canSend={canSend}
+              onChoose={confirmVoiceMeaning}
+            />
+          )}
         </div>
         <div className="mx-auto grid w-full max-w-sm shrink-0 grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,1fr)] items-start gap-2 pt-1">
           <button

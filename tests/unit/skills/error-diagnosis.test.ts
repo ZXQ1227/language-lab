@@ -185,6 +185,49 @@ describe("Error Diagnosis skill", () => {
     expect(generation).toHaveBeenCalledTimes(1);
   });
 
+  it("bounds diagnosis time independently of the conversation", async () => {
+    vi.useFakeTimers();
+    try {
+      const { call, generation } = setup([]);
+      generation.mockImplementation(
+        (_request, _schema, options) =>
+          new Promise((_, reject) => {
+            const signal = options?.signal;
+            signal?.addEventListener("abort", () => reject(signal.reason), { once: true });
+          }),
+      );
+      const result = expect(call()).rejects.toMatchObject({ name: "TimeoutError" });
+      await vi.advanceTimersByTimeAsync(12_000);
+      await result;
+      expect(generation).toHaveBeenCalledTimes(1);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("keeps a high-confidence expression improvement out of the error array", async () => {
+    const { call, generation } = setup([
+      {
+        ...output(),
+        status: "checked",
+        improvement: {
+          ...error,
+          original: "Give me a different room, please.",
+          corrected: "Could I change rooms, please?",
+          explanation: "A polite question fits this request to the front desk.",
+        },
+      },
+    ]);
+    const diagnosis = await call({ utterance: "Give me a different room, please." });
+    expect(diagnosis).toMatchObject({
+      errors: [],
+      improvement: { corrected: "Could I change rooms, please?" },
+    });
+    expect(generation.mock.calls[0]?.[0].messages[0]?.content).toContain(
+      "stated scene requirement such as politeness",
+    );
+  });
+
   it("accepts no-error replies and withholds uncertain word choices", async () => {
     const { call } = setup([output(), output([{ ...error, confidence: "low" }])]);
     expect((await call({ utterance: "Yes, please." })).errors).toEqual([]);

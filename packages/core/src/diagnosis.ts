@@ -16,19 +16,18 @@ const errorText = {
   explanation: text.max(600),
 };
 
+const candidateEdit = z.object({
+  ...errorText,
+  start: z.number().int().nonnegative().optional(),
+  end: z.number().int().positive().optional(),
+  severity: severity.optional(),
+  confidence: z.enum(["high", "medium", "low"]).optional(),
+});
+
 /** Provider contract keeps legacy four-field errors readable. */
 export const diagnosisCandidateSchema = z.object({
-  errors: z
-    .array(
-      z.object({
-        ...errorText,
-        start: z.number().int().nonnegative().optional(),
-        end: z.number().int().positive().optional(),
-        severity: severity.optional(),
-        confidence: z.enum(["high", "medium", "low"]).optional(),
-      }),
-    )
-    .max(5),
+  errors: z.array(candidateEdit).max(5),
+  improvement: candidateEdit.optional(),
   intent: text.max(160),
   fluency: z.enum(["fluent", "hesitant", "halting", "not_assessed"]).optional(),
   status: z.enum(["checked", "uncertain"]).optional(),
@@ -45,6 +44,8 @@ export type DiagnosedError = z.infer<typeof diagnosedErrorSchema>;
 export const errorDiagnosisSchema = z
   .object({
     errors: z.array(diagnosedErrorSchema).max(5),
+    improvement: diagnosedErrorSchema.optional(),
+    assessedAt: z.number().int().nonnegative().max(8_640_000_000_000_000).optional(),
     intent: text.max(160),
     fluency: z.literal("not_assessed"),
     source: z.enum(["model", "demo"]),
@@ -54,6 +55,7 @@ export const errorDiagnosisSchema = z
   .refine(
     (diagnosis) =>
       diagnosis.errors.length + diagnosis.withheldCount <= 5 &&
+      (!diagnosis.improvement || (!diagnosis.errors.length && diagnosis.status === "checked")) &&
       (diagnosis.status === "uncertain" ||
         (diagnosis.withheldCount === 0 && diagnosis.source !== "demo")),
     "Diagnosis status must reflect its source and withheld suggestions",
@@ -100,6 +102,42 @@ export function preservesCorrectionPolarity(
   return (before.match(markers) ?? []).join(" ") === (after.match(markers) ?? []).join(" ");
 }
 
+const englishNumber =
+  "(?:one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|twenty|thirty|forty|fifty)";
+const explicitEnglishDetails = new RegExp(
+  [
+    String.raw`\b(?:(?:last|this|next|every)\s+)?(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b`,
+    String.raw`\b(?:last|this|next|every)\s+(?:morning|afternoon|evening|night|week|month|year)\b`,
+    String.raw`\b(?:yesterday|today|tomorrow|noon|midnight)\b`,
+    String.raw`\b(?:\d{1,2}(?::\d{2})?|${englishNumber})\s*(?:a\.?m\.?|p\.?m\.?)\b`,
+    String.raw`\b\d{1,2}:\d{2}\b`,
+    String.raw`\bat\s+${englishNumber}\b`,
+    String.raw`\b${englishNumber}(?=\s+(?:nights?|days?|weeks?|months?|years?|hours?|minutes?|people|guests?|rooms?|o['’]clock)\b)`,
+  ].join("|"),
+  "gu",
+);
+
+/** Keep explicit times and quantities intact, and skip changes limited to writing style. */
+export function preservesFeedbackMeaning(
+  utterance: string,
+  edit: Pick<DiagnosedError, "start" | "end" | "original" | "corrected">,
+  language = "en",
+): boolean {
+  if (!preservesCorrectionPolarity(utterance, edit, language)) return false;
+  const spoken = (text: string) =>
+    unchanged(text)
+      .toLowerCase()
+      .replace(/^[\s.,!?;:…]+|[\s.,!?;:…]+$/gu, "");
+  if (spoken(edit.original) === spoken(edit.corrected)) return false;
+  if (!/^en(?:-|$)/iu.test(language)) return true;
+  const details = (text: string) =>
+    (unchanged(text).toLowerCase().match(explicitEnglishDetails) ?? []).join("|");
+  return (
+    details(utterance) ===
+    details(utterance.slice(0, edit.start) + edit.corrected + utterance.slice(edit.end))
+  );
+}
+
 export function validateDiagnosedErrors(
   utterance: string,
   errors: readonly DiagnosedError[],
@@ -133,10 +171,16 @@ export function groundErrorDiagnosis(
   language = "en",
 ): ErrorDiagnosis {
   const candidate = diagnosisCandidateSchema.parse(raw);
+  const improvement =
+    source === "model" && !candidate.errors.length ? candidate.improvement : undefined;
+  const edits = improvement ? [improvement] : candidate.errors;
   const errors: DiagnosedError[] = [];
   let withheldCount = 0;
-  for (const item of candidate.errors) {
-    if (item.confidence && item.confidence !== "high") {
+  for (const item of edits) {
+    if (
+      candidate.status === "uncertain" ||
+      (item.confidence ?? (improvement ? "low" : "high")) !== "high"
+    ) {
       withheldCount++;
       continue;
     }
@@ -172,16 +216,15 @@ export function groundErrorDiagnosis(
     errors.push(error);
   }
   validateDiagnosedErrors(utterance, errors);
-  const supported = errors.filter((error) =>
-    preservesCorrectionPolarity(utterance, error, language),
-  );
+  const supported = errors.filter((error) => preservesFeedbackMeaning(utterance, error, language));
   withheldCount += errors.length - supported.length;
   supported.sort(
     (a, b) =>
       Number(b.severity === "meaning") - Number(a.severity === "meaning") || a.start - b.start,
   );
   return errorDiagnosisSchema.parse({
-    errors: supported,
+    errors: improvement ? [] : supported,
+    ...(improvement && supported[0] ? { improvement: supported[0] } : {}),
     intent: candidate.intent,
     fluency: "not_assessed",
     source,
@@ -191,6 +234,22 @@ export function groundErrorDiagnosis(
         : "checked",
     withheldCount,
   });
+}
+
+export function diagnosisEdits(diagnosis: ErrorDiagnosis): readonly DiagnosedError[] {
+  return diagnosis.improvement ? [diagnosis.improvement] : diagnosis.errors;
+}
+
+/** Both presentation surfaces derive a verdict from the same saved evidence. */
+export function languageVerdict(utterance: string, diagnosis: ErrorDiagnosis, language: string) {
+  const error = diagnosis.errors.find((edit) =>
+    preservesFeedbackMeaning(utterance, edit, language),
+  );
+  if (error) return { kind: "error", edit: error } as const;
+  if (diagnosis.improvement && preservesFeedbackMeaning(utterance, diagnosis.improvement, language))
+    return { kind: "improvement", edit: diagnosis.improvement } as const;
+  if (diagnosis.status === "checked" && !diagnosisEdits(diagnosis).length)
+    return { kind: "accurate" } as const;
 }
 
 export function validateDiagnosisRecords(
@@ -205,8 +264,9 @@ export function validateDiagnosisRecords(
         "Diagnosis records must reference distinct learner practice replies in order",
       );
     previousSequence = record.messageSeq;
-    validateDiagnosedErrors(message.content, record.diagnosis.errors);
-    if (record.diagnosis.errors.some((error) => error.start < (message.practiceStart ?? 0)))
+    const edits = diagnosisEdits(record.diagnosis);
+    validateDiagnosedErrors(message.content, edits);
+    if (edits.some((error) => error.start < (message.practiceStart ?? 0)))
       throw new DiagnosisEvidenceError("Diagnosis evidence cannot cite a help request");
     if (record.correctionIndex !== undefined && !record.diagnosis.errors[record.correctionIndex])
       throw new DiagnosisEvidenceError("Shown correction must reference a diagnosed error");

@@ -47,8 +47,9 @@ export function createLessonEvaluatorSkill(): SkillDefinition<
     outputSchema,
     async execute(input, context: SkillContext) {
       const observations: NonNullable<typeof input.diagnoses> = [];
+      const diagnoses = (input.diagnoses ?? []).filter((record) => !record.diagnosis.improvement);
       let observationCharacters = 2;
-      for (const record of [...(input.diagnoses ?? [])].reverse()) {
+      for (const record of diagnoses.reverse()) {
         const characters = JSON.stringify(record).length + 1;
         if (observationCharacters + characters > 8000) continue;
         observations.unshift(record);
@@ -75,7 +76,7 @@ export function createLessonEvaluatorSkill(): SkillDefinition<
                 `Objectives: ${input.objectivesCompleted}/${input.objectiveCount}`,
                 `Corrections given: ${input.correctionsGiven}`,
                 `Validated language observations (model judgments, not objective truth; demo checks are limited examples): ${JSON.stringify(observations)}`,
-                `Showing ${observations.length}/${input.diagnoses?.length ?? 0} observations within context limits. Omitted observations must not be assumed error-free.`,
+                `Showing ${observations.length}/${diagnoses.length} observations within context limits. Omitted observations must not be assumed error-free.`,
                 "Do not infer spoken fluency or pronunciation from this text transcript. Distinguish detected issues from corrections actually shown; use source and uncertainty flags honestly.",
                 `Hints given: ${context.lessonState.hintsGiven}. Distinguish supported performance from independent mastery; partner replies are not learner evidence.`,
                 `Vocabulary used (practice turns per term): ${JSON.stringify(input.vocabularySeen)}. These are lexical observations, not proof of correct use or mastery; negated, quoted and guided uses may be included.`,

@@ -248,7 +248,9 @@ test("checks uncertain voice meaning before sending and respects a confirmed top
       .getByRole("listitem")
       .filter({ has: page.getByText(choice, { exact: true }) });
     await expect(learner.getByRole("button", { name: "Suggestion", exact: true })).toHaveCount(0);
-    await expect(learner.getByRole("button", { name: "Checked", exact: true })).toHaveCount(0);
+    await expect(
+      learner.getByRole("button", { name: "Accurate expression", exact: true }),
+    ).toHaveCount(0);
   }
   expect(outgoing).toEqual([positive]);
   const checkpoint = JSON.parse((await checkpoints())[0]!.payload);
@@ -494,4 +496,37 @@ test("saves preferences without keys, rolls back a settings failure and restores
     "another-asr-model",
   );
   expect((await rows(page)).filter((r) => r.type === "voice_settings")).toHaveLength(1);
+});
+
+test("asks for the English modal meaning before sending a training transcript", async ({
+  page,
+}) => {
+  const heard = "I can drink coffee.";
+  const chosen = "I can't drink coffee.";
+  await page.route(`${endpoint}/audio/transcriptions`, (route) =>
+    route.fulfill({
+      headers: { "access-control-allow-origin": "*" },
+      json: { text: heard, confidence: 0.5 },
+    }),
+  );
+  await configure(page, false);
+  await start(page);
+  await record(page);
+  const draft = page.getByRole("textbox", { name: "Your reply", exact: true });
+  await expect(draft).toHaveValue(heard);
+  await nav(page, "Send reply");
+  const confirmation = page.getByRole("region", {
+    name: "Confirm voice transcription",
+    exact: true,
+  });
+  await expect(confirmation.getByRole("button", { name: heard, exact: true })).toBeVisible();
+  expect((await checkpoint(page)).state.turnCount).toBe(0);
+  await confirmation.getByRole("button", { name: chosen, exact: true }).click();
+  await expect(draft).toHaveValue("");
+  const saved = await checkpoint(page);
+  expect(saved.messages[1]).toMatchObject({ content: chosen, speech: { edited: true } });
+  await expect(page.getByRole("button", { name: "Suggestion", exact: true })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Accurate expression", exact: true })).toHaveCount(
+    0,
+  );
 });

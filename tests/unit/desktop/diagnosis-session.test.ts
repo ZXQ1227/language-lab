@@ -135,17 +135,24 @@ describe("grounded language feedback checkpoints", () => {
     expect(off.diagnoses?.[0]?.correctionIndex).toBeUndefined();
   });
 
-  it("rejects ungrounded provider diagnoses without publishing a drafted turn", async () => {
+  it("keeps the reply while excluding an ungrounded diagnosis from the saved turn", async () => {
     const invalid = {
       ...diagnosis,
       errors: [{ ...diagnosis.errors[0], original: "invented words" }],
     };
-    const gateway = gatewayFor(pending, invalid, invalid);
+    const partnerReply = "Could you share the name on the booking?";
+    const gateway = gatewayFor(pending, invalid, invalid, reply(partnerReply));
     const initial = await createTrainingSession(hotel, provider, gateway);
     const before = JSON.stringify(initial);
-    await expect(runTrainingTurn(initial, utterance, gateway)).rejects.toThrow(
-      "could not be validated",
-    );
+    const next = await runTrainingTurn(initial, utterance, gateway);
+    expect(next.messages.at(-1)?.content).toBe(partnerReply);
+    expect(next.diagnoses).toEqual([]);
+    expect(
+      next.events.some(
+        (event) => event.type === "error_made" || event.type === "utterance_diagnosed",
+      ),
+    ).toBe(false);
+    expect(next.state.correctionsGiven).toBe(0);
     expect(JSON.stringify(initial)).toBe(before);
   });
 

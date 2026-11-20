@@ -1,4 +1,3 @@
-import { isLightCorrection, preservesCorrectionPolarity } from "@language-lab/core";
 import { isGatewayError } from "@language-lab/model-gateway";
 import { useEffect, useLayoutEffect, useRef, useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
@@ -6,6 +5,7 @@ import { LanguageFeedback } from "../components/LanguageFeedback";
 import { LocalizedError } from "../components/LocalizedError";
 import { PartnerMessageActions } from "../components/PartnerMessageActions";
 import { VoiceInput } from "../components/VoiceInput";
+import { VoiceMeaningConfirmation } from "../components/VoiceMeaningConfirmation";
 import {
   conversationMessages,
   freeConversationMessageLimit,
@@ -78,7 +78,6 @@ export function FreeConversationPage() {
   const pending = useRef<AbortController | null>(null);
   const transcript = useRef<HTMLDivElement>(null);
   const title = useRef<HTMLHeadingElement>(null);
-  const voiceConfirmationTitle = useRef<HTMLHeadingElement>(null);
   const voice = useSpeechLoop("free-conversation", "en", characterVoiceStyle());
   const partner = t("training:defaultPartnerName");
   const busy = pendingText !== null;
@@ -120,20 +119,12 @@ export function FreeConversationPage() {
     if (next.turns.length && !(await saveConversation(next, signal))) return "saveFailed";
     if (!signal.aborted) setCheckpoint(next);
   });
-  const alternative = ambiguity
-    ? draft.slice(0, ambiguity.start) +
-      ambiguity.alternative +
-      draft.slice(ambiguity.start + ambiguity.heard.length)
-    : null;
 
   useEffect(() => {
     void load();
     title.current?.focus();
     return () => pending.current?.abort();
   }, [load]);
-  useEffect(() => {
-    if (showVoiceConfirmation) voiceConfirmationTitle.current?.focus();
-  }, [showVoiceConfirmation]);
 
   useEffect(() => {
     if (!sourceId) return;
@@ -185,10 +176,7 @@ export function FreeConversationPage() {
     if (!canSend(text)) return;
     const remaining = rebaseVoiceMeaningAmbiguities(draft, text, ambiguities.slice(1));
     setDraft(text, remaining);
-    if (remaining.length) {
-      voiceConfirmationTitle.current?.focus();
-      return;
-    }
+    if (remaining.length) return;
     setShowVoiceConfirmation(false);
     void sendReply(text);
   }
@@ -329,11 +317,6 @@ export function FreeConversationPage() {
               // The local greeting is followed by learner and partner pairs.
               const diagnosis =
                 message.role === "user" ? checkpoint.turns[(index - 1) / 2]?.diagnosis : undefined;
-              const correction = diagnosis?.errors.find(
-                (error) =>
-                  isLightCorrection(error) && preservesCorrectionPolarity(message.content, error),
-              );
-              const checked = diagnosis?.status === "checked" && diagnosis.errors.length === 0;
               const guided =
                 message.role === "user"
                   ? latestSpeakingHint(checkpoint.speakingPractice, index - 1)
@@ -402,14 +385,13 @@ export function FreeConversationPage() {
                         }}
                       />
                     )}
-                  {(correction || checked) && (
+                  {diagnosis && (
                     <LanguageFeedback
                       text={message.content}
                       language="en"
                       readDisabled={readDisabled}
                       onRead={voice.speak}
-                      error={correction}
-                      checked={checked}
+                      diagnosis={diagnosis}
                     />
                   )}
                 </li>
@@ -533,35 +515,13 @@ export function FreeConversationPage() {
                 {t("training:sendReply")}
               </button>
             </div>
-            {showVoiceConfirmation && alternative !== null && (
-              <section
-                aria-labelledby="free-conversation-voice-confirmation"
-                className="space-y-2 rounded-xl border border-line-info bg-brand-primary-subtle p-3 text-sm"
-              >
-                <h2
-                  id="free-conversation-voice-confirmation"
-                  ref={voiceConfirmationTitle}
-                  tabIndex={-1}
-                  className="font-semibold"
-                >
-                  {t("common:freeConversation.voiceConfirmation.title")}
-                </h2>
-                <p>{t("common:freeConversation.voiceConfirmation.description")}</p>
-                <div className="grid gap-2">
-                  {[draft, alternative].map((choice) => (
-                    <button
-                      key={choice}
-                      type="button"
-                      lang="en"
-                      className="button-secondary wrap-break-word rounded-lg px-3 py-2 text-left whitespace-pre-wrap disabled:opacity-50"
-                      disabled={!canSend(choice)}
-                      onClick={() => confirmVoiceMeaning(choice)}
-                    >
-                      {choice}
-                    </button>
-                  ))}
-                </div>
-              </section>
+            {showVoiceConfirmation && ambiguity && (
+              <VoiceMeaningConfirmation
+                draft={draft}
+                ambiguity={ambiguity}
+                canSend={canSend}
+                onChoose={confirmVoiceMeaning}
+              />
             )}
           </div>
           <div className="mx-auto grid w-full max-w-sm shrink-0 grid-cols-3 items-center gap-3 pt-1">

@@ -73,11 +73,14 @@
   "languageFeedback": "语言反馈",
   "messageFeedback": {
     "suggestion": "有建议",
-    "checked": "已检查",
+    "checked": "表达准确",
     "details": "语言反馈",
     "original": "原句",
     "suggestionText": "建议说法",
-    "readSuggestion": "朗读建议说法"
+    "readSuggestion": "朗读建议说法",
+    "actualError": "语法或用词错误",
+    "improvement": "表达优化",
+    "accurateExplanation": "这句的语法和用词符合当前语境。"
   },
   "guidedDemoChecksAFewExamplePatternsOnlyConnectAI": "引导示范仅检查少量示例句型。连接 AI 可评估语法与用词。",
   "letSKeepTheConversationMovingCorrectionsAreSpacedBetween": "先继续对话。纠错之间会留出练习轮次。",

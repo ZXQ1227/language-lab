@@ -64,10 +64,11 @@ still a limited demonstration. Exact repeat returns the saved whole reply withou
 another correction. Original learner text is never rewritten, and only actual
 practice text contributes to vocabulary observations and objective evidence.
 
-Training's per-reply feedback distinguishes spacing, recent reminders, long
-rewrites and budget deferral. **Suggestion** opens the highlighted original,
-revised wording and explanation on the learner's source message. Earlier
-delivered feedback remains available after another reply, help and restart.
+Training records reasons for spacing, recent reminders, long rewrites and budget
+deferral. With corrections enabled, a grounded message-level suggestion remains
+available on demand even when its proactive recast is deferred. The source reply,
+recommended wording and explanation remain available after later turns or a
+restart. See [Grounded Error Diagnosis](ERROR_DIAGNOSIS.md).
 
 ## Persistence and compatibility
 

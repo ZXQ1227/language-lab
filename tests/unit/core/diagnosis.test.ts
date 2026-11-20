@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   errorDiagnosisSchema,
   groundErrorDiagnosis,
+  languageVerdict,
   validateDiagnosisRecords,
 } from "@language-lab/core";
 
@@ -14,6 +15,63 @@ const tense = {
 const raw = (errors: unknown[]) => ({ errors, fluency: "fluent", intent: "describe a visit" });
 
 describe("grounded error diagnosis", () => {
+  it("projects an accurate short answer, a genuine error and a grounded expression improvement", () => {
+    const short = "Yeah.";
+    expect(
+      languageVerdict(short, groundErrorDiagnosis(short, { ...raw([]), status: "checked" }), "en"),
+    ).toEqual({ kind: "accurate" });
+    const incorrect = "I go yesterday.";
+    expect(
+      languageVerdict(incorrect, groundErrorDiagnosis(incorrect, raw([tense])), "en"),
+    ).toMatchObject({ kind: "error", edit: { corrected: "I went" } });
+    const request = "Give me a different room, please.";
+    const improvement = {
+      category: "collocation",
+      original: request,
+      corrected: "Could I change rooms, please?",
+      confidence: "high",
+      explanation: "A request phrased as a question suits the front desk here.",
+    };
+    const diagnosis = groundErrorDiagnosis(request, { ...raw([]), status: "checked", improvement });
+    expect(diagnosis.errors).toEqual([]);
+    expect(languageVerdict(request, diagnosis, "en")).toMatchObject({
+      kind: "improvement",
+      edit: improvement,
+    });
+    expect(
+      languageVerdict(
+        request,
+        groundErrorDiagnosis(request, { ...raw([]), status: "uncertain", improvement }),
+        "en",
+      ),
+    ).toBeUndefined();
+    expect(
+      languageVerdict(short, groundErrorDiagnosis(short, raw([]), "demo"), "en"),
+    ).toBeUndefined();
+    expect(() =>
+      validateDiagnosisRecords(
+        [{ messageSeq: 1, diagnosis }],
+        [{ seq: 1, role: "user", content: "A different beginner sentence." }],
+      ),
+    ).toThrow("exact text");
+  });
+
+  it.each([
+    ["We meet at four.", "at four", "at noon"],
+    ["We meet at 7 am.", "7 am", "7 pm"],
+    ["I am staying two nights.", "two nights", "three nights"],
+    ["We play tomorrow.", "tomorrow", "today"],
+    ["Yeah.", "Yeah.", "yeah!"],
+  ])("withholds a time, quantity or typography rewrite in %s", (utterance, original, corrected) => {
+    const diagnosis = groundErrorDiagnosis(utterance, {
+      ...raw([]),
+      status: "checked",
+      improvement: { ...tense, confidence: "high", original, corrected },
+    });
+    expect(diagnosis).toMatchObject({ status: "uncertain", withheldCount: 1, errors: [] });
+    expect(languageVerdict(utterance, diagnosis, "en")).toBeUndefined();
+  });
+
   it("rejects saved certainty claims that contradict uncertainty or limited demo checks", () => {
     const uncertain = groundErrorDiagnosis(
       "I go yesterday.",

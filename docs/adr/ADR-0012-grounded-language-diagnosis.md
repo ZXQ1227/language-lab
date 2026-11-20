@@ -32,6 +32,18 @@ grammar truth.
   existing atomic Training checkpoint. Revalidate on restore and supply them to
   review; do not reconstruct missing old records or alter learner text.
 
+## Message verdict extension (2026-11-20)
+
+- Keep actual errors and one optional grounded improvement in different fields
+  of the saved diagnosis. A shared verdict drives both conversation views.
+  Expression improvements stay with their source message.
+- Training marks follow the correction switch. Frequency and budget govern
+  proactive delivery; learners can open grounded advice when delivery is deferred.
+- Bound diagnosis independently of the training turn. An assessment failure
+  leaves the message unassessed while the conversation can proceed.
+- Store the optional improvement and assessment time in the existing version 1
+  checkpoints. Earlier records remain readable.
+
 ## Consequences
 
 - Feedback survives help, another turn and restart with auditable source text.

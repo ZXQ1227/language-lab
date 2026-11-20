@@ -19,6 +19,7 @@ import {
   type TurnEvidenceStatus,
   mergeDialogueMemory,
   validateDiagnosisRecords,
+  diagnosisEdits,
   validateDiagnosedErrors,
   advanceInterventionState,
   lightCorrectionReplyIssue,
@@ -121,6 +122,44 @@ export class TeachingOrchestrator {
         error: error instanceof Error ? error.message : String(error),
       });
       throw error;
+    }
+  }
+
+  private async diagnoseReply(
+    practice: string,
+    offset: number,
+    recentMessages: readonly EvidenceMessage[],
+    context: SkillContext,
+    trace: SkillTraceEntry[],
+  ): Promise<ErrorDiagnosisOutput | undefined> {
+    try {
+      const result = await this.runSkill<ErrorDiagnosisOutput>(
+        "skills.error_diagnosis",
+        {
+          utterance: practice,
+          studentLevel: context.lessonState.difficulty,
+          recentMessages: recentMessages.slice(-6),
+        },
+        context,
+        trace,
+      );
+      context.signal?.throwIfAborted();
+      validateDiagnosedErrors(practice, diagnosisEdits(result));
+      const shift = (edit: ErrorDiagnosisOutput["errors"][number]) => ({
+        ...edit,
+        start: edit.start + offset,
+        end: edit.end + offset,
+      });
+      return {
+        ...result,
+        errors: result.errors.map(shift),
+        ...(result.improvement ? { improvement: shift(result.improvement) } : {}),
+        assessedAt: this.now,
+      };
+    } catch {
+      // Language feedback is optional, but never continue a cancelled turn.
+      context.signal?.throwIfAborted();
+      return undefined;
     }
   }
 
@@ -251,33 +290,10 @@ export class TeachingOrchestrator {
 
     const practice = learnerPracticeText(turnMessage);
     const offset = turnMessage.practiceStart ?? 0;
-    const diagnosis: ErrorDiagnosisOutput = practice
-      ? await this.runSkill<ErrorDiagnosisOutput>(
-          "skills.error_diagnosis",
-          {
-            utterance: practice,
-            studentLevel: state.difficulty,
-            recentMessages: recentMessages.slice(-6),
-          },
-          context,
-          trace,
-        )
-      : {
-          errors: [],
-          fluency: "not_assessed",
-          intent: support ? `support:${support}` : (evidenceStatus ?? "unassessed"),
-          source: "model",
-          status: "checked",
-          withheldCount: 0,
-        };
-    validateDiagnosedErrors(practice ?? utterance, diagnosis.errors);
-    if (offset) {
-      diagnosis.errors = diagnosis.errors.map((error) => ({
-        ...error,
-        start: error.start + offset,
-        end: error.end + offset,
-      }));
-    }
+    const diagnosis = practice
+      ? await this.diagnoseReply(practice, offset, recentMessages, context, trace)
+      : undefined;
+    const errors = diagnosis?.errors ?? [];
     const vocabulary = practice
       ? await this.runSkill<VocabularyTrackerOutput>(
           "skills.vocabulary_tracker",
@@ -313,8 +329,8 @@ export class TeachingOrchestrator {
       : await this.runSkill<TeachingInterventionOutput>(
           "skills.teaching_intervention",
           {
-            errors: diagnosis.errors,
-            fluency: diagnosis.fluency,
+            errors,
+            fluency: "not_assessed",
             hintsGiven: state.hintsGiven,
             correctionsGiven: state.correctionsGiven,
             allObjectivesCompleted:
@@ -335,7 +351,7 @@ export class TeachingOrchestrator {
     });
     const correction =
       intervention.action === "light_correction"
-        ? diagnosis.errors.find(
+        ? errors.find(
             (error) =>
               error.original === intervention.correction?.original &&
               error.start === intervention.correction.start &&
@@ -446,7 +462,7 @@ export class TeachingOrchestrator {
     );
 
     const persistedEvents: { type: string; payload?: Record<string, unknown> }[] = [];
-    if (practice)
+    if (diagnosis)
       persistedEvents.push({
         type: "utterance_diagnosed",
         payload: { messageSeq: transcript.at(-1)!.seq, diagnosis },
@@ -483,7 +499,7 @@ export class TeachingOrchestrator {
         },
       });
     }
-    for (const error of diagnosis.errors) {
+    for (const error of errors) {
       persistedEvents.push({
         type: "error_made",
         payload: { ...error, messageSeq: transcript.at(-1)!.seq },
@@ -522,13 +538,14 @@ export class TeachingOrchestrator {
       reply: roleplay.reply,
       teachingAction: intervention.action,
       analysis: {
-        intent: diagnosis.intent,
+        intent:
+          diagnosis?.intent ?? (support ? `support:${support}` : (evidenceStatus ?? "unassessed")),
         vocabularyUsed,
         vocabularyMissed: vocabulary.missed,
         vocabularyMatches,
-        errors: diagnosis.errors,
-        diagnosis: practice ? diagnosis : undefined,
-        fluency: diagnosis.fluency,
+        errors,
+        diagnosis,
+        fluency: "not_assessed",
       },
       state: newState,
       assessment,

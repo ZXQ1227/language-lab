@@ -59,29 +59,21 @@ test("keeps recasts brief, persists timing across help and restart, and avoids r
   await page.reload();
   await openWorkspacePage(page, "Training");
   await send(page, "I am agree.");
-  await reply(page, "I am agree.")
-    .getByRole("button", { name: "Language feedback", exact: true })
-    .click();
-  await expect(
-    reply(page, "I am agree.").getByText(
-      "Let's keep the conversation moving. Corrections are spaced between practice turns.",
-      { exact: true },
-    ),
-  ).toBeVisible();
+  await reply(page, "I am agree.").getByRole("button", { name: "Suggestion", exact: true }).click();
+  await expect(reply(page, "I am agree.").getByText("I agree.", { exact: true })).toBeVisible();
+  expect((await checkpoint(page)).diagnoses.at(-1).interventionReason).toBe("correction_spacing");
   await send(page, "I go yesterday.");
   await reply(page, "I go yesterday.")
-    .getByRole("button", { name: "Language feedback", exact: true })
+    .getByRole("button", { name: "Suggestion", exact: true })
     .click();
   await expect(
-    feedback.getByText(
-      "You have seen this correction recently. Keep practising before another reminder.",
-      { exact: true },
-    ),
+    reply(page, "I go yesterday.").getByText("I went yesterday.", { exact: true }),
   ).toBeVisible();
+  expect((await checkpoint(page)).diagnoses.at(-1).interventionReason).toBe("recently_corrected");
   await send(page, "I am agree.");
   await reply(page, "I am agree.").getByRole("button", { name: "Suggestion", exact: true }).click();
   await expect(
-    reply(page, "I am agree.").getByText("Grammar · Form", { exact: true }),
+    reply(page, "I am agree.").getByText("Grammar or word-choice error · Grammar", { exact: true }),
   ).toBeVisible();
   await expect(page.getByLabel("Conversation", { exact: true })).toContainText(
     "You can say: “I agree”.",
@@ -124,15 +116,9 @@ test("a failed checkpoint consumes neither a correction nor a spacing turn", asy
   expect(saved.state.interventionState.practiceTurns).toBe(1);
   expect(saved.state.interventionState.corrections).toHaveLength(1);
   await send(page, "I am agree.");
-  await reply(page, "I am agree.")
-    .getByRole("button", { name: "Language feedback", exact: true })
-    .click();
-  await expect(
-    page.getByText(
-      "Let's keep the conversation moving. Corrections are spaced between practice turns.",
-      { exact: true },
-    ),
-  ).toBeVisible();
+  await reply(page, "I am agree.").getByRole("button", { name: "Suggestion", exact: true }).click();
+  await expect(reply(page, "I am agree.").getByText("I agree.", { exact: true })).toBeVisible();
+  expect((await checkpoint(page)).diagnoses.at(-1).interventionReason).toBe("correction_spacing");
 });
 
 test("requires an actual recast from connected AI and bounds delivery repair before saving", async ({

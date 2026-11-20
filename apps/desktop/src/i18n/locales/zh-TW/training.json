@@ -73,11 +73,14 @@
   "languageFeedback": "語言回饋",
   "messageFeedback": {
     "suggestion": "有建議",
-    "checked": "已檢查",
+    "checked": "表達準確",
     "details": "語言回饋",
     "original": "原句",
     "suggestionText": "建議說法",
-    "readSuggestion": "朗讀建議說法"
+    "readSuggestion": "朗讀建議說法",
+    "actualError": "文法或用詞錯誤",
+    "improvement": "表達優化",
+    "accurateExplanation": "這句的文法和用詞符合目前語境。"
   },
   "guidedDemoChecksAFewExamplePatternsOnlyConnectAI": "引導示範僅檢查少量範例句型。連接 AI 可評估文法與用詞。",
   "letSKeepTheConversationMovingCorrectionsAreSpacedBetween": "先繼續對話。修正之間會留出練習輪次。",
