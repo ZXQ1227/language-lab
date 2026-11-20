@@ -1,13 +1,36 @@
 import { useEffect, useRef, useState } from "react";
+import { isGatewayError } from "@language-lab/model-gateway";
 import type { SpeakingHintRecord } from "./records";
+
+type HintFailure = "save" | "timeout" | "network" | "auth" | "rateLimit" | "format" | "unknown";
+
+function hintFailure(error: unknown): HintFailure {
+  if (error instanceof DOMException && error.name === "TimeoutError") return "timeout";
+  if (!isGatewayError(error)) return "unknown";
+  switch (error.kind) {
+    case "timeout":
+    case "network":
+    case "auth":
+      return error.kind;
+    case "rate_limit":
+      return "rateLimit";
+    case "schema_violation":
+    case "invalid_request":
+      return "format";
+    default:
+      return "unknown";
+  }
+}
 
 export function useSpeakingHint(
   anchor: string,
   current: SpeakingHintRecord | undefined,
-  request: (signal: AbortSignal) => Promise<void>,
+  request: (signal: AbortSignal) => Promise<void | "saveFailed">,
 ) {
   const operation = useRef<AbortController | null>(null);
-  const [status, setStatus] = useState<{ anchor: string; phase: "loading" | "error" }>();
+  const [status, setStatus] = useState<
+    { anchor: string; phase: "loading" } | { anchor: string; phase: "error"; failure: HintFailure }
+  >();
   const [hiddenAt, setHiddenAt] = useState<string>();
 
   function cancel() {
@@ -34,13 +57,16 @@ export function useSpeakingHint(
     operation.current = controller;
     setStatus({ anchor, phase: "loading" });
     try {
-      await request(controller.signal);
+      const result = await request(controller.signal);
       if (!controller.signal.aborted) {
-        setStatus(undefined);
-        setHiddenAt(undefined);
+        setStatus(
+          result === "saveFailed" ? { anchor, phase: "error", failure: "save" } : undefined,
+        );
+        if (result !== "saveFailed") setHiddenAt(undefined);
       }
-    } catch {
-      if (!controller.signal.aborted) setStatus({ anchor, phase: "error" });
+    } catch (error) {
+      if (!controller.signal.aborted)
+        setStatus({ anchor, phase: "error", failure: hintFailure(error) });
     } finally {
       if (operation.current === controller) operation.current = null;
     }
@@ -48,6 +74,7 @@ export function useSpeakingHint(
 
   return {
     phase: status?.anchor === anchor ? status.phase : undefined,
+    failure: status?.anchor === anchor && status.phase === "error" ? status.failure : undefined,
     current: hiddenAt === anchor ? undefined : current,
     hide: () => setHiddenAt(anchor),
     show,

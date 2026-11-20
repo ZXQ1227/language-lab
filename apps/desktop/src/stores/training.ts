@@ -114,7 +114,11 @@ interface TrainingStore {
   resume: (id: string) => void;
   start: (course: ScenarioContent, provider: TrainingProvider, key?: string) => Promise<void>;
   send: (utterance: string, speech?: SpeechInput) => Promise<boolean>;
-  requestSpeakingHint: (base: TrainingSession, draft: string, signal: AbortSignal) => Promise<void>;
+  requestSpeakingHint: (
+    base: TrainingSession,
+    draft: string,
+    signal: AbortSignal,
+  ) => Promise<void | "saveFailed">;
   loadSpeakingSource: (lessonId: string) => Promise<TrainingSession>;
   saveSpeakingTransfer: (
     report: TrainingSession,
@@ -441,7 +445,7 @@ export const useTrainingStore = create<TrainingStore>((set, get) => {
           speakingPractice: replaceSpeakingHint(base.speakingPractice, record),
         });
       });
-      if (!saved) throw new Error("Could not save practice hint");
+      if (!saved) return "saveFailed";
     },
     loadSpeakingSource,
     saveSpeakingTransfer: async (report, id, anchorSeq, next, expected, signal) =>

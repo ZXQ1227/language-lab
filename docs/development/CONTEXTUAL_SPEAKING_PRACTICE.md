@@ -12,7 +12,12 @@ Connected requests use the existing Model Gateway. The request sends the learnin
 language, a bounded recent exchange and up to 800 characters of the learner's
 draft. Unconfirmed Free Conversation transcript ambiguities exclude the draft
 from the request. Training also sends the role, scenario and current stage. The
-example and its communicative intent are validated before display. Guided Training
+example and its communicative intent are validated before display. If the model
+returns invalid structured output, rejects JSON mode, or reaches the structured
+request timeout, Sayden tries one plain-text request within a shared 45-second
+deadline. The short, single-line example is validated and serves as the intent
+reference for that reply. The composer distinguishes provider failures from a
+local save failure and preserves the draft. Guided Training
 uses the current course's example or compatible authored material. Hotel Check-in
 includes booking and luggage-storage practice; typing a storage request at the
 services stage selects the latter.

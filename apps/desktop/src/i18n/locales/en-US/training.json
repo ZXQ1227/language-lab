@@ -148,7 +148,15 @@
     "hint": "Give me a line",
     "example": "Example reply",
     "loadingHint": "Preparing an example…",
-    "hintFailed": "Couldn’t get an example. Try again or keep writing your reply.",
+    "hintErrors": {
+      "save": "The example couldn’t be saved on this device. Your draft is still here. Try again.",
+      "timeout": "The AI service took too long to prepare an example. Try again or keep writing.",
+      "network": "Couldn’t reach the AI service. Check your connection or keep writing.",
+      "auth": "The AI service didn’t accept the credentials. Check your AI connection settings.",
+      "rateLimit": "The AI service is limiting requests. Try again shortly or keep writing.",
+      "format": "The AI service didn’t return a usable example. Try again or keep writing.",
+      "unknown": "Couldn’t get an example. Try again or keep writing your reply."
+    },
     "readExample": "Read the example",
     "hideExample": "Hide example",
     "transfer": "Try it in a new situation",

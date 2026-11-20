@@ -27,12 +27,19 @@ test("free chat keeps the draft, validates hints, continues the topic and restor
       await route.fulfill({ status: 204, headers });
       return;
     }
-    const { messages } = route.request().postDataJSON();
+    const { messages, response_format } = route.request().postDataJSON();
     const instruction = messages[0].content;
     const input = messages.at(-1).content;
     let output: object;
     if (instruction.startsWith("Help the learner")) {
       expect(JSON.parse(input).draft).toBe(intended);
+      if (!response_format) {
+        await route.fulfill({
+          headers,
+          json: { choices: [{ message: { content: "" }, finish_reason: "stop" }] },
+        });
+        return;
+      }
       output =
         ++hints === 1
           ? { example: "" }
@@ -60,7 +67,9 @@ test("free chat keeps the draft, validates hints, continues the topic and restor
   await button(page, "Free conversation").click();
   await reply(page).fill(intended);
   await button(page, "Give me a line").click();
-  await expect(page.getByRole("alert")).toContainText("Couldn’t get an example");
+  await expect(page.getByRole("alert")).toContainText(
+    "The AI service didn’t return a usable example",
+  );
   await expect(reply(page)).toHaveValue(intended);
   await button(page, "Give me a line").click();
   await expect(page.getByText(example, { exact: true })).toBeVisible();
@@ -184,4 +193,74 @@ test("filters historical speaking practice through the memory switch and source 
   await lessons.first().click();
   await expect(page.getByLabel("Lesson review", { exact: true })).toBeVisible();
   await expect(button(page, transfer)).toHaveCount(0);
+});
+
+test("recovers from an endpoint that rejects JSON mode and keeps save failures distinct", async ({
+  page,
+}) => {
+  await installTauriMock(page);
+  const draft = "我想聊聊我的工作";
+  const example = "I’d like to talk about my work.";
+  const answer = "Can we talk about my job?";
+  const formats: (string | undefined)[] = [];
+  await page.route(endpoint, async (route) => {
+    const headers = {
+      "access-control-allow-origin": "*",
+      "access-control-allow-methods": "POST",
+      "access-control-allow-headers": "authorization,content-type",
+    };
+    if (route.request().method() === "OPTIONS") {
+      await route.fulfill({ status: 204, headers });
+      return;
+    }
+    const { messages, response_format } = route.request().postDataJSON();
+    const instruction = messages[0].content;
+    let content: string;
+    if (instruction.startsWith("Help the learner")) {
+      formats.push(response_format?.type);
+      expect(JSON.parse(messages.at(-1).content).draft).toBe(draft);
+      if (response_format) {
+        await route.fulfill({
+          status: 400,
+          headers,
+          json: { error: { message: "response_format json_object is not supported" } },
+        });
+        return;
+      }
+      content = example;
+    } else if (instruction.startsWith("Check whether")) {
+      content = JSON.stringify({ result: "met", quote: answer });
+    } else {
+      content = JSON.stringify({ reply: "What do you do for work?" });
+    }
+    await route.fulfill({
+      headers,
+      json: { choices: [{ message: { content }, finish_reason: "stop" }] },
+    });
+  });
+
+  await page.goto("/");
+  await configureAiConnection(page, { model: "test-json-mode-incompatible" });
+  await openWorkspacePage(page, "Home");
+  await button(page, "Free conversation").click();
+  await reply(page).fill(draft);
+  await button(page, "Give me a line").click();
+  await expect(page.getByText(example, { exact: true })).toBeVisible();
+  await expect(reply(page)).toHaveValue(draft);
+  expect(formats).toEqual(["json_object", undefined]);
+
+  await reply(page).fill(answer);
+  await button(page, "Send reply").click();
+  await expect(page.getByText("What do you do for work?", { exact: true })).toBeVisible();
+  await expect(reply(page)).toHaveValue("");
+  await reply(page).fill(draft);
+  await page.evaluate(() => window.__llInvoke("test_fail_next_memory"));
+  await button(page, "Give me a line").click();
+  await expect(page.getByRole("alert")).toContainText(
+    "The example couldn’t be saved on this device",
+  );
+  await expect(reply(page)).toHaveValue(draft);
+  await button(page, "Give me a line").click();
+  await expect(page.getByText(example, { exact: true })).toBeVisible();
+  await expect(reply(page)).toHaveValue(draft);
 });

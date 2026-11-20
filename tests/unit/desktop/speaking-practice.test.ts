@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createGateway, MockLlmProvider } from "@language-lab/model-gateway";
+import { createGateway, GatewayError, MockLlmProvider } from "@language-lab/model-gateway";
 import { lessonMemoryContributionSchema } from "@language-lab/memory";
 import {
   assessSpeaking,
@@ -47,7 +47,13 @@ describe("contextual speaking practice", () => {
       generateSpeakingHint(gateway({ intent: hint.intent, example }), input, signal),
     ).resolves.toEqual({ intent: hint.intent, example });
     await expect(
-      generateSpeakingHint(gateway({ intent: hint.intent, example: "" }), input, signal),
+      generateSpeakingHint(
+        createGateway({
+          llm: new MockLlmProvider({}, [JSON.stringify({ intent: hint.intent, example: "" }), ""]),
+        }),
+        input,
+        signal,
+      ),
     ).rejects.toMatchObject({ kind: "schema_violation" });
 
     const next = "Could you keep my luggage until four?";
@@ -118,5 +124,58 @@ describe("contextual speaking practice", () => {
     });
     expect(relatedSpeakingPractice([source], { ...lesson, category: "work" })).toBeUndefined();
     expect(relatedSpeakingPractice([], lesson)).toBeUndefined();
+  });
+});
+
+it("recovers a usable plain example when the structured response is invalid", async () => {
+  const llm = new MockLlmProvider({}, [JSON.stringify({ example: "" }), example]);
+  await expect(
+    generateSpeakingHint(
+      createGateway({ llm }),
+      {
+        language: "en",
+        draft: "寄存行李",
+        history: [{ role: "assistant", content: "Can I help you with anything else?" }],
+      },
+      signal,
+    ),
+  ).resolves.toMatchObject({ example });
+});
+
+it.each([
+  { kind: "timeout" as const, detail: undefined },
+  { kind: "invalid_request" as const, detail: "response_format json_object is not supported" },
+])("falls back to plain text after $kind from the structured request", async (failure) => {
+  const llm = new MockLlmProvider(
+    { failures: [new GatewayError({ providerId: "test", message: "synthetic", ...failure })] },
+    [example],
+  );
+  await expect(
+    generateSpeakingHint(
+      createGateway({ llm }),
+      {
+        language: "en",
+        draft: "",
+        history: [{ role: "assistant", content: "What can I do for you?" }],
+      },
+      signal,
+    ),
+  ).resolves.toEqual({ example, intent: "Express the meaning of this example: " + example });
+});
+
+it("does not retry authentication failures or use a structured payload as a plain example", async () => {
+  const input = {
+    language: "en",
+    draft: "",
+    history: [{ role: "assistant" as const, content: "What can I do for you?" }],
+  };
+  const auth = new GatewayError({ providerId: "test", message: "synthetic", kind: "auth" });
+  const authentication = new MockLlmProvider({ failures: [auth] }, [example]);
+  await expect(
+    generateSpeakingHint(createGateway({ llm: authentication }), input, signal),
+  ).rejects.toBe(auth);
+  const invalidFallback = gateway({}, { example });
+  await expect(generateSpeakingHint(invalidFallback, input, signal)).rejects.toMatchObject({
+    kind: "schema_violation",
   });
 });

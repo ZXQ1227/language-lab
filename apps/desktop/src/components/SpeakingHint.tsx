@@ -41,8 +41,8 @@ export function SpeakingHintCard({
   const { t } = useTranslation();
   if (hint.phase === "loading")
     return <p role="status">{t("training:speakingPractice.loadingHint")}</p>;
-  if (hint.phase === "error")
-    return <p role="alert">{t("training:speakingPractice.hintFailed")}</p>;
+  if (hint.failure)
+    return <p role="alert">{t(`training:speakingPractice.hintErrors.${hint.failure}`)}</p>;
   if (!hint.current) return null;
   const { example } = hint.current;
   return (

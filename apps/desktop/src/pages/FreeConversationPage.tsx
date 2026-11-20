@@ -117,8 +117,7 @@ export function FreeConversationPage() {
       ...checkpoint,
       speakingPractice: replaceSpeakingHint(checkpoint.speakingPractice, record),
     };
-    if (next.turns.length && !(await saveConversation(next, signal)))
-      throw new Error("Could not save hint");
+    if (next.turns.length && !(await saveConversation(next, signal))) return "saveFailed";
     if (!signal.aborted) setCheckpoint(next);
   });
   const alternative = ambiguity
