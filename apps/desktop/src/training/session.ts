@@ -2,6 +2,7 @@ import { z } from "zod";
 import { TeachingOrchestrator } from "@language-lab/agent-runtime";
 import {
   evidenceMessageSchema,
+  learnerPracticeText,
   getCurrentCourseStage,
   lessonStateSchema,
   scenarioContentSchema,
@@ -14,6 +15,7 @@ import {
   detectDialogueSupport,
   dialogueMoveSchema,
   dialogueSupportSchema,
+  turnEvidenceStatusSchema,
   validateDialogueMemory,
   summarizeVocabulary,
   vocabularyCounts,
@@ -68,6 +70,7 @@ export const trainingSessionSchema = z
     events: z.array(
       z.object({ type: z.string(), payload: z.record(z.string(), z.unknown()).optional() }),
     ),
+    endedEarly: z.literal(true).optional(),
     lastTurn: z
       .object({
         action: teachingActionSchema,
@@ -76,6 +79,7 @@ export const trainingSessionSchema = z
         ),
         assessment: stageAssessmentSchema.optional(),
         supportRequest: dialogueSupportSchema.optional(),
+        evidenceStatus: turnEvidenceStatusSchema.optional(),
         move: dialogueMoveSchema.optional(),
       })
       .optional(),
@@ -195,6 +199,9 @@ export const trainingSessionSchema = z
           message.seq !== index || message.role !== (index % 2 === 0 ? "assistant" : "user"),
       ) ||
       session.messages.length !== session.state.turnCount * 2 + 1 ||
+      (session.endedEarly &&
+        session.state.phase !== "briefing" &&
+        session.state.phase !== "practice") ||
       (session.state.phase === "done") !== !!session.report
     ) {
       ctx.addIssue({
@@ -273,6 +280,24 @@ export const trainingSessionSchema = z
     }
   });
 export type TrainingSession = z.infer<typeof trainingSessionSchema>;
+export const trainingTurnLimit = 100;
+
+export function isTrainingUnfinished(session: TrainingSession): boolean {
+  return (
+    (session.state.phase === "briefing" || session.state.phase === "practice") &&
+    (session.endedEarly === true || session.state.turnCount >= trainingTurnLimit)
+  );
+}
+
+export function endTrainingEarly(session: TrainingSession): TrainingSession {
+  if (session.state.phase !== "briefing" && session.state.phase !== "practice")
+    throw new Error("Only active practice can be ended early");
+  return finalizeCheckpoint({
+    ...session,
+    endedEarly: true,
+    state: { ...session.state, updatedAt: Date.now() },
+  });
+}
 
 function finalizeCheckpoint(raw: Record<string, unknown>): TrainingSession {
   const session = trainingSessionSchema.parse({ ...raw, learningMemory: undefined });
@@ -396,13 +421,14 @@ function makeSkills(scenario: ScenarioContent, demo: boolean) {
           .replace(/[^a-z0-9 ]/g, "")
           .replace(/\s+/g, " ")
           .trim();
-      const met = !!example && normalize(message.content) === normalize(example);
+      const answer = learnerPracticeText(message) ?? "";
+      const met = !!example && normalize(answer) === normalize(example);
       return {
         stageId: input.stage.id,
         criteria: input.stage.successCriteria.map((_, criterionIndex) => ({
           criterionIndex,
           met,
-          evidence: met ? [{ messageSeq: message.seq, quote: message.content }] : [],
+          evidence: met ? [{ messageSeq: message.seq, quote: answer }] : [],
         })),
         feedback: met
           ? "Suggested reply demonstrated. Move to the next practice step."
@@ -547,23 +573,29 @@ export async function runTrainingTurn(
   supportRequest = supportRequest ?? detectDialogueSupport(utterance);
   if (supportRequest === "simplify" && session.provider.mode === "demo")
     throw new Error("Connect AI to request simpler English");
-  if (session.state.turnCount >= 100)
+  if (session.state.turnCount >= trainingTurnLimit)
     throw new Error("This lesson has reached its 100-turn limit. Start a new practice session.");
-  const result = await runtime(
-    session.scenario,
-    session.provider,
-    gateway,
-    session,
-    memory,
-  ).processStudentTurn({
-    userId: "local-training-user",
-    lessonId: session.id,
-    conversationId: session.id,
-    utterance: utterance.trim(),
-    mode: speech ? "voice" : "text",
-    confidence: speech?.confidence,
-    supportRequest,
-  });
+  if (session.endedEarly) throw new Error("This practice has already ended");
+  const agent = runtime(session.scenario, session.provider, gateway, session, memory);
+  const controller = new AbortController();
+  const deadline = setTimeout(
+    () => controller.abort(new DOMException("The practice turn timed out", "TimeoutError")),
+    50_000,
+  );
+  const result = await agent
+    .processStudentTurn({
+      userId: "local-training-user",
+      lessonId: session.id,
+      conversationId: session.id,
+      utterance: utterance.trim(),
+      mode: speech ? "voice" : "text",
+      confidence: speech?.confidence,
+      supportRequest,
+      signal: controller.signal,
+    })
+    .finally(() => clearTimeout(deadline));
+  controller.signal.throwIfAborted();
+
   return finalizeCheckpoint({
     ...session,
     vocabularyTrackingVersion: 1,
@@ -575,13 +607,23 @@ export async function runTrainingTurn(
         role: "user",
         content: utterance.trim(),
         ...(speech ? { speech } : {}),
-        ...(supportRequest ? { purpose: "support" as const } : {}),
+        ...(result.supportRequest
+          ? { purpose: "support" as const }
+          : result.evidenceStatus
+            ? { purpose: "non_practice" as const }
+            : result.practiceStart !== undefined
+              ? { practiceStart: result.practiceStart }
+              : {}),
       },
       {
         seq: session.messages.length + 1,
         role: "assistant",
         content: result.reply,
-        ...(supportRequest ? { purpose: "support" as const } : {}),
+        ...(result.supportRequest
+          ? { purpose: "support" as const }
+          : result.evidenceStatus
+            ? { purpose: "non_practice" as const }
+            : {}),
       },
     ],
     events: [...session.events, ...result.persistedEvents],
@@ -607,8 +649,10 @@ export async function runTrainingTurn(
     lastTurn: {
       action: result.teachingAction,
       errors: result.analysis.errors,
-      assessment: result.assessment ?? (supportRequest ? session.lastTurn?.assessment : undefined),
-      supportRequest,
+      assessment:
+        result.assessment ?? (result.supportRequest ? session.lastTurn?.assessment : undefined),
+      supportRequest: result.supportRequest,
+      evidenceStatus: result.evidenceStatus,
       move: result.dialogueMove,
     },
   });

@@ -99,6 +99,7 @@ test("connected AI rejects invented citations, then completes a free-form lesson
   page,
 }) => {
   let invalidCitation = true;
+  let modelCalls = 0;
   await page.route("http://localhost:11434/v1/chat/completions", async (route) => {
     if (route.request().method() === "OPTIONS") {
       await route.fulfill({
@@ -111,6 +112,7 @@ test("connected AI rejects invented citations, then completes a free-form lesson
       });
       return;
     }
+    modelCalls++;
     const body = route.request().postDataJSON();
     const system = body.messages[0].content as string;
     let output: unknown;
@@ -119,6 +121,7 @@ test("connected AI rejects invented citations, then completes a free-form lesson
       const message = input.transcript.at(-1);
       output = {
         stageId: input.stage.id,
+        relevance: "in_scene",
         criteria: input.stage.successCriteria.map((_: string, criterionIndex: number) => ({
           criterionIndex,
           met: true,
@@ -172,15 +175,39 @@ test("connected AI rejects invented citations, then completes a free-form lesson
   await expect(page.getByRole("alert")).toContainText("quote an existing learner message exactly");
   await expect(page.getByText("Current step: Order politely", { exact: true })).toBeVisible();
   invalidCitation = false;
+  await page.evaluate(() => window.__llInvoke("test_fail_next_checkpoint"));
+  await page.getByRole("button", { name: "Send reply", exact: true }).click();
+  await expect(page.getByRole("alert")).toContainText("retry saving");
+  const callsBeforeSaveRetry = modelCalls;
   for (let index = 0; index < replies.length; index++) {
     await page.getByLabel("Your reply").fill(replies[index]!);
     await page.getByRole("button", { name: "Send reply", exact: true }).click();
     await expect(page.getByLabel("Learning feedback")).toContainText(replies[index]!);
     await expect(page.getByRole("alert")).toHaveCount(0);
+    if (index === 0) expect(modelCalls).toBe(callsBeforeSaveRetry);
   }
   await page.getByRole("button", { name: "Finish and review", exact: true }).click();
   await expect(page.getByLabel("Lesson review")).toContainText("88/100");
   const persisted = await page.evaluate(() => sessionStorage.getItem("language-lab-e2e-state"));
   expect(persisted).not.toContain("test-secret-should-stay-in-keyring");
   expect(persisted).not.toContain('"apiKey"');
+});
+
+test("ends practice early with a saved evidence summary and offers a fresh attempt", async ({
+  page,
+}) => {
+  await page.getByRole("button", { name: "Start lesson", exact: true }).click();
+  await page.getByRole("button", { name: "Use suggested reply", exact: true }).click();
+  const answer = await page.getByLabel("Your reply").inputValue();
+  await page.getByRole("button", { name: "Send reply", exact: true }).click();
+  await expect(page.getByText("Current step: Choose size and milk", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "End practice early", exact: true }).click();
+  const summary = page.getByRole("region", { name: "Unfinished practice summary" });
+  await expect(summary).toContainText(answer);
+  await expect(page.getByRole("button", { name: "Finish and review", exact: true })).toHaveCount(0);
+  await page.reload();
+  await openWorkspacePage(page, "Training");
+  await expect(summary).toContainText(answer);
+  await summary.getByRole("button", { name: "Practise this course again", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Start lesson", exact: true })).toBeVisible();
 });

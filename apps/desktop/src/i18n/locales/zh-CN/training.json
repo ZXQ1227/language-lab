@@ -65,7 +65,6 @@
   "suggestedReply": "建议回复：",
   "useSuggestedReply": "使用建议回复",
   "yourReply": "你的回复",
-  "respondingAndSaving": "正在回复并保存…",
   "sendReply": "发送回复",
   "preparingReview": "正在准备回顾…",
   "finishAndReview": "完成并回顾",
@@ -122,5 +121,25 @@
     "microphoneSetup": "启用语音识别后即可录音回复。",
     "hint": "提示"
   },
-  "openGuidedPractice": "打开内置引导练习"
+  "openGuidedPractice": "打开内置引导练习",
+  "turnStatus": {
+    "responding": "正在等待回复…",
+    "saving": "正在保存对话…",
+    "replyFailed": "草稿和已保存进度都已保留。再次发送可重试获取回复。",
+    "saveFailed": "回复已生成。再次发送同一份草稿可重试保存。"
+  },
+  "turnEvidence": {
+    "off_topic": "本轮已留在对话记录中，本课学习证据未更新。",
+    "unclear": "这次回复不够清晰。请再说一遍或输入答案。",
+    "unavailable": "本轮评估超时，已验证的进度仍然保留。",
+    "demo": "引导练习只检查建议回复。"
+  },
+  "unfinished": {
+    "label": "未完成已结束",
+    "title": "未完成练习小结",
+    "end": "提前结束练习",
+    "ended": "对话和已验证的进度已保存。空心圆标示仍需练习的任务。",
+    "turnLimit": "这次练习已达到 {{count}} 轮。对话和已验证的进度已保存，空心圆标示仍需练习的任务。",
+    "retry": "再练一次这门课"
+  }
 }

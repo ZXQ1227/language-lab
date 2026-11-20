@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { DiagnosedError, ErrorDiagnosisRecord } from "./diagnosis";
-import type { EvidenceMessage } from "./assessment";
+import { learnerPracticeText, type EvidenceMessage } from "./assessment";
 import type { TeachingPolicy } from "./scenario";
 import { trackVocabulary } from "./vocabulary";
 
@@ -74,8 +74,7 @@ export function deriveInterventionState(
 ): InterventionState {
   const steps = new Map<number, number>();
   for (const message of transcript)
-    if (message.role === "user" && message.purpose !== "support")
-      steps.set(message.seq, steps.size + 1);
+    if (learnerPracticeText(message)) steps.set(message.seq, steps.size + 1);
   const corrections = records
     .flatMap((record) => {
       const error =

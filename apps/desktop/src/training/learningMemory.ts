@@ -1,5 +1,6 @@
 import {
   summarizeVocabulary,
+  learnerPracticeText,
   type EvidenceMessage,
   type ErrorDiagnosisRecord,
   type LessonState,
@@ -49,9 +50,7 @@ export function projectPracticeEvidence(
     }
   }
   return {
-    practiceTurns: messages.filter(
-      (message) => message.role === "user" && message.purpose !== "support",
-    ).length,
+    practiceTurns: messages.filter(learnerPracticeText).length,
     knowledge: progress.map((item) => ({
       term: item.term,
       usedTurns: item.usedTurns,

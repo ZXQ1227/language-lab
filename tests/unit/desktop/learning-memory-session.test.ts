@@ -83,12 +83,13 @@ describe("learning contributions from Training evidence", () => {
     const llm = new MockLlmProvider(
       {},
       [
-        { intent: "check in", errors: [] },
         {
           stageId: "find-reservation",
+          relevance: "in_scene",
           criteria: [0, 1].map((criterionIndex) => ({ criterionIndex, met: false, evidence: [] })),
           feedback: "Please give your booking name.",
         },
+        { intent: "check in", errors: [] },
         { reply: "What name is your booking under?", tone: "encouraging" },
       ].map((value) => JSON.stringify(value)),
     );

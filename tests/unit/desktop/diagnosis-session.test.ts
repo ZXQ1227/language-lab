@@ -14,6 +14,7 @@ import { loadScenarioContent } from "../../../apps/desktop/src/content/scenarioC
 const hotel = loadScenarioContent().find((course) => course.slug === "hotel-checkin")!;
 const pending = {
   stageId: "find-reservation",
+  relevance: "in_scene",
   criteria: [0, 1].map((criterionIndex) => ({ criterionIndex, met: false, evidence: [] })),
   feedback: "Please give your booking name and stay length.",
 };
@@ -54,7 +55,7 @@ describe("grounded language feedback checkpoints", () => {
   it("selects the meaning issue, keeps original practice and persists feedback across help and restore", async () => {
     const llm = new MockLlmProvider(
       {},
-      [diagnosis, pending, reply("A hotel booking is a reservation. What name is it under?")].map(
+      [pending, diagnosis, reply("A hotel booking is a reservation. What name is it under?")].map(
         (value) => JSON.stringify(value),
       ),
     );
@@ -101,11 +102,11 @@ describe("grounded language feedback checkpoints", () => {
       ],
     };
     const gateway = gatewayFor(
+      pending,
       diagnosis,
-      pending,
       reply("Use reservation for a hotel booking. What is your name?"),
-      second,
       pending,
+      second,
       reply("Thank you. How many nights are you staying?"),
     );
     let session = await createTrainingSession(
@@ -120,7 +121,7 @@ describe("grounded language feedback checkpoints", () => {
     expect(session.lastTurn?.action).toBe("continue_conversation");
     expect(session.diagnoses?.[1]?.diagnosis.errors).toHaveLength(1);
     expect(session.diagnoses?.[1]?.correctionIndex).toBeUndefined();
-    const offGateway = gatewayFor(diagnosis, pending, reply("What name is your booking under?"));
+    const offGateway = gatewayFor(pending, diagnosis, reply("What name is your booking under?"));
     const off = await runTrainingTurn(
       await createTrainingSession(
         configureScenarioContent(hotel, { teachingPolicy: { correctionMode: "off" } }),
@@ -139,7 +140,7 @@ describe("grounded language feedback checkpoints", () => {
       ...diagnosis,
       errors: [{ ...diagnosis.errors[0], original: "invented words" }],
     };
-    const gateway = gatewayFor(invalid, invalid);
+    const gateway = gatewayFor(pending, invalid, invalid);
     const initial = await createTrainingSession(hotel, provider, gateway);
     const before = JSON.stringify(initial);
     await expect(runTrainingTurn(initial, utterance, gateway)).rejects.toThrow(
@@ -149,7 +150,7 @@ describe("grounded language feedback checkpoints", () => {
   });
 
   it("rejects corrupted citations and keeps legacy feedback readable without inventing history", async () => {
-    const gateway = gatewayFor(diagnosis, pending, reply("What name is the reservation under?"));
+    const gateway = gatewayFor(pending, diagnosis, reply("What name is the reservation under?"));
     const saved = await runTrainingTurn(
       await createTrainingSession(hotel, provider, gateway),
       utterance,

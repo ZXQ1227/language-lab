@@ -13,14 +13,27 @@ export const evidenceMessageSchema = z
     seq: z.number().int().nonnegative(),
     role: z.enum(["user", "assistant", "system"]),
     content: z.string().min(1),
-    purpose: z.literal("support").optional(),
+    purpose: z.enum(["support", "non_practice"]).optional(),
+    /** Start of the learner's answer when a separate help request precedes it. */
+    practiceStart: z.number().int().positive().optional(),
     speech: speechInputSchema.optional(),
   })
   .refine(
     (message) => !message.speech || message.role === "user",
     "Only learner messages may carry speech input metadata",
+  )
+  .refine(
+    ({ practiceStart, role, purpose, content }) =>
+      practiceStart === undefined ||
+      (role === "user" && purpose === undefined && content.slice(practiceStart).trim().length > 0),
+    "The practice span must identify an eligible part of the learner message",
   );
 export type EvidenceMessage = z.infer<typeof evidenceMessageSchema>;
+
+export function learnerPracticeText(message: EvidenceMessage): string | undefined {
+  if (message.role === "user" && message.purpose === undefined)
+    return message.content.slice(message.practiceStart ?? 0);
+}
 
 export const stageAssessmentSchema = z.strictObject({
   stageId: z.string().min(1),
@@ -65,12 +78,7 @@ export function validateStageAssessment(
       throw new Error("Completed criterion needs learner evidence");
     for (const citation of criterion.evidence) {
       const message = messages.get(citation.messageSeq);
-      if (
-        !message ||
-        message.role !== "user" ||
-        message.purpose === "support" ||
-        !message.content.includes(citation.quote)
-      ) {
+      if (!message || !learnerPracticeText(message)?.includes(citation.quote)) {
         throw new Error("Assessment citation must quote an existing learner message exactly");
       }
     }

@@ -14,6 +14,7 @@ const hotel = loadScenarioContent().find((course) => course.slug === "hotel-chec
 const diagnosis = { errors: [], fluency: "fluent", intent: "continue check-in" };
 const pending = {
   stageId: "find-reservation",
+  relevance: "in_scene",
   criteria: [0, 1].map((criterionIndex) => ({ criterionIndex, met: false, evidence: [] })),
   feedback: "Please provide the reservation name and stay length.",
 };
@@ -24,16 +25,16 @@ describe("dialogue state in Training", () => {
     const llm = new MockLlmProvider(
       {},
       [
-        diagnosis,
         pending,
+        diagnosis,
         {
           reply: "Of course. What name is your reservation under?",
           tone: "encouraging",
           move: "follow_up",
           memoryUpdates: [{ id: "room-preference", messageSeq: 1, quote: first }],
         },
-        diagnosis,
         pending,
+        diagnosis,
         {
           reply: "I have noted your preference. How long are you staying?",
           tone: "neutral",
@@ -85,8 +86,8 @@ describe("dialogue state in Training", () => {
       llm: new MockLlmProvider(
         {},
         [
-          diagnosis,
           pending,
+          diagnosis,
           {
             reply: "How long are you staying?",
             tone: "neutral",
@@ -165,7 +166,6 @@ describe("dialogue state in Training", () => {
       {},
       [
         { reply: "Start by giving the reservation name.", tone: "encouraging", move: "hint" },
-        diagnosis,
         {
           ...pending,
           criteria: [0, 1].map((criterionIndex) => ({

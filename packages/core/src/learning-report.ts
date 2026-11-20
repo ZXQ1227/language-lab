@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { LessonState } from "./index";
-import { validateStageAssessment, type EvidenceMessage } from "./assessment";
+import { learnerPracticeText, validateStageAssessment, type EvidenceMessage } from "./assessment";
 import {
   diagnosedErrorSchema,
   validateDiagnosisRecords,
@@ -76,7 +76,7 @@ export function buildLearningReport(
   if (state.phase !== "done" || !course) throw new Error("Complete the lesson before reviewing it");
   const diagnoses = source.diagnoses ?? [];
   validateDiagnosisRecords(diagnoses, messages);
-  const practice = messages.filter((m) => m.role === "user" && m.purpose !== "support");
+  const practice = messages.filter(learnerPracticeText);
   const stages = course.stages.map((stage) => {
     const raw = state.stageAssessments?.[stage.id];
     const assessment = raw ? validateStageAssessment(raw, stage, messages) : undefined;

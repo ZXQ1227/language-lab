@@ -66,6 +66,11 @@ retains earlier verified evidence, and advances only a fully demonstrated stage.
 The updated stage reaches dialogue generation in the same turn. A validated review
 moves the last completed stage from debrief to done.
 
+Input routing separates help, eligible answers and excluded dialogue before
+committing evidence. An unfinished close or a reached turn limit renders a
+deterministic summary from the existing checkpoint. When saving a validated
+turn fails, the desktop can retry the same write without asking the model again.
+
 The desktop processes each operation in a private draft. One SQLite upsert saves a
 versioned `training_checkpoint` aggregate in the existing `learning_events` table,
 including state, transcript, evidence, domain events and report. The UI publishes

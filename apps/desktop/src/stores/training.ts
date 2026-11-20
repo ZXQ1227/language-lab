@@ -26,6 +26,7 @@ import { call } from "../lib/ipc";
 import {
   createTrainingSession,
   finishTrainingSession,
+  endTrainingEarly,
   runTrainingTurn,
   saveCourseReview,
   saveReportReflection,
@@ -69,6 +70,7 @@ interface TrainingStore {
   pendingCourse: ScenarioContent | null;
   loaded: boolean;
   busy: boolean;
+  turnStatus: "idle" | "responding" | "saving" | "replyFailed" | "saveFailed";
   error: string | null;
   learningMemory: LearningMemoryDocument | null;
   memoryContributions: LessonMemoryContribution[];
@@ -87,10 +89,13 @@ interface TrainingStore {
   send: (utterance: string, speech?: SpeechInput) => Promise<boolean>;
   requestSupport: (request: DialogueSupport) => Promise<boolean>;
   finish: () => Promise<void>;
+  endEarly: () => Promise<boolean>;
   saveReviewAnswers: (answers: Record<string, string>) => Promise<boolean>;
 }
 
 export const useTrainingStore = create<TrainingStore>((set, get) => {
+  let pendingWrite: { base: TrainingSession; key: string; next: TrainingSession } | undefined;
+
   async function commit(session: TrainingSession, activate = true) {
     const checkpoint = trainingSessionSchema.parse(session);
     const contribution = checkpoint.learningMemory ?? buildLearningContribution(checkpoint);
@@ -146,7 +151,7 @@ export const useTrainingStore = create<TrainingStore>((set, get) => {
   }
   async function operation(work: () => Promise<void>): Promise<boolean> {
     if (get().busy) return false;
-    set({ busy: true, error: null });
+    set({ busy: true, error: null, turnStatus: "idle" });
     try {
       await work();
       return true;
@@ -157,6 +162,31 @@ export const useTrainingStore = create<TrainingStore>((set, get) => {
       set({ busy: false });
     }
   }
+  async function saveTurn(
+    base: TrainingSession,
+    key: string,
+    calculate: () => Promise<TrainingSession>,
+  ) {
+    if (pendingWrite?.base !== base || pendingWrite.key !== key) {
+      pendingWrite = undefined;
+      set({ turnStatus: "responding" });
+      try {
+        pendingWrite = { base, key, next: await calculate() };
+      } catch (error) {
+        set({ turnStatus: "replyFailed" });
+        throw error;
+      }
+    }
+    set({ turnStatus: "saving" });
+    try {
+      await commit(pendingWrite.next);
+      pendingWrite = undefined;
+      set({ turnStatus: "idle" });
+    } catch (error) {
+      set({ turnStatus: "saveFailed" });
+      throw error;
+    }
+  }
   return {
     sessions: [],
     session: null,
@@ -165,6 +195,7 @@ export const useTrainingStore = create<TrainingStore>((set, get) => {
     reviewsLoaded: false,
     pendingCourse: null,
     busy: false,
+    turnStatus: "idle",
     loaded: false,
     error: null,
     learningMemory: null,
@@ -193,12 +224,15 @@ export const useTrainingStore = create<TrainingStore>((set, get) => {
       });
     },
     prepare: (course) => {
-      if (!get().busy)
+      if (!get().busy) {
+        pendingWrite = undefined;
         set({
           pendingCourse: course ? scenarioContentSchema.parse(course) : null,
           session: null,
           error: null,
+          turnStatus: "idle",
         });
+      }
     },
     resume: (id) => {
       if (!get().busy)
@@ -275,17 +309,18 @@ export const useTrainingStore = create<TrainingStore>((set, get) => {
       operation(async () => {
         const current = get().session;
         if (!current) throw new Error("Start or resume a lesson first");
-        const next = await runTrainingTurn(
-          current,
-          utterance,
-          detectDialogueSupport(utterance) === "repeat"
-            ? createMockGateway()
-            : await trainingGateway(current.provider),
-          undefined,
-          await snapshot(current.scenario),
-          speech,
+        await saveTurn(current, JSON.stringify([utterance.trim(), speech]), async () =>
+          runTrainingTurn(
+            current,
+            utterance,
+            detectDialogueSupport(utterance) === "repeat"
+              ? createMockGateway()
+              : await trainingGateway(current.provider),
+            undefined,
+            await snapshot(current.scenario),
+            speech,
+          ),
         );
-        await commit(next);
       }),
     finish: async () => {
       await operation(async () => {
@@ -305,8 +340,8 @@ export const useTrainingStore = create<TrainingStore>((set, get) => {
         const request = dialogueSupportSchema.parse(rawRequest);
         const current = get().session;
         if (!current) throw new Error("Start or resume a lesson first");
-        await commit(
-          await runTrainingTurn(
+        await saveTurn(current, `support:${request}`, async () =>
+          runTrainingTurn(
             current,
             dialogueSupportText[request],
             request === "repeat" ? createMockGateway() : await trainingGateway(current.provider),
@@ -314,6 +349,13 @@ export const useTrainingStore = create<TrainingStore>((set, get) => {
             await snapshot(current.scenario),
           ),
         );
+      }),
+    endEarly: async () =>
+      operation(async () => {
+        const current = get().session;
+        if (!current) throw new Error("Start or resume a lesson first");
+        await commit(endTrainingEarly(current));
+        pendingWrite = undefined;
       }),
     saveReviewAnswers: async (answers) =>
       operation(async () => {

@@ -35,3 +35,17 @@ exchanges locally and can continue from Learning memory. In Training and free
 conversation, the Translate action beside Read displays the partner's message
 in the active interface language. Image tools and a separate saved sentence
 collection require their own product work.
+
+## P0 learning-flow contracts
+
+- **AI connection**. Saving settings stores the endpoint/model locally and the
+  key in the OS keyring. An explicit verification checks the model's structured
+  output using a fixed prompt. Practice modes use the same endpoint rules.
+  Free-chat drafts and course-design goals are retained when switching to
+  Settings or bundled guided practice during the current run.
+- **Training evidence**. Help, unrelated answers and unresolved recognition do
+  not advance criteria or contribute vocabulary and errors. A mixed reply can
+  supply evidence from its answer portion. Validated replies become visible
+  after checkpoint save. A storage failure permits a retry with the same draft.
+  An unfinished close or the turn limit exposes saved evidence and next criteria
+  from the checkpoint, with a fresh-attempt action.

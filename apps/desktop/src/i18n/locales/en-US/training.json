@@ -65,7 +65,6 @@
   "suggestedReply": "Suggested reply: ",
   "useSuggestedReply": "Use suggested reply",
   "yourReply": "Your reply",
-  "respondingAndSaving": "Responding and saving…",
   "sendReply": "Send reply",
   "preparingReview": "Preparing review…",
   "finishAndReview": "Finish and review",
@@ -122,5 +121,25 @@
     "microphoneSetup": "Enable speech recognition to record replies.",
     "hint": "Hint"
   },
-  "openGuidedPractice": "Open built-in guided practice"
+  "openGuidedPractice": "Open built-in guided practice",
+  "turnStatus": {
+    "responding": "Waiting for a reply…",
+    "saving": "Saving the turn…",
+    "replyFailed": "Your draft and saved progress are intact. Submit again to retry the reply.",
+    "saveFailed": "The reply is ready. Submit the same draft again to retry saving."
+  },
+  "turnEvidence": {
+    "off_topic": "This turn stayed in the conversation. It did not add evidence for this lesson.",
+    "unclear": "The reply was unclear. Try saying or typing your answer again.",
+    "unavailable": "The assessment timed out. Your earlier verified progress is preserved.",
+    "demo": "Guided practice checks the suggested reply only."
+  },
+  "unfinished": {
+    "label": "Ended unfinished",
+    "title": "Unfinished practice summary",
+    "end": "End practice early",
+    "ended": "Your conversation and verified progress are saved. Open circles mark tasks still to practise.",
+    "turnLimit": "This practice reached {{count}} turns. Your conversation and verified progress are saved. Open circles mark tasks still to practise.",
+    "retry": "Practise this course again"
+  }
 }

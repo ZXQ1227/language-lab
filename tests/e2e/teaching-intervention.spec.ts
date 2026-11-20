@@ -156,6 +156,7 @@ test("requires an actual recast from connected AI and bounds delivery repair bef
       const input = JSON.parse(body.messages[1].content);
       output = {
         stageId: input.stage.id,
+        relevance: "in_scene",
         criteria: input.stage.successCriteria.map((_: string, criterionIndex: number) => ({
           criterionIndex,
           met: false,

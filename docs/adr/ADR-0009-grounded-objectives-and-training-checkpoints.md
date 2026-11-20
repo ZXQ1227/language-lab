@@ -54,3 +54,17 @@ ADR-0014 adds one compact memory projection row per Training lesson. Checkpoint
 and projection are written by one multi-row UPSERT, preserving the atomic
 publication rule. The checkpoint remains the canonical source; existing ordinary
 append-only events and independent normalized projections remain untouched.
+
+## Addendum: Evidence eligibility and unfinished practice
+
+Only a learner's eligible answer can contribute new evidence. Mixed help and
+practice messages have an optional answer offset, and excluded turns carry a
+distinct purpose. The connected stage evaluator reports relevance before
+diagnosis and vocabulary tracking. An assessment timeout preserves previously
+verified progress. Invalid positive citations fail validation before a write.
+A failed checkpoint write can reuse the validated turn in memory.
+
+An explicit early close stores an optional marker on the version-1 checkpoint.
+Early close and the 100-turn limit render a summary of verified and incomplete
+criteria without entering the completed report/review flow. Existing checkpoints
+remain readable. The database schema and phase machine are unchanged.
