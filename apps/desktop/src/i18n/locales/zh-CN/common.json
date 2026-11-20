@@ -119,6 +119,7 @@
     "connect": "设置对话 AI",
     "providerNotice": "发送时会把近期消息和相关学习记录发给你的 AI 服务。成功的对话会保存在本机。",
     "failed": "Zoi 暂时无法回复。草稿已保留，可以再次发送。",
+    "invalidReply": "AI 服务未返回可用的回复。草稿已保留，可以再次发送。",
     "microphoneSetup": "设置麦克风",
     "loadingHistory": "正在打开已保存的对话…",
     "loadFailed": "无法打开这段对话。",

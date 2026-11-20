@@ -23,6 +23,8 @@ export class GatewayError extends Error {
   readonly providerId: string;
   /** HTTP status when the error came from a provider response. */
   readonly statusCode?: number;
+  /** The provider completed successfully but supplied no usable text. */
+  readonly outputIssue?: "blank";
   /** Short detail safe for logs; never contains keys or audio content. */
   readonly detail?: string;
   /** Underlying cause for diagnostics; never serialized to UI. */
@@ -33,6 +35,7 @@ export class GatewayError extends Error {
     providerId: string;
     message: string;
     statusCode?: number;
+    outputIssue?: "blank";
     detail?: string;
     cause?: unknown;
   }) {
@@ -41,6 +44,7 @@ export class GatewayError extends Error {
     this.kind = params.kind;
     this.providerId = params.providerId;
     this.statusCode = params.statusCode;
+    this.outputIssue = params.outputIssue;
     this.detail = params.detail;
     this.cause = params.cause;
   }

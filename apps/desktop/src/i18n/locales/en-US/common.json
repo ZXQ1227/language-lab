@@ -115,6 +115,7 @@
     "connect": "Set up AI for conversation",
     "providerNotice": "Recent messages and relevant learning observations go to your AI connection. Successful exchanges are saved on this device.",
     "failed": "Zoi couldn’t reply. Your draft is still here. Try sending it again.",
+    "invalidReply": "The AI service didn’t return a usable reply. Your draft is still here. Try sending it again.",
     "microphoneSetup": "Microphone setup",
     "voiceConfirmation": {
       "title": "Confirm what you meant",

@@ -123,6 +123,7 @@ describe("OpenAI-compatible provider (injected fetch)", () => {
       (e: unknown) =>
         isGatewayError(e) &&
         e.kind === "schema_violation" &&
+        e.outputIssue === "blank" &&
         e.message.includes("blank output across 3 attempts"),
     );
     expect(calls).toBe(3);

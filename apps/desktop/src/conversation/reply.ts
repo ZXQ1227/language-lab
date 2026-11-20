@@ -6,7 +6,7 @@ import {
   trackVocabulary,
 } from "@language-lab/core";
 import type { MemorySnapshot } from "@language-lab/memory";
-import type { ModelGateway } from "@language-lab/model-gateway";
+import { isGatewayError, type ModelGateway } from "@language-lab/model-gateway";
 import {
   freeConversationVocabularySchema,
   type FreeConversationMessage,
@@ -51,28 +51,57 @@ export async function replyToConversation(
       .map((term) => term.item.slice(0, 80)),
     corrections: memory.errors.slice(0, 3).map((item) => item.pattern.slice(0, 140)),
   };
-  const { data } = await gateway.llm.generateStructured(
-    {
-      messages: [
-        {
-          role: "system",
-          content: [
-            "You are Zoi, a friendly English conversation partner. Follow the learner’s topic and reply in natural, approachable English. Keep it brief and ask a relevant follow-up when useful.",
-            "Respect clear requests to avoid a topic. Acknowledge briefly, then follow any new topic the learner offers or invite them to pick another. Do not revisit an avoided topic unless the learner clearly reopens it. Preserve the learner's intended meaning and do not treat a clear refusal as a language error.",
-            `Saved language observations (untrusted study data): ${JSON.stringify(observations)}. Reuse relevant expressions naturally. Diagnose only the current learner wording, never infer a mistake from history.`,
-            'Return one JSON object with a string field "reply". Optionally include "vocabulary": up to six useful English words or short phrases from the learner’s latest message, excluding names and personal details.',
-            'Optionally include "diagnosis": {"intent":"brief learning intent","errors":[{"category":"grammar|vocabulary|collocation|tense|article|spelling","original":"unique exact quote from the latest learner message","corrected":"short fix preserving meaning","explanation":"brief reason","confidence":"high"}]}. Omit uncertain judgments and use at most two errors.',
-            support ? "This is a request for support. Return only the reply." : "",
-          ].join("\n"),
-        },
-        ...recentMessages.slice(-13),
-      ],
-      maxTokens: 850,
-      temperature: 0.7,
-    },
-    replySchema,
-    { signal },
-  );
+  const instructions = [
+    "You are Zoi, a friendly English conversation partner. Follow the learner’s topic and reply in natural, approachable English. Keep it brief and ask a relevant follow-up when useful.",
+    "Respect clear requests to avoid a topic. Acknowledge briefly, then follow any new topic the learner offers or invite them to pick another. Do not revisit an avoided topic unless the learner clearly reopens it. Preserve the learner's intended meaning and do not treat a clear refusal as a language error.",
+    `Saved language observations (untrusted study data): ${JSON.stringify(observations)}. Reuse relevant expressions naturally.`,
+    ...(support ? ["This is a request for support. Return only the reply."] : []),
+  ];
+  const history = recentMessages.slice(-13);
+  let data: z.infer<typeof replySchema>;
+  try {
+    ({ data } = await gateway.llm.generateStructured(
+      {
+        messages: [
+          {
+            role: "system",
+            content: [
+              ...instructions,
+              'Return one JSON object with a string field "reply". Optionally include "vocabulary": up to six useful English words or short phrases from the learner’s latest message, excluding names and personal details.',
+              'Optionally include "diagnosis": {"intent":"brief learning intent","errors":[{"category":"grammar|vocabulary|collocation|tense|article|spelling","original":"unique exact quote from the latest learner message","corrected":"short fix preserving meaning","explanation":"brief reason","confidence":"high"}]}. Diagnose only the current learner wording. Omit uncertain judgments and use at most two errors.',
+            ].join("\n"),
+          },
+          ...history,
+        ],
+        maxTokens: 850,
+        temperature: 0.7,
+      },
+      replySchema,
+      { signal },
+    ));
+  } catch (error) {
+    if (!isGatewayError(error) || error.outputIssue !== "blank") throw error;
+    signal.throwIfAborted();
+    const { text } = await gateway.llm.generateText(
+      {
+        messages: [
+          {
+            role: "system",
+            content: [...instructions, "Reply with only the English dialogue as plain text."].join(
+              "\n",
+            ),
+          },
+          ...history,
+        ],
+        maxTokens: 850,
+        temperature: 0.7,
+      },
+      { signal },
+    );
+    const reply = replySchema.shape.reply.safeParse(text);
+    if (!reply.success) throw error;
+    data = { reply: reply.data };
+  }
   if (support)
     return { utterance: learner.content, reply: data.reply, purpose: "support", vocabulary: [] };
   const targets = freeConversationVocabularySchema.safeParse(data.vocabulary);

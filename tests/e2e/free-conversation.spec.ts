@@ -49,6 +49,93 @@ test("opens Zoi from a floating Home entry before any AI connection is configure
   expect(await localRows(page)).toEqual([]);
 });
 
+test("continues the work conversation when the second turn returns blank JSON replies", async ({
+  page,
+}) => {
+  await installTauriMock(page);
+  const first = "We can talk about my job";
+  const second = "I'm a Product manager";
+  const third = "I work on mobile apps.";
+  const fourth = "I enjoy interviewing users.";
+  const questions = [
+    "Nice! What do you do for work?",
+    "What kind of products do you manage?",
+    "What do you enjoy about working on mobile apps?",
+  ];
+  const secondTurnCalls: boolean[] = [];
+  await page.route(endpoint, async (route) => {
+    const headers = {
+      "access-control-allow-origin": "*",
+      "access-control-allow-methods": "POST",
+      "access-control-allow-headers": "authorization,content-type",
+    };
+    if (route.request().method() === "OPTIONS") {
+      await route.fulfill({ status: 204, headers });
+      return;
+    }
+    const { messages, response_format } = route.request().postDataJSON();
+    const input = messages.at(-1).content;
+    const structured = response_format?.type === "json_object";
+    let content: string;
+    if (input === second) {
+      secondTurnCalls.push(structured);
+      expect(messages.slice(1)).toEqual([
+        { role: "assistant", content: greeting },
+        { role: "user", content: first },
+        { role: "assistant", content: questions[0] },
+        { role: "user", content: second },
+      ]);
+      content = structured ? " \n   " : questions[1]!;
+    } else if (input === fourth) {
+      content = " ";
+    } else {
+      if (input === third)
+        expect(messages.slice(-3)).toEqual([
+          { role: "user", content: second },
+          { role: "assistant", content: questions[1] },
+          { role: "user", content: third },
+        ]);
+      expect(structured).toBe(true);
+      content = JSON.stringify(
+        input === first
+          ? { reply: questions[0] }
+          : { reply: questions[2], vocabulary: ["mobile apps"] },
+      );
+    }
+    await route.fulfill({
+      headers,
+      json: { choices: [{ message: { content }, finish_reason: "stop" }] },
+    });
+  });
+  await page.goto("/");
+  await configureAiConnection(page, { model: "test-blank-json" });
+  await openWorkspacePage(page, "Home");
+  await button(page, "Free conversation").click();
+  const conversation = page.getByRole("list", { name: "Conversation", exact: true });
+  const draft = page.getByRole("textbox", { name: "Your reply", exact: true });
+  for (const [index, utterance] of [first, second, third].entries()) {
+    await draft.fill(utterance);
+    await button(page, "Send reply").click();
+    await expect(conversation).toContainText(questions[index]!);
+    await expect(draft).toHaveValue("");
+  }
+  expect(secondTurnCalls).toEqual([true, true, true, false]);
+  await draft.fill(fourth);
+  await button(page, "Send reply").click();
+  await expect(page.getByRole("alert")).toContainText("didn’t return a usable reply");
+  await expect(draft).toHaveValue(fourth);
+  await expect(conversation.getByRole("listitem")).toHaveCount(7);
+  const rows = await localRows(page);
+  const checkpoint = JSON.parse(
+    rows.find((row) => row.type === "free_conversation_checkpoint")!.payload,
+  );
+  const memory = JSON.parse(rows.find((row) => row.type === "free_conversation_memory")!.payload);
+  expect(checkpoint.turns).toHaveLength(3);
+  expect(checkpoint.turns[1]).toEqual({ utterance: second, reply: questions[1], vocabulary: [] });
+  expect(memory.totalTurns).toBe(3);
+  expect(memory.knowledge).toEqual([expect.objectContaining({ term: "mobile apps" })]);
+});
+
 test("saves only grounded free conversation practice, retries atomically and reopens after restart", async ({
   page,
 }) => {
@@ -130,7 +217,9 @@ test("saves only grounded free conversation practice, retries atomically and reo
     const second = "I saw a heron by the river.";
     await draft.fill(first);
     await button(page, "Send reply").click();
-    await expect(page.getByRole("alert")).toContainText("Your draft is still here");
+    await expect(page.getByRole("alert")).toHaveText(
+      "The AI service didn’t return a usable reply. Your draft is still here. Try sending it again.",
+    );
     await expect(draft).toHaveValue(first);
     await expect(log.getByRole("listitem")).toHaveCount(1);
     await page.evaluate(() => window.__llInvoke("test_fail_next_memory"));

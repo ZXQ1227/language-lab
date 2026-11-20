@@ -130,6 +130,7 @@ export class OpenAiCompatibleLlmProvider implements LlmProvider {
           kind: "schema_violation",
           providerId: this.id,
           message: `model returned non-JSON output${hint}`,
+          outputIssue: text.trim() ? undefined : "blank",
           cause: parseError,
         }),
         options?.requestId ?? "n/a",

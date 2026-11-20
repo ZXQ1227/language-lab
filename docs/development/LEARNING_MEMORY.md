@@ -75,6 +75,13 @@ match the learner's own words. Error observations require a high-confidence
 diagnosis and an exact quote. Explicit help requests contribute to the transcript
 and episode history. Practice evidence comes from regular learner replies.
 
+When the provider repeatedly returns blank structured output, Zoi requests a
+plain-text reply using the same recent messages. A validated text reply can
+continue the chat and contributes the exchange to its episode. Vocabulary and
+correction evidence are only saved when the provider supplies valid structured
+observations. If the provider still returns no usable reply, the draft remains
+editable and the previous saved exchange stays intact.
+
 SQLite writes `free_conversation_checkpoint` and `free_conversation_memory`
 together. A failed write leaves the previous recording intact and allows retry
 with the same drafted reply. Each chat contributes one current episode. Open the

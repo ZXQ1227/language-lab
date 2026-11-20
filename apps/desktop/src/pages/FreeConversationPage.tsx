@@ -1,3 +1,4 @@
+import { isGatewayError } from "@language-lab/model-gateway";
 import { useEffect, useLayoutEffect, useRef, useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { LocalizedError } from "../components/LocalizedError";
@@ -52,7 +53,7 @@ export function FreeConversationPage() {
   const setDraft = useNavStore((state) => state.setFreeConversationDraft);
   const [showVoiceConfirmation, setShowVoiceConfirmation] = useState(false);
   const [pendingText, setPendingText] = useState<string | null>(null);
-  const [failed, setFailed] = useState<"reply" | "storage" | null>(null);
+  const [failed, setFailed] = useState<"failed" | "invalidReply" | "saveFailed" | null>(null);
   const [saving, setSaving] = useState(false);
   const unsaved = useRef<FreeConversationCheckpoint | null>(null);
   const [keyboard, setKeyboard] = useState<boolean | null>(null);
@@ -156,14 +157,14 @@ export function FreeConversationPage() {
     voice.stopPlayback();
     setPendingText(content);
     setFailed(null);
-    let failure: "reply" | "storage" = "storage";
+    let failure: "failed" | "saveFailed" = "saveFailed";
     try {
       let next = unsaved.current;
       if (next?.turns.at(-1)?.utterance !== content) {
         unsaved.current = null;
         const memory = await getMemory(content);
         if (controller.signal.aborted) return;
-        failure = "reply";
+        failure = "failed";
         const gateway = await trainingGateway(toTrainingProvider(settings));
         if (controller.signal.aborted) return;
         const turn = await replyToConversation(gateway, history, controller.signal, memory);
@@ -171,7 +172,7 @@ export function FreeConversationPage() {
         unsaved.current = next;
       }
       if (controller.signal.aborted) return;
-      failure = "storage";
+      failure = "saveFailed";
       setSaving(true);
       if (!(await saveConversation(next, controller.signal)))
         throw new Error("Could not save conversation");
@@ -180,8 +181,13 @@ export function FreeConversationPage() {
       setCheckpoint(next);
       setDraft("");
       if (voice.settings?.tts.autoRead) voice.speak(next.turns.at(-1)!.reply);
-    } catch {
-      if (!controller.signal.aborted) setFailed(failure);
+    } catch (error) {
+      if (!controller.signal.aborted)
+        setFailed(
+          failure === "failed" && isGatewayError(error) && error.kind === "schema_violation"
+            ? "invalidReply"
+            : failure,
+        );
     } finally {
       pending.current = null;
       if (!controller.signal.aborted) {
@@ -339,11 +345,7 @@ export function FreeConversationPage() {
             )}
             {failed && (
               <p role="alert" className="text-sm text-error-ink">
-                {t(
-                  failed === "storage"
-                    ? "common:freeConversation.saveFailed"
-                    : "common:freeConversation.failed",
-                )}
+                {t(`common:freeConversation.${failed}`)}
               </p>
             )}
             {((loaded && !configured) || failed) && (
