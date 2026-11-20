@@ -121,7 +121,16 @@ test("inserts recognized speech straight into the reply draft and sends only on 
     await route.fulfill({
       headers,
       json: {
-        choices: [{ message: { content: JSON.stringify({ reply: "Where did you see it?" }) } }],
+        choices: [
+          {
+            message: {
+              content: JSON.stringify({
+                reply: "Where did you see it?",
+                vocabulary: ["hare", "rabbit"],
+              }),
+            },
+          },
+        ],
       },
     });
   });
@@ -133,13 +142,26 @@ test("inserts recognized speech straight into the reply draft and sends only on 
   );
   expect(page.getByRole("textbox", { name: "Recognized speech", exact: true })).toHaveCount(0);
   expect(outgoing).toEqual([]);
+  expect((await rows(page)).some(({ type }) => type === "free_conversation_memory")).toBe(false);
   await page.getByRole("textbox", { name: "Your reply", exact: true }).fill("I saw a hare.");
   await nav(page, "Send reply");
   await expect(page.getByRole("list", { name: "Conversation", exact: true })).toContainText(
     "Where did you see it?",
   );
   expect(outgoing).toEqual(["I saw a hare."]);
-  expect((await rows(page)).some(({ type }) => type === "training_checkpoint")).toBe(false);
+  const saved = await rows(page);
+  expect(saved.some(({ type }) => type === "training_checkpoint")).toBe(false);
+  const memory = JSON.parse(saved.find(({ type }) => type === "free_conversation_memory")!.payload);
+  expect(memory.knowledge.map((item: { term: string }) => item.term)).toEqual(["hare"]);
+  await page.reload();
+  await openWorkspacePage(page, "Learning memory");
+  await page
+    .getByRole("region", { name: "Episodic memory" })
+    .getByRole("button", { name: "Open source conversation", exact: true })
+    .click();
+  await expect(page.getByRole("list", { name: "Conversation", exact: true })).toContainText(
+    "I saw a hare.",
+  );
 });
 
 test("checks uncertain voice meaning before sending and respects a confirmed topic boundary", async ({

@@ -238,3 +238,81 @@ test("distinguishes a saved connection from a verified response and preserves an
   await button(page, "Free conversation").click();
   await expect(draft).toHaveValue("I would like to talk about my weekend.");
 });
+
+test("persists the memory switch, resumes current context and deletes a selected source", async ({
+  page,
+}) => {
+  await installTauriMock(page);
+  const requests: { role: string; content: string }[][] = [];
+  await page.route(endpoint, async (route) => {
+    const headers = {
+      "access-control-allow-origin": "*",
+      "access-control-allow-methods": "POST",
+      "access-control-allow-headers": "authorization,content-type",
+    };
+    if (route.request().method() === "OPTIONS") {
+      await route.fulfill({ status: 204, headers });
+      return;
+    }
+    requests.push(route.request().postDataJSON().messages);
+    await route.fulfill({
+      headers,
+      json: {
+        choices: [
+          {
+            message: {
+              content: JSON.stringify({
+                reply: "What was it like?",
+                vocabulary: ["pangolin"],
+              }),
+            },
+          },
+        ],
+      },
+    });
+  });
+  const send = async (text: string) => {
+    const draft = page.getByRole("textbox", { name: "Your reply", exact: true });
+    await draft.fill(text);
+    await button(page, "Send reply").click();
+    await expect(draft).toHaveValue("");
+  };
+  await page.goto("/");
+  await configureAiConnection(page, { model: "test-memory-controls" });
+  await openWorkspacePage(page, "Home");
+  await button(page, "Free conversation").click();
+  await send("I saw a pangolin.");
+  await button(page, "Exit conversation").click();
+  await openWorkspacePage(page, "Learning memory");
+
+  const reuse = page.getByRole("checkbox", { name: "Use learning memory across sessions" });
+  await expect(reuse).toBeChecked();
+  await reuse.uncheck();
+  await expect(reuse).not.toBeChecked();
+  await page.reload();
+  await openWorkspacePage(page, "Learning memory");
+  await expect(reuse).toBeEnabled();
+  await expect(reuse).not.toBeChecked();
+  await page
+    .getByRole("region", { name: "Episodic memory" })
+    .getByRole("button", { name: "Open source conversation", exact: true })
+    .click();
+  await send("It was near the trail.");
+  expect(requests[1]![0]!.content).not.toContain("pangolin");
+  expect(requests[1]!.slice(1)).toContainEqual({ role: "user", content: "I saw a pangolin." });
+
+  await button(page, "Exit conversation").click();
+  await button(page, "Delete source").click();
+  const count = (await localRows(page)).length;
+  expect(count).toBe(2);
+  await button(page, "Cancel").click();
+  expect(await localRows(page)).toHaveLength(count);
+  await button(page, "Delete source").click();
+  await button(page, "Permanently delete").click();
+  await expect(button(page, "Open source conversation")).toHaveCount(0);
+  expect(await localRows(page)).toEqual([]);
+  await page.reload();
+  await openWorkspacePage(page, "Learning memory");
+  await expect(button(page, "Open source conversation")).toHaveCount(0);
+  await expect(reuse).not.toBeChecked();
+});

@@ -3,7 +3,10 @@ import { createRepositories } from "@language-lab/database";
 import { readLearningProfile, writeLearningProfile } from "@language-lab/memory";
 import { createTrainingSession } from "../../../apps/desktop/src/training/session";
 import { buildLearningContribution } from "../../../apps/desktop/src/training/learningMemory";
-import { readLearningMemory } from "../../../apps/desktop/src/training/learningMemoryPersistence";
+import {
+  readLearningMemory,
+  readMemoryReuse,
+} from "../../../apps/desktop/src/training/learningMemoryPersistence";
 import { loadScenarioContent } from "../../../apps/desktop/src/content/scenarioContent";
 import {
   buildFreeConversationContribution,
@@ -24,6 +27,39 @@ function setup() {
 const hotel = loadScenarioContent().find((course) => course.slug === "hotel-checkin")!;
 
 describe.skipIf(!nativeSqliteAvailable)("learning memory on real SQLite", () => {
+  it("retains local preference and atomically deletes the exact source, memory and review rows", async () => {
+    const { repos, sql } = setup();
+    await repos.users.ensureLocalLearner();
+    expect(await readMemoryReuse(repos)).toBe(true);
+    await repos.learningEvents.saveMemorySettings({ version: 1, reuseAcrossSessions: false });
+    expect(await readMemoryReuse(repos)).toBe(false);
+    await repos.learningEvents.saveTrainingCheckpoint({
+      id: "remove-me",
+      payload: {},
+      memory: {},
+      reviewPlan: {},
+    });
+    await repos.learningEvents.saveTrainingCheckpoint({
+      id: "keep-me",
+      payload: {},
+      memory: {},
+      reviewPlan: {},
+    });
+    const ids = () => sql.prepare("SELECT id FROM learning_events ORDER BY id").all();
+    const all = ids();
+    sql.exec(
+      "CREATE TRIGGER fail_source_delete BEFORE DELETE ON learning_events WHEN OLD.type = 'targeted_review_plan' BEGIN SELECT RAISE(ABORT, 'source delete failed'); END",
+    );
+    await expect(
+      repos.learningEvents.deletePracticeSource("remove-me", "training"),
+    ).rejects.toThrow("source delete failed");
+    expect(ids()).toEqual(all);
+    sql.exec("DROP TRIGGER fail_source_delete");
+    await repos.learningEvents.deletePracticeSource("remove-me", "training");
+    await repos.learningEvents.deletePracticeSource("remove-me", "training");
+    expect(ids()).toEqual(all.filter((row) => !String(row.id).endsWith("-remove-me")));
+  });
+
   it("writes a free conversation and its learning observations together", async () => {
     const { repos, sql } = setup();
     await repos.users.ensureLocalLearner();

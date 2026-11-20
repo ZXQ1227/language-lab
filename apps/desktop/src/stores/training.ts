@@ -40,7 +40,11 @@ import {
 } from "../training/session";
 import { saveTrainingKey, trainingGateway } from "../training/gateway";
 import { buildLearningContribution } from "../training/learningMemory";
-import { LOCAL_LEARNER_ID, readLearningMemory } from "../training/learningMemoryPersistence";
+import {
+  LOCAL_LEARNER_ID,
+  readLearningMemory,
+  readMemoryReuse,
+} from "../training/learningMemoryPersistence";
 import { readReviewPlans } from "../training/reviewPersistence";
 import {
   buildFreeConversationContribution,
@@ -74,6 +78,9 @@ interface TrainingStore {
   error: string | null;
   learningMemory: LearningMemoryDocument | null;
   memoryContributions: LessonMemoryContribution[];
+  reuseAcrossSessions: boolean | null;
+  setMemoryReuse: (enabled: boolean) => Promise<boolean>;
+  deletePracticeSource: (id: string, source: "training" | "free-conversation") => Promise<boolean>;
   saveProfile: (profile: LearningProfile) => Promise<boolean>;
   openLesson: (id: string) => Promise<boolean>;
   loadFreeConversation: (id: string) => Promise<FreeConversationCheckpoint>;
@@ -138,13 +145,20 @@ export const useTrainingStore = create<TrainingStore>((set, get) => {
       ),
     });
   }
-  async function snapshot(course: ScenarioContent) {
-    if (!get().learningMemory) {
-      const loaded = await readLearningMemory(repositories());
+  async function teachingMemory() {
+    const repos = repositories();
+    let document = get().learningMemory;
+    if (!document) {
+      const loaded = await readLearningMemory(repos);
+      document = loaded.document;
       set({ learningMemory: loaded.document, memoryContributions: loaded.contributions });
     }
+    const enabled = get().reuseAcrossSessions ?? (await readMemoryReuse(repos));
+    return enabled ? document : { ...document, knowledge: [], errors: [], episodes: [] };
+  }
+  async function snapshot(course: ScenarioContent) {
     return selectLearningMemory(
-      get().learningMemory!,
+      await teachingMemory(),
       course.courseTemplate!.targetLanguage,
       course.targetVocabulary,
     );
@@ -200,12 +214,52 @@ export const useTrainingStore = create<TrainingStore>((set, get) => {
     error: null,
     learningMemory: null,
     memoryContributions: [],
+    reuseAcrossSessions: null,
+    setMemoryReuse: async (enabled) =>
+      operation(async () => {
+        const repos = repositories();
+        await repos.users.ensureLocalLearner();
+        await repos.learningEvents.saveMemorySettings({ version: 1, reuseAcrossSessions: enabled });
+        pendingWrite = undefined;
+        set({ reuseAcrossSessions: enabled });
+      }),
+    deletePracticeSource: async (id, source) =>
+      operation(async () => {
+        const repos = repositories();
+        const current = get();
+        if (
+          !current.learningMemory ||
+          !current.memoryContributions.some(
+            (item) => item.lessonId === id && (item.source ?? "training") === source,
+          )
+        )
+          throw new Error("The practice source could not be found");
+        const contributions = current.memoryContributions.filter((item) => item.lessonId !== id);
+        const document = projectLearningMemory(
+          current.learningMemory.profile,
+          contributions,
+          current.learningMemory.profileSaved,
+        );
+        await repos.learningEvents.deletePracticeSource(id, source);
+        if (pendingWrite?.base.id === id) pendingWrite = undefined;
+        set({
+          learningMemory: document,
+          memoryContributions: contributions,
+          sessions: current.sessions.filter((item) => item.id !== id),
+          ...(current.session?.id === id ? { session: null } : {}),
+          ...(current.reportSession?.id === id ? { reportSession: null } : {}),
+          reviewPlans: current.reviewPlans.filter((plan) => plan.lessonId !== id),
+        });
+      }),
     load: async () => {
       await operation(async () => {
         const repos = repositories();
         await repos.users.ensureLocalLearner();
         const rows = await repos.learningEvents.listTrainingCheckpoints();
-        const memory = await readLearningMemory(repos);
+        const [memory, reuseAcrossSessions] = await Promise.all([
+          readLearningMemory(repos),
+          readMemoryReuse(repos),
+        ]);
         const latestSessions = rows.map((row) =>
           trainingSessionSchema.parse(JSON.parse(row.payload)),
         );
@@ -217,6 +271,7 @@ export const useTrainingStore = create<TrainingStore>((set, get) => {
         set({
           sessions,
           loaded: true,
+          reuseAcrossSessions,
           learningMemory: memory.document,
           memoryContributions: memory.contributions,
           session: get().pendingCourse ? null : (get().session ?? sessions[0] ?? null),
@@ -283,7 +338,7 @@ export const useTrainingStore = create<TrainingStore>((set, get) => {
         set({ memoryContributions: contributions, learningMemory });
       }),
     freeConversationMemory: async (utterance) => {
-      const document = get().learningMemory ?? (await readLearningMemory(repositories())).document;
+      const document = await teachingMemory();
       const observed = document.knowledge
         .filter((term) => term.language === "en" && term.practiceTurns > 0)
         .map((term) => term.item);

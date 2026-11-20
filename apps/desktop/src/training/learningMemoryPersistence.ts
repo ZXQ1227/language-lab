@@ -1,3 +1,4 @@
+import { z } from "zod";
 import type { createRepositories } from "@language-lab/database";
 import {
   lessonMemoryContributionSchema,
@@ -10,6 +11,16 @@ import { buildLearningContribution } from "./learningMemory";
 
 export const LOCAL_LEARNER_ID = "local-training-user";
 type Repositories = ReturnType<typeof createRepositories>;
+
+const memorySettingsSchema = z.strictObject({
+  version: z.literal(1),
+  reuseAcrossSessions: z.boolean(),
+});
+
+export async function readMemoryReuse(repositories: Repositories): Promise<boolean> {
+  const row = await repositories.learningEvents.findMemorySettings();
+  return row ? memorySettingsSchema.parse(JSON.parse(row.payload)).reuseAcrossSessions : true;
+}
 
 /** Keyset paging reads all memory, independently of the 50-lesson resume list. */
 export async function readLearningMemory(repositories: Repositories) {

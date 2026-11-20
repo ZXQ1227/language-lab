@@ -142,6 +142,20 @@ export async function installTauriMock(page: Page, state?: MockState): Promise<v
         case "db_execute": {
           const sql = String(args?.sql ?? "");
           const params = (args?.params as unknown[]) ?? [];
+          if (sql.startsWith("DELETE FROM learning_events")) {
+            const checkpoints = s.trainingCheckpoints ?? [];
+            const retained = checkpoints.filter(
+              (row) =>
+                row.user_id !== params[0] ||
+                !(
+                  (row.id === params[1] && row.type === params[2]) ||
+                  (row.id === params[3] && row.type === params[4]) ||
+                  (row.id === params[5] && row.type === "targeted_review_plan")
+                ),
+            );
+            write({ ...s, trainingCheckpoints: retained });
+            return { rowsAffected: checkpoints.length - retained.length, lastInsertId: "" };
+          }
           if (sql.startsWith("INSERT INTO student_profiles")) {
             if (failNextProfileSave) {
               failNextProfileSave = false;

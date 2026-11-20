@@ -1,4 +1,12 @@
 {
+  "controls": {
+    "reuse": "使用跨会话学习记忆",
+    "reuseDescription": "关闭后，历史词汇、纠错和练习经历仍保存在本机，不会加入新的 AI 请求。当前对话和学习档案仍可使用。",
+    "deleteSource": "删除来源",
+    "deleteDescription": "此操作会永久删除这段对话或课程及其关联的学习记忆、报告和复习任务。",
+    "confirmDelete": "永久删除",
+    "cancel": "取消"
+  },
   "unsavedProfileChanges": "学习档案更改尚未保存。",
   "yourStatedProfileIsSavedOnThisDevice": "你填写的学习档案已保存在本机。",
   "noProfileSavedYetDefaultsAreNotAnAssessment": "尚未保存学习档案。默认值不代表能力评估。",

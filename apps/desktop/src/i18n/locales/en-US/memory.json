@@ -1,4 +1,12 @@
 {
+  "controls": {
+    "reuse": "Use learning memory across sessions",
+    "reuseDescription": "When off, past words, corrections and episodes stay on this device and are left out of new AI context. Current conversations and your learner profile still work.",
+    "deleteSource": "Delete source",
+    "deleteDescription": "This permanently removes this conversation or lesson and its linked learning memory, report and review tasks.",
+    "confirmDelete": "Permanently delete",
+    "cancel": "Cancel"
+  },
   "unsavedProfileChanges": "Unsaved profile changes.",
   "yourStatedProfileIsSavedOnThisDevice": "Your stated profile is saved on this device.",
   "noProfileSavedYetDefaultsAreNotAnAssessment": "No profile saved yet. Defaults are not an assessment.",
