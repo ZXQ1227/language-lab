@@ -59,6 +59,56 @@ describe("OpenAI-compatible provider (injected fetch)", () => {
     expect(data).toEqual({ ok: true });
   });
 
+  it("generateStructured retries with a larger budget when reasoning exhausts max_tokens", async () => {
+    const bodies: Array<Record<string, unknown>> = [];
+    const reasoningExhausted = {
+      choices: [
+        {
+          message: { content: "", reasoning_content: "thinking...".repeat(100) },
+          finish_reason: "length",
+        },
+      ],
+      usage: { prompt_tokens: 370, completion_tokens: 2200, total_tokens: 2570 },
+    };
+    const llm = new OpenAiCompatibleLlmProvider({
+      ...CONFIG,
+      fetchImpl: async (_url, init) => {
+        bodies.push(JSON.parse(String(init?.body)) as Record<string, unknown>);
+        if (bodies.length === 1) return jsonResponse(200, reasoningExhausted);
+        return jsonResponse(200, completion('{"ok":true}'));
+      },
+    });
+    const { data } = await llm.generateStructured(
+      { messages: [{ role: "user", content: "ping" }], maxTokens: 2200 },
+      z.object({ ok: z.boolean() }),
+    );
+    expect(data).toEqual({ ok: true });
+    expect(bodies).toHaveLength(2);
+    expect(bodies[0]!.max_tokens).toBe(2200);
+    expect(bodies[1]!.max_tokens).toBe(8800);
+  });
+
+  it("generateStructured reports a reasoning-budget hint when retry still returns no content", async () => {
+    const exhausted = () => ({
+      choices: [{ message: { content: "", reasoning_content: "..." }, finish_reason: "length" }],
+    });
+    const llm = new OpenAiCompatibleLlmProvider({
+      ...CONFIG,
+      fetchImpl: async () => jsonResponse(200, exhausted()),
+    });
+    await expect(
+      llm.generateStructured(
+        { messages: [{ role: "user", content: "ping" }], maxTokens: 2200 },
+        z.object({ ok: z.boolean() }),
+      ),
+    ).rejects.toSatisfy(
+      (e: unknown) =>
+        isGatewayError(e) &&
+        e.kind === "schema_violation" &&
+        e.message.includes("completion budget exhausted"),
+    );
+  });
+
   it("maps 401 to auth and 429 to rate_limit", async () => {
     const auth = new OpenAiCompatibleLlmProvider({
       ...CONFIG,

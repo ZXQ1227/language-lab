@@ -39,9 +39,23 @@ const DEFAULT_TIMEOUT_MS = 30_000;
 const ERROR_DETAIL_LIMIT = 200;
 
 interface ChatCompletionResponse {
-  choices?: Array<{ message?: { content?: string }; delta?: { content?: string } }>;
+  choices?: Array<{
+    message?: { content?: string; reasoning_content?: string };
+    delta?: { content?: string };
+    finish_reason?: string;
+  }>;
   usage?: { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number };
 }
+
+/**
+ * Reasoning models (e.g. DeepSeek reasoning variants) spend the completion
+ * budget on hidden `reasoning_content` before emitting any `content`. When the
+ * budget is too small they return empty content with finish_reason "length".
+ * The non-streaming chat path retries once with a larger budget so callers get
+ * usable output instead of a confusing parse failure.
+ */
+const RETRY_MIN_COMPLETION_TOKENS = 8_192;
+const RETRY_MAX_COMPLETION_TOKENS = 16_384;
 
 function toUsage(raw: ChatCompletionResponse["usage"]): TokenUsage | undefined {
   if (!raw) return undefined;
@@ -76,16 +90,23 @@ export class OpenAiCompatibleLlmProvider implements LlmProvider {
   ): Promise<{ data: T; usage?: TokenUsage }> {
     const tracker = this.tracker("llm.generateStructured", options);
     const response = await this.chat({ ...request, jsonMode: true }, options, tracker);
-    const text = response.choices?.[0]?.message?.content ?? "";
+    const choice = response.choices?.[0];
+    const text = choice?.message?.content ?? "";
     let parsed: unknown;
     try {
       parsed = JSON.parse(text);
     } catch (e) {
+      const hint =
+        !text && choice?.finish_reason === "length"
+          ? " (completion budget exhausted by hidden reasoning; retry failed to produce content)"
+          : !text
+            ? " (empty content)"
+            : "";
       throw tracker.fail(
         new GatewayError({
           kind: "schema_violation",
           providerId: this.id,
-          message: "model returned non-JSON output",
+          message: `model returned non-JSON output${hint}`,
           cause: e,
         }),
         options?.requestId ?? "n/a",
@@ -183,6 +204,29 @@ export class OpenAiCompatibleLlmProvider implements LlmProvider {
   }
 
   private async chat(
+    request: LlmRequest,
+    options: CallOptions | undefined,
+    tracker: RequestTracker,
+  ): Promise<ChatCompletionResponse> {
+    let parsed = await this.chatOnce(request, options, tracker);
+    const firstChoice = parsed.choices?.[0];
+    // Reasoning models can spend the entire completion budget on hidden
+    // reasoning_content, returning empty content with finish_reason "length".
+    // Retry once with a larger budget before surfacing the failure.
+    if (!firstChoice?.message?.content && firstChoice?.finish_reason === "length") {
+      const base = request.maxTokens ?? 2_048;
+      const retryMaxTokens = Math.min(
+        Math.max(base * 4, RETRY_MIN_COMPLETION_TOKENS),
+        RETRY_MAX_COMPLETION_TOKENS,
+      );
+      if (retryMaxTokens > base) {
+        parsed = await this.chatOnce({ ...request, maxTokens: retryMaxTokens }, options, tracker);
+      }
+    }
+    return parsed;
+  }
+
+  private async chatOnce(
     request: LlmRequest,
     options: CallOptions | undefined,
     tracker: RequestTracker,
