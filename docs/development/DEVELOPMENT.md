@@ -86,6 +86,8 @@ For evidence-based post-lesson recaps, report history, source opening and saved
 personal reflection, see [Learning Report](LEARNING_REPORT.md).
 For source-grounded follow-up tasks, retrieval/production practice, saved attempts
 and the due/upcoming review queue, see [Review Generator](REVIEW_GENERATOR.md).
+For the travel teaching benchmark, scoring an observation file and the next-day
+hotel pilot, see [Travel teaching evaluation](TRAVEL_TEACHING_EVALUATION.md).
 For microphone capture, confirmed ASR input, device/provider TTS, speech settings
 and platform validation requirements, see [Voice loop](VOICE_LOOP.md).
 

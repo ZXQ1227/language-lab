@@ -494,6 +494,17 @@ export class LearningEventsRepo extends BaseRepo {
       ),
     );
   }
+  async listHotelTrainingCheckpoints(afterId: string): Promise<S.LearningEventRow[]> {
+    return parse(
+      S.learningEventRow,
+      await this.db.select(
+        `SELECT * FROM learning_events WHERE user_id = ?1 AND type = ?2 AND id > ?3
+        AND json_extract(CASE WHEN json_valid(payload) THEN payload ELSE '{}' END, '$.scenario.slug') = ?4
+        ORDER BY id LIMIT ?5`,
+        ["local-training-user", "training_checkpoint", afterId, "hotel-checkin", 100],
+      ),
+    );
+  }
   async listMemoryContributions(
     userId: string,
     afterId = "",

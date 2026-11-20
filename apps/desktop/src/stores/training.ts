@@ -46,6 +46,7 @@ import {
   readMemoryReuse,
 } from "../training/learningMemoryPersistence";
 import { readReviewPlans } from "../training/reviewPersistence";
+import { readTravelTransferTasks, type TravelTransferTask } from "../training/travelTransfer";
 import {
   buildFreeConversationContribution,
   freeConversationCheckpointSchema,
@@ -59,6 +60,8 @@ interface TrainingStore {
   session: TrainingSession | null;
   reportSession: TrainingSession | null;
   reviewPlans: ReviewPlan[];
+  travelTransfers: TravelTransferTask[];
+  openTravelTransfer: (sourceId: string) => Promise<boolean>;
   reviewsLoaded: boolean;
   loadReviews: () => Promise<void>;
   generateReview: (lessonId: string) => Promise<boolean>;
@@ -206,6 +209,7 @@ export const useTrainingStore = create<TrainingStore>((set, get) => {
     session: null,
     reportSession: null,
     reviewPlans: [],
+    travelTransfers: [],
     reviewsLoaded: false,
     pendingCourse: null,
     busy: false,
@@ -466,15 +470,39 @@ export const useTrainingStore = create<TrainingStore>((set, get) => {
         const repos = repositories();
         await repos.users.ensureLocalLearner();
         const memory = await readLearningMemory(repos);
-        const plans = await readReviewPlans(repos);
+        const [plans, travelTransfers] = await Promise.all([
+          readReviewPlans(repos),
+          readTravelTransferTasks(repos),
+        ]);
         set({
           reviewPlans: plans,
+          travelTransfers,
           reviewsLoaded: true,
           learningMemory: memory.document,
           memoryContributions: memory.contributions,
         });
       });
     },
+    openTravelTransfer: async (sourceId) =>
+      operation(async () => {
+        const task = (await readTravelTransferTasks(repositories())).find(
+          (entry) => entry.source.id === sourceId,
+        );
+        if (!task || Date.now() < task.dueAt)
+          throw new Error("Travel practice is not available yet");
+        pendingWrite = undefined;
+        if (task.attempt) {
+          set({ session: task.attempt, pendingCourse: null });
+          return;
+        }
+        const session = await createTrainingSession(
+          task.course,
+          task.source.provider,
+          await trainingGateway(task.source.provider),
+          await snapshot(task.course),
+        );
+        await commit({ ...session, travelTransfer: { sourceLessonId: sourceId } });
+      }),
     generateReview: async (id) =>
       operation(async () => {
         const row = await repositories().learningEvents.findTrainingCheckpoint(id);

@@ -13,6 +13,7 @@
     "build": "pnpm -r build",
     "test": "vitest run",
     "test:watch": "vitest",
+    "eval:travel": "vitest run tests/evals/travel.test.ts",
     "test:e2e": "playwright test",
     "test:report": "playwright show-report",
     "typecheck": "tsc --noEmit -p tsconfig.json",

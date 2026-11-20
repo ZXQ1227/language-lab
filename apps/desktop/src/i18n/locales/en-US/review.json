@@ -1,4 +1,14 @@
 {
+  "travel": {
+    "title": "Next-day travel practice",
+    "description": "After completing Hotel Check-in with AI, try a different hotel situation on the next local day.",
+    "rate": "Next-day completion: {{rate}} ({{completed}} of {{eligible}} expired practice windows)",
+    "noResult": "The completion rate appears after the first next-day window ends.",
+    "window": "Available from {{date}}",
+    "start": "Start a new hotel situation",
+    "resume": "Continue the new hotel situation",
+    "open": "Open completed travel practice"
+  },
   "targetedReviewPractice": "Targeted review practice",
   "basedOnGuidedDemoEvidenceDemoDiagnosesCoverLimitedExamples": "Based on guided demo evidence. Demo diagnoses cover limited examples.",
   "sourceMessage": "Source message #",

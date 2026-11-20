@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createRepositories, type DbParam } from "@language-lab/database";
 import { InMemoryTransport } from "./in-memory-transport";
+import { createNativeTestDatabase, nativeSqliteAvailable } from "./native-sqlite";
 
 class FailingTransport extends InMemoryTransport {
   fail = false;
@@ -12,6 +13,38 @@ class FailingTransport extends InMemoryTransport {
 }
 
 describe("training checkpoints", () => {
+  it.skipIf(!nativeSqliteAvailable)(
+    "reads older hotel checkpoints across result pages",
+    async () => {
+      const sqlite = createNativeTestDatabase();
+      try {
+        const repos = createRepositories(sqlite.db);
+        await repos.users.ensureLocalLearner();
+        for (let index = 0; index <= 100; index++) {
+          await repos.learningEvents.saveTrainingCheckpoint({
+            id: `hotel-${String(index).padStart(3, "0")}`,
+            payload: { scenario: { slug: "hotel-checkin" } },
+          });
+        }
+        await repos.learningEvents.saveTrainingCheckpoint({
+          id: "airport",
+          payload: { scenario: { slug: "airport-checkin" } },
+        });
+        await sqlite.db.execute("UPDATE learning_events SET payload = ?1 WHERE id = ?2", [
+          "invalid json",
+          "training-airport",
+        ]);
+        const first = await repos.learningEvents.listHotelTrainingCheckpoints("");
+        expect(first).toHaveLength(100);
+        expect(first[0]?.id).toBe("training-hotel-000");
+        const old = await repos.learningEvents.listHotelTrainingCheckpoints(first[99]!.id);
+        expect(old.map(({ id }) => id)).toEqual(["training-hotel-100"]);
+      } finally {
+        sqlite.close();
+      }
+    },
+  );
+
   it("keeps one coherent checkpoint per lesson and preserves the previous save on failure", async () => {
     const db = new FailingTransport();
     const repos = createRepositories(db);

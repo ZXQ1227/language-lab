@@ -339,6 +339,16 @@ export async function installTauriMock(page: Page, state?: MockState): Promise<v
             const filtered = rows.filter(
               (row) => row.user_id === String(params[0]) && row.type === String(params[1]),
             );
+            if (sql.includes("json_extract")) {
+              return filtered
+                .filter(
+                  (row) =>
+                    row.id > String(params[2]) &&
+                    JSON.parse(row.payload).scenario?.slug === params[3],
+                )
+                .sort((a, b) => a.id.localeCompare(b.id))
+                .slice(0, Number(params[4]));
+            }
             return sql.includes("ORDER BY id")
               ? filtered
                   .filter((row) => row.id > String(params[2]))
