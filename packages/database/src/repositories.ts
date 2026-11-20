@@ -299,6 +299,48 @@ export class MessagesRepo extends BaseRepo {
 }
 
 export class LearningEventsRepo extends BaseRepo {
+  async findMemorySettings(): Promise<S.LearningEventRow | null> {
+    const rows = parse(
+      S.learningEventRow,
+      await this.db.select(
+        "SELECT * FROM learning_events WHERE id = ?1 AND user_id = ?2 AND type = ?3",
+        ["memory-settings-local-training-user", "local-training-user", "memory_settings"],
+      ),
+    );
+    return rows[0] ?? null;
+  }
+
+  async saveMemorySettings(payload: { version: 1; reuseAcrossSessions: boolean }): Promise<void> {
+    const ts = nowMs();
+    await this.db.execute(
+      "INSERT INTO learning_events (id, user_id, lesson_id, type, payload, occurred_at, created_at, updated_at) VALUES (?1, ?2, NULL, ?3, ?4, ?5, ?5, ?5) ON CONFLICT(id) DO UPDATE SET payload = excluded.payload, updated_at = excluded.updated_at",
+      [
+        "memory-settings-local-training-user",
+        "local-training-user",
+        "memory_settings",
+        JSON.stringify(payload),
+        ts,
+      ],
+    );
+  }
+
+  /** Delete only rows belonging to the specified learner and source in one statement. */
+  async deletePracticeSource(id: string, source: "training" | "free-conversation"): Promise<void> {
+    const free = source === "free-conversation";
+    await this.db.execute(
+      `DELETE FROM learning_events WHERE user_id = ?1
+      AND ((id = ?2 AND type = ?3) OR (id = ?4 AND type = ?5) OR (id = ?6 AND type = 'targeted_review_plan'))`,
+      [
+        "local-training-user",
+        free ? `conversation-${id}` : `training-${id}`,
+        free ? "free_conversation_checkpoint" : "training_checkpoint",
+        `memory-${id}`,
+        free ? "free_conversation_memory" : "learning_memory_contribution",
+        free ? null : `review-${id}`,
+      ],
+    );
+  }
+
   async findLocaleSettings(): Promise<S.LearningEventRow | null> {
     const rows = parse(
       S.learningEventRow,

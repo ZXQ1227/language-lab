@@ -35,6 +35,19 @@ Resaving review answers updates that episode instead of creating another one.
 
 ## Persistence and atomic writes
 
+In Learning Memory, **Use learning memory across sessions** controls whether
+new Training and free-conversation requests include past vocabulary,
+corrections and episodes. It is on for existing installations with no saved
+preference. Turning it off preserves the local history and keeps the current
+conversation and explicit learner profile available. The preference is a
+version-1 `memory_settings` event in the existing table.
+
+Each episode can reopen its exact source or be permanently deleted after a
+second confirmation. A single learner- and type-scoped SQLite statement
+removes the checkpoint, memory contribution and any directly linked review
+plan together. The app then recomputes memory from the remaining sources;
+knowledge and errors supported by other sources remain visible.
+
 An optional version-1 `TrainingSession.learningMemory` contribution snapshots a
 lesson's knowledge, errors and episode facts. The desktop recomputes it from the
 immutable course, actual learner transcript, diagnoses and state, and validates

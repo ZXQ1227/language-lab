@@ -1,4 +1,12 @@
 {
+  "controls": {
+    "reuse": "使用跨對話學習記憶",
+    "reuseDescription": "關閉後，歷史詞彙、糾錯和練習經歷仍儲存在本機，不會加入新的 AI 請求。目前的對話和學習檔案仍可使用。",
+    "deleteSource": "刪除來源",
+    "deleteDescription": "此操作會永久刪除這段對話或課程及其關聯的學習記憶、報告和複習任務。",
+    "confirmDelete": "永久刪除",
+    "cancel": "取消"
+  },
   "unsavedProfileChanges": "學習檔案變更尚未儲存。",
   "yourStatedProfileIsSavedOnThisDevice": "你填寫的學習檔案已儲存在本機。",
   "noProfileSavedYetDefaultsAreNotAnAssessment": "尚未儲存學習檔案。預設值不代表能力評估。",

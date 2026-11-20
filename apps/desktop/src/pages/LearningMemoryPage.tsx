@@ -113,11 +113,22 @@ export function LearningMemoryPage({
 }) {
   const { t } = useTranslation();
   const title = view === "all" ? t("memory:learningMemory") : t(`common:workspace.pages.${view}`);
-  const { learningMemory: memory, loaded, busy, error, load, openLesson } = useTrainingStore();
+  const {
+    learningMemory: memory,
+    loaded,
+    busy,
+    error,
+    load,
+    openLesson,
+    reuseAcrossSessions,
+    setMemoryReuse,
+    deletePracticeSource,
+  } = useTrainingStore();
   const navigate = useNavStore((state) => state.navigate);
   const openFreeConversation = useNavStore((state) => state.openFreeConversation);
   const [language, setLanguage] = useState("");
   const [limit, setLimit] = useState(20);
+  const [deleting, setDeleting] = useState<string | null>(null);
   useEffect(() => {
     if (!loaded) void load();
   }, [loaded, load]);
@@ -194,6 +205,19 @@ export function LearningMemoryPage({
               className="space-y-3 rounded border border-line bg-surface p-5"
             >
               <h2 className="font-semibold">{t("memory:profileMemory")}</h2>
+              <label className="flex items-center gap-2 text-sm font-medium">
+                <input
+                  type="checkbox"
+                  checked={reuseAcrossSessions === true}
+                  disabled={busy || reuseAcrossSessions === null}
+                  aria-describedby="memory-reuse-description"
+                  onChange={(event) => void setMemoryReuse(event.target.checked)}
+                />
+                {t("memory:controls.reuse")}
+              </label>
+              <p id="memory-reuse-description" className="text-sm text-ink-muted">
+                {t("memory:controls.reuseDescription")}
+              </p>
               <ProfileEditor
                 key={JSON.stringify(memory.profile)}
                 profile={memory.profile}
@@ -343,7 +367,51 @@ export function LearningMemoryPage({
                       {t("memory:lastSaved")}
                       {formatDateTime(item.at)}
                     </p>
-                    {sourceButton(item.lessonId, item.source)}
+                    <div className="flex flex-wrap items-center gap-3">
+                      {sourceButton(item.lessonId, item.source)}
+                      <button
+                        type="button"
+                        className="text-xs font-medium text-error-ink underline"
+                        disabled={busy}
+                        onClick={() => setDeleting(item.lessonId)}
+                      >
+                        {t("memory:controls.deleteSource")}
+                      </button>
+                    </div>
+                    {deleting === item.lessonId && (
+                      <div
+                        role="group"
+                        aria-label={t("memory:controls.confirmDelete")}
+                        className="space-y-2 rounded-lg border border-error-line bg-chat-error p-3"
+                      >
+                        <p>{t("memory:controls.deleteDescription")}</p>
+                        <div className="flex flex-wrap gap-2">
+                          <button
+                            type="button"
+                            className={button}
+                            disabled={busy}
+                            onClick={() => setDeleting(null)}
+                          >
+                            {t("memory:controls.cancel")}
+                          </button>
+                          <button
+                            type="button"
+                            className="rounded-lg border border-error-line px-3 py-2 font-medium text-error-ink"
+                            disabled={busy}
+                            onClick={() =>
+                              void deletePracticeSource(
+                                item.lessonId,
+                                item.source ?? "training",
+                              ).then((ok) => {
+                                if (ok) setDeleting(null);
+                              })
+                            }
+                          >
+                            {t("memory:controls.confirmDelete")}
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </li>
                 ))}
               </ul>
