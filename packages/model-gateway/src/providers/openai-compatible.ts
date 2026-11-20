@@ -56,6 +56,11 @@ interface ChatCompletionResponse {
  */
 const RETRY_MIN_COMPLETION_TOKENS = 8_192;
 const RETRY_MAX_COMPLETION_TOKENS = 16_384;
+// JSON-mode providers occasionally answer HTTP 200 with whitespace-only
+// content (finish_reason "stop"). A fresh call almost always recovers. Other
+// malformed output stays an immediate failure so callers can show their own
+// retry UI instead of silently burning requests.
+const MAX_STRUCTURED_ATTEMPTS = 3;
 
 function toUsage(raw: ChatCompletionResponse["usage"]): TokenUsage | undefined {
   if (!raw) return undefined;
@@ -89,25 +94,43 @@ export class OpenAiCompatibleLlmProvider implements LlmProvider {
     options?: CallOptions,
   ): Promise<{ data: T; usage?: TokenUsage }> {
     const tracker = this.tracker("llm.generateStructured", options);
-    const response = await this.chat({ ...request, jsonMode: true }, options, tracker);
-    const choice = response.choices?.[0];
-    const text = choice?.message?.content ?? "";
+    let response: ChatCompletionResponse | undefined;
+    let finishReason: string | undefined;
+    let text = "";
     let parsed: unknown;
-    try {
-      parsed = JSON.parse(text);
-    } catch (e) {
+    let parseError: unknown;
+    for (let attempt = 0; attempt < MAX_STRUCTURED_ATTEMPTS; attempt++) {
+      response = await this.chat({ ...request, jsonMode: true }, options, tracker);
+      const choice = response.choices?.[0];
+      finishReason = choice?.finish_reason;
+      text = choice?.message?.content ?? "";
+      try {
+        parsed = JSON.parse(text);
+        parseError = undefined;
+        break;
+      } catch (e) {
+        parseError = e;
+        // Only whitespace-only/empty output is worth an automatic retry. A
+        // reasoning model that exhausted its budget already retried inside
+        // chat(); other malformed output is left for the caller's retry UI.
+        if (text.trim() || (!text && finishReason === "length")) break;
+      }
+    }
+    if (parseError !== undefined) {
       const hint =
-        !text && choice?.finish_reason === "length"
+        !text && finishReason === "length"
           ? " (completion budget exhausted by hidden reasoning; retry failed to produce content)"
           : !text
             ? " (empty content)"
-            : "";
+            : !text.trim()
+              ? ` (blank output across ${MAX_STRUCTURED_ATTEMPTS} attempts)`
+              : "";
       throw tracker.fail(
         new GatewayError({
           kind: "schema_violation",
           providerId: this.id,
           message: `model returned non-JSON output${hint}`,
-          cause: e,
+          cause: parseError,
         }),
         options?.requestId ?? "n/a",
       );
@@ -123,7 +146,7 @@ export class OpenAiCompatibleLlmProvider implements LlmProvider {
         options?.requestId ?? "n/a",
       );
     }
-    return { data: result.data, usage: toUsage(response.usage) };
+    return { data: result.data, usage: toUsage(response?.usage) };
   }
 
   async *streamText(request: LlmRequest, options?: CallOptions): AsyncGenerator<LlmStreamChunk> {

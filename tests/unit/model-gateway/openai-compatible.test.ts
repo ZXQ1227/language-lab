@@ -88,6 +88,46 @@ describe("OpenAI-compatible provider (injected fetch)", () => {
     expect(bodies[1]!.max_tokens).toBe(8800);
   });
 
+  it("generateStructured retries when JSON mode returns blank content", async () => {
+    let calls = 0;
+    const llm = new OpenAiCompatibleLlmProvider({
+      ...CONFIG,
+      fetchImpl: async () => {
+        calls++;
+        return jsonResponse(200, completion(calls < 3 ? " ".repeat(120) : '{"ok":true}'));
+      },
+    });
+    const { data } = await llm.generateStructured(
+      { messages: [{ role: "user", content: "ping" }] },
+      z.object({ ok: z.boolean() }),
+    );
+    expect(data).toEqual({ ok: true });
+    expect(calls).toBe(3);
+  });
+
+  it("generateStructured reports blank output after exhausting retries", async () => {
+    let calls = 0;
+    const llm = new OpenAiCompatibleLlmProvider({
+      ...CONFIG,
+      fetchImpl: async () => {
+        calls++;
+        return jsonResponse(200, completion(" ".repeat(90)));
+      },
+    });
+    await expect(
+      llm.generateStructured(
+        { messages: [{ role: "user", content: "ping" }] },
+        z.object({ ok: z.boolean() }),
+      ),
+    ).rejects.toSatisfy(
+      (e: unknown) =>
+        isGatewayError(e) &&
+        e.kind === "schema_violation" &&
+        e.message.includes("blank output across 3 attempts"),
+    );
+    expect(calls).toBe(3);
+  });
+
   it("generateStructured reports a reasoning-budget hint when retry still returns no content", async () => {
     const exhausted = () => ({
       choices: [{ message: { content: "", reasoning_content: "..." }, finish_reason: "length" }],
