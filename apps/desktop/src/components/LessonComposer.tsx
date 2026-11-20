@@ -116,8 +116,6 @@ export function LessonComposer({
           <VoiceInput
             voice={voice}
             busy={busy}
-            hasDraft={!!reply.trim()}
-            remainingCharacters={maxReply - (reply.trim() ? reply.length + 1 : 0)}
             language={session.state.courseTemplate?.targetLanguage ?? "en"}
             onUse={(text, recognized, input) => {
               setReply((previous) => (previous.trim() ? `${previous}\n${text}` : text));

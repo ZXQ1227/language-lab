@@ -95,7 +95,7 @@ test.beforeEach(async ({ page }) => {
   await page.goto("/");
 });
 
-test("sends reviewed speech to Zoi only after the learner confirms and sends it", async ({
+test("inserts recognized speech straight into the reply draft and sends only on send", async ({
   page,
 }) => {
   await configureAiConnection(page, { model: "test-free-conversation-voice" });
@@ -128,14 +128,12 @@ test("sends reviewed speech to Zoi only after the learner confirms and sends it"
   await openWorkspacePage(page, "Home");
   await nav(page, "Free conversation");
   await record(page);
-  const recognized = page.getByRole("textbox", { name: "Recognized speech", exact: true });
-  await expect(recognized).toHaveValue("I saw a rabbit.");
-  await recognized.fill("I saw a hare.");
-  await nav(page, "Use transcript");
   await expect(page.getByRole("textbox", { name: "Your reply", exact: true })).toHaveValue(
-    "I saw a hare.",
+    "I saw a rabbit.",
   );
+  expect(page.getByRole("textbox", { name: "Recognized speech", exact: true })).toHaveCount(0);
   expect(outgoing).toEqual([]);
+  await page.getByRole("textbox", { name: "Your reply", exact: true }).fill("I saw a hare.");
   await nav(page, "Send reply");
   await expect(page.getByRole("list", { name: "Conversation", exact: true })).toContainText(
     "Where did you see it?",
@@ -144,7 +142,7 @@ test("sends reviewed speech to Zoi only after the learner confirms and sends it"
   expect((await rows(page)).some(({ type }) => type === "training_checkpoint")).toBe(false);
 });
 
-test("records, reviews, commits confirmed speech and plays the saved partner reply without storing audio", async ({
+test("records, commits speech straight to the draft and plays the saved partner reply without storing audio", async ({
   page,
 }) => {
   const silence = await readFile("tests/fixtures/speech-silence.mp3");
@@ -183,15 +181,13 @@ test("records, reviews, commits confirmed speech and plays the saved partner rep
   await nav(page, "Save speech settings");
   await start(page);
   await record(page);
-  const recognized = page.getByRole("textbox", { name: "Recognized speech", exact: true });
-  await expect(recognized).toHaveValue("A latte and a muffin please.");
-  await expect(page.getByLabel("Voice input")).toContainText("Low recognition confidence");
-  expect((await checkpoint(page)).state.turnCount).toBe(0);
-  await recognized.fill("A latte and a muffin, please.");
-  await nav(page, "Use transcript");
   await expect(page.getByRole("textbox", { name: "Your reply", exact: true })).toHaveValue(
-    "A latte and a muffin, please.",
+    "A latte and a muffin please.",
   );
+  expect((await checkpoint(page)).state.turnCount).toBe(0);
+  await page
+    .getByRole("textbox", { name: "Your reply", exact: true })
+    .fill("A latte and a muffin, please.");
   await page.evaluate(() => window.__llInvoke("test_fail_next_checkpoint"));
   await nav(page, "Send reply");
   await expect(page.getByRole("alert")).toContainText("Injected checkpoint write failure");
@@ -295,10 +291,6 @@ test("retries ASR explicitly, preserves an existing draft and cleans up recordin
   await record(page);
   await expect(page.getByRole("alert")).toContainText("HTTP 503");
   await nav(page, "Retry recognition");
-  await expect(page.getByRole("textbox", { name: "Recognized speech", exact: true })).toHaveValue(
-    "Please make it small.",
-  );
-  await nav(page, "Append transcript to draft");
   await expect(page.getByRole("textbox", { name: "Your reply", exact: true })).toHaveValue(
     "I would like a latte.\nPlease make it small.",
   );

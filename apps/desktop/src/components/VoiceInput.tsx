@@ -1,33 +1,44 @@
 import { LocalizedError } from "./LocalizedError";
 import { useTranslation } from "react-i18next";
-import { useEffect, useState } from "react";
+import { useEffect, useRef } from "react";
 import type { SpeechInput } from "@language-lab/core";
 import type { useSpeechLoop } from "../speech/useSpeechLoop";
 import { useNavStore } from "../stores/nav";
 
+/**
+ * Voice input commits straight into the composer: as soon as recognition
+ * succeeds the transcript is inserted into the reply draft and the capture
+ * lifecycle ends. The learner reviews by reading and editing the draft itself
+ * before sending, so there is no separate confirmation panel.
+ */
 export function VoiceInput({
   voice,
   busy,
-  hasDraft,
-  remainingCharacters,
   language,
   onUse,
 }: {
   voice: ReturnType<typeof useSpeechLoop>;
   busy: boolean;
-  hasDraft: boolean;
-  remainingCharacters: number;
   language: string;
   onUse: (text: string, recognized: string, speech: SpeechInput) => void;
 }) {
   const { t } = useTranslation();
   const { capture } = voice;
   const navigate = useNavStore((s) => s.navigate);
-  const [text, setText] = useState("");
+  const committed = useRef<string | null>(null);
   useEffect(() => {
-    setText(capture.text ?? "");
-  }, [capture.text]);
-  const button = "button-secondary rounded px-3 py-2 text-sm disabled:opacity-40";
+    if (capture.phase === "recording") committed.current = null;
+    if (capture.phase !== "review" || !capture.text || !capture.providerId) return;
+    if (committed.current === capture.text) return;
+    committed.current = capture.text;
+    onUse(capture.text, capture.text, {
+      providerId: capture.providerId,
+      language,
+      confidence: capture.confidence,
+      edited: false,
+    });
+    voice.cancel();
+  }, [capture.phase, capture.text, capture.providerId, capture.confidence, language, onUse, voice]);
   const showSettings = !voice.settings?.asr.enabled || !!voice.error;
   const active = capture.phase !== "idle";
   if (!active && !showSettings) return null;
@@ -97,50 +108,6 @@ export function VoiceInput({
             </button>
           )}
         </p>
-      )}
-      {capture.phase === "review" && (
-        <>
-          <label className="block text-sm">
-            {t("speech:recognizedSpeech")}
-            <textarea
-              className="mt-1 block w-full rounded border form-control p-2"
-              rows={3}
-              maxLength={4000}
-              value={text}
-              disabled={busy}
-              onChange={(event) => setText(event.target.value)}
-            />
-          </label>
-          <p className="text-xs text-ink-muted">
-            {capture.confidence === undefined
-              ? t("speech:recognitionConfidenceWasNotSupplied")
-              : capture.confidence < 0.75
-                ? t("speech:lowRecognitionConfidenceCheckEveryWordCarefully")
-                : t("speech:checkTheRecognizedWordsBeforeUsingThem")}{" "}
-            {t("speech:thisIsNotAPronunciationOrFluencyAssessment")}
-          </p>
-          <button
-            type="button"
-            className={button}
-            disabled={busy || !text.trim() || text.trim().length > remainingCharacters}
-            onClick={() => {
-              onUse(text.trim(), capture.text!, {
-                providerId: capture.providerId!,
-                language,
-                confidence: capture.confidence,
-                edited: text.trim() !== capture.text,
-              });
-              voice.cancel();
-            }}
-          >
-            {hasDraft ? t("speech:appendTranscriptToDraft") : t("speech:useTranscript")}
-          </button>
-          {text.trim().length > remainingCharacters && (
-            <p role="alert" className="text-sm text-error-ink">
-              {t("speech:theCombinedDraftExceeds4000CharactersShortenTheTranscriptBefore")}
-            </p>
-          )}
-        </>
       )}
     </section>
   );

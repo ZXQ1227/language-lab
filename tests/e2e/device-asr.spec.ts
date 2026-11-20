@@ -56,12 +56,6 @@ test("recognizes speech with the built-in device recognizer and never touches an
   await enableDeviceRecognition(page);
   await startLesson(page);
   await record(page);
-  const recognized = page.getByRole("textbox", { name: "Recognized speech", exact: true });
-  await expect(recognized).toHaveValue("A latte and a muffin please.");
-  await expect(page.getByLabel("Voice input")).toContainText(
-    "Check the recognized words before using them",
-  );
-  await nav(page, "Use transcript");
   await expect(page.getByRole("textbox", { name: "Your reply", exact: true })).toHaveValue(
     "A latte and a muffin please.",
   );
@@ -81,7 +75,7 @@ test("surfaces device recognition failures and retries through the same path", a
   await expect(page.getByRole("alert")).toContainText("Injected device recognition failure");
   await expect(page.getByRole("button", { name: "Retry recognition", exact: true })).toBeEnabled();
   await nav(page, "Retry recognition");
-  await expect(page.getByRole("textbox", { name: "Recognized speech", exact: true })).toHaveValue(
+  await expect(page.getByRole("textbox", { name: "Your reply", exact: true })).toHaveValue(
     "A latte and a muffin please.",
   );
 });

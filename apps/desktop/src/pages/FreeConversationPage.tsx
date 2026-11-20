@@ -234,10 +234,6 @@ export function FreeConversationPage() {
               <VoiceInput
                 voice={voice}
                 busy={busy}
-                hasDraft={!!draft.trim()}
-                remainingCharacters={
-                  freeConversationMessageLimit - (draft.trim() ? draft.length + 1 : 0)
-                }
                 language="en"
                 onUse={(text) => {
                   setDraft((previous) => (previous.trim() ? `${previous}\n${text}` : text));
