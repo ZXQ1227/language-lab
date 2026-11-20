@@ -29,7 +29,8 @@ export function FreeConversationPage() {
   const [messages, setMessages] = useState<FreeConversationMessage[]>([
     { role: "assistant", content: freeConversationGreeting },
   ]);
-  const [draft, setDraft] = useState("");
+  const draft = useNavStore((state) => state.freeConversationDraft);
+  const setDraft = useNavStore((state) => state.setFreeConversationDraft);
   const [pendingText, setPendingText] = useState<string | null>(null);
   const [failed, setFailed] = useState(false);
   const [keyboard, setKeyboard] = useState<boolean | null>(null);
@@ -230,13 +231,23 @@ export function FreeConversationPage() {
                 {t("common:freeConversation.failed")}
               </p>
             )}
+            {((loaded && !configured) || failed) && (
+              <button type="button" className={action} onClick={() => navigate("guided")}>
+                {t("training:openGuidedPractice")}
+              </button>
+            )}
+            {failed && ready && (
+              <button type="button" className={action} onClick={() => navigate("settings")}>
+                {t("common:freeConversation.connect")}
+              </button>
+            )}
             {(showSpeechSetup || voice.capture.phase !== "idle") && (
               <VoiceInput
                 voice={voice}
                 busy={busy}
                 language="en"
                 onUse={(text) => {
-                  setDraft((previous) => (previous.trim() ? `${previous}\n${text}` : text));
+                  setDraft(draft.trim() ? `${draft}\n${text}` : text);
                   setKeyboard(true);
                 }}
               />

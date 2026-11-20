@@ -113,5 +113,6 @@
     "keyboard": "键盘",
     "microphoneSetup": "启用语音识别后即可录音回复。",
     "hint": "提示"
-  }
+  },
+  "openGuidedPractice": "打开内置引导练习"
 }

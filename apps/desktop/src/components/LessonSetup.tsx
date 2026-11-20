@@ -9,6 +9,7 @@ import { CourseStudyPack } from "./CourseStudyPack";
 import { formatNumber } from "../i18n";
 import { useTrainingStore } from "../stores/training";
 import { useAiProviderStore } from "../stores/aiProvider";
+import { useNavStore } from "../stores/nav";
 import { toTrainingProvider } from "../training/provider";
 import { supportsGuidedDemo, type TrainingProvider } from "../training/session";
 
@@ -19,7 +20,10 @@ export function LessonSetup({ course }: { course: ScenarioContent }) {
   const { start, busy } = useTrainingStore();
   const providerLoading = useAiProviderStore((s) => s.busy);
   const providerSettings = useAiProviderStore((s) => s.settings);
+  const providerConfigured = useAiProviderStore((s) => s.configured);
+  const providerError = useAiProviderStore((s) => s.error);
   const loadProvider = useAiProviderStore((s) => s.load);
+  const navigate = useNavStore((s) => s.navigate);
   const [mode, setMode] = useState<"demo" | "ai">("demo");
   const [variationId, setVariationId] = useState(
     course.courseTemplate?.selectedVariationId ?? "standard",
@@ -37,6 +41,7 @@ export function LessonSetup({ course }: { course: ScenarioContent }) {
       className="space-y-5 rounded-2xl border border-line bg-surface p-5 sm:p-7"
       onSubmit={(event) => {
         event.preventDefault();
+        if (selectedMode === "ai" && (!providerConfigured || providerError)) return;
         const provider: TrainingProvider =
           selectedMode === "demo" ? { mode: "demo" } : toTrainingProvider(providerSettings);
         void start(configured, provider);
@@ -158,10 +163,22 @@ export function LessonSetup({ course }: { course: ScenarioContent }) {
           })}
         </p>
       )}
+      {selectedMode === "ai" && (
+        <button
+          type="button"
+          className="text-sm font-semibold text-brand-ink underline"
+          onClick={() => navigate("settings")}
+        >
+          {t("common:freeConversation.connect")}
+        </button>
+      )}
       <div className="sticky bottom-0 z-10 -mx-5 -mb-5 rounded-b-2xl border-t border-line bg-surface px-5 py-3 sm:-mx-7 sm:-mb-7 sm:px-7">
         <button
           className="w-full rounded-xl button-primary px-5 py-3 font-semibold disabled:opacity-50"
-          disabled={busy || (selectedMode === "ai" && providerLoading)}
+          disabled={
+            busy ||
+            (selectedMode === "ai" && (providerLoading || !providerConfigured || !!providerError))
+          }
           type="submit"
         >
           {busy ? t("training:starting") : t("training:startLesson")}

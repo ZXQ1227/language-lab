@@ -113,5 +113,6 @@
     "keyboard": "Keyboard",
     "microphoneSetup": "Enable speech recognition to record replies.",
     "hint": "Hint"
-  }
+  },
+  "openGuidedPractice": "Open built-in guided practice"
 }

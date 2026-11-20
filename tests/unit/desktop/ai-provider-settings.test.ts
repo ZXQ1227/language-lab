@@ -37,7 +37,7 @@ beforeEach(async () => {
         }
         return { rowsAffected: 1, lastInsertId: "local-training-user" };
       }
-      if (command === "secrets_set") return null;
+      if (command === "secrets_set" || command === "secrets_get") return null;
       throw new Error(`Unexpected command: ${command}`);
     },
   );
@@ -45,6 +45,8 @@ beforeEach(async () => {
   useAiProviderStore.setState({
     settings: { baseUrl: "http://localhost:11434/v1", model: "llama3.2" },
     loaded: false,
+    configured: false,
+    connectionCheck: { status: "unverified" },
     busy: false,
     error: null,
   });
@@ -110,5 +112,48 @@ describe("ai provider settings store", () => {
     expect(ok).toBe(false);
     expect(useAiProviderStore.getState().error).toContain("could not be saved");
     expect(useAiProviderStore.getState().settings.baseUrl).toBe("http://localhost:11434/v1");
+  });
+
+  it("uses the training endpoint policy before writing settings or credentials", async () => {
+    for (const baseUrl of [
+      "http://example.com/v1",
+      "https://name:secret@example.com/v1",
+      "https://example.com/v1?",
+    ]) {
+      expect(
+        await useAiProviderStore.getState().save({ baseUrl, model: "test" }, "synthetic-key"),
+      ).toBe(false);
+    }
+    expect(invoke).not.toHaveBeenCalled();
+  });
+
+  it("verifies a saved endpoint with only the fixed structured probe and forgets the result on save", async () => {
+    const fetch = vi
+      .fn()
+      .mockResolvedValueOnce(Response.json({ choices: [{ message: { content: '{"ok":false}' } }] }))
+      .mockResolvedValueOnce(Response.json({ choices: [{ message: { content: '{"ok":true}' } }] }));
+    vi.stubGlobal("fetch", fetch);
+    const store = useAiProviderStore.getState();
+    const settings = { baseUrl: "http://localhost:11434/v1/", model: "test-model" };
+    expect(await store.save(settings, "")).toBe(true);
+    expect(fetch).not.toHaveBeenCalled();
+    await store.verify();
+    expect(useAiProviderStore.getState().connectionCheck).toEqual({
+      status: "failed",
+      kind: "schema_violation",
+    });
+    await store.verify();
+    expect(useAiProviderStore.getState().connectionCheck).toEqual({ status: "verified" });
+    const [url, init] = fetch.mock.calls[0]!;
+    expect(url).toBe("http://localhost:11434/v1/chat/completions");
+    expect(init.redirect).toBe("error");
+    expect(JSON.parse(init.body)).toMatchObject({
+      model: "test-model",
+      response_format: { type: "json_object" },
+      messages: [{ role: "system", content: 'Reply only with this JSON object: {"ok":true}' }],
+    });
+    expect(JSON.parse(init.body).messages).toHaveLength(1);
+    expect(await store.save({ ...settings, model: "next-model" }, "")).toBe(true);
+    expect(useAiProviderStore.getState().connectionCheck).toEqual({ status: "unverified" });
   });
 });

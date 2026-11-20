@@ -50,46 +50,9 @@ import {
 import { buildLearningContribution } from "./learningMemory";
 import { loadScenarioContent } from "../content/scenarioContent";
 
-const endpointSchema = z
-  .string()
-  .trim()
-  .url()
-  .superRefine((value, ctx) => {
-    let url: URL;
-    try {
-      url = new URL(value);
-    } catch {
-      return;
-    }
-    if (
-      (url.protocol !== "https:" && !(url.protocol === "http:" && isLocalEndpoint(value))) ||
-      url.username ||
-      url.password ||
-      url.search ||
-      url.hash
-    ) {
-      ctx.addIssue({
-        code: "custom",
-        message:
-          "Use an HTTPS endpoint (or localhost HTTP), without credentials, query parameters or fragments",
-      });
-    }
-  })
-  .transform((value) => value.replace(/\/+$/, ""));
+import { trainingProviderSchema, type TrainingProvider } from "./provider";
 
-export const trainingProviderSchema = z.discriminatedUnion("mode", [
-  z.strictObject({ mode: z.literal("demo") }),
-  z.strictObject({
-    mode: z.literal("ai"),
-    baseUrl: endpointSchema,
-    model: z.string().trim().min(1),
-  }),
-]);
-export type TrainingProvider = z.infer<typeof trainingProviderSchema>;
-
-export function isLocalEndpoint(baseUrl: string): boolean {
-  return ["localhost", "127.0.0.1", "[::1]"].includes(new URL(baseUrl).hostname);
-}
+export { trainingProviderSchema, type TrainingProvider } from "./provider";
 
 export const trainingSessionSchema = z
   .object({
