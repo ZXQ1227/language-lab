@@ -10,6 +10,10 @@ import {
   type FreeConversationMessage,
 } from "../conversation/checkpoint";
 import { replyToConversation } from "../conversation/reply";
+import {
+  findVoiceMeaningAmbiguities,
+  rebaseVoiceMeaningAmbiguities,
+} from "../conversation/voiceMeaning";
 import { useSpeechLoop } from "../speech/useSpeechLoop";
 import { characterVoiceStyle } from "../speech/voices";
 import { useAiProviderStore } from "../stores/aiProvider";
@@ -44,7 +48,9 @@ export function FreeConversationPage() {
   );
   const [loadAttempt, setLoadAttempt] = useState(0);
   const draft = useNavStore((state) => state.freeConversationDraft);
+  const ambiguities = useNavStore((state) => state.freeConversationAmbiguities);
   const setDraft = useNavStore((state) => state.setFreeConversationDraft);
+  const [showVoiceConfirmation, setShowVoiceConfirmation] = useState(false);
   const [pendingText, setPendingText] = useState<string | null>(null);
   const [failed, setFailed] = useState<"reply" | "storage" | null>(null);
   const [saving, setSaving] = useState(false);
@@ -54,6 +60,7 @@ export function FreeConversationPage() {
   const pending = useRef<AbortController | null>(null);
   const transcript = useRef<HTMLDivElement>(null);
   const title = useRef<HTMLHeadingElement>(null);
+  const voiceConfirmationTitle = useRef<HTMLHeadingElement>(null);
   const voice = useSpeechLoop("free-conversation", "en", characterVoiceStyle());
   const partner = t("training:defaultPartnerName");
   const busy = pendingText !== null;
@@ -69,12 +76,21 @@ export function FreeConversationPage() {
   const visibleMessages: FreeConversationMessage[] = pendingText
     ? [...messages, { role: "user", content: pendingText }]
     : messages;
+  const ambiguity = ambiguities[0];
+  const alternative = ambiguity
+    ? draft.slice(0, ambiguity.start) +
+      ambiguity.alternative +
+      draft.slice(ambiguity.start + ambiguity.heard.length)
+    : null;
 
   useEffect(() => {
     void load();
     title.current?.focus();
     return () => pending.current?.abort();
   }, [load]);
+  useEffect(() => {
+    if (showVoiceConfirmation) voiceConfirmationTitle.current?.focus();
+  }, [showVoiceConfirmation]);
 
   useEffect(() => {
     if (!sourceId) return;
@@ -100,17 +116,40 @@ export function FreeConversationPage() {
     if (viewport) viewport.scrollTop = viewport.scrollHeight;
   }, [messages.length, pendingText]);
 
-  async function send(event: FormEvent<HTMLFormElement>) {
+  function canSend(text: string) {
+    return (
+      !!text.trim() &&
+      text.trim().length <= freeConversationMessageLimit &&
+      ready &&
+      !pending.current &&
+      !dealingWithVoice
+    );
+  }
+
+  function requestSend(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const content = draft.trim();
-    if (
-      !content ||
-      content.length > freeConversationMessageLimit ||
-      !ready ||
-      pending.current ||
-      dealingWithVoice
-    )
+    if (!canSend(draft)) return;
+    if (ambiguity) {
+      setShowVoiceConfirmation(true);
       return;
+    }
+    void sendReply(draft);
+  }
+
+  function confirmVoiceMeaning(text: string) {
+    if (!canSend(text)) return;
+    const remaining = rebaseVoiceMeaningAmbiguities(draft, text, ambiguities.slice(1));
+    setDraft(text, remaining);
+    if (remaining.length) {
+      voiceConfirmationTitle.current?.focus();
+      return;
+    }
+    setShowVoiceConfirmation(false);
+    void sendReply(text);
+  }
+
+  async function sendReply(text: string) {
+    const content = text.trim();
     const controller = new AbortController();
     const history: FreeConversationMessage[] = [...messages, { role: "user", content }];
     pending.current = controller;
@@ -263,7 +302,7 @@ export function FreeConversationPage() {
       <form
         aria-label={t("training:focus.replyControls")}
         className="shrink-0 rounded-t-3xl border-t border-line bg-surface"
-        onSubmit={(event) => void send(event)}
+        onSubmit={requestSend}
       >
         <div className="mx-auto flex max-h-[56dvh] max-w-4xl flex-col gap-2 px-4 py-2.5 sm:px-6 sm:py-3">
           <div className="min-h-0 space-y-2 overflow-y-auto overscroll-contain p-0.5">
@@ -322,8 +361,14 @@ export function FreeConversationPage() {
                 voice={voice}
                 busy={busy}
                 language="en"
-                onUse={(text) => {
-                  setDraft(draft.trim() ? `${draft}\n${text}` : text);
+                onUse={(text, _recognized, speech) => {
+                  const prefix = draft.trim() ? `${draft}\n` : "";
+                  const checks = findVoiceMeaningAmbiguities(text, speech.confidence);
+                  setDraft(prefix + text, [
+                    ...ambiguities,
+                    ...checks.map((check) => ({ ...check, start: check.start + prefix.length })),
+                  ]);
+                  setShowVoiceConfirmation(false);
                   setKeyboard(true);
                 }}
               />
@@ -343,18 +388,49 @@ export function FreeConversationPage() {
                   disabled={busy || dealingWithVoice}
                   onChange={(event) => {
                     setKeyboard(true);
-                    setDraft(event.target.value);
+                    const text = event.target.value;
+                    setDraft(text, rebaseVoiceMeaningAmbiguities(draft, text, ambiguities));
                   }}
                 />
               </label>
               <button
                 type="submit"
-                disabled={!ready || busy || dealingWithVoice || !draft.trim()}
+                disabled={!canSend(draft) || (showVoiceConfirmation && !!ambiguity)}
                 className="button-primary rounded-xl px-4 py-2.5 text-sm font-semibold disabled:opacity-50"
               >
                 {t("training:sendReply")}
               </button>
             </div>
+            {showVoiceConfirmation && alternative !== null && (
+              <section
+                aria-labelledby="free-conversation-voice-confirmation"
+                className="space-y-2 rounded-xl border border-line-info bg-brand-primary-subtle p-3 text-sm"
+              >
+                <h2
+                  id="free-conversation-voice-confirmation"
+                  ref={voiceConfirmationTitle}
+                  tabIndex={-1}
+                  className="font-semibold"
+                >
+                  {t("common:freeConversation.voiceConfirmation.title")}
+                </h2>
+                <p>{t("common:freeConversation.voiceConfirmation.description")}</p>
+                <div className="grid gap-2">
+                  {[draft, alternative].map((choice) => (
+                    <button
+                      key={choice}
+                      type="button"
+                      lang="en"
+                      className="button-secondary wrap-break-word rounded-lg px-3 py-2 text-left whitespace-pre-wrap disabled:opacity-50"
+                      disabled={!canSend(choice)}
+                      onClick={() => confirmVoiceMeaning(choice)}
+                    >
+                      {choice}
+                    </button>
+                  ))}
+                </div>
+              </section>
+            )}
           </div>
           <div className="mx-auto grid w-full max-w-xs shrink-0 grid-cols-2 items-center gap-3 pt-1">
             <button

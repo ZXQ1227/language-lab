@@ -108,6 +108,10 @@
   },
   "freeConversation": {
     "title": "自由对话",
+    "voiceConfirmation": {
+      "title": "确认你想表达的意思",
+      "description": "语音识别可能把这两种意思听反了。请选择要发送的句子，或直接编辑回复。"
+    },
     "invitation": "只想随便聊聊？",
     "close": "退出对话",
     "responding": "Zoi 正在回复…",

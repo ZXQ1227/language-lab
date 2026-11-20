@@ -42,9 +42,9 @@ the keyboard collapsed. Select **Keyboard** to type or return to a draft.
    on page load. Playback stops before capture, and video is never requested.
 2. Choose **Stop and recognize**. Recording also stops after 45 seconds or at the
    5 MB bound. Audio is sent to the configured ASR service and kept only in memory.
-3. Review or edit **Recognized speech**, then choose **Use transcript** or **Append
-   transcript to draft**. The keyboard opens with the resulting draft. If the combined text
-   exceeds 4,000 characters, shorten it explicitly; words are never silently cut.
+3. Recognition inserts the transcript into the editable reply draft and opens
+   the keyboard. If the combined text exceeds 4,000 characters, shorten it
+   explicitly; words are never silently cut.
 4. Choose **Send reply**. Only the confirmed composer text enters teaching. A
    failed checkpoint save keeps the draft/provenance for retry without another
    recognition request or duplicated learning progress.
@@ -66,6 +66,19 @@ Zoi. Use the keyboard or review a voice transcript before sending it to the
 configured AI provider. Individual replies can be read aloud using the same
 speech settings and voice selection. A successful exchange is saved locally and
 can be reopened from Learning memory.
+
+Free conversation checks voice-derived statements containing the English
+modal pairs `can/can't` and `could/couldn't` when recognition confidence is
+below 0.8 or unavailable. The threshold is a conservative app heuristic.
+If the voice-derived word is still in the draft when the learner presses Send,
+the composer shows both readings. The learner can choose the intended wording
+or edit the word in the draft. Only the selected wording reaches the dialogue
+and learning memory. The confirmation is local and has no model call. Typed
+text and high-confidence transcriptions use the usual send flow.
+
+Zoi acknowledges a standalone request to avoid a topic and invites a different
+topic. For a longer reply that also suggests a new topic, the dialogue prompt
+instructs Zoi to follow the new topic and respect the stated boundary.
 
 ## Evidence and privacy
 

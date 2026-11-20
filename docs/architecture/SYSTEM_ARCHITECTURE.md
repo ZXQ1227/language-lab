@@ -49,6 +49,9 @@ See [ADR-0019](../adr/ADR-0019-validated-ai-course-design.md).
 The learning plan opens a dedicated conversation with Zoi. The greeting is
 local. Sending text or a confirmed transcript uses the saved AI connection
 and endpoint-scoped keyring access through the same Model Gateway as Training.
+The reply draft retains uncertain voice-derived wording in memory long enough
+to ask for confirmation before a turn is submitted. A clear standalone topic
+refusal gets a local acknowledgment through the usual save flow.
 The request contains a bounded window of recent conversation and selected English
 learning observations. The gateway validates the reply and optional evidence
 against the learner's words. Each successful exchange commits a

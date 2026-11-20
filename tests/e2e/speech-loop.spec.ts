@@ -142,6 +142,74 @@ test("inserts recognized speech straight into the reply draft and sends only on 
   expect((await rows(page)).some(({ type }) => type === "training_checkpoint")).toBe(false);
 });
 
+test("checks uncertain voice meaning before sending and respects a confirmed topic boundary", async ({
+  page,
+}) => {
+  await configureAiConnection(page, { model: "test-free-conversation-meaning" });
+  await configure(page, false);
+  const negative = "We can't talk about my job.";
+  const positive = "We can talk about my job.";
+  const outgoing: string[] = [];
+  let recognitionCount = 0;
+  await page.route(`${endpoint}/audio/transcriptions`, (route) =>
+    route.fulfill({
+      headers: { "access-control-allow-origin": "*" },
+      json: { text: negative, ...(recognitionCount++ === 0 ? {} : { confidence: 0.42 }) },
+    }),
+  );
+  await page.route("http://localhost:11434/v1/chat/completions", async (route) => {
+    const headers = {
+      "access-control-allow-origin": "*",
+      "access-control-allow-methods": "POST",
+      "access-control-allow-headers": "authorization,content-type",
+    };
+    if (route.request().method() === "OPTIONS") {
+      await route.fulfill({ status: 204, headers });
+      return;
+    }
+    outgoing.push(route.request().postDataJSON().messages.at(-1).content);
+    await route.fulfill({
+      headers,
+      json: {
+        choices: [{ message: { content: JSON.stringify({ reply: "What do you do for work?" }) } }],
+      },
+    });
+  });
+
+  await openWorkspacePage(page, "Home");
+  await nav(page, "Free conversation");
+  const conversation = page.getByRole("list", { name: "Conversation", exact: true });
+  const confirm = page.getByRole("region", { name: "Confirm what you meant" });
+  const checkpoints = async () =>
+    (await rows(page)).filter(({ type }) => type === "free_conversation_checkpoint");
+  for (const [choice, reply] of [
+    [positive, "What do you do for work?"],
+    [negative, "Of course. What would you like to talk about instead?"],
+  ] as const) {
+    const draft = page.getByRole("textbox", { name: "Your reply", exact: true });
+    await record(page);
+    await expect(draft).toHaveValue(negative);
+    const priorRequests = outgoing.length;
+    const priorCheckpoints = await checkpoints();
+    await nav(page, "Send reply");
+    await expect(confirm).toBeVisible();
+    await expect(confirm.getByRole("button", { name: positive, exact: true })).toBeVisible();
+    await expect(confirm.getByRole("button", { name: negative, exact: true })).toBeVisible();
+    expect(outgoing).toHaveLength(priorRequests);
+    expect(await checkpoints()).toEqual(priorCheckpoints);
+    await confirm.getByRole("button", { name: choice, exact: true }).click();
+    await expect(conversation).toContainText(reply);
+    await expect(confirm).toHaveCount(0);
+    await expect(draft).toHaveValue("");
+  }
+  expect(outgoing).toEqual([positive]);
+  const checkpoint = JSON.parse((await checkpoints())[0]!.payload);
+  expect(checkpoint.turns.map((turn: { utterance: string }) => turn.utterance)).toEqual([
+    positive,
+    negative,
+  ]);
+});
+
 test("records, commits speech straight to the draft and plays the saved partner reply without storing audio", async ({
   page,
 }) => {

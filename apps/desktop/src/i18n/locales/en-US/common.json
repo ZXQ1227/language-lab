@@ -116,6 +116,10 @@
     "providerNotice": "Recent messages and relevant learning observations go to your AI connection. Successful exchanges are saved on this device.",
     "failed": "Zoi couldn’t reply. Your draft is still here. Try sending it again.",
     "microphoneSetup": "Microphone setup",
+    "voiceConfirmation": {
+      "title": "Confirm what you meant",
+      "description": "Speech recognition may have mixed up these meanings. Choose the wording you want to send, or edit your reply."
+    },
     "loadingHistory": "Opening saved conversation…",
     "loadFailed": "This conversation could not be opened.",
     "saveFailed": "The conversation could not be saved. Send again to retry with your current draft."

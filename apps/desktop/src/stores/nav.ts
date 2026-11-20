@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import type { LibraryDifficulty } from "../content/courseDifficulty";
+import type { VoiceMeaningAmbiguity } from "../conversation/voiceMeaning";
 
 export const homeTabs = ["plan", "scenarios"] as const;
 export const libraryTabs = ["scenarios", "guided", "listening"] as const;
@@ -21,8 +22,9 @@ interface NavState {
   openFreeConversation: (id: string) => void;
   libraryDifficulty: LibraryDifficulty;
   freeConversationDraft: string;
+  freeConversationAmbiguities: VoiceMeaningAmbiguity[];
   courseDesignGoal: string;
-  setFreeConversationDraft: (draft: string) => void;
+  setFreeConversationDraft: (draft: string, ambiguities?: VoiceMeaningAmbiguity[]) => void;
   setCourseDesignGoal: (goal: string) => void;
   setLibraryDifficulty: (libraryDifficulty: LibraryDifficulty) => void;
   navigate: (page: PageId) => void;
@@ -41,8 +43,10 @@ export const useNavStore = create<NavState>((set) => ({
     })),
   libraryDifficulty: "all",
   freeConversationDraft: "",
+  freeConversationAmbiguities: [],
   courseDesignGoal: "",
-  setFreeConversationDraft: (freeConversationDraft) => set({ freeConversationDraft }),
+  setFreeConversationDraft: (freeConversationDraft, freeConversationAmbiguities = []) =>
+    set({ freeConversationDraft, freeConversationAmbiguities }),
   setCourseDesignGoal: (courseDesignGoal) => set({ courseDesignGoal }),
   setLibraryDifficulty: (libraryDifficulty) => set({ libraryDifficulty }),
   navigate: (page) =>

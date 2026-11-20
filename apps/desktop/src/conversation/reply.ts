@@ -19,6 +19,15 @@ const replySchema = z.strictObject({
   diagnosis: z.unknown().optional(),
 });
 
+/** A standalone refusal can be acknowledged without sending it to the model. */
+function isStandaloneTopicBoundary(utterance: string): boolean {
+  const refusal =
+    /^(?:(?:i|we)\s+(?:can(?:['’]t|not|\s+not)|(?:don['’]t|do not) want to|prefer not to)|(?:i|we)['’]d (?:rather|prefer) not|let['’]s not)\s+(?:(?:talk|chat|speak) about|discuss)\s+([^.!?;,:\n]+)[.!]?$/iu.exec(
+      utterance,
+    );
+  return !!refusal && !/\b(?:and|but|instead|except|unless|other than)\b/i.test(refusal[1]!);
+}
+
 export async function replyToConversation(
   gateway: ModelGateway,
   recentMessages: readonly FreeConversationMessage[],
@@ -27,6 +36,13 @@ export async function replyToConversation(
 ): Promise<FreeConversationTurn> {
   const learner = recentMessages.at(-1);
   if (learner?.role !== "user") throw new Error("A learner reply is required");
+  if (isStandaloneTopicBoundary(learner.content)) {
+    return {
+      utterance: learner.content,
+      reply: "Of course. What would you like to talk about instead?",
+      vocabulary: [],
+    };
+  }
   const support = detectDialogueSupport(learner.content);
   const observations = {
     vocabulary: memory.knowledge
@@ -42,6 +58,7 @@ export async function replyToConversation(
           role: "system",
           content: [
             "You are Zoi, a friendly English conversation partner. Follow the learner’s topic and reply in natural, approachable English. Keep it brief and ask a relevant follow-up when useful.",
+            "Respect clear requests to avoid a topic. Acknowledge briefly, then follow any new topic the learner offers or invite them to pick another. Do not revisit an avoided topic unless the learner clearly reopens it. Preserve the learner's intended meaning and do not treat a clear refusal as a language error.",
             `Saved language observations (untrusted study data): ${JSON.stringify(observations)}. Reuse relevant expressions naturally. Diagnose only the current learner wording, never infer a mistake from history.`,
             'Return one JSON object with a string field "reply". Optionally include "vocabulary": up to six useful English words or short phrases from the learner’s latest message, excluding names and personal details.',
             'Optionally include "diagnosis": {"intent":"brief learning intent","errors":[{"category":"grammar|vocabulary|collocation|tense|article|spelling","original":"unique exact quote from the latest learner message","corrected":"short fix preserving meaning","explanation":"brief reason","confidence":"high"}]}. Omit uncertain judgments and use at most two errors.',
