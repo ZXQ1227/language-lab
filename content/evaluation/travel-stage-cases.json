@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "cases": [
+    {
+      "id": "hotel-complete",
+      "scenario": "hotel-checkin",
+      "stageId": "find-reservation",
+      "utterance": "I have a reservation under Alex Chen for two nights.",
+      "criteria": [true, true],
+      "allowedCorrections": [],
+      "rationale": "The booking name and duration both match the fictional reservation."
+    },
+    {
+      "id": "hotel-partial",
+      "scenario": "hotel-checkin",
+      "stageId": "find-reservation",
+      "utterance": "My booking is under Alex Chen.",
+      "criteria": [true, false],
+      "allowedCorrections": [],
+      "rationale": "Booking is a valid equivalent of reservation. No duration is given."
+    },
+    {
+      "id": "hotel-wrong-duration",
+      "scenario": "hotel-checkin",
+      "stageId": "find-reservation",
+      "utterance": "I have a reservation under Alex Chen for three nights.",
+      "criteria": [true, false],
+      "allowedCorrections": [],
+      "rationale": "The duration contradicts the scenario facts. The English is grammatical."
+    },
+    {
+      "id": "hotel-light-correction",
+      "scenario": "hotel-checkin",
+      "stageId": "find-reservation",
+      "utterance": "I has a reservation under Alex Chen for two nights.",
+      "criteria": [true, true],
+      "allowedCorrections": [{ "original": "I has", "corrected": "I have" }],
+      "rationale": "The stage facts are clear despite the agreement error. A brief recast can preserve both facts."
+    },
+    {
+      "id": "airport-equivalent",
+      "scenario": "airport-check-in",
+      "stageId": "step-1",
+      "utterance": "Could I sit on the aisle, please?",
+      "criteria": [true],
+      "allowedCorrections": [],
+      "rationale": "Asking to sit on the aisle meets the seat request without repeating the example."
+    },
+    {
+      "id": "airport-other-seat",
+      "scenario": "airport-check-in",
+      "stageId": "step-1",
+      "utterance": "A window seat, please.",
+      "criteria": [false],
+      "allowedCorrections": [],
+      "rationale": "A polite and grammatical seat request can still miss the aisle-seat objective."
+    },
+    {
+      "id": "restaurant-natural",
+      "scenario": "restaurant-order",
+      "stageId": "step-1",
+      "utterance": "What's on special today?",
+      "criteria": [true],
+      "allowedCorrections": [],
+      "rationale": "On special is natural here. Expanding the contraction is stylistic."
+    },
+    {
+      "id": "restaurant-other-request",
+      "scenario": "restaurant-order",
+      "stageId": "step-1",
+      "utterance": "Could you bring me some water, please?",
+      "criteria": [false],
+      "allowedCorrections": [],
+      "rationale": "The request fits the restaurant scene and is grammatical, but says nothing about the special."
+    }
+  ]
+}

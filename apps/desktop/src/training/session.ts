@@ -71,6 +71,12 @@ export const trainingSessionSchema = z
       z.object({ type: z.string(), payload: z.record(z.string(), z.unknown()).optional() }),
     ),
     endedEarly: z.literal(true).optional(),
+    travelTransfer: z
+      .strictObject({
+        sourceLessonId: z.string().min(1),
+        completedAt: z.number().int().nonnegative().optional(),
+      })
+      .optional(),
     lastTurn: z
       .object({
         action: teachingActionSchema,
@@ -92,6 +98,23 @@ export const trainingSessionSchema = z
     reviewAnswers: z.record(z.string(), z.string().max(2000)).optional(),
   })
   .superRefine((session, ctx) => {
+    if (session.travelTransfer) {
+      const { sourceLessonId, completedAt } = session.travelTransfer;
+      const complete = session.state.phase === "debrief" || session.state.phase === "done";
+      if (
+        sourceLessonId === session.id ||
+        session.scenario.slug !== "hotel-checkin" ||
+        session.provider.mode !== "ai" ||
+        !session.scenario.courseTemplate?.selectedVariationId ||
+        complete !== (completedAt !== undefined) ||
+        (completedAt !== undefined && completedAt > session.state.updatedAt)
+      )
+        ctx.addIssue({
+          code: "custom",
+          path: ["travelTransfer"],
+          message: "Invalid travel transfer evidence",
+        });
+    }
     if (
       session.messages.some(
         (message) =>
@@ -600,6 +623,11 @@ export async function runTrainingTurn(
     ...session,
     vocabularyTrackingVersion: 1,
     state: result.state,
+    ...(session.travelTransfer && result.state.phase === "debrief"
+      ? {
+          travelTransfer: { ...session.travelTransfer, completedAt: result.state.updatedAt },
+        }
+      : {}),
     messages: [
       ...session.messages,
       {

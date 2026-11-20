@@ -1,4 +1,14 @@
 {
+  "travel": {
+    "title": "次日旅行复练",
+    "description": "用 AI 完成酒店入住课程后，次日可在不同的酒店情境中再练一次。",
+    "rate": "次日完成率 {{rate}}（已结束的 {{eligible}} 个窗口中有 {{completed}} 个按时完成）",
+    "noResult": "首个次日练习窗口结束后显示完成率。",
+    "window": "{{date}} 起可练",
+    "start": "开始新的酒店情境",
+    "resume": "继续新的酒店情境",
+    "open": "打开已完成的旅行复练"
+  },
   "targetedReviewPractice": "针对性复习练习",
   "basedOnGuidedDemoEvidenceDemoDiagnosesCoverLimitedExamples": "基于引导示范的记录生成。示范诊断仅覆盖少量例子。",
   "sourceMessage": "来源消息编号 ",

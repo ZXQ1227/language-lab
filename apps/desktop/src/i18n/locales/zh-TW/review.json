@@ -1,4 +1,14 @@
 {
+  "travel": {
+    "title": "隔日旅行複練",
+    "description": "用 AI 完成飯店入住課程後，隔日可在不同的飯店情境中再練一次。",
+    "rate": "隔日完成率 {{rate}}（已結束的 {{eligible}} 個時段中有 {{completed}} 個按時完成）",
+    "noResult": "首個隔日練習時段結束後顯示完成率。",
+    "window": "{{date}} 起可練",
+    "start": "開始新的飯店情境",
+    "resume": "繼續新的飯店情境",
+    "open": "開啟已完成的旅行複練"
+  },
   "targetedReviewPractice": "針對性複習練習",
   "basedOnGuidedDemoEvidenceDemoDiagnosesCoverLimitedExamples": "根據引導示範的紀錄產生。示範診斷僅涵蓋少量例子。",
   "sourceMessage": "來源訊息編號 ",
