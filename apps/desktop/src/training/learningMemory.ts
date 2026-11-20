@@ -4,6 +4,7 @@ import {
   type ErrorDiagnosisRecord,
   type LessonState,
   type ScenarioContent,
+  type VocabularyForms,
 } from "@language-lab/core";
 import {
   errorMemoryKey,
@@ -20,18 +21,15 @@ export interface LearningMemorySource {
   diagnoses?: ErrorDiagnosisRecord[];
 }
 
-/** Project actual practice, never roleplay identities or assistant words. */
-export function buildLearningContribution(session: LearningMemorySource): LessonMemoryContribution {
-  const progress = summarizeVocabulary(
-    session.state.targetVocabulary,
-    session.messages,
-    session.state.courseTemplate?.learningPack?.vocabulary.map((item) => ({
-      term: item.term,
-      forms: item.forms ?? [],
-    })),
-  );
+export function projectPracticeEvidence(
+  targets: readonly string[],
+  messages: readonly EvidenceMessage[],
+  diagnoses: readonly ErrorDiagnosisRecord[],
+  forms?: readonly VocabularyForms[],
+) {
+  const progress = summarizeVocabulary(targets, messages, forms);
   const errors = new Map<string, LessonMemoryContribution["errors"][number]>();
-  for (const record of session.diagnoses ?? []) {
+  for (const record of diagnoses) {
     const counted = new Set<string>();
     for (const error of record.diagnosis.errors) {
       const key = errorMemoryKey(error);
@@ -50,21 +48,10 @@ export function buildLearningContribution(session: LearningMemorySource): Lesson
       });
     }
   }
-  return lessonMemoryContributionSchema.parse({
-    version: 1,
-    lessonId: session.id,
-    title: session.scenario.title,
-    language: session.state.courseTemplate?.targetLanguage ?? "en",
-    difficulty: session.state.difficulty,
-    mode: session.provider.mode,
-    updatedAt: session.state.updatedAt,
-    totalTurns: session.state.turnCount,
-    practiceTurns: session.messages.filter(
+  return {
+    practiceTurns: messages.filter(
       (message) => message.role === "user" && message.purpose !== "support",
     ).length,
-    completed: session.state.phase === "done",
-    objectivesCompleted: session.state.objectives.filter((objective) => objective.completed).length,
-    objectiveCount: session.state.objectives.length,
     knowledge: progress.map((item) => ({
       term: item.term,
       usedTurns: item.usedTurns,
@@ -74,5 +61,31 @@ export function buildLearningContribution(session: LearningMemorySource): Lesson
         : {}),
     })),
     errors: [...errors.values()],
+  };
+}
+
+/** Project actual practice, never roleplay identities or assistant words. */
+export function buildLearningContribution(session: LearningMemorySource): LessonMemoryContribution {
+  return lessonMemoryContributionSchema.parse({
+    version: 1,
+    lessonId: session.id,
+    title: session.scenario.title,
+    language: session.state.courseTemplate?.targetLanguage ?? "en",
+    difficulty: session.state.difficulty,
+    mode: session.provider.mode,
+    updatedAt: session.state.updatedAt,
+    totalTurns: session.state.turnCount,
+    completed: session.state.phase === "done",
+    objectivesCompleted: session.state.objectives.filter((objective) => objective.completed).length,
+    objectiveCount: session.state.objectives.length,
+    ...projectPracticeEvidence(
+      session.state.targetVocabulary,
+      session.messages,
+      session.diagnoses ?? [],
+      session.state.courseTemplate?.learningPack?.vocabulary.map((item) => ({
+        term: item.term,
+        forms: item.forms ?? [],
+      })),
+    ),
   });
 }

@@ -30,6 +30,6 @@ Scope to fill in:
 The three workspaces use a floating bottom bar in narrow windows and a sidebar
 in wide windows. Zustand tracks the current page and the page that opened
 practice. The existing course, memory, review and reporting stores continue to
-provide lesson snapshots and review sources. Free conversation lasts for the
-current visit. Image tools, translation and a separate saved sentence
+provide lesson snapshots and review sources. Free conversation saves successful
+exchanges locally and can continue from Learning memory. Image tools, translation and a separate saved sentence
 collection require their own product work.

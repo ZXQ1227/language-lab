@@ -113,9 +113,12 @@
     "responding": "Zoi is replying…",
     "needsConnection": "Connect an AI provider to reply to Zoi.",
     "connect": "Set up AI for conversation",
-    "providerNotice": "When you send a reply, recent messages go to your AI connection.",
+    "providerNotice": "Recent messages and relevant learning observations go to your AI connection. Successful exchanges are saved on this device.",
     "failed": "Zoi couldn’t reply. Your draft is still here. Try sending it again.",
-    "microphoneSetup": "Microphone setup"
+    "microphoneSetup": "Microphone setup",
+    "loadingHistory": "Opening saved conversation…",
+    "loadFailed": "This conversation could not be opened.",
+    "saveFailed": "The conversation could not be saved. Send again to retry with your current draft."
   },
   "workspace": {
     "sections": {

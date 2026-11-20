@@ -16,6 +16,9 @@ export type WorkspaceId = (typeof workspaces)[number]["id"];
 interface NavState {
   page: PageId;
   trainingReturnPage: Exclude<PageId, "training">;
+  freeConversationId: string | null;
+  freeConversationReturnPage: PageId;
+  openFreeConversation: (id: string) => void;
   libraryDifficulty: LibraryDifficulty;
   setLibraryDifficulty: (libraryDifficulty: LibraryDifficulty) => void;
   navigate: (page: PageId) => void;
@@ -24,10 +27,20 @@ interface NavState {
 export const useNavStore = create<NavState>((set) => ({
   page: "plan",
   trainingReturnPage: "plan",
+  freeConversationId: null,
+  freeConversationReturnPage: "plan",
+  openFreeConversation: (id) =>
+    set((state) => ({
+      page: "freeConversation",
+      freeConversationId: id,
+      freeConversationReturnPage: state.page,
+    })),
   libraryDifficulty: "all",
   setLibraryDifficulty: (libraryDifficulty) => set({ libraryDifficulty }),
   navigate: (page) =>
     set((state) => {
+      if (page === "freeConversation")
+        return { page, freeConversationId: null, freeConversationReturnPage: "plan" };
       if (page === "training" && state.page !== "training") {
         return { page, trainingReturnPage: state.page };
       }

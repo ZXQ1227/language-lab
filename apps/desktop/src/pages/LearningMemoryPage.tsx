@@ -115,23 +115,32 @@ export function LearningMemoryPage({
   const title = view === "all" ? t("memory:learningMemory") : t(`common:workspace.pages.${view}`);
   const { learningMemory: memory, loaded, busy, error, load, openLesson } = useTrainingStore();
   const navigate = useNavStore((state) => state.navigate);
+  const openFreeConversation = useNavStore((state) => state.openFreeConversation);
   const [language, setLanguage] = useState("");
   const [limit, setLimit] = useState(20);
   useEffect(() => {
     if (!loaded) void load();
   }, [loaded, load]);
-  const sourceButton = (id: string) => (
+  const sourceButton = (id: string, source?: "free-conversation") => (
     <button
       type="button"
       className="text-xs font-medium underline disabled:opacity-40"
       disabled={busy}
-      onClick={() =>
+      onClick={() => {
+        if (source === "free-conversation") {
+          openFreeConversation(id);
+          return;
+        }
         void openLesson(id).then((opened) => {
           if (opened) navigate("training");
-        })
-      }
+        });
+      }}
     >
-      {t("memory:openSourceLesson")}
+      {t(
+        source === "free-conversation"
+          ? "memory:openSourceConversation"
+          : "memory:openSourceLesson",
+      )}
     </button>
   );
   const matching = (item: { language: string }) =>
@@ -244,9 +253,12 @@ export function LearningMemoryPage({
                     {item.latest && (
                       <>
                         <blockquote className="break-words text-ink-muted">
-                          “{item.latest.quote}” · {item.latest.title}
+                          “{item.latest.quote}” ·{" "}
+                          {item.latest.source === "free-conversation"
+                            ? t("common:freeConversation.title")
+                            : item.latest.title}
                         </blockquote>
-                        {sourceButton(item.latest.lessonId)}
+                        {sourceButton(item.latest.lessonId, item.latest.source)}
                       </>
                     )}
                   </li>
@@ -286,9 +298,12 @@ export function LearningMemoryPage({
                       </summary>
                       <p className="my-2 break-words">{item.explanation}</p>
                       <blockquote className="break-words">
-                        “{item.latest.quote}” · {item.latest.title}
+                        “{item.latest.quote}” ·{" "}
+                        {item.latest.source === "free-conversation"
+                          ? t("common:freeConversation.title")
+                          : item.latest.title}
                       </blockquote>
-                      {sourceButton(item.latest.lessonId)}
+                      {sourceButton(item.latest.lessonId, item.latest.source)}
                     </details>
                   </li>
                 ))}
@@ -309,15 +324,26 @@ export function LearningMemoryPage({
                 {episodes.slice(0, limit).map((item) => (
                   <li key={item.lessonId} className="space-y-1 py-3 text-sm">
                     <p className="font-medium">
-                      {item.title} · {item.language} ·{" "}
-                      {item.completed ? t("memory:completed") : t("memory:inProgress")}
+                      {item.source === "free-conversation"
+                        ? t("common:freeConversation.title")
+                        : item.title}{" "}
+                      · {item.language}
+                      {item.source !== "free-conversation" && (
+                        <> · {item.completed ? t("memory:completed") : t("memory:inProgress")}</>
+                      )}
                     </p>
-                    <p>{item.summary}</p>
+                    <p>
+                      {item.source === "free-conversation"
+                        ? t("memory:conversationPracticeCount", {
+                            total: formatNumber(item.practiceTurns ?? 0),
+                          })
+                        : item.summary}
+                    </p>
                     <p className="text-xs text-ink-muted">
                       {t("memory:lastSaved")}
                       {formatDateTime(item.at)}
                     </p>
-                    {sourceButton(item.lessonId)}
+                    {sourceButton(item.lessonId, item.source)}
                   </li>
                 ))}
               </ul>

@@ -15,27 +15,33 @@ type Repositories = ReturnType<typeof createRepositories>;
 export async function readLearningMemory(repositories: Repositories) {
   const { profile, saved } = await readLearningProfile(repositories, LOCAL_LEARNER_ID);
   const contributions: LessonMemoryContribution[] = [];
-  let cursor = "";
-  for (;;) {
-    const rows = await repositories.learningEvents.listMemoryContributions(
-      LOCAL_LEARNER_ID,
-      cursor,
-    );
-    for (const row of rows) {
-      const contribution = lessonMemoryContributionSchema.parse(JSON.parse(row.payload));
-      if (
-        row.userId !== LOCAL_LEARNER_ID ||
-        row.type !== "learning_memory_contribution" ||
-        row.id !== `memory-${contribution.lessonId}` ||
-        row.id <= cursor
-      )
-        throw new Error("Learning memory source identity is inconsistent");
-      contributions.push(contribution);
-      cursor = row.id;
+  for (const type of ["learning_memory_contribution", "free_conversation_memory"] as const) {
+    let cursor = "";
+    for (;;) {
+      const rows = await repositories.learningEvents.listMemoryContributions(
+        LOCAL_LEARNER_ID,
+        cursor,
+        100,
+        type,
+      );
+      for (const row of rows) {
+        const contribution = lessonMemoryContributionSchema.parse(JSON.parse(row.payload));
+        const free = type === "free_conversation_memory";
+        if (
+          row.userId !== LOCAL_LEARNER_ID ||
+          row.type !== type ||
+          row.id !== `memory-${contribution.lessonId}` ||
+          row.id <= cursor ||
+          (contribution.source === "free-conversation") !== free
+        )
+          throw new Error("Learning memory source identity is inconsistent");
+        contributions.push(contribution);
+        cursor = row.id;
+      }
+      if (rows.length < 100) break;
     }
-    if (rows.length < 100) break;
   }
-  cursor = "";
+  let cursor = "";
   for (;;) {
     const rows = await repositories.learningEvents.listLegacyMemorySources(
       LOCAL_LEARNER_ID,

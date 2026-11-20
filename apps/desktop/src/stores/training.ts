@@ -4,6 +4,7 @@ import {
   scenarioContentSchema,
   dialogueSupportSchema,
   detectDialogueSupport,
+  trackVocabulary,
   type DialogueSupport,
   type ScenarioContent,
   type ReviewPlan,
@@ -19,6 +20,7 @@ import {
   type LearningMemoryDocument,
   type LessonMemoryContribution,
   type LearningProfile,
+  type MemorySnapshot,
 } from "@language-lab/memory";
 import { call } from "../lib/ipc";
 import {
@@ -39,6 +41,11 @@ import { saveTrainingKey, trainingGateway } from "../training/gateway";
 import { buildLearningContribution } from "../training/learningMemory";
 import { LOCAL_LEARNER_ID, readLearningMemory } from "../training/learningMemoryPersistence";
 import { readReviewPlans } from "../training/reviewPersistence";
+import {
+  buildFreeConversationContribution,
+  freeConversationCheckpointSchema,
+  type FreeConversationCheckpoint,
+} from "../conversation/checkpoint";
 
 const repositories = () => createRepositories(createTauriTransport(call));
 
@@ -67,6 +74,12 @@ interface TrainingStore {
   memoryContributions: LessonMemoryContribution[];
   saveProfile: (profile: LearningProfile) => Promise<boolean>;
   openLesson: (id: string) => Promise<boolean>;
+  loadFreeConversation: (id: string) => Promise<FreeConversationCheckpoint>;
+  saveFreeConversation: (
+    checkpoint: FreeConversationCheckpoint,
+    signal: AbortSignal,
+  ) => Promise<boolean>;
+  freeConversationMemory: (utterance: string) => Promise<MemorySnapshot>;
   load: () => Promise<void>;
   prepare: (course?: ScenarioContent) => void;
   resume: (id: string) => void;
@@ -194,6 +207,55 @@ export const useTrainingStore = create<TrainingStore>((set, get) => {
           pendingCourse: null,
           error: null,
         });
+    },
+    loadFreeConversation: async (id) => {
+      const row = await repositories().learningEvents.findFreeConversationCheckpoint(id);
+      if (
+        !row ||
+        row.id !== `conversation-${id}` ||
+        row.userId !== LOCAL_LEARNER_ID ||
+        row.type !== "free_conversation_checkpoint"
+      )
+        throw new Error("The source conversation could not be found");
+      const checkpoint = freeConversationCheckpointSchema.parse(JSON.parse(row.payload));
+      if (checkpoint.id !== id) throw new Error("Conversation source identity is inconsistent");
+      return checkpoint;
+    },
+    saveFreeConversation: async (raw, signal) =>
+      operation(async () => {
+        const checkpoint = freeConversationCheckpointSchema.parse(raw);
+        const contribution = buildFreeConversationContribution(checkpoint);
+        const repos = repositories();
+        const current = get().learningMemory;
+        const memory = current
+          ? { document: current, contributions: get().memoryContributions }
+          : await readLearningMemory(repos);
+        const contributions = [
+          ...memory.contributions.filter((item) => item.lessonId !== checkpoint.id),
+          contribution,
+        ];
+        const learningMemory = projectLearningMemory(
+          memory.document.profile,
+          contributions,
+          memory.document.profileSaved,
+        );
+        await repos.users.ensureLocalLearner();
+        if (signal.aborted) return;
+        await repos.learningEvents.saveFreeConversationCheckpoint({
+          id: checkpoint.id,
+          payload: checkpoint,
+          memory: contribution,
+        });
+        set({ memoryContributions: contributions, learningMemory });
+      }),
+    freeConversationMemory: async (utterance) => {
+      const document = get().learningMemory ?? (await readLearningMemory(repositories())).document;
+      const observed = document.knowledge
+        .filter((term) => term.language === "en" && term.practiceTurns > 0)
+        .map((term) => term.item);
+      const relevant = trackVocabulary(utterance, observed).used;
+      const targets = [...new Set([...relevant, ...observed])].slice(0, 8);
+      return selectLearningMemory(document, "en", targets);
     },
     start: async (course, rawProvider, key) => {
       await operation(async () => {

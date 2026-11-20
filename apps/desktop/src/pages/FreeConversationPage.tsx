@@ -3,16 +3,18 @@ import { useTranslation } from "react-i18next";
 import { LocalizedError } from "../components/LocalizedError";
 import { VoiceInput } from "../components/VoiceInput";
 import {
-  freeConversationGreeting,
+  conversationMessages,
   freeConversationMessageLimit,
-  replyToConversation,
+  type FreeConversationCheckpoint,
   type FreeConversationMessage,
-} from "../conversation/reply";
+} from "../conversation/checkpoint";
+import { replyToConversation } from "../conversation/reply";
 import { formatNumber } from "../i18n";
 import { useSpeechLoop } from "../speech/useSpeechLoop";
 import { characterVoiceStyle } from "../speech/voices";
 import { useAiProviderStore } from "../stores/aiProvider";
 import { useNavStore } from "../stores/nav";
+import { useTrainingStore } from "../stores/training";
 import { trainingGateway } from "../training/gateway";
 import { toTrainingProvider } from "../training/provider";
 
@@ -25,13 +27,27 @@ const inputControl =
 export function FreeConversationPage() {
   const { t } = useTranslation();
   const navigate = useNavStore((state) => state.navigate);
+  const sourceId = useNavStore((state) => state.freeConversationId);
+  const returnPage = useNavStore((state) => state.freeConversationReturnPage);
+  const loadConversation = useTrainingStore((state) => state.loadFreeConversation);
+  const saveConversation = useTrainingStore((state) => state.saveFreeConversation);
+  const getMemory = useTrainingStore((state) => state.freeConversationMemory);
   const { settings, loaded, configured, busy: loadingAi, error, load } = useAiProviderStore();
-  const [messages, setMessages] = useState<FreeConversationMessage[]>([
-    { role: "assistant", content: freeConversationGreeting },
-  ]);
+  const [checkpoint, setCheckpoint] = useState<FreeConversationCheckpoint>(() => ({
+    version: 1,
+    id: `free-${crypto.randomUUID()}`,
+    updatedAt: Date.now(),
+    turns: [],
+  }));
+  const [sourceStatus, setSourceStatus] = useState<"ready" | "loading" | "failed">(
+    sourceId ? "loading" : "ready",
+  );
+  const [loadAttempt, setLoadAttempt] = useState(0);
   const [draft, setDraft] = useState("");
   const [pendingText, setPendingText] = useState<string | null>(null);
-  const [failed, setFailed] = useState(false);
+  const [failed, setFailed] = useState<"reply" | "storage" | null>(null);
+  const [saving, setSaving] = useState(false);
+  const unsaved = useRef<FreeConversationCheckpoint | null>(null);
   const [keyboard, setKeyboard] = useState<boolean | null>(null);
   const [showSpeechSetup, setShowSpeechSetup] = useState(false);
   const pending = useRef<AbortController | null>(null);
@@ -40,13 +56,15 @@ export function FreeConversationPage() {
   const voice = useSpeechLoop("free-conversation", "en", characterVoiceStyle());
   const partner = t("training:defaultPartnerName");
   const busy = pendingText !== null;
-  const ready = configured && !loadingAi && !error;
+  const providerReady = configured && !loadingAi && !error;
+  const ready = providerReady && sourceStatus === "ready";
   const asrEnabled = voice.settings?.asr.enabled === true;
   const reviewing = voice.capture.phase === "review";
   const dealingWithVoice = voice.capturing || reviewing;
   const recording = voice.capture.phase === "recording";
   const textOpen = keyboard ?? !asrEnabled;
   const playing = voice.playback.phase === "loading" || voice.playback.phase === "speaking";
+  const messages = conversationMessages(checkpoint.turns);
   const visibleMessages: FreeConversationMessage[] = pendingText
     ? [...messages, { role: "user", content: pendingText }]
     : messages;
@@ -56,6 +74,25 @@ export function FreeConversationPage() {
     title.current?.focus();
     return () => pending.current?.abort();
   }, [load]);
+
+  useEffect(() => {
+    if (!sourceId) return;
+    let active = true;
+    setSourceStatus("loading");
+    void loadConversation(sourceId).then(
+      (saved) => {
+        if (!active) return;
+        setCheckpoint(saved);
+        setSourceStatus("ready");
+      },
+      () => {
+        if (active) setSourceStatus("failed");
+      },
+    );
+    return () => {
+      active = false;
+    };
+  }, [sourceId, loadAttempt, loadConversation]);
 
   useLayoutEffect(() => {
     const viewport = transcript.current;
@@ -78,20 +115,39 @@ export function FreeConversationPage() {
     pending.current = controller;
     voice.stopPlayback();
     setPendingText(content);
-    setFailed(false);
+    setFailed(null);
+    let failure: "reply" | "storage" = "storage";
     try {
-      const gateway = await trainingGateway(toTrainingProvider(settings));
+      let next = unsaved.current;
+      if (next?.turns.at(-1)?.utterance !== content) {
+        unsaved.current = null;
+        const memory = await getMemory(content);
+        if (controller.signal.aborted) return;
+        failure = "reply";
+        const gateway = await trainingGateway(toTrainingProvider(settings));
+        if (controller.signal.aborted) return;
+        const turn = await replyToConversation(gateway, history, controller.signal, memory);
+        next = { ...checkpoint, updatedAt: Date.now(), turns: [...checkpoint.turns, turn] };
+        unsaved.current = next;
+      }
       if (controller.signal.aborted) return;
-      const reply = await replyToConversation(gateway, history, controller.signal);
+      failure = "storage";
+      setSaving(true);
+      if (!(await saveConversation(next, controller.signal)))
+        throw new Error("Could not save conversation");
       if (controller.signal.aborted) return;
-      setMessages([...history, { role: "assistant", content: reply }]);
+      unsaved.current = null;
+      setCheckpoint(next);
       setDraft("");
-      if (voice.settings?.tts.autoRead) voice.speak(reply);
+      if (voice.settings?.tts.autoRead) voice.speak(next.turns.at(-1)!.reply);
     } catch {
-      if (!controller.signal.aborted) setFailed(true);
+      if (!controller.signal.aborted) setFailed(failure);
     } finally {
       pending.current = null;
-      if (!controller.signal.aborted) setPendingText(null);
+      if (!controller.signal.aborted) {
+        setPendingText(null);
+        setSaving(false);
+      }
     }
   }
 
@@ -116,7 +172,12 @@ export function FreeConversationPage() {
                 {t("training:stopPlayback")}
               </button>
             )}
-            <button type="button" className={action} onClick={() => navigate("plan")}>
+            <button
+              type="button"
+              className={action}
+              disabled={saving}
+              onClick={() => navigate(returnPage)}
+            >
               {t("common:freeConversation.close")}
             </button>
           </div>
@@ -135,7 +196,23 @@ export function FreeConversationPage() {
             />
             <p className="font-semibold text-ink">{partner}</p>
           </div>
+          {sourceStatus === "loading" && (
+            <p role="status">{t("common:freeConversation.loadingHistory")}</p>
+          )}
+          {sourceStatus === "failed" && (
+            <p role="alert" className="text-error-ink">
+              {t("common:freeConversation.loadFailed")}{" "}
+              <button
+                type="button"
+                className="underline"
+                onClick={() => setLoadAttempt((attempt) => attempt + 1)}
+              >
+                {t("training:retry")}
+              </button>
+            </p>
+          )}
           <ol
+            hidden={sourceStatus !== "ready"}
             aria-label={t("training:conversation")}
             aria-live="polite"
             aria-relevant="additions"
@@ -194,7 +271,7 @@ export function FreeConversationPage() {
       >
         <div className="mx-auto flex max-h-[56dvh] max-w-4xl flex-col gap-2 px-4 py-2.5 sm:px-6 sm:py-3">
           <div className="min-h-0 space-y-2 overflow-y-auto overscroll-contain p-0.5">
-            {!ready && (
+            {!providerReady && (
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-ink-muted">
                 {error ? (
                   <button
@@ -220,14 +297,18 @@ export function FreeConversationPage() {
                 )}
               </div>
             )}
-            {ready && messages.length === 1 && (
+            {ready && (
               <p className="text-xs text-ink-muted">
                 {t("common:freeConversation.providerNotice")}
               </p>
             )}
             {failed && (
               <p role="alert" className="text-sm text-error-ink">
-                {t("common:freeConversation.failed")}
+                {t(
+                  failed === "storage"
+                    ? "common:freeConversation.saveFailed"
+                    : "common:freeConversation.failed",
+                )}
               </p>
             )}
             {(showSpeechSetup || voice.capture.phase !== "idle") && (

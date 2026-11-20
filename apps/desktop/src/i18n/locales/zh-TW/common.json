@@ -113,9 +113,12 @@
     "responding": "Zoi 正在回覆…",
     "needsConnection": "連接 AI 後即可回覆 Zoi。",
     "connect": "設定對話 AI",
-    "providerNotice": "傳送回覆時，近期對話內容會傳給已設定的 AI 服務。",
+    "providerNotice": "傳送時會把近期訊息和相關學習紀錄送給你的 AI 服務。成功的對話會儲存在本機。",
     "failed": "Zoi 暫時無法回覆。草稿已保留，可以再次傳送。",
-    "microphoneSetup": "設定麥克風"
+    "microphoneSetup": "設定麥克風",
+    "loadingHistory": "正在開啟已儲存的對話…",
+    "loadFailed": "無法開啟這段對話。",
+    "saveFailed": "無法儲存對話。草稿已保留，可再次傳送重試。"
   },
   "workspace": {
     "sections": {

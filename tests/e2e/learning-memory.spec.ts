@@ -77,7 +77,7 @@ test("keeps knowledge, error and episode observations across lessons and restart
   await send(page, "I go yesterday. I have a reservation.");
   await memory(page);
   await expect(reservation(page)).toContainText("Practice turns: 1");
-  await expect(reservation(page)).toContainText("Guided: 1 · Free conversation: 0");
+  await expect(reservation(page)).toContainText("Guided: 1 · AI practice: 0");
   await expect(page.getByLabel("Error memory", { exact: true })).toContainText("I go → I went");
   await expect(page.getByLabel("Error memory", { exact: true })).toContainText(
     "Model observations: 0 · Demo observations: 1",
