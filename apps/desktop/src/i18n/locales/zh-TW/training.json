@@ -44,6 +44,14 @@
   "you": "你",
   "defaultPartnerName": "Zoi",
   "readMessage": "朗讀訊息",
+  "translation": {
+    "show": "翻譯",
+    "hide": "隱藏譯文",
+    "loading": "正在翻譯…",
+    "unconfigured": "請在設定中配置 AI 連線，即可翻譯這則訊息。",
+    "failed": "這則訊息翻譯失敗。",
+    "retry": "重新翻譯"
+  },
   "correction": "修正",
   "aSmallCorrection": "一個小修正",
   "learningFeedback": "學習回饋",

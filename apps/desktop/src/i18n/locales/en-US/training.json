@@ -44,6 +44,14 @@
   "you": "You",
   "defaultPartnerName": "Zoi",
   "readMessage": "Read message ",
+  "translation": {
+    "show": "Translate",
+    "hide": "Hide translation",
+    "loading": "Translating…",
+    "unconfigured": "Configure an AI connection in Settings to translate this message.",
+    "failed": "This message could not be translated.",
+    "retry": "Retry translation"
+  },
   "correction": "Correction",
   "aSmallCorrection": "A small correction",
   "learningFeedback": "Learning feedback",

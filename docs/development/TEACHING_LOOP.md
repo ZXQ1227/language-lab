@@ -14,6 +14,16 @@ Partner and learner turns sit on opposite sides of the conversation, with
 playback alongside each partner reply. The conversation scrolls independently
 of the dock at the bottom.
 
+Select **Translate** beside a partner message's read-aloud control in Training
+or free conversation to show a translation below the original. The target is
+the current interface language, which follows the operating system by default
+and respects a manual override. Select **Hide translation** to collapse it.
+The free-conversation greeting and same-language messages work offline. For
+other messages the configured AI connection receives only the selected
+message and target language. Translations stay in the view and are cleared
+when the target language changes or the conversation closes. They are kept out
+of lesson evidence, transcripts and learning memory.
+
 The dock groups course details and practice shortcuts above the keyboard,
 microphone and hint controls. **Lesson details** opens criteria, course
 materials, vocabulary evidence and saved practice. Toggle **Keyboard** to

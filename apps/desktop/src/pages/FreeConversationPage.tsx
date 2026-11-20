@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { LocalizedError } from "../components/LocalizedError";
+import { PartnerMessageActions } from "../components/PartnerMessageActions";
 import { VoiceInput } from "../components/VoiceInput";
 import {
   conversationMessages,
@@ -9,7 +10,6 @@ import {
   type FreeConversationMessage,
 } from "../conversation/checkpoint";
 import { replyToConversation } from "../conversation/reply";
-import { formatNumber } from "../i18n";
 import { useSpeechLoop } from "../speech/useSpeechLoop";
 import { characterVoiceStyle } from "../speech/voices";
 import { useAiProviderStore } from "../stores/aiProvider";
@@ -233,20 +233,15 @@ export function FreeConversationPage() {
                   {message.content}
                 </p>
                 {message.role === "assistant" && (
-                  <button
-                    type="button"
-                    className="mt-2 inline-flex min-h-8 items-center gap-2 rounded-full bg-surface px-3 text-xs font-semibold enabled:hover:bg-surface-hover disabled:opacity-50"
-                    disabled={
+                  <PartnerMessageActions
+                    text={message.content}
+                    language="en"
+                    messageNumber={index + 1}
+                    readDisabled={
                       voice.capturing || !voice.settings || voice.settings.tts.mode === "off"
                     }
-                    onClick={() => voice.speak(message.content)}
-                  >
-                    <span className="lesson-icon lesson-icon-speaker" aria-hidden="true" />
-                    <span>
-                      {t("training:readMessage")}
-                      <span className="sr-only"> {formatNumber(index + 1)}</span>
-                    </span>
-                  </button>
+                    onRead={() => voice.speak(message.content)}
+                  />
                 )}
               </li>
             ))}

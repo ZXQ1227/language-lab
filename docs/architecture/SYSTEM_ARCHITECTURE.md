@@ -251,5 +251,7 @@ versioned manual/system preference in the existing `learning_events` table.
 i18next resources rerender all current pages without changing learning state.
 The interface supports simplified Chinese, traditional Chinese and English, with
 English fallback for unsupported languages. UI locale never changes course,
-model, profile or speech-language inputs. See
+teaching prompts, profile or speech-language inputs. On-demand message
+translation uses the active UI locale and sends only the selected message to
+the configured provider when it needs a model. See
 [ADR-0018](../adr/ADR-0018-system-locale-interface-language.md).

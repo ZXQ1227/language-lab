@@ -44,6 +44,14 @@
   "you": "你",
   "defaultPartnerName": "Zoi",
   "readMessage": "朗读消息",
+  "translation": {
+    "show": "翻译",
+    "hide": "隐藏译文",
+    "loading": "正在翻译…",
+    "unconfigured": "请在设置中配置 AI 连接，即可翻译这条消息。",
+    "failed": "这条消息翻译失败。",
+    "retry": "重新翻译"
+  },
   "correction": "纠错",
   "aSmallCorrection": "一个小纠正",
   "learningFeedback": "学习反馈",

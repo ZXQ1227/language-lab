@@ -12,6 +12,7 @@ import { LanguageFeedback } from "./LanguageFeedback";
 import { LearningReport } from "./LearningReport";
 import { LessonComposer } from "./LessonComposer";
 import { LocalizedError } from "./LocalizedError";
+import { PartnerMessageActions } from "./PartnerMessageActions";
 import { SavedPracticePicker } from "./SavedPracticePicker";
 import { VocabularyProgress } from "./VocabularyProgress";
 
@@ -306,23 +307,18 @@ export function LessonConversation({ session }: { session: TrainingSession }) {
                     {message.content}
                   </p>
                   {message.role === "assistant" && (
-                    <button
-                      type="button"
-                      className="mt-3 inline-flex min-h-8 items-center gap-2 rounded-full bg-surface px-3 text-xs font-semibold enabled:hover:bg-surface-hover disabled:opacity-50"
-                      disabled={
+                    <PartnerMessageActions
+                      text={message.content}
+                      language={language}
+                      messageNumber={index + 1}
+                      readDisabled={
                         busy ||
                         voice.capturing ||
                         !voice.settings ||
                         voice.settings.tts.mode === "off"
                       }
-                      onClick={() => voice.speak(message.content)}
-                    >
-                      <span className="lesson-icon lesson-icon-speaker" aria-hidden="true" />
-                      <span>
-                        {t("training:readMessage")}
-                        <span className="sr-only"> {formatNumber(index + 1)}</span>
-                      </span>
-                    </button>
+                      onRead={() => voice.speak(message.content)}
+                    />
                   )}
                 </li>
               );
