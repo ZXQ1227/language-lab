@@ -27,44 +27,46 @@ const category = z.enum(["grammar", "vocabulary", "collocation", "tense", "artic
 export const lessonMemoryContributionSchema = z
   .strictObject({
     version: z.literal(1),
+    source: z.literal("free-conversation").optional(),
     lessonId: text.max(200),
     language: text.max(100),
     title: text.max(300),
     difficulty: text.max(20),
     mode: z.enum(["demo", "ai"]),
     updatedAt: timestamp,
-    totalTurns: z.number().int().min(0).max(100),
-    practiceTurns: z.number().int().min(0).max(100),
+    totalTurns: z.number().int().nonnegative(),
+    practiceTurns: z.number().int().nonnegative(),
     completed: z.boolean(),
     objectivesCompleted: z.number().int().nonnegative(),
     objectiveCount: z.number().int().nonnegative(),
     knowledge: z.array(
       z.strictObject({
         term: text,
-        usedTurns: z.number().int().min(0).max(100),
+        usedTurns: z.number().int().nonnegative(),
         occurrences: z.number().int().nonnegative(),
         latest: evidence.optional(),
       }),
     ),
-    errors: z
-      .array(
-        z.strictObject({
-          category,
-          original: z.string().min(1).max(4000),
-          corrected: text.max(4000),
-          explanation: text.max(600),
-          count: z.number().int().min(1).max(100),
-          guidedCount: z.number().int().nonnegative(),
-          modelCount: z.number().int().nonnegative(),
-          latest: evidence,
-        }),
-      )
-      .max(500),
+    errors: z.array(
+      z.strictObject({
+        category,
+        original: z.string().min(1).max(4000),
+        corrected: text.max(4000),
+        explanation: text.max(600),
+        count: z.number().int().positive(),
+        guidedCount: z.number().int().nonnegative(),
+        modelCount: z.number().int().nonnegative(),
+        latest: evidence,
+      }),
+    ),
   })
   .superRefine((lesson, ctx) => {
     if (
       lesson.practiceTurns > lesson.totalTurns ||
       lesson.objectivesCompleted > lesson.objectiveCount ||
+      (lesson.source === "free-conversation"
+        ? lesson.mode !== "ai" || lesson.objectiveCount !== 0 || lesson.completed
+        : lesson.totalTurns > 100 || lesson.errors.length > 500) ||
       (lesson.completed &&
         (lesson.objectiveCount === 0 || lesson.objectivesCompleted !== lesson.objectiveCount))
     )
@@ -115,7 +117,11 @@ export const memoryTextKey = (text: string) =>
     .replace(/\s+/gu, " ");
 export const errorMemoryKey = (error: { category: string; original: string; corrected: string }) =>
   JSON.stringify([error.category, memoryTextKey(error.original), memoryTextKey(error.corrected)]);
-type MemoryEvidence = z.infer<typeof evidence> & { lessonId: string; title: string };
+type MemoryEvidence = z.infer<typeof evidence> & {
+  lessonId: string;
+  title: string;
+  source?: LessonMemoryContribution["source"];
+};
 export interface KnowledgeObservation {
   item: string;
   language: string;
@@ -151,6 +157,8 @@ export interface EpisodeObservation {
   completed: boolean;
   summary: string;
   at: string;
+  source?: LessonMemoryContribution["source"];
+  practiceTurns?: number;
 }
 export interface LearningMemoryDocument {
   profile: LearningProfile;
@@ -187,6 +195,11 @@ export function projectLearningMemory(
   )) {
     const language = lesson.language;
     const at = new Date(lesson.updatedAt).toISOString();
+    const origin = {
+      lessonId: lesson.lessonId,
+      title: lesson.title,
+      ...(lesson.source ? { source: lesson.source } : {}),
+    };
     for (const word of lesson.knowledge) {
       const key = JSON.stringify([memoryTextKey(language), memoryTextKey(word.term)]);
       const previous = knowledge.get(key);
@@ -201,9 +214,7 @@ export function projectLearningMemory(
         freeTurns: (previous?.freeTurns ?? 0) + (lesson.mode === "ai" ? word.usedTurns : 0),
         lessonCount: (previous?.lessonCount ?? 0) + 1,
         lastSeen: word.latest ? at : (previous?.lastSeen ?? at),
-        latest: word.latest
-          ? { ...word.latest, lessonId: lesson.lessonId, title: lesson.title }
-          : previous?.latest,
+        latest: word.latest ? { ...word.latest, ...origin } : previous?.latest,
       });
     }
     for (const error of lesson.errors) {
@@ -221,18 +232,20 @@ export function projectLearningMemory(
         modelCount: (previous?.modelCount ?? 0) + error.modelCount,
         lessonCount: (previous?.lessonCount ?? 0) + 1,
         lastSeen: at,
-        latest: { ...error.latest, lessonId: lesson.lessonId, title: lesson.title },
+        latest: { ...error.latest, ...origin },
       });
     }
     episodes.push({
-      lessonId: lesson.lessonId,
+      ...origin,
       language,
-      title: lesson.title,
       difficulty: lesson.difficulty,
       mode: lesson.mode,
       completed: lesson.completed,
       at,
-      summary: `${lesson.completed ? "Completed" : "Practised"} ${lesson.title}: ${lesson.practiceTurns} practice ${lesson.practiceTurns === 1 ? "reply" : "replies"}, ${lesson.objectivesCompleted}/${lesson.objectiveCount} objectives; ${lesson.mode === "demo" ? "guided examples, not independent assessment" : "connected AI practice"}.`,
+      ...(lesson.source ? { practiceTurns: lesson.practiceTurns } : {}),
+      summary: lesson.source
+        ? `Free conversation with Zoi: ${lesson.practiceTurns} practice ${lesson.practiceTurns === 1 ? "reply" : "replies"}.`
+        : `${lesson.completed ? "Completed" : "Practised"} ${lesson.title}: ${lesson.practiceTurns} practice ${lesson.practiceTurns === 1 ? "reply" : "replies"}, ${lesson.objectivesCompleted}/${lesson.objectiveCount} objectives; ${lesson.mode === "demo" ? "guided examples, not independent assessment" : "connected AI practice"}.`,
     });
   }
   return {

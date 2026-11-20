@@ -5,6 +5,14 @@ import { openWorkspacePage } from "./helpers/navigation";
 const endpoint = "http://localhost:11434/v1/chat/completions";
 const greeting = "Hey, What’s on your mind today?";
 const button = (page: Page, name: string) => page.getByRole("button", { name, exact: true });
+const localRows = (page: Page) =>
+  page.evaluate(
+    () =>
+      (JSON.parse(sessionStorage.getItem("language-lab-e2e-state")!).trainingCheckpoints ?? []) as {
+        type: string;
+        payload: string;
+      }[],
+  );
 
 test("opens Zoi from a floating Home entry before any AI connection is configured", async ({
   page,
@@ -38,9 +46,10 @@ test("opens Zoi from a floating Home entry before any AI connection is configure
   await button(page, "Exit conversation").click();
   await expect(launch).toBeVisible();
   expect(requests).toBe(0);
+  expect(await localRows(page)).toEqual([]);
 });
 
-test("continues free conversation with validated replies and keeps it out of lesson history", async ({
+test("saves only grounded free conversation practice, retries atomically and reopens after restart", async ({
   page,
 }) => {
   await installTauriMock(page);
@@ -64,11 +73,46 @@ test("continues free conversation with validated replies and keeps it out of les
     requests.push(messages);
     const turn = requests.length;
     if (turn === 4) await lateReply;
-    const replies = [" ", "What did you see on your walk?", "That sounds peaceful.", "Late reply"];
+    const replies = [
+      { reply: " " },
+      {
+        reply: "What did you see on your walk?",
+        vocabulary: ["walk", "invented phrase"],
+        diagnosis: {
+          intent: "describe an outing",
+          errors: [
+            {
+              category: "tense",
+              original: "goed",
+              corrected: "went",
+              explanation: "Go has an irregular past tense.",
+              confidence: "high",
+            },
+          ],
+        },
+      },
+      {
+        reply: "That sounds peaceful.",
+        vocabulary: ["heron"],
+        diagnosis: {
+          intent: "describe a bird",
+          errors: [
+            {
+              category: "grammar",
+              original: "never said this",
+              corrected: "something else",
+              explanation: "Invalid evidence",
+              confidence: "high",
+            },
+          ],
+        },
+      },
+      { reply: "Late reply" },
+    ];
     await route
       .fulfill({
         headers,
-        json: { choices: [{ message: { content: JSON.stringify({ reply: replies[turn - 1] }) } }] },
+        json: { choices: [{ message: { content: JSON.stringify(replies[turn - 1]) } }] },
       })
       .catch((error: unknown) => {
         if (turn !== 4) throw error;
@@ -82,19 +126,26 @@ test("continues free conversation with validated replies and keeps it out of les
     await button(page, "Free conversation").click();
     const log = page.getByLabel("Conversation", { exact: true });
     const draft = page.getByRole("textbox", { name: "Your reply", exact: true });
-    const first = "I went for a walk.";
+    const first = "I goed for a walk.";
     const second = "I saw a heron by the river.";
     await draft.fill(first);
     await button(page, "Send reply").click();
     await expect(page.getByRole("alert")).toContainText("Your draft is still here");
     await expect(draft).toHaveValue(first);
     await expect(log.getByRole("listitem")).toHaveCount(1);
+    await page.evaluate(() => window.__llInvoke("test_fail_next_memory"));
+    await button(page, "Send reply").click();
+    await expect(page.getByRole("alert")).toContainText("The conversation could not be saved");
+    await expect(draft).toHaveValue(first);
+    expect(await localRows(page)).toEqual([]);
     await button(page, "Send reply").click();
     await expect(log).toContainText("What did you see on your walk?");
+    expect(requests).toHaveLength(2);
     await expect(draft).toHaveValue("");
     await draft.fill(second);
     await button(page, "Send reply").click();
     await expect(log).toContainText("That sounds peaceful.");
+    expect(requests[2]?.[0]?.content).toContain('"corrections":["goed → went"]');
     expect(requests[2]?.slice(1)).toEqual([
       { role: "assistant", content: greeting },
       { role: "user", content: first },
@@ -108,12 +159,33 @@ test("continues free conversation with validated replies and keeps it out of les
     await button(page, "Free conversation").click();
     await expect(log.getByRole("listitem")).toHaveCount(1);
     await expect(log).toContainText(greeting);
+    const rows = await localRows(page);
+    expect(rows.map((row) => row.type).sort()).toEqual([
+      "free_conversation_checkpoint",
+      "free_conversation_memory",
+    ]);
+    const memory = JSON.parse(rows.find((row) => row.type === "free_conversation_memory")!.payload);
     expect(
-      await page.evaluate(
-        () =>
-          JSON.parse(sessionStorage.getItem("language-lab-e2e-state")!).trainingCheckpoints ?? [],
-      ),
-    ).toEqual([]);
+      memory.knowledge.map((item: { term: string; usedTurns: number }) => [
+        item.term,
+        item.usedTurns,
+      ]),
+    ).toEqual([
+      ["walk", 1],
+      ["heron", 1],
+    ]);
+    expect(memory.errors).toEqual([
+      expect.objectContaining({ original: "goed", corrected: "went", count: 1 }),
+    ]);
+    await page.reload();
+    await openWorkspacePage(page, "Learning memory");
+    const episode = page.getByRole("region", { name: "Episodic memory", exact: true });
+    await expect(episode).toContainText("Practice replies: 2");
+    await episode.getByRole("button", { name: "Open source conversation", exact: true }).click();
+    await expect(log).toContainText(second);
+    await expect(log.getByRole("listitem")).toHaveCount(5);
+    await button(page, "Exit conversation").click();
+    await expect(episode).toBeVisible();
   } finally {
     finishLateReply();
   }

@@ -30,6 +30,11 @@ retry inflation and treating guided use as mastery.
 - Provide a learner-visible Memory page and source opening. Supply a bounded,
   language-scoped historical view to teaching, while keeping course facts,
   criteria and delivery policies authoritative.
+- Free conversation saves a version-1 transcript and its evidence contribution
+  together after each successful exchange. The Memory page opens the original
+  chat, and later replies can use bounded same-language vocabulary and error
+  observations. Free conversation uses its own event types, so existing lesson
+  checkpoints and older readers retain their Training behavior.
 
 ## Consequences
 

@@ -375,7 +375,28 @@ export class LearningEventsRepo extends BaseRepo {
     memory?: Record<string, unknown>;
     reviewPlan?: Record<string, unknown>;
   }): Promise<void> {
+    await this.saveCheckpoint(input, "training");
+  }
+
+  async saveFreeConversationCheckpoint(input: {
+    id: string;
+    payload: Record<string, unknown>;
+    memory: Record<string, unknown>;
+  }): Promise<void> {
+    await this.saveCheckpoint(input, "free-conversation");
+  }
+
+  private async saveCheckpoint(
+    input: {
+      id: string;
+      payload: Record<string, unknown>;
+      memory?: Record<string, unknown>;
+      reviewPlan?: Record<string, unknown>;
+    },
+    source: "training" | "free-conversation",
+  ): Promise<void> {
     const ts = nowMs();
+    const free = source === "free-conversation";
     if (input.reviewPlan && !input.memory)
       throw new Error("Review plans require an atomic memory checkpoint");
     if (input.memory) {
@@ -384,13 +405,13 @@ export class LearningEventsRepo extends BaseRepo {
         VALUES (?1, ?2, NULL, ?3, ?4, ?5, ?5, ?5), (?6, ?2, NULL, ?7, ?8, ?5, ?5, ?5)${input.reviewPlan ? ", (?9, ?2, NULL, ?10, ?11, ?5, ?5, ?5)" : ""}
         ON CONFLICT(id) DO UPDATE SET payload = excluded.payload, occurred_at = excluded.occurred_at, updated_at = excluded.updated_at`,
         [
-          `training-${input.id}`,
+          free ? `conversation-${input.id}` : `training-${input.id}`,
           "local-training-user",
-          "training_checkpoint",
+          free ? "free_conversation_checkpoint" : "training_checkpoint",
           JSON.stringify(input.payload),
           ts,
           `memory-${input.id}`,
-          "learning_memory_contribution",
+          free ? "free_conversation_memory" : "learning_memory_contribution",
           JSON.stringify(input.memory),
           ...(input.reviewPlan
             ? [`review-${input.id}`, "targeted_review_plan", JSON.stringify(input.reviewPlan)]
@@ -435,6 +456,8 @@ export class LearningEventsRepo extends BaseRepo {
     userId: string,
     afterId = "",
     limit = 100,
+    type:
+      "learning_memory_contribution" | "free_conversation_memory" = "learning_memory_contribution",
   ): Promise<S.LearningEventRow[]> {
     if (!Number.isInteger(limit) || limit < 1 || limit > 200)
       throw new Error("Memory page size must be between 1 and 200");
@@ -442,8 +465,20 @@ export class LearningEventsRepo extends BaseRepo {
       S.learningEventRow,
       await this.db.select(
         "SELECT * FROM learning_events WHERE user_id = ?1 AND type = ?2 AND id > ?3 ORDER BY id LIMIT ?4",
-        [userId, "learning_memory_contribution", afterId, limit],
+        [userId, type, afterId, limit],
       ),
+    );
+  }
+
+  async findFreeConversationCheckpoint(id: string): Promise<S.LearningEventRow | null> {
+    return (
+      parse(
+        S.learningEventRow,
+        await this.db.select(
+          "SELECT * FROM learning_events WHERE id = ?1 AND user_id = ?2 AND type = ?3 LIMIT 1",
+          [`conversation-${id}`, "local-training-user", "free_conversation_checkpoint"],
+        ),
+      )[0] ?? null
     );
   }
   async listLegacyMemorySources(

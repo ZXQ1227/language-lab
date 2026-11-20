@@ -64,8 +64,8 @@ later. Replay releases the previous audio and URL first.
 **Free conversation** on the learning plan opens a separate English chat with
 Zoi. Use the keyboard or review a voice transcript before sending it to the
 configured AI provider. Individual replies can be read aloud using the same
-speech settings and voice selection. The conversation lives in memory until the
-view closes. It does not create lesson progress or review tasks.
+speech settings and voice selection. A successful exchange is saved locally and
+can be reopened from Learning memory.
 
 ## Evidence and privacy
 

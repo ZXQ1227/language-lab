@@ -5,6 +5,10 @@ import { createTrainingSession } from "../../../apps/desktop/src/training/sessio
 import { buildLearningContribution } from "../../../apps/desktop/src/training/learningMemory";
 import { readLearningMemory } from "../../../apps/desktop/src/training/learningMemoryPersistence";
 import { loadScenarioContent } from "../../../apps/desktop/src/content/scenarioContent";
+import {
+  buildFreeConversationContribution,
+  freeConversationCheckpointSchema,
+} from "../../../apps/desktop/src/conversation/checkpoint";
 import { createMockGateway } from "@language-lab/model-gateway";
 import { createNativeTestDatabase, nativeSqliteAvailable } from "./native-sqlite";
 
@@ -20,6 +24,58 @@ function setup() {
 const hotel = loadScenarioContent().find((course) => course.slug === "hotel-checkin")!;
 
 describe.skipIf(!nativeSqliteAvailable)("learning memory on real SQLite", () => {
+  it("writes a free conversation and its learning observations together", async () => {
+    const { repos, sql } = setup();
+    await repos.users.ensureLocalLearner();
+    const checkpoint = freeConversationCheckpointSchema.parse({
+      version: 1,
+      id: "free-11111111-1111-4111-8111-111111111111",
+      updatedAt: Date.now(),
+      turns: [
+        {
+          utterance: "I watched a heron catch a fish.",
+          reply: "Where was that?",
+          vocabulary: ["heron"],
+        },
+      ],
+    });
+    expect(
+      freeConversationCheckpointSchema.safeParse({
+        ...checkpoint,
+        turns: [{ ...checkpoint.turns[0], vocabulary: ["penguin"] }],
+      }).success,
+    ).toBe(false);
+    const memory = buildFreeConversationContribution(checkpoint);
+    const save = () =>
+      repos.learningEvents.saveFreeConversationCheckpoint({
+        id: checkpoint.id,
+        payload: checkpoint,
+        memory,
+      });
+    sql.exec(
+      "CREATE TRIGGER fail_chat_memory BEFORE INSERT ON learning_events WHEN NEW.type = 'free_conversation_memory' BEGIN SELECT RAISE(ABORT, 'chat memory failed'); END",
+    );
+    await expect(save()).rejects.toThrow("chat memory failed");
+    expect(await repos.learningEvents.findFreeConversationCheckpoint(checkpoint.id)).toBeNull();
+    expect((await readLearningMemory(repos)).document.episodes).toEqual([]);
+    sql.exec("DROP TRIGGER fail_chat_memory");
+    await save();
+    await save();
+    expect(
+      JSON.parse(
+        (await repos.learningEvents.findFreeConversationCheckpoint(checkpoint.id))!.payload,
+      ),
+    ).toEqual(checkpoint);
+    const { document } = await readLearningMemory(repos);
+    expect(document.episodes).toEqual([
+      expect.objectContaining({ source: "free-conversation", practiceTurns: 1 }),
+    ]);
+    expect(document.knowledge).toEqual([
+      expect.objectContaining({ item: "heron", practiceTurns: 1 }),
+    ]);
+    expect(await repos.learningEvents.listTrainingCheckpoints()).toEqual([]);
+  });
+
   it("rolls back both checkpoint and memory when the memory row fails, then retries once", async () => {
     const { repos, sql } = setup();
     await repos.users.ensureLocalLearner();

@@ -49,10 +49,13 @@ See [ADR-0019](../adr/ADR-0019-validated-ai-course-design.md).
 The learning plan opens a dedicated conversation with Zoi. The greeting is
 local. Sending text or a confirmed transcript uses the saved AI connection
 and endpoint-scoped keyring access through the same Model Gateway as Training.
-The request contains a bounded window of recent conversation, and the gateway
-validates a bounded reply before it reaches the transcript. Leaving the view
-cancels the pending reply and speech resources. A conversation lives in memory
-for that visit and never creates a lesson checkpoint or review record.
+The request contains a bounded window of recent conversation and selected English
+learning observations. The gateway validates the reply and optional evidence
+against the learner's words. Each successful exchange commits a
+`free_conversation_checkpoint` and `free_conversation_memory` together in
+`learning_events`. The Memory page can reopen the transcript. Leaving the view
+cancels a pending model reply and releases speech resources. See
+[ADR-0014](../adr/ADR-0014-four-type-learning-memory.md).
 
 ## Text teaching loop
 

@@ -1,6 +1,6 @@
 # Four-type Learning Memory
 
-Learning memory now reads and writes real local data across Training lessons.
+Learning memory reads and writes local data across Training and free conversation.
 The **Learning memory** page edits a stated profile, shows knowledge/error
 observations and practice episodes, and opens their source lessons. Package
 `@language-lab/memory` provides validated contribution, projection and retrieval
@@ -54,6 +54,22 @@ The projection replaces a lesson by id rather than incrementing global totals;
 retry, restore, support or a repeated summary cannot double-count observations.
 Global projection prefers newer turn revisions and terminal completion when
 revisions otherwise tie.
+
+Free conversation saves after each successful exchange, including replies sent
+from a confirmed speech transcript. The version-1 chat checkpoint stores the
+original turns and their validated evidence. Useful vocabulary candidates must
+match the learner's own words. Error observations require a high-confidence
+diagnosis and an exact quote. Explicit help requests contribute to the transcript
+and episode history. Practice evidence comes from regular learner replies.
+
+SQLite writes `free_conversation_checkpoint` and `free_conversation_memory`
+together. A failed write leaves the previous recording intact and allows retry
+with the same drafted reply. Each chat contributes one current episode. Open the
+source from Learning memory to read and continue it. The Home entry starts a new
+chat. Later replies can use up to eight English vocabulary observations and three
+short error patterns from the local memory. A saved chat's full transcript is
+available when you reopen it. These new version-1 event types are ignored by
+older readers and use the existing table schema.
 
 Profiles use one `student_profiles` UPSERT for language, level and goals together.
 It preserves an existing profile's id/creation time. The memory boundary validates
