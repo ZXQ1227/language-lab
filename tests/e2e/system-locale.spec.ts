@@ -37,8 +37,8 @@ for (const [locale, language, profile, settings, heading] of [
     await expect(
       page.getByRole("complementary").getByText("Sayden", { exact: true }),
     ).toBeVisible();
-    await expect(page.getByText("Practice here. Speak out there.", { exact: true })).toBeVisible();
-    await expect(page.getByText("真实对话，先练一遍。", { exact: true })).toBeVisible();
+    await expect(page.getByText("Practice here. Speak out there.", { exact: true })).toHaveCount(0);
+    await expect(page.getByText("真实对话，先练一遍。", { exact: true })).toHaveCount(0);
     await page.getByRole("button", { name: profile, exact: true }).click();
     await page.getByRole("button", { name: settings, exact: true }).click();
     await expect(page.getByRole("combobox", { name: heading!, exact: true })).toBeDisabled();
