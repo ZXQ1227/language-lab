@@ -9,7 +9,6 @@ import { useNavStore } from "../stores/nav";
 import { useTrainingStore } from "../stores/training";
 import { useSpeechLoop } from "../speech/useSpeechLoop";
 import { characterVoiceStyle } from "../speech/voices";
-import { isTrainingUnfinished } from "../training/session";
 
 const courses = loadScenarioContent().filter((course) => course.courseTemplate);
 const guidedCourse = courses.find((course) => course.slug === "hotel-checkin")!;
@@ -66,8 +65,7 @@ function prepareCourse(course: ScenarioContent) {
 
 export function PlanPage() {
   const { t } = useTranslation();
-  const { learningMemory, sessions, session, loaded, busy, resume, loadReport } =
-    useLearningOverview();
+  const { learningMemory, sessions, loaded, busy, loadReport } = useLearningOverview();
   const navigate = useNavStore((state) => state.navigate);
   const [alternate, setAlternate] = useState(0);
   const profile = learningMemory?.profile;
@@ -88,130 +86,93 @@ export function PlanPage() {
         Number(completed.has(a.slug)) - Number(completed.has(b.slug)),
     );
   const recommended = choices[alternate % choices.length];
-  const ongoing =
-    session && session.state.phase !== "done" && !isTrainingUnfinished(session)
-      ? session
-      : sessions.find((item) => item.state.phase !== "done" && !isTrainingUnfinished(item));
   const recent = learningMemory?.episodes.filter((item) => item.completed).slice(0, 3) ?? [];
   return (
-    <section className="space-y-6" aria-labelledby="plan-heading">
-      <header>
-        <h1 id="plan-heading" className="text-3xl font-semibold tracking-tight sm:text-4xl">
-          {t("common:workspace.learningPlan")}
-        </h1>
-        <div className="mt-3 space-y-1 text-sm leading-relaxed text-brand-ink">
-          <p lang="en" className="font-medium italic">
-            {t("common:brand.taglineEnglish")}
-          </p>
-          <p lang="zh-Hans">{t("common:brand.taglineChinese")}</p>
-        </div>
-      </header>
+    <section className="space-y-6" aria-label={t("common:workspace.pages.plan")}>
       <OverviewStatus />
       <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
-        <div className="space-y-5">
-          {ongoing && (
-            <section className={panel}>
-              <h2 className="font-semibold">{t("common:workspace.resume")}</h2>
-              <p className="mt-2 text-xl">{ongoing.scenario.title}</p>
-              <p className="mt-1 text-sm text-ink-muted">
-                {t(`common:phases.${ongoing.state.phase}`)}
-              </p>
-              <button
-                type="button"
-                className={`${primary} mt-4`}
-                disabled={busy}
-                onClick={() => {
-                  if (session?.id !== ongoing.id) resume(ongoing.id);
-                  navigate("training");
-                }}
-              >
-                {t("common:workspace.resumeAction")}
-              </button>
-            </section>
-          )}
-          <section
-            className="rounded-2xl border border-line-info bg-brand-primary-subtle p-6 sm:p-8"
-            aria-labelledby="suggested-heading"
-          >
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <h2 id="suggested-heading" className="text-sm font-semibold text-ink">
-                {t("common:workspace.recommended")}
-              </h2>
-              <button
-                type="button"
-                className="text-sm font-semibold text-brand-ink underline underline-offset-4"
-                onClick={() => navigate("memory")}
-              >
-                {t("common:workspace.preferences")}
-              </button>
-            </div>
-            {recommended ? (
-              <>
-                <p className="mt-5 text-sm text-ink-muted">
-                  {t(`common:categories.${recommended.category}`, {
-                    defaultValue: recommended.category,
-                  })}{" "}
-                  · {recommended.difficulty}
-                  {recommended.courseTemplate && (
-                    <>
-                      {" "}
-                      ·{" "}
-                      {t("common:workspace.duration", {
-                        minutes: formatNumber(recommended.courseTemplate.estimatedMinutes),
-                      })}
-                    </>
-                  )}
-                </p>
-                <h3 className="mt-2 text-3xl font-semibold tracking-tight text-ink">
-                  {recommended.title}
-                </h3>
-                <p className="mt-3 max-w-prose text-sm leading-relaxed text-ink">
-                  {recommended.objectives[0]}
-                </p>
-                <div className="mt-6 flex flex-wrap gap-3">
-                  <button
-                    type="button"
-                    className={primary}
-                    disabled={!loaded || busy}
-                    onClick={() => prepareCourse(recommended)}
-                  >
-                    {t("common:workspace.beginCourse")}
-                  </button>
-                  {choices.length > 1 && (
-                    <button
-                      type="button"
-                      className={secondary}
-                      onClick={() => setAlternate((index) => (index + 1) % choices.length)}
-                    >
-                      {t("common:workspace.anotherCourse")}
-                    </button>
-                  )}
-                </div>
-                <details key={recommended.slug} className="mt-5 border-t border-line-strong pt-3">
-                  <summary className="cursor-pointer text-sm font-semibold text-ink">
-                    {t("common:workspace.coursePath")}
-                  </summary>
-                  <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm text-ink">
-                    {recommended.courseTemplate?.stages.map((stage) => (
-                      <li key={stage.id}>{stage.title}</li>
-                    ))}
-                  </ol>
-                </details>
-              </>
-            ) : (
-              <p className="mt-5 text-sm">
-                {t("common:workspace.noMatchingCourse", { language: profile?.targetLanguage })}
-              </p>
-            )}
+        <section
+          className="rounded-2xl border border-line-info bg-brand-primary-subtle p-6 sm:p-8"
+          aria-labelledby="suggested-heading"
+        >
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h1 id="suggested-heading" className="text-sm font-semibold text-ink">
+              {t("common:workspace.recommended")}
+            </h1>
             <button
               type="button"
-              className="mt-4 text-sm font-semibold text-brand-ink underline underline-offset-4"
-              onClick={() => navigate("scenarios")}
+              className="text-sm font-semibold text-brand-ink underline underline-offset-4"
+              onClick={() => navigate("memory")}
             >
-              {t("common:workspace.browseCourses")}
+              {t("common:workspace.preferences")}
             </button>
-          </section>
-        </div>
+          </div>
+          {recommended ? (
+            <>
+              <p className="mt-5 text-sm text-ink-muted">
+                {t(`common:categories.${recommended.category}`, {
+                  defaultValue: recommended.category,
+                })}{" "}
+                · {recommended.difficulty}
+                {recommended.courseTemplate && (
+                  <>
+                    {" "}
+                    ·{" "}
+                    {t("common:workspace.duration", {
+                      minutes: formatNumber(recommended.courseTemplate.estimatedMinutes),
+                    })}
+                  </>
+                )}
+              </p>
+              <h2 className="mt-2 text-3xl font-semibold tracking-tight text-ink">
+                {recommended.title}
+              </h2>
+              <p className="mt-3 max-w-prose text-sm leading-relaxed text-ink">
+                {recommended.objectives[0]}
+              </p>
+              <div className="mt-6 flex flex-wrap gap-3">
+                <button
+                  type="button"
+                  className={primary}
+                  disabled={!loaded || busy}
+                  onClick={() => prepareCourse(recommended)}
+                >
+                  {t("common:workspace.beginCourse")}
+                </button>
+                {choices.length > 1 && (
+                  <button
+                    type="button"
+                    className={secondary}
+                    onClick={() => setAlternate((index) => (index + 1) % choices.length)}
+                  >
+                    {t("common:workspace.anotherCourse")}
+                  </button>
+                )}
+              </div>
+              <details key={recommended.slug} className="mt-5 border-t border-line-strong pt-3">
+                <summary className="cursor-pointer text-sm font-semibold text-ink">
+                  {t("common:workspace.coursePath")}
+                </summary>
+                <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm text-ink">
+                  {recommended.courseTemplate?.stages.map((stage) => (
+                    <li key={stage.id}>{stage.title}</li>
+                  ))}
+                </ol>
+              </details>
+            </>
+          ) : (
+            <p className="mt-5 text-sm">
+              {t("common:workspace.noMatchingCourse", { language: profile?.targetLanguage })}
+            </p>
+          )}
+          <button
+            type="button"
+            className="mt-4 text-sm font-semibold text-brand-ink underline underline-offset-4"
+            onClick={() => navigate("scenarios")}
+          >
+            {t("common:workspace.browseCourses")}
+          </button>
+        </section>
         <section className={panel} aria-labelledby="recent-heading">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h2 id="recent-heading" className="font-semibold">

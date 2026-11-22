@@ -12,9 +12,9 @@ Scope to fill in:
 
 ## Desktop learning workspaces
 
-- **Home** has a learning plan and course library. The plan links to unfinished
-  practice and completed lessons, and recommends a bundled course based on the
-  saved target language and CEFR level. Among comparable courses it favors
+- **Home** has a learning plan and course library. The plan opens with a bundled
+  course recommendation based on the saved target language and CEFR level,
+  with recent completions linking to lesson history. Among comparable courses it favors
   courses absent from the recent completed checkpoints. A floating entry opens
   an English conversation with Zoi using the configured AI and speech settings.
   The library contains

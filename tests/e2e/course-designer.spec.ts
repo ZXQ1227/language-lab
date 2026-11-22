@@ -132,7 +132,7 @@ test("retries an invalid generation, previews without writing, and teaches the s
   expect(started.scenario.id).toMatch(/^ai-/);
   expect(started.state.courseTemplate.stages).toHaveLength(2);
   await page.reload();
-  await button(page, "Continue lesson").click();
+  await openWorkspacePage(page, "Training");
   await expect(page.getByLabel("Conversation")).toContainText(interviewCourseDraft.openingLine);
 
   const reply = page.getByRole("textbox", { name: "Your reply", exact: true });

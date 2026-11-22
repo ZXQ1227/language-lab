@@ -1,3 +1,4 @@
+import { openWorkspacePage } from "./helpers/navigation";
 import { expect, test } from "@playwright/test";
 import cafe from "../../content/scenarios/cafe-order.json";
 import { installTauriMock } from "./helpers/tauri-mock";
@@ -25,8 +26,11 @@ test("moves from the plan into a lesson, resumes it and opens its completed hist
   await expect(page.getByRole("heading", { name: /^Ordering at a cafe ·/ })).toBeVisible();
   await button("Exit lesson").click();
   await button("Home").click();
-  await expect(page.getByText("In progress", { exact: true })).toBeVisible();
-  await button("Continue lesson").click();
+  await expect(suggested).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Learning plan", exact: true })).toHaveCount(0);
+  await expect(page.getByText("In progress", { exact: true })).toHaveCount(0);
+  await expect(button("Continue lesson")).toHaveCount(0);
+  await openWorkspacePage(page, "Training");
   for (let i = 0; i < 3; i++) {
     await button("Use suggested reply").click();
     await button("Send reply").click();

@@ -19,7 +19,7 @@ test("shows the three learning workspaces in a sidebar on a wide window", async 
   await expect(nav).toHaveCSS("position", "static");
   await expect(nav.getByRole("button")).toHaveText(["Home", "Review", "My learning"]);
   await expect(nav.getByRole("button", { name: "Home" })).toHaveAttribute("aria-current", "true");
-  await expect(page.getByRole("heading", { name: "Learning plan", level: 1 })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Recommended for you", level: 1 })).toBeVisible();
   await expect(page.getByText("Completed lessons will appear here.")).toBeVisible();
 });
 
@@ -227,7 +227,7 @@ test("difficulty filters lesson cards, row counts and all three library tabs", a
 test("degrades gracefully when the IPC bridge is unavailable", async ({ page }) => {
   const bare = await page.context().newPage();
   await bare.goto("/");
-  await expect(bare.getByRole("heading", { name: "Learning plan" })).toBeVisible();
+  await expect(bare.getByRole("heading", { name: "Recommended for you" })).toBeVisible();
   await openWorkspacePage(bare, "Settings");
   const alert = bare.getByRole("region", { name: "System diagnostics" }).getByRole("alert");
   await expect(alert).toContainText("System check failed");
