@@ -5,12 +5,12 @@
 // never touched. Safe to run on every startup.
 
 import { createRepositories, createTauriTransport } from "@language-lab/database";
-import { invoke } from "@tauri-apps/api/core";
+import { call } from "../lib/ipc";
 import { loadScenarioContent } from "./scenarioContent";
 
 export async function syncScenarioContent(): Promise<void> {
   const scenarios = loadScenarioContent();
-  const db = createTauriTransport(invoke);
+  const db = createTauriTransport((command, args) => call<unknown>(command, args));
   const repos = createRepositories(db);
   for (const scenario of scenarios) {
     await repos.scenarios.upsert({

@@ -1,17 +1,320 @@
 # System Architecture
 
-Status: placeholder.
+Status: implemented architecture reference (maintain alongside code).
 
-Authoritative decisions so far (blueprint v1.1):
+This document describes the architecture currently implemented on `main`.
+It complements rather than replaces the ADRs: this page explains the system
+shape and runtime flows; ADRs explain why individual decisions were made.
+When code and this document disagree, verify the code and update this page in
+the same change.
 
-1. Two processes: webview (no Node.js) and Rust core (system permissions).
-2. SQLite runs in the Rust core; webview reaches it over IPC.
-3. API keys live in the OS keyring. The planned Rust model proxy is described
-   in ADR-0002; current connected Training calls use the gateway in the webview.
-4. `content/` is read-only product data; SQLite is user data.
+## 1. System at a glance
 
-Sections to fill in: process diagram, IPC command surface, data flow per
-conversation turn, update and backup flow.
+Sayden is a local-first desktop application. It has two runtime processes and
+no separate cloud business backend:
+
+- **WebView process**: React + TypeScript UI, Zustand application state,
+  teaching workflows, Agent/Skill orchestration, model providers and database
+  repositories. The WebView has no Node.js runtime.
+- **Rust/Tauri process**: narrow native capability boundary, SQLite connection
+  and migrations, OS keyring access, system locale and native speech recognition.
+- **External provider**: optional OpenAI-compatible LLM/ASR/TTS endpoint. The
+  current connected model path is initiated by the WebView Model Gateway; it
+  is not yet proxied through Rust.
+
+```mermaid
+flowchart TB
+  subgraph WV["WebView process · React + TypeScript"]
+    UI["Pages and UI components"]
+    STORE["Zustand stores"]
+    FLOW["Training / Free Conversation / Speech workflows"]
+    AGENT["Agent Runtime"]
+    SKILLS["Skills registry and skill definitions"]
+    CORE["Core domain rules and validation"]
+    GW["Model Gateway and provider adapters"]
+    DBPKG["Database repositories and transport"]
+    UI --> STORE
+    STORE --> FLOW
+    FLOW --> AGENT
+    AGENT --> SKILLS
+    SKILLS --> CORE
+    SKILLS --> GW
+    FLOW --> DBPKG
+  end
+
+  subgraph NATIVE["Rust / Tauri process"]
+    IPC["Registered Tauri commands"]
+    SQLITE["SQLite database"]
+    KEYRING["OS keyring"]
+    NATIVEAPI["OS locale / native speech"]
+    IPC --> SQLITE
+    IPC --> KEYRING
+    IPC --> NATIVEAPI
+  end
+
+  PROVIDER["Configured external AI endpoint"]
+  DBPKG -->|"Tauri IPC: db_*"| IPC
+  GW -->|"secrets_get via IPC for key retrieval"| IPC
+  GW -->|"HTTPS request from WebView today"| PROVIDER
+  FLOW -->|"speech_transcribe_device when device ASR selected"| IPC
+```
+
+The package dependency direction is intentionally layered:
+
+| Area | Main location | Responsibility |
+| --- | --- | --- |
+| Desktop composition | `apps/desktop/src/App.tsx`, `pages/` | Page composition and navigation |
+| Application state | `apps/desktop/src/stores/` | UI-facing state and user actions |
+| Application workflows | `training/`, `conversation/`, `speech/` | Orchestrate one user-visible operation |
+| Agent orchestration | `packages/agent-runtime/` | Execute a teaching turn and emit trace/events |
+| Skills | `packages/skills/` | Bounded AI or deterministic capabilities with validated contracts |
+| Domain rules | `packages/core/` | Deterministic assessment, evidence and teaching policy |
+| AI abstraction | `packages/model-gateway/` | LLM/ASR/TTS interfaces, provider adapters and errors |
+| Learning memory | `packages/memory/` | Derive, validate and reuse learner memory |
+| Data access | `packages/database/` | Schemas, repositories and transport abstraction |
+| Native boundary | `apps/desktop/src-tauri/src/` | SQLite, keyring and OS capabilities |
+| Shipped product content | `content/` | Versioned scenario/course assets, not learner records |
+
+`packages/*` remain framework-free. The desktop app composes them; the Rust
+process owns privileged OS/database operations.
+
+## 2. Runtime boundaries and data ownership
+
+### WebView
+
+The WebView owns presentation and application orchestration. It may hold
+in-memory UI state and transient request data, but it must not persist provider
+keys in localStorage, IndexedDB or ordinary files. All Tauri IPC initiated by
+frontend application code must use `apps/desktop/src/lib/ipc.ts` and its
+`call()` wrapper so failures become a consistent `IpcError`.
+
+### Rust/Tauri
+
+`apps/desktop/src-tauri/src/lib.rs` registers the native command surface and
+initializes the database at startup. `db.rs` owns the SQLite connection and
+database commands; `secrets.rs` owns keyring operations; `locale.rs` reads
+system locale; `speech_recognition.rs` provides device speech transcription.
+
+The currently registered command groups are:
+
+| Group | Commands | Purpose |
+| --- | --- | --- |
+| Health | `health_check` | Verify the IPC bridge |
+| Database | `db_select`, `db_execute`, `db_status`, `db_backup`, `db_restore` | Parameterized SQLite access, status and backup/restore |
+| Secrets | `secrets_set`, `secrets_get`, `secrets_delete` | Allowlisted OS-keyring access |
+| Locale | `get_system_locale` | Read OS language and regional settings |
+| Device speech | `speech_transcribe_device` | Native speech recognition path |
+
+The command list above is the registered surface in `lib.rs`. Keep it aligned
+when commands are added, removed or renamed.
+
+### Data ownership
+
+- `content/` contains shipped, versioned product assets. Startup sync projects
+  scenario metadata into SQLite using slug-based upsert semantics.
+- SQLite in the app data directory contains learner profiles, lesson/session
+  data, checkpoints, memory, review and other local user data.
+- API credentials live in the OS keyring and are addressed by allowlisted,
+  endpoint-scoped names.
+- Audio recordings and raw voice-recognition drafts are transient; only
+  learner-confirmed transcript text can enter a submitted learning turn.
+
+## 3. Key runtime flows
+
+### 3.1 Training: one text turn
+
+The following is the logical path for a normal learner text turn. Not every
+skill calls a model: domain policy and validation remain deterministic where
+possible.
+
+```mermaid
+sequenceDiagram
+  participant UI as LessonComposer / LessonConversation
+  participant Store as stores/training.ts
+  participant Flow as training/session.ts
+  participant Agent as TeachingOrchestrator
+  participant Skill as Skills + Core
+  participant Gateway as Model Gateway
+  participant DB as Repository / IPC
+  participant Rust as Rust SQLite
+
+  UI->>Store: submit learner text
+  Store->>Flow: runTrainingTurn(...)
+  Flow->>Agent: processStudentTurn(...)
+  Agent->>Skill: classify, evaluate, diagnose and select intervention
+  Skill->>Gateway: request only for model-backed skill/provider work
+  Gateway-->>Skill: structured result
+  Skill-->>Agent: schema-validated output / deterministic decision
+  Agent-->>Flow: updated state, transcript and trace
+  Flow->>Store: validated turn result
+  Store->>DB: commit checkpoint and related learning records
+  DB->>Rust: db_* through call() and Tauri IPC
+  Rust-->>DB: write result
+  DB-->>Store: persistence success
+  Store-->>UI: publish updated state
+```
+
+Key implementation locations:
+
+1. `apps/desktop/src/components/LessonComposer.tsx` collects the learner input.
+2. `apps/desktop/src/stores/training.ts` owns the UI action and publishes state
+   only after the operation/persistence path succeeds.
+3. `apps/desktop/src/training/session.ts` coordinates a training turn.
+4. `packages/agent-runtime/src/orchestrator.ts` implements
+   `processStudentTurn()`, builds context and coordinates skill execution.
+5. `packages/skills/src/registry.ts` and `definitions/*.ts` register and
+   implement capabilities. Skill contracts validate inputs/outputs.
+6. `packages/core/src/*.ts` (package source modules) enforce deterministic
+   evidence, assessment and intervention rules.
+7. `packages/model-gateway/src/` abstracts providers; it is used by
+   model-backed skills, not by every deterministic rule.
+8. `packages/database/src/repositories.ts` validates/mutates domain records;
+   `transport.ts` bridges repositories to Tauri commands.
+9. Rust `db.rs` executes parameterized SQL against the local SQLite file.
+
+Training state is prepared as a private operation draft. The canonical
+versioned `training_checkpoint` aggregate is saved atomically in the existing
+`learning_events` table together with its related learning-memory contribution
+where applicable. The UI should not publish an uncommitted turn as saved.
+When a validated write fails, the retry path can retry persistence without
+asking the model to generate the turn again. See ADR-0009 and ADR-0014.
+
+### 3.2 Free Conversation
+
+Free Conversation is a separate application workflow rather than a mode flag
+inside the Training teaching loop:
+
+```mermaid
+flowchart LR
+  PAGE["FreeConversationPage"] --> REPLY["conversation/reply.ts"]
+  REPLY --> GW["Model Gateway"]
+  GW --> PROVIDER["Configured LLM endpoint"]
+  REPLY --> CHECK["conversation/checkpoint.ts"]
+  CHECK --> STORE["Conversation state / persistence"]
+  STORE --> EVENTS["learning_events"]
+```
+
+It builds a bounded recent-conversation context plus selected learning
+observations, validates the reply/evidence, and persists the conversation
+checkpoint and memory projection. Do not assume a Training-only change affects
+Free Conversation.
+
+### 3.3 Voice input and reply playback
+
+Voice is a set of coordinated workflows, not one native-only feature:
+
+- Capture/recording is initiated in the WebView through
+  `speech/capture.ts` and browser media APIs.
+- ASR provider selection is injected into the capture workflow. The configured
+  OpenAI-compatible ASR adapter uses Model Gateway and makes a provider request
+  from the WebView; the device recognition option invokes
+  `speech_transcribe_device` through Rust IPC.
+- The learner reviews and confirms the transcript before it is submitted to
+  Training or Free Conversation. Unconfirmed draft text is not learning evidence.
+- Playback in `speech/playback.ts` uses an installed system voice or a
+  configured TTS provider. Provider TTS currently follows the WebView Gateway
+  route.
+
+See ADR-0017 and `docs/development/VOICE_LOOP.md` for limits and physical-device
+verification requirements.
+
+## 4. Database path, startup, backup and restore
+
+### Repository-to-SQLite path
+
+```mermaid
+flowchart TB
+  FEATURE["Feature workflow / store"] --> REPO["packages/database repositories"]
+  REPO --> TRANSPORT["createTauriTransport"]
+  TRANSPORT --> IPC["apps/desktop/src/lib/ipc.ts · call()"]
+  IPC --> INVOKE["Tauri invoke"]
+  INVOKE --> COMMAND["Rust db_* command"]
+  COMMAND --> SQLITE["rusqlite / SQLite"]
+```
+
+Repositories are the only TypeScript layer that owns SQL strings. They map
+snake_case rows to camelCase and validate returned records with Zod. The
+transport is injected, allowing repository tests to use a fake without Tauri.
+
+### Startup
+
+1. Tauri setup calls `init_database()` in `src-tauri/src/lib.rs`.
+2. Rust resolves the app-specific data directory and opens
+   `language-lab.db`.
+3. Rust creates/checks the migration journal and applies pending migrations.
+4. Before a migration on an existing database, Rust creates a timestamped
+   SQLite online backup and prunes old backups to the configured retention.
+5. The database handle is managed by the Tauri application state.
+6. Frontend startup loads bundled scenario content and syncs its metadata
+   projection through the repository/IPC path.
+
+### Backup and restore
+
+- `db_backup` uses SQLite's online backup API and writes a consistent database
+  backup under the app data directory.
+- `db_restore` is a Rust command and is the only supported application restore
+  boundary; callers should not manipulate the live database file directly.
+- Migration backups are separate timestamped pre-migration backups. The Rust
+  implementation currently retains the latest three backup files.
+- Database schema changes require a new versioned SQL migration and updates to
+  the migration registration/schema journal, plus compatibility tests. Never
+  edit an already shipped migration.
+
+## 5. Model requests and credential boundary
+
+Current connected Training flow:
+
+1. `apps/desktop/src/training/gateway.ts` reads the configured endpoint-scoped
+   key using `call("secrets_get", ...)`.
+2. Rust `secrets_get` retrieves the credential from the OS keyring.
+3. The key is injected into an OpenAI-compatible provider instance in the
+   WebView Model Gateway.
+4. The provider sends the HTTPS request from the WebView to the configured
+   endpoint. The key is not written to WebView storage.
+
+This means **credential storage is native-protected, but outbound model traffic
+is not yet uniformly proxied through Rust**. ADR-0002 records the intended Rust
+proxy and explicitly permits this direct-provider fallback until that work is
+implemented. Do not document the proxy as already shipped.
+
+A Rust proxy should be treated as a separate security/architecture project.
+Before implementing it, decide the supported provider protocol surface,
+streaming/cancellation behavior, request/response size limits, proxy error
+mapping, local endpoint support, certificate/network policy, and how ASR/TTS
+share the transport. Reassess based on distribution model and threat model;
+do not introduce it as incidental cleanup.
+
+## 6. Change-impact guide
+
+| Product change | Start here | Also inspect |
+| --- | --- | --- |
+| Message layout/actions | `components/LessonConversation.tsx`, `LessonComposer.tsx` | message action components, i18n, UI styles and E2E |
+| Training turn behavior | `stores/training.ts`, `training/session.ts` | Agent Runtime, affected Skills, Core, checkpoint tests |
+| Free Conversation behavior | `conversation/reply.ts` | checkpoint schema, gateway, persistence and tests |
+| AI response style | `skills/definitions/dialogue-roleplay.ts` | prompt/context, output schema, orchestration tests |
+| Objective completion/evidence | `objective-evaluator.ts` | `packages/core` assessment and evidence tests |
+| Correction policy/timing | `teaching-intervention.ts` | Core intervention rules and delivery validation |
+| Learner memory | `packages/memory` | Core evidence derivation, checkpoint and persistence |
+| Add/edit course content | `content/scenarios/*.json` | content schema, catalog, content validation |
+| Add a stored field | database schema/repository | SQL migration, Rust migration registry, compatibility tests |
+| Add a model provider | `packages/model-gateway` | provider types, training/conversation gateway and settings |
+| Voice capture/playback | `speech/capture.ts`, `speech/playback.ts` | provider adapters, speech settings, native-device tests |
+| Native capability | Rust module + command registration | `src/lib/ipc.ts`, capability config and native tests |
+
+## 7. Documentation maintenance
+
+- Keep this file focused on system shape, process boundaries and key flows.
+- Keep rationale and trade-offs in `docs/adr/`; link the relevant ADR rather
+  than copying its full history here.
+- Keep operational details and feature-specific behavior in
+  `docs/development/`.
+- When a task changes a runtime boundary, IPC command, persistence format,
+  model transport or major workflow, update this document and the relevant ADR
+  or development guide in the same change.
+- Verify Mermaid diagrams render in GitHub and re-check file paths against the
+  current tree when modules move.
+
+---
 
 ## Scenario courses
 
